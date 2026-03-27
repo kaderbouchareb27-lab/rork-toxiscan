@@ -296,10 +296,7 @@ export default function DrToxiScreen() {
       {!isPro && (
         <View style={styles.counterBanner}>
           <Text style={styles.counterText}>
-            {drToxiRemaining}/{drToxiLimit} messages gratuits{isPro ? '' : ' — Illimité avec Pro'}
-          </Text>
-          <Text style={styles.counterSubtext}>
-            Historique limité à 3 produits — Illimité avec Pro
+            {drToxiRemaining}/{drToxiLimit} messages gratuits aujourd'hui — Illimité avec Pro
           </Text>
         </View>
       )}
@@ -464,12 +461,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500' as const,
   },
-  counterSubtext: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
-  },
+
   chatContainer: {
     flex: 1,
   },

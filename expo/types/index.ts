@@ -84,6 +84,7 @@ export interface ScannedProduct {
   recommendations?: string[];
   saferAlternatives?: string[];
   healthyAlternatives?: HealthyAlternative[];
+  isFavorite?: boolean;
 }
 
 export interface HealthyAlternative {

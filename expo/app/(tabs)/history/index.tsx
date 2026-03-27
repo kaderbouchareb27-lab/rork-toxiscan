@@ -10,19 +10,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Shield, Trash2, Camera, Lock, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react-native';
+import { Shield, Trash2, Camera, Lock, Heart } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, ScannedProduct } from '@/types';
-import HealthAlerts from '@/components/HealthAlerts';
 
-type FilterType = 'all' | RiskGroup;
+type FilterType = 'all' | 'favorites' | RiskGroup;
 
 const FILTERS: { key: FilterType; label: string; color?: string }[] = [
   { key: 'all', label: 'Tous' },
+  { key: 'favorites', label: 'Favoris', color: '#FF2D55' },
   { key: 'group1', label: 'Danger', color: '#FF3B30' },
   { key: 'group2a', label: 'Probable', color: '#FF9500' },
   { key: 'group2b', label: 'Possible', color: '#FFCC00' },
@@ -30,13 +30,13 @@ const FILTERS: { key: FilterType; label: string; color?: string }[] = [
 ];
 
 export default function HistoryScreen() {
-  const [showAlerts, setShowAlerts] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { clearHistory } = useScanHistory();
+  const { clearHistory, history } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
-  const displayedHistory = filteredHistory;
+  const totalHistoryCount = history.length;
+  const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
 
   const handleProductPress = useCallback((barcode: string) => {
     console.log('[History] Opening product:', barcode);
@@ -48,11 +48,16 @@ export default function HistoryScreen() {
 
   const handleFilterPress = useCallback((filterKey: FilterType) => {
     console.log('[History] Filter changed to:', filterKey);
+    if (filterKey === 'favorites' && !isPro) {
+      console.log('[History] Favorites locked, showing paywall');
+      router.push('/paywall?source=favorite');
+      return;
+    }
     if (Platform.OS !== 'web') {
       void Haptics.selectionAsync();
     }
     setActiveFilter(filterKey);
-  }, []);
+  }, [isPro]);
 
   const handleClearHistory = useCallback(() => {
     console.log('[History] Clearing history');
@@ -95,12 +100,38 @@ export default function HistoryScreen() {
           <Text style={styles.productBrand} numberOfLines={1}>{item.brand}</Text>
         </View>
         <View style={styles.badgeColumn}>
+          {item.isFavorite && (
+            <Heart color="#FF2D55" size={14} fill="#FF2D55" />
+          )}
           <View style={[styles.badgeDot, { backgroundColor: badge.color }]} />
           <Text style={styles.dateText}>{formattedDate}</Text>
         </View>
       </TouchableOpacity>
     );
   }, [handleProductPress]);
+
+  const renderFooter = useCallback(() => {
+    if (!showPremiumUpsell) return null;
+    return (
+      <View style={styles.premiumUpsellCard}>
+        <View style={styles.premiumUpsellIcon}>
+          <Lock color="#34C759" size={22} />
+        </View>
+        <Text style={styles.premiumUpsellTitle}>Historique complet</Text>
+        <Text style={styles.premiumUpsellText}>
+          Retrouvez tous vos produits scannés avec ToxiScan Pro
+        </Text>
+        <TouchableOpacity
+          style={styles.premiumUpsellButton}
+          onPress={() => router.push('/paywall?source=history')}
+          activeOpacity={0.85}
+          testID="history-unlock"
+        >
+          <Text style={styles.premiumUpsellButtonText}>Voir les offres</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }, [showPremiumUpsell]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -126,11 +157,14 @@ export default function HistoryScreen() {
                 styles.filterChip,
                 activeFilter === filter.key && styles.filterChipActive,
                 activeFilter === filter.key && filter.color ? { backgroundColor: filter.color } : undefined,
+                filter.key === 'favorites' && !isPro ? styles.filterChipLocked : undefined,
               ]}
               onPress={() => handleFilterPress(filter.key)}
               testID={`filter-${filter.key}`}
             >
-              {filter.color && activeFilter !== filter.key ? (
+              {filter.key === 'favorites' ? (
+                <Heart color={activeFilter === 'favorites' ? Colors.white : '#FF2D55'} size={12} fill={activeFilter === 'favorites' ? Colors.white : '#FF2D55'} />
+              ) : filter.color && activeFilter !== filter.key ? (
                 <View style={[styles.filterDot, { backgroundColor: filter.color }]} />
               ) : null}
               <Text
@@ -141,50 +175,18 @@ export default function HistoryScreen() {
               >
                 {filter.label}
               </Text>
+              {filter.key === 'favorites' && !isPro && (
+                <Lock color={Colors.textTertiary} size={10} />
+              )}
             </TouchableOpacity>
           )}
         />
       </View>
 
-      {isPro ? (
-        <>
-          <TouchableOpacity
-            style={styles.alertsToggle}
-            onPress={() => setShowAlerts(prev => !prev)}
-            activeOpacity={0.7}
-            testID="toggle-alerts"
-          >
-            <Text style={styles.alertsToggleText}>Alertes santé</Text>
-            {showAlerts ? (
-              <ChevronUp color={Colors.primary} size={18} />
-            ) : (
-              <ChevronDown color={Colors.primary} size={18} />
-            )}
-          </TouchableOpacity>
-
-          {showAlerts && (
-            <View style={styles.alertsSection}>
-              <HealthAlerts />
-            </View>
-          )}
-        </>
-      ) : (
-        <TouchableOpacity
-          style={styles.alertsLockedBanner}
-          onPress={() => router.push('/paywall?source=alerts')}
-          activeOpacity={0.8}
-          testID="alerts-locked"
-        >
-          <Lock color={Colors.primary} size={16} />
-          <Text style={styles.alertsLockedText}>Alertes en temps réel — Abonnement Pro</Text>
-          <ChevronRight color={Colors.textTertiary} size={16} />
-        </TouchableOpacity>
-      )}
-
-      {!isPro && (
+      {!isPro && activeFilter === 'all' && (
         <View style={styles.historyInfoBanner}>
           <Text style={styles.historyInfoText}>
-            Historique du jour uniquement — Abonnez-vous pour sauvegarder vos scans
+            3 derniers produits visibles — Illimité avec Pro
           </Text>
         </View>
       )}
@@ -193,46 +195,22 @@ export default function HistoryScreen() {
         <View style={styles.emptyState}>
           <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
           <Text style={styles.emptyTitle}>
-            {isPro ? 'Aucun produit analysé' : 'Aucun scan aujourd\'hui'}
+            {activeFilter === 'favorites' ? 'Aucun favori' : 'Aucun produit analysé'}
           </Text>
           <Text style={styles.emptySubtitle}>
-            {isPro ? 'Photographiez ou scannez votre premier produit' : 'Photographiez un produit pour le voir ici'}
+            {activeFilter === 'favorites'
+              ? 'Ajoutez des produits en favoris depuis la fiche résultat'
+              : 'Photographiez un produit pour le voir ici'}
           </Text>
-          {!isPro && (
-            <TouchableOpacity
-              style={styles.unlockFullHistoryButton}
-              onPress={() => router.push('/paywall?source=history')}
-              activeOpacity={0.8}
-              testID="history-unlock"
-            >
-              <Lock color={Colors.white} size={14} />
-              <Text style={styles.unlockFullHistoryText}>Débloquer l'historique complet</Text>
-            </TouchableOpacity>
-          )}
         </View>
       ) : (
         <FlatList
-          data={displayedHistory}
+          data={filteredHistory}
           keyExtractor={(item) => item.barcode}
           renderItem={renderProduct}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={!isPro ? (
-            <TouchableOpacity
-              style={styles.lockedBanner}
-              onPress={() => router.push('/paywall?source=history')}
-              activeOpacity={0.8}
-              testID="history-unlock"
-            >
-              <Lock color={Colors.primary} size={18} />
-              <View style={styles.lockedInfo}>
-                <Text style={styles.lockedTitle}>Historique permanent</Text>
-                <Text style={styles.lockedSubtitle}>
-                  Sauvegardez tous vos scans — Passez à Pro
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ) : null}
+          ListFooterComponent={renderFooter}
         />
       )}
     </SafeAreaView>
@@ -285,6 +263,9 @@ const styles = StyleSheet.create({
   filterChipActive: {
     backgroundColor: Colors.text,
   },
+  filterChipLocked: {
+    opacity: 0.7,
+  },
   filterDot: {
     width: 8,
     height: 8,
@@ -297,6 +278,19 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: Colors.white,
+  },
+  historyInfoBanner: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 149, 0, 0.06)',
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.border,
+  },
+  historyInfoText: {
+    fontSize: 12,
+    color: '#FF9500',
+    textAlign: 'center',
+    fontWeight: '500' as const,
   },
   listContent: {
     paddingHorizontal: 20,
@@ -368,93 +362,46 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
   },
-  lockedBanner: {
-    flexDirection: 'row',
+  premiumUpsellCard: {
+    marginTop: 16,
+    borderWidth: 1.5,
+    borderColor: '#34C759',
+    backgroundColor: 'rgba(52, 199, 89, 0.04)',
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.06)',
-    borderRadius: 14,
-    padding: 16,
-    marginTop: 12,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.2)',
+    gap: 8,
   },
-  lockedInfo: {
-    flex: 1,
+  premiumUpsellIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  lockedTitle: {
-    fontSize: 15,
-    fontWeight: '600' as const,
+  premiumUpsellTitle: {
+    fontSize: 17,
+    fontWeight: '700' as const,
     color: Colors.text,
   },
-  lockedSubtitle: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  alertsToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(52, 199, 89, 0.05)',
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.border,
-  },
-  alertsToggleText: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: Colors.primary,
-  },
-  alertsSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.border,
-  },
-  alertsLockedBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(52, 199, 89, 0.04)',
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.border,
-    gap: 8,
-  },
-  alertsLockedText: {
-    flex: 1,
+  premiumUpsellText: {
     fontSize: 14,
-    fontWeight: '500' as const,
     color: Colors.textSecondary,
-  },
-  historyInfoBanner: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255, 149, 0, 0.06)',
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.border,
-  },
-  historyInfoText: {
-    fontSize: 12,
-    color: '#FF9500',
     textAlign: 'center',
-    fontWeight: '500' as const,
+    lineHeight: 20,
   },
-  unlockFullHistoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: Colors.primary,
+  premiumUpsellButton: {
+    backgroundColor: '#34C759',
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 28,
     borderRadius: 14,
-    marginTop: 16,
+    marginTop: 4,
   },
-  unlockFullHistoryText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
+  premiumUpsellButtonText: {
+    fontSize: 15,
+    fontWeight: '700' as const,
     color: Colors.white,
   },
 });

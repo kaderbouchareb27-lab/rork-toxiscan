@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { Check, Heart, X, Crown, MessageCircle, Clock, Bell } from 'lucide-react-native';
+import { Check, Heart, X, Crown } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -24,10 +24,6 @@ export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
   const { setPro } = useSubscription();
-  const isFromProfile = source === 'profile';
-  const isFromDrToxi = source === 'drtoxi';
-  const isFromHistory = source === 'history';
-  const isFromAlerts = source === 'alerts';
 
   const handlePlanSelect = useCallback((plan: PlanType) => {
     console.log('[Paywall] Plan selected:', plan);
@@ -49,15 +45,11 @@ export default function PaywallScreen() {
         text: 'OK',
         onPress: () => {
           setPro(true);
-          if (isFromProfile) {
-            router.back();
-          } else {
-            router.replace('/');
-          }
+          router.back();
         },
       }]
     );
-  }, [selectedPlan, setPro, isFromProfile]);
+  }, [selectedPlan, setPro]);
 
   const handleDismiss = useCallback(() => {
     console.log('[Paywall] Dismissed');
@@ -73,17 +65,43 @@ export default function PaywallScreen() {
     );
   }, []);
 
-  const showCloseButton = isFromProfile || isFromDrToxi || isFromHistory || isFromAlerts;
+  const getContextTitle = () => {
+    switch (source) {
+      case 'drtoxi':
+        return 'Discutez avec Dr. Toxi en illimité';
+      case 'history':
+        return 'Sauvegardez tout votre historique';
+      case 'favorite':
+        return 'Sauvegardez vos produits favoris';
+      case 'alerts':
+        return 'Alertes en temps réel';
+      default:
+        return 'Passez à ToxiScan Pro';
+    }
+  };
+
+  const getContextSubtitle = () => {
+    switch (source) {
+      case 'drtoxi':
+        return 'Vous avez utilisé vos 3 messages gratuits du jour';
+      case 'history':
+        return 'Sans abonnement, seuls les 3 derniers produits sont visibles';
+      case 'favorite':
+        return 'Les favoris sont une fonctionnalité exclusive ToxiScan Pro';
+      case 'alerts':
+        return 'Soyez alerté des nouveaux produits interdits, toxiques ou cancérigènes';
+      default:
+        return 'Débloquez toutes les fonctionnalités premium';
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {showCloseButton && (
-        <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close">
-          <View style={styles.closeCircle}>
-            <X color={Colors.textSecondary} size={18} />
-          </View>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close">
+        <View style={styles.closeCircle}>
+          <X color={Colors.textSecondary} size={18} />
+        </View>
+      </TouchableOpacity>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -94,49 +112,14 @@ export default function PaywallScreen() {
           <Image source={{ uri: ICON_URL }} style={styles.appIcon} contentFit="contain" />
         </View>
 
-        {isFromDrToxi ? (
-          <>
-            <Text style={styles.title}>
-              Passez à ToxiScan Pro pour discuter avec Dr. Toxi en illimité
-            </Text>
-            <Text style={styles.subtitle}>
-              Vous avez utilisé vos 3 messages gratuits
-            </Text>
-          </>
-        ) : isFromHistory ? (
-          <>
-            <Text style={styles.title}>
-              Sauvegardez tout votre historique
-            </Text>
-            <Text style={styles.subtitle}>
-              Sans abonnement, seuls les 3 derniers produits sont visibles
-            </Text>
-          </>
-        ) : isFromAlerts ? (
-          <>
-            <Text style={styles.title}>
-              Alertes en temps réel
-            </Text>
-            <Text style={styles.subtitle}>
-              Soyez alerté des nouveaux produits interdits, toxiques ou cancérigènes
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.title}>
-              Passez à ToxiScan Pro
-            </Text>
-            <Text style={styles.subtitle}>
-              Débloquez toutes les fonctionnalités premium
-            </Text>
-          </>
-        )}
+        <Text style={styles.title}>{getContextTitle()}</Text>
+        <Text style={styles.subtitle}>{getContextSubtitle()}</Text>
 
         <View style={styles.benefitsContainer}>
-          <BenefitRow icon={<MessageCircle color={Colors.white} size={14} />} text="Dr. Toxi illimité (3 messages gratuits sans abo)" />
-          <BenefitRow icon={<Clock color={Colors.white} size={14} />} text="Historique illimité (3 produits gratuits)" />
-          <BenefitRow icon={<Bell color={Colors.white} size={14} />} text="Alertes en temps réel des produits interdits et cancérigènes" />
-          <BenefitRow icon={<Heart color={Colors.white} size={14} />} text="5$ reversés à la lutte contre le cancer (abonnement annuel)" />
+          <BenefitRow icon={<Check color={Colors.white} size={14} strokeWidth={3} />} text="Dr. Toxi illimité" />
+          <BenefitRow icon={<Check color={Colors.white} size={14} strokeWidth={3} />} text="Historique illimité" />
+          <BenefitRow icon={<Check color={Colors.white} size={14} strokeWidth={3} />} text="Favoris produits" />
+          <BenefitRow icon={<Check color={Colors.white} size={14} strokeWidth={3} />} text="Notifications rappel produits" />
         </View>
 
         <View style={styles.plansContainer}>

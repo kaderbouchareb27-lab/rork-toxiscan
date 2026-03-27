@@ -11,11 +11,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store } from 'lucide-react-native';
+import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart } from 'lucide-react-native';
 import * as Localization from 'expo-localization';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
+import { useSubscription } from '@/providers/SubscriptionProvider';
 import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
@@ -61,7 +62,8 @@ function getNiveauLabel(niveau: string): string {
 
 export default function ProductScreen() {
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
-  const { history } = useScanHistory();
+  const { history, toggleFavorite } = useScanHistory();
+  const { isPro } = useSubscription();
 
   const product = useMemo(() => {
     console.log('[Product] Looking for product with barcode:', barcode);
@@ -101,14 +103,33 @@ export default function ProductScreen() {
   const isUniversalScan = product.barcode.startsWith('universal_');
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
+  const handleFavorite = () => {
+    console.log('[Product] Favorite tapped for:', product.barcode);
+    if (!isPro) {
+      console.log('[Product] Not pro, showing paywall');
+      router.push('/paywall?source=favorite');
+      return;
+    }
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    toggleFavorite(product.barcode);
+  };
+
   const handleShare = async () => {
     console.log('[Product] Sharing product:', product.name);
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     try {
+      const badgeEmoji = product.riskGroup === 'group1' ? '🔴' : product.riskGroup === 'group2a' ? '🟠' : product.riskGroup === 'group2b' ? '🟡' : '🟢';
+      const substancesText = product.detectedAdditives.length > 0
+        ? `\n\nSubstances détectées :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
+        : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
+        ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
+        : '';
       await Share.share({
-        message: `${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}\n\nScannez vos produits avec ToxiScan — gratuit sur l'App Store`,
+        message: `${badgeEmoji} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec ToxiScan — disponible sur l'App Store`,
       });
     } catch (error) {
       console.log('[Product] Share error:', error);
@@ -175,9 +196,18 @@ export default function ProductScreen() {
           <ChevronLeft color={Colors.text} size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Résultat</Text>
-        <TouchableOpacity onPress={handleShare} style={styles.shareButton} testID="share-button">
-          <Share2 color={Colors.text} size={20} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={handleFavorite} style={styles.favoriteButton} testID="favorite-button">
+            <Heart
+              color={product.isFavorite ? '#FF2D55' : Colors.textSecondary}
+              size={20}
+              fill={product.isFavorite ? '#FF2D55' : 'transparent'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleShare} style={styles.shareButton} testID="share-button">
+            <Share2 color={Colors.text} size={20} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -500,7 +530,7 @@ export default function ProductScreen() {
         )}
 
         <TouchableOpacity style={styles.bigShareButton} onPress={handleShare} activeOpacity={0.85} testID="big-share-button">
-          <Share2 color={Colors.white} size={20} />
+          <Share2 color={Colors.white} size={22} />
           <Text style={styles.bigShareButtonText}>Partager ce résultat</Text>
         </TouchableOpacity>
 
@@ -539,6 +569,19 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600' as const,
     color: Colors.text,
+  },
+  headerRight: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
+  },
+  favoriteButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.surfaceSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   shareButton: {
     width: 40,
@@ -895,21 +938,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    marginTop: 20,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 4,
+    gap: 12,
+    marginTop: 24,
+    paddingVertical: 18,
+    borderRadius: 16,
+    backgroundColor: '#34C759',
+    shadowColor: '#34C759',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    elevation: 6,
   },
   bigShareButtonText: {
-    fontSize: 16,
-    fontWeight: '700' as const,
+    fontSize: 17,
+    fontWeight: '800' as const,
     color: Colors.white,
+    letterSpacing: 0.2,
   },
   drToxiButton: {
     flexDirection: 'row',
