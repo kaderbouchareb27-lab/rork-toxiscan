@@ -46,23 +46,31 @@ export default function AIConsentScreen() {
 
         <View style={styles.infoCard}>
           <Text style={styles.infoText}>
-            Cette application utilise l'IA pour :
+            ToxiScan et Dr. Toxi ont été spécialement entraînés pour reconnaître des centaines de substances toxiques, cancérigènes et controversées dans vos produits du quotidien.
+          </Text>
+
+          <Text style={styles.infoText}>
+            Notre IA analyse vos photos pour :
           </Text>
 
           <View style={styles.bulletList}>
             <View style={styles.bulletRow}>
               <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Analyser les photos de vos produits et ingrédients</Text>
+              <Text style={styles.bulletText}>Détecter les substances dangereuses dans les aliments, cosmétiques et produits ménagers</Text>
             </View>
             <View style={styles.bulletRow}>
               <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Identifier les substances potentiellement dangereuses</Text>
+              <Text style={styles.bulletText}>Identifier les additifs, colorants, conservateurs et perturbateurs endocriniens</Text>
             </View>
             <View style={styles.bulletRow}>
               <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Répondre à vos questions via Dr. Toxi</Text>
+              <Text style={styles.bulletText}>Vous conseiller grâce à Dr. Toxi, votre expert en toxicologie du quotidien</Text>
             </View>
           </View>
+
+          <Text style={styles.infoTextSources}>
+            Notre base de connaissances est construite à partir des classifications officielles du CIRC/OMS, de l'EFSA et de Santé Canada.
+          </Text>
 
           <Text style={styles.infoTextSecondary}>
             Vos photos et messages sont traités de manière sécurisée. Aucune donnée personnelle n'est conservée.
@@ -153,6 +161,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.text,
     lineHeight: 22,
+  },
+  infoTextSources: {
+    fontSize: 13,
+    color: Colors.text,
+    lineHeight: 20,
+    marginBottom: 10,
+    fontStyle: 'italic' as const,
   },
   infoTextSecondary: {
     fontSize: 13,
