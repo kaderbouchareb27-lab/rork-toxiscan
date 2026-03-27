@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart } from 'lucide-react-native';
+import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database } from 'lucide-react-native';
 import * as Localization from 'expo-localization';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -47,6 +47,27 @@ function getNiveauColor(niveau: string): string {
 
 function getNiveauTextColor(niveau: string): string {
   return (niveau === 'possible' || niveau === 'controverse') ? Colors.black : Colors.white;
+}
+
+function getNutriScoreColor(grade: string): string {
+  switch (grade.toUpperCase()) {
+    case 'A': return '#038141';
+    case 'B': return '#85BB2F';
+    case 'C': return '#FECB02';
+    case 'D': return '#EE8100';
+    case 'E': return '#E63E11';
+    default: return '#8E8E93';
+  }
+}
+
+function getNovaColor(group: number): string {
+  switch (group) {
+    case 1: return '#038141';
+    case 2: return '#85BB2F';
+    case 3: return '#EE8100';
+    case 4: return '#E63E11';
+    default: return '#8E8E93';
+  }
 }
 
 function getNiveauLabel(niveau: string): string {
@@ -249,6 +270,30 @@ export default function ProductScreen() {
               <Text style={styles.photoTagText}>Analysé par photo</Text>
             </View>
           )}
+
+          {product.offSource ? (
+            <View style={styles.offSourceTag}>
+              <Database color="#2D8A4E" size={11} />
+              <Text style={styles.offSourceTagText}>Enrichi par Open Food Facts</Text>
+            </View>
+          ) : null}
+
+          {(product.nutriScore || product.novaGroup) ? (
+            <View style={styles.offScoresRow}>
+              {product.nutriScore ? (
+                <View style={[styles.scoreTag, { backgroundColor: getNutriScoreColor(product.nutriScore) }]}>
+                  <Text style={styles.scoreTagLabel}>Nutri-Score</Text>
+                  <Text style={styles.scoreTagValue}>{product.nutriScore}</Text>
+                </View>
+              ) : null}
+              {product.novaGroup ? (
+                <View style={[styles.scoreTag, { backgroundColor: getNovaColor(product.novaGroup) }]}>
+                  <Text style={styles.scoreTagLabel}>NOVA</Text>
+                  <Text style={styles.scoreTagValue}>{product.novaGroup}</Text>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
         </View>
 
         {showFrontPhotoTip && (
@@ -995,5 +1040,45 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 32,
+  },
+  offSourceTag: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 5,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#E8F9ED',
+    borderRadius: 10,
+  },
+  offSourceTagText: {
+    fontSize: 12,
+    fontWeight: '500' as const,
+    color: '#2D8A4E',
+  },
+  offScoresRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
+    marginTop: 8,
+  },
+  scoreTag: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  scoreTagLabel: {
+    fontSize: 11,
+    fontWeight: '600' as const,
+    color: '#FFFFFF',
+    opacity: 0.9,
+  },
+  scoreTagValue: {
+    fontSize: 13,
+    fontWeight: '800' as const,
+    color: '#FFFFFF',
   },
 });

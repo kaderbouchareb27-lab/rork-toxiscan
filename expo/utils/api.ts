@@ -2,6 +2,7 @@ import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCat
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { generateObject } from '@rork-ai/toolkit-sdk';
+import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 
 const universalAnalysisSchema = z.object({
   categorie_produit: z.enum(['food', 'beverage', 'kitchen_utensil', 'container', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other']),
@@ -176,14 +177,24 @@ France :
 - Cattier : cosmétiques bio certifiés, sans parabènes ni silicones
 - Coslys : cosmétiques bio français, formules douces et naturelles`;
 
-async function tryGenerateUniversalAnalysis(imageBase64: string): Promise<UniversalAnalysisResult> {
+async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
   console.log('[API] Calling generateObject (toolkit SDK) for universal analysis...');
+  if (openFactsContext) {
+    console.log('[API] Including Open Food Facts data in analysis prompt');
+  }
+
+  const promptParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT];
+  if (openFactsContext) {
+    promptParts.push('\n\n' + openFactsContext);
+    promptParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base ToxiScan.');
+  }
+
   const result = await generateObject({
     messages: [
       {
         role: 'user',
         content: [
-          { type: 'text', text: UNIVERSAL_ANALYSIS_PROMPT },
+          { type: 'text', text: promptParts.join('') },
           { type: 'image', image: imageBase64 },
         ],
       },
@@ -194,14 +205,64 @@ async function tryGenerateUniversalAnalysis(imageBase64: string): Promise<Univer
   return result;
 }
 
-export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult> {
+async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: string; offResult: OpenFactsResult | null }> {
+  try {
+    console.log('[API] Attempting barcode detection from image for Open Food Facts lookup...');
+
+    const barcodeDetectionSchema = z.object({
+      barcode_detected: z.boolean(),
+      barcode_value: z.string().nullable(),
+      barcode_type: z.enum(['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'other', 'none']),
+    });
+
+    const barcodeResult = await generateObject({
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'Regarde cette photo. Est-ce qu\'il y a un code-barres visible (EAN-13, EAN-8, UPC-A, UPC-E) ? Si oui, lis le numéro du code-barres. Si tu ne vois pas de code-barres ou si tu ne peux pas le lire clairement, mets barcode_detected: false et barcode_value: null.' },
+            { type: 'image', image: imageBase64 },
+          ],
+        },
+      ],
+      schema: barcodeDetectionSchema,
+    });
+
+    console.log('[API] Barcode detection result:', JSON.stringify(barcodeResult));
+
+    if (barcodeResult.barcode_detected && barcodeResult.barcode_value) {
+      const barcode = barcodeResult.barcode_value.replace(/\s/g, '');
+      console.log('[API] Barcode detected:', barcode, 'Type:', barcodeResult.barcode_type);
+
+      const offResult = await lookupBarcode(barcode);
+      if (offResult.found) {
+        const context = formatOpenFactsContext(offResult);
+        console.log('[API] Open Food Facts data found, context length:', context.length);
+        return { context, offResult };
+      } else {
+        console.log('[API] Barcode detected but product not found in Open Food Facts');
+      }
+    } else {
+      console.log('[API] No barcode detected in image');
+    }
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.log('[API] Open Food Facts lookup failed (non-blocking):', msg);
+  }
+
+  return { context: '', offResult: null };
+}
+
+export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
   const MAX_RETRIES = 3;
+
+  const { context: offContext, offResult } = await tryFetchOpenFactsData(imageBase64);
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       console.log('[API] Universal analysis attempt', attempt, '/', MAX_RETRIES);
 
-      const result = await tryGenerateUniversalAnalysis(imageBase64);
+      const result = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
 
       if (!result || !result.categorie_produit) {
         console.error('[API] Invalid result structure, retrying...');
@@ -209,7 +270,7 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       }
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length);
-      return result;
+      return { ...result, openFactsData: offResult };
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('[API] Universal analysis error (attempt ' + attempt + '):', errorMsg);
@@ -343,7 +404,7 @@ export function generateBarcodeAlternatives(detectedAdditives: { code: string; n
 }
 
 export function universalResultToScannedProduct(
-  result: UniversalAnalysisResult,
+  result: UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null },
   photoUri: string,
 ): ScannedProduct {
   let riskGroup = niveauRisqueToGroup(result.badge_global);
@@ -370,16 +431,50 @@ export function universalResultToScannedProduct(
     explication: s.explication,
   }));
 
+  const off = result.openFactsData;
+  const hasOffData = off?.found && off.product;
+  const offProduct = off?.product;
+
+  const productName = hasOffData && offProduct?.product_name
+    ? offProduct.product_name
+    : result.objet_identifie;
+
+  const productBrand = hasOffData && offProduct?.brands
+    ? offProduct.brands
+    : getCategoryLabel(result.categorie_produit);
+
+  const imageUrl = hasOffData && offProduct?.image_url
+    ? offProduct.image_url
+    : null;
+
+  const ingredientsText = hasOffData && offProduct?.ingredients_text
+    ? offProduct.ingredients_text
+    : result.substances_detectees.map((s: SubstanceDetected) => s.nom).join(', ');
+
+  const nutriScore = hasOffData && offProduct?.nutriscore_grade
+    ? offProduct.nutriscore_grade.toUpperCase()
+    : undefined;
+
+  const novaGroup = hasOffData && offProduct?.nova_group
+    ? offProduct.nova_group
+    : undefined;
+
+  const offSource = off?.source ?? undefined;
+
+  if (hasOffData) {
+    console.log('[API] Enriching product with Open Food Facts data:', offProduct?.product_name, offProduct?.brands);
+  }
+
   return {
     barcode: `universal_${Date.now()}`,
-    name: result.objet_identifie,
-    brand: getCategoryLabel(result.categorie_produit),
-    imageUrl: null,
+    name: productName,
+    brand: productBrand,
+    imageUrl,
     riskGroup,
     detectedAdditives,
     scannedAt: new Date().toISOString(),
     categories: result.categorie_produit,
-    ingredientsText: result.substances_detectees.map((s: SubstanceDetected) => s.nom).join(', '),
+    ingredientsText,
     scanMethod: 'photo',
     photoUri,
     detectedIngredients,
@@ -392,5 +487,8 @@ export function universalResultToScannedProduct(
     recommendations: result.recommandations,
     saferAlternatives: result.alternatives_sures,
     healthyAlternatives: result.alternatives_saines ?? [],
+    nutriScore,
+    novaGroup,
+    offSource,
   };
 }
