@@ -7,6 +7,7 @@ import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { OnboardingProvider } from "@/providers/OnboardingProvider";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { QuizProvider } from "@/providers/QuizProvider";
+import { BadgesProvider } from "@/providers/BadgesProvider";
 import { StatusBar } from "expo-status-bar";
 
 void SplashScreen.preventAutoHideAsync();
@@ -33,6 +34,7 @@ function RootLayoutNav() {
       <Stack.Screen name="paywall" options={{ headerShown: false, gestureEnabled: false, presentation: "modal" }} />
       <Stack.Screen name="about" options={{ title: "À propos", headerTintColor: "#1A1A1A" }} />
       <Stack.Screen name="quiz" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="badges" options={{ headerShown: false }} />
     </Stack>
   );
 }
@@ -52,7 +54,9 @@ export default function RootLayout() {
           <SubscriptionProvider>
             <ScanHistoryProvider>
               <QuizProvider>
-                <RootLayoutNav />
+                <BadgesProvider>
+                  <RootLayoutNav />
+                </BadgesProvider>
               </QuizProvider>
             </ScanHistoryProvider>
           </SubscriptionProvider>

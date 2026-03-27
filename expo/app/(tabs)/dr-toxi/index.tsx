@@ -20,6 +20,7 @@ import Colors from '@/constants/colors';
 import { ChatMessage } from '@/types';
 import { generateText } from '@rork-ai/toolkit-sdk';
 import { useSubscription } from '@/providers/SubscriptionProvider';
+import { useBadges } from '@/providers/BadgesProvider';
 import { router } from 'expo-router';
 
 const LOADING_TIPS = [
@@ -100,6 +101,7 @@ export default function DrToxiScreen() {
   const [tipIndex, setTipIndex] = useState<number>(0);
   const flatListRef = useRef<FlatList>(null);
   const { canUseDrToxi, drToxiRemaining, drToxiLimit, isPro, consumeDrToxi } = useSubscription();
+  const { recordDrToxiQuestion, recordShare } = useBadges();
 
   const sendMutation = useMutation({
     mutationFn: async (userMessage: string) => {
@@ -132,6 +134,7 @@ export default function DrToxiScreen() {
     },
     onSuccess: (response) => {
       consumeDrToxi();
+      recordDrToxiQuestion();
       const assistantMessage: ChatMessage = {
         id: Date.now().toString() + '_assistant',
         role: 'assistant',
@@ -204,13 +207,17 @@ export default function DrToxiScreen() {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     try {
-      await Share.share({
+      const result = await Share.share({
         message: `Dr. Toxi (ToxiScan) :\n\n${content}\n\nScannez vos produits avec ToxiScan — gratuit sur l'App Store`,
       });
+      if (result.action === Share.sharedAction) {
+        recordShare();
+        console.log('[DrToxi] Share completed, badge recorded');
+      }
     } catch (error) {
       console.log('[DrToxi] Share error:', error);
     }
-  }, []);
+  }, [recordShare]);
 
   const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
     const isUser = item.role === 'user';

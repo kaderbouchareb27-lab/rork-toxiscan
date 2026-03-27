@@ -17,6 +17,7 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
+import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
@@ -85,6 +86,7 @@ export default function ProductScreen() {
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
   const { history, toggleFavorite } = useScanHistory();
   const { isPro } = useSubscription();
+  const { recordShare } = useBadges();
 
   const product = useMemo(() => {
     console.log('[Product] Looking for product with barcode:', barcode);
@@ -149,9 +151,13 @@ export default function ProductScreen() {
         : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
         ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
         : '';
-      await Share.share({
+      const result = await Share.share({
         message: `${badgeEmoji} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec ToxiScan — disponible sur l'App Store`,
       });
+      if (result.action === Share.sharedAction) {
+        recordShare();
+        console.log('[Product] Share completed, badge recorded');
+      }
     } catch (error) {
       console.log('[Product] Share error:', error);
     }

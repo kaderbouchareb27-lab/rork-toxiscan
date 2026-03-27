@@ -10,18 +10,20 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, Shield, FileText, HelpCircle, Eye, Mail, Star, Crown, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain } from 'lucide-react-native';
+import { ChevronRight, Shield, FileText, HelpCircle, Eye, Mail, Star, Crown, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Gift } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
+import { useBadges } from '@/providers/BadgesProvider';
 
 export default function ProfileScreen() {
   const { stats } = useScanHistory();
   const { isPro } = useSubscription();
   const { totalCorrect, totalAnswered } = useQuiz();
+  const { unlockedCount, totalCount, shareCount } = useBadges();
 
   const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
 
@@ -80,6 +82,30 @@ export default function ProfileScreen() {
               </Text>
             </View>
             {!isPro && <ChevronRight color={Colors.textTertiary} size={16} />}
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.badgesCard}
+          onPress={() => handleMenuPress('/badges')}
+          activeOpacity={0.8}
+          testID="badges-card"
+        >
+          <View style={styles.badgesCardLeft}>
+            <View style={styles.badgesTrophyContainer}>
+              <Trophy color="#FFD700" size={22} strokeWidth={1.8} />
+            </View>
+            <View style={styles.badgesCardInfo}>
+              <Text style={styles.badgesCardTitle}>Mes badges</Text>
+              <Text style={styles.badgesCardCount}>{unlockedCount}/{totalCount} débloqués</Text>
+            </View>
+          </View>
+          <View style={styles.badgesCardRight}>
+            <View style={styles.shareCountChip}>
+              <Share2 color={Colors.primary} size={12} />
+              <Text style={styles.shareCountChipText}>{shareCount}</Text>
+            </View>
+            <ChevronRight color={Colors.textTertiary} size={16} />
           </View>
         </TouchableOpacity>
 
@@ -175,6 +201,14 @@ export default function ProfileScreen() {
             onPress={() => { console.log('[Profile] Rate app tapped'); }}
             testID="rate-link"
           />
+        </View>
+
+        <View style={styles.partnerCard}>
+          <View style={styles.partnerIconContainer}>
+            <Gift color={Colors.textTertiary} size={20} />
+          </View>
+          <Text style={styles.partnerTitle}>Offres partenaires</Text>
+          <Text style={styles.partnerText}>Bientôt disponible — des offres exclusives de marques bio pour nos utilisateurs les plus actifs</Text>
         </View>
 
         <Text style={styles.versionText}>ToxiScan v2.0.0</Text>
@@ -361,6 +395,95 @@ const styles = StyleSheet.create({
     width: 1,
     height: 30,
     backgroundColor: Colors.border,
+  },
+  badgesCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.2)',
+  },
+  badgesCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  badgesTrophyContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgesCardInfo: {
+    flex: 1,
+  },
+  badgesCardTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: Colors.text,
+  },
+  badgesCardCount: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  badgesCardRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  shareCountChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+  },
+  shareCountChipText: {
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: Colors.primary,
+  },
+  partnerCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
+    opacity: 0.7,
+  },
+  partnerIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.surfaceSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  partnerTitle: {
+    fontSize: 15,
+    fontWeight: '600' as const,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+  },
+  partnerText: {
+    fontSize: 13,
+    color: Colors.textTertiary,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   versionText: {
     textAlign: 'center',

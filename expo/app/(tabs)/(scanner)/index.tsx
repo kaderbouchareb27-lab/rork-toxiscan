@@ -23,6 +23,7 @@ import * as Haptics from 'expo-haptics';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { analyzeUniversalPhoto, universalResultToScannedProduct } from '@/utils/api';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
+import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import DailyFact from '@/components/DailyFact';
 import DonationBanner from '@/components/DonationBanner';
@@ -103,6 +104,7 @@ async function compressImageNative(uri: string): Promise<string> {
 export default function ScannerScreen() {
   const [showCameraPermissionModal, setShowCameraPermissionModal] = useState<boolean>(false);
   const { addProduct } = useScanHistory();
+  const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasAcceptedAIConsent } = useOnboarding();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -189,6 +191,7 @@ export default function ScannerScreen() {
     onSuccess: (product) => {
       console.log('[Scanner] Analysis success:', product.name, product.riskGroup);
       addProduct(product);
+      recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
