@@ -129,7 +129,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
 
 INGRÉDIENTS NATURELS ET INOFFENSIFS — NE JAMAIS SIGNALER COMME PROBLÉMATIQUES :
 Ces ingrédients sont NATURELS et NE DOIVENT PAS déclencher un badge jaune ou plus, ni compter dans le cumul de substances controversées :
-- Sucre / sucre de canne en petite quantité dans un produit naturel (cornichons, sauce tomate, moutarde, vinaigrettes) = NORMAL, c'est VERT
+- Sucre / sucre de canne en petite quantité dans un produit naturel (cornichons, sauce tomate, moutarde, vinaigrettes, pain) = NORMAL, c'est VERT
 - Sel / chlorure de sodium en quantité normale
 - Vinaigre / vinaigre de cidre / vinaigre blanc / vinaigre balsamique
 - Eau
@@ -143,6 +143,14 @@ Ces ingrédients sont NATURELS et NE DOIVENT PAS déclencher un badge jaune ou p
 
 RÈGLE CLÉ : Un produit avec des ingrédients simples et naturels (eau, sel, vinaigre, sucre en petite quantité, épices, légumes) sans additifs chimiques = badge_global: "aucun" (VERT). Même si le produit contient du sucre ou du sel, si c'est un produit naturel avec une liste d'ingrédients courte et simple, c'est VERT.
 1 seul ingrédient légèrement controversé dans un produit autrement 100% naturel = rester VERT.
+
+EXEMPLE CONCRET DE PRODUIT VERT : Sauce tomate naturelle avec 92% tomates, 3% huile de tournesol, oignons, piment, sel, citron en bocal de verre = badge_global: "aucun" (VERT). Une seule substance controversée en petite quantité dans un produit autrement 100% naturel ne déclenche PAS de badge orange ou jaune.
+
+RÈGLE SUCRE :
+- Sucre en petite quantité dans un produit naturel (cornichons, sauce tomate, moutarde, pain, vinaigrettes) = NORMAL, c'est VERT. Ne PAS signaler.
+- Sucre en GRANDE QUANTITÉ ou comme ingrédient principal (sodas, biscuits industriels, céréales sucrées, bonbons, chocolat industriel, jus de fruits avec sucre ajouté, barres chocolatées, confitures industrielles, yaourts sucrés industriels) = badge "possible" (JAUNE) avec message : "Sucre en quantité élevée. L'excès de sucre favorise l'obésité, le diabète et l'inflammation chronique, qui sont des facteurs de risque reconnus pour plusieurs types de cancers (sein, côlon, foie, pancréas). Ce n'est pas un cancérogène direct mais une consommation régulière excessive augmente significativement les risques pour votre santé."
+- Le sucre N'EST PAS classé par le CIRC. Ne JAMAIS afficher DANGER, Groupe 1, Groupe 2A ou Groupe 2B pour le sucre. classification_circ doit être "Non classé par le CIRC" pour le sucre.
+- Le sucre seul NE COMPTE PAS dans le cumul de substances controversées pour déterminer le badge global.
 
 SUBSTANCES VÉRITABLEMENT PROBLÉMATIQUES À SIGNALER EN "probable" (ORANGE) :
 - Glutamate monosodique / MSG / E621 : excitotoxine, maux de tête, obésité, lésions neurologiques
@@ -172,9 +180,10 @@ Ces substances sont controversées mais NE SONT PAS classées cancérogènes par
 EXEMPLE CONCRET : Un biscuit industriel contenant huile de palme + huile de canola + arôme naturel = badge_global: "probable" MAXIMUM (accumulation de substances controversées). JAMAIS "danger" rouge. Ces substances ne sont PAS classées Groupe 1 CIRC.
 
 RÈGLE DU CUMUL (substances VÉRITABLEMENT problématiques uniquement, PAS les ingrédients naturels) :
-- 3 à 4 substances véritablement problématiques → badge_global: "probable" (ORANGE)
-- 5 substances véritablement problématiques ou plus → badge_global: "danger" (ROUGE)
-ATTENTION : Le sucre, le sel, le vinaigre, les épices, l'eau, les légumes NE COMPTENT PAS dans le cumul. Seuls les additifs chimiques, exhausteurs de goût, colorants artificiels, huiles industrielles et conservateurs synthétiques comptent.
+- 3 à 4 substances véritablement problématiques (additifs chimiques, colorants artificiels, exhausteurs de goût, conservateurs synthétiques, huiles industrielles pro-inflammatoires) → badge_global: "probable" (ORANGE)
+- 5 substances véritablement problématiques ou plus, ET qui sont RÉELLEMENT classées par le CIRC ou reconnues comme dangereuses → badge_global: "danger" (ROUGE)
+ATTENTION : Le sucre, le sel, le vinaigre, les épices, l'eau, les légumes, les arômes naturels seuls NE COMPTENT PAS dans le cumul. Seuls les additifs chimiques, exhausteurs de goût (MSG, E631, E627), colorants artificiels, huiles industrielles pro-inflammatoires ET conservateurs synthétiques comptent.
+ATTENTION CUMUL : sucre + sel + huile dans un même produit ≠ 3 substances problématiques. Ce sont des ingrédients de base. Le cumul ne s'applique qu'aux VRAIS additifs/contaminants.
 
 RÈGLE CRITIQUE — BADGE DANGER ROUGE :
 Le badge DANGER rouge ("danger") est EXCLUSIVEMENT réservé aux substances RÉELLEMENT classées Groupe 1 par le CIRC :
@@ -192,11 +201,12 @@ Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, 
 
 LOGIQUE DE BADGE (dans cet ordre, du plus grave au moins grave) :
 1. Au moins un VRAI Groupe 1 CIRC (voir liste ci-dessus) → badge_global: "danger"
-2. 5 substances véritablement problématiques ou plus → badge_global: "danger"
+2. 5 substances véritablement problématiques ou plus (additifs chimiques RÉELS classés par le CIRC ou reconnus dangereux, PAS sucre/sel/huile de base) → badge_global: "danger"
 3. Au moins un Groupe 2A CIRC ou une substance classée orange → badge_global: "probable"
-4. 3 ou 4 substances controversées (jaunes) ensemble → badge_global: "probable" MAXIMUM (pas danger)
+4. 3 ou 4 substances controversées (jaunes, additifs chimiques) ensemble → badge_global: "probable" MAXIMUM (pas danger)
 5. Au moins un Groupe 2B CIRC ou 1-2 substances classées jaune → badge_global: "possible"
-6. Produit naturel avec ingrédients simples, pas d'additifs chimiques → badge_global: "aucun"
+6. Sucre en grande quantité comme ingrédient principal → badge_global: "possible" (JAUNE)
+7. Produit naturel avec ingrédients simples, pas d'additifs chimiques → badge_global: "aucun"
 
 OBJECTIF DE TOXISCAN : Informer intelligemment. Rassurer quand un produit est bon. Alerter quand un produit est vraiment dangereux. Ne PAS créer de l'angoisse inutile sur des produits naturels et sains.
 
