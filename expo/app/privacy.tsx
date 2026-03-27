@@ -14,9 +14,9 @@ export default function PrivacyScreen() {
 
       <Text style={styles.heading}>Données collectées</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Photos de listes d'ingrédients (analysées par le Toolkit IA de Rork, non conservées)" />
+        <BulletItem text="Photos de listes d'ingrédients (analysées par notre IA, non conservées)" />
         <BulletItem text="Historique de vos scans (stocké localement sur votre appareil uniquement)" />
-        <BulletItem text="Messages envoyés à Dr. Toxi (traités par le Toolkit IA de Rork, non conservés)" />
+        <BulletItem text="Messages envoyés à Dr. Toxi (traités par notre IA, non conservés)" />
       </View>
 
       <Text style={styles.heading}>Données NON collectées</Text>
@@ -29,9 +29,9 @@ export default function PrivacyScreen() {
 
       <Text style={styles.heading}>Intelligence artificielle</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="ToxiScan utilise le Toolkit IA de Rork pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi" />
-        <BulletItem text="Les photos et messages sont traités par le Toolkit IA de Rork de manière sécurisée" />
-        <BulletItem text="Le Toolkit IA de Rork ne conserve pas les données au-delà du traitement" />
+        <BulletItem text="ToxiScan utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi" />
+        <BulletItem text="Les photos et messages sont traités par notre IA de manière sécurisée" />
+        <BulletItem text="Notre IA ne conserve pas les données au-delà du traitement" />
         <BulletItem text="Les résultats sont à titre informatif et ne constituent pas un avis médical" />
       </View>
 

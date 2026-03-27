@@ -259,7 +259,7 @@ export default function DrToxiScreen() {
 
       <View style={styles.disclaimerBanner}>
         <Text style={styles.disclaimerText}>
-          Dr. Toxi utilise le Toolkit IA de Rork. Ses réponses sont à titre informatif uniquement.
+          Les réponses de Dr. Toxi sont à titre informatif uniquement et ne remplacent pas un avis médical.
         </Text>
       </View>
 

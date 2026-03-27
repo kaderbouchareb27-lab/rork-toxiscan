@@ -32,7 +32,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: 'Mes photos sont-elles conservées ?',
-    answer: 'Non. Les photos sont analysées par le Toolkit IA de Rork puis supprimées. Elles ne sont ni stockées ni partagées.',
+    answer: 'Non. Les photos sont analysées par notre intelligence artificielle puis supprimées. Elles ne sont ni stockées ni partagées.',
   },
   {
     question: 'Mon produit n\'est pas trouvé par code-barres ?',

@@ -10,7 +10,7 @@ export default function TransparencyScreen() {
         <View style={styles.iconCircle}>
           <Eye color={Colors.primary} size={28} />
         </View>
-        <Text style={styles.title}>Comment ToxiScan utilise le Toolkit IA de Rork</Text>
+        <Text style={styles.title}>Comment ToxiScan utilise l'intelligence artificielle</Text>
       </View>
 
       <View style={styles.highlightCard}>
@@ -26,7 +26,7 @@ export default function TransparencyScreen() {
         <View style={styles.featureContent}>
           <Text style={styles.featureTitle}>1. Analyse photo universelle</Text>
           <Text style={styles.featureDescription}>
-            Quand vous photographiez un produit ou objet du quotidien, le Toolkit IA de Rork analyse la photo pour identifier l'objet, ses matériaux et évaluer les substances potentiellement cancérigènes.
+            Quand vous photographiez un produit ou objet du quotidien, notre IA analyse la photo pour identifier l'objet, ses matériaux et évaluer les substances potentiellement cancérigènes.
           </Text>
         </View>
       </View>
@@ -53,8 +53,8 @@ export default function TransparencyScreen() {
 
       <Text style={styles.heading}>Vos données et l'IA</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Photos et messages sont traités par le Toolkit IA de Rork de manière sécurisée" />
-        <BulletItem text="Rien n'est conservé après le traitement par le Toolkit IA de Rork" />
+        <BulletItem text="Photos et messages sont traités par notre IA de manière sécurisée" />
+        <BulletItem text="Rien n'est conservé après le traitement par notre IA" />
         <BulletItem text="Aucune donnée n'est utilisée pour entraîner des modèles IA" />
         <BulletItem text="Vos scans restent stockés localement sur votre appareil" />
       </View>
