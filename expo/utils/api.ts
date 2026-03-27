@@ -148,15 +148,18 @@ SUBSTANCES VÉRITABLEMENT PROBLÉMATIQUES À SIGNALER EN "probable" (ORANGE) :
 - Glutamate monosodique / MSG / E621 : excitotoxine, maux de tête, obésité, lésions neurologiques
 - Maltodextrine : indice glycémique plus élevé que le sucre, inflammation intestinale
 - Huile de tournesol : riche en oméga-6 pro-inflammatoire, inflammation chronique
-- Huile de canola / colza : ultra-transformée, pro-inflammatoire
 - Huile de soja : pro-inflammatoire, souvent OGM
 - Huile de maïs : pro-inflammatoire, souvent OGM
 - Disodium inosinate / E631 : exhausteur de goût synthétique, toujours combiné avec MSG
 - Disodium guanylate / E627 : exhausteur de goût synthétique, toujours combiné avec MSG
 - Acide citrique industriel (produit par Aspergillus niger) : mycotoxines résiduelles possibles, irritant digestif
-- Arôme naturel / arôme artificiel : terme trompeur, peut contenir des dizaines de substances chimiques cachées
 
-SUBSTANCES À SIGNALER EN "possible" (JAUNE) MINIMUM :
+SUBSTANCES À SIGNALER EN "possible" (JAUNE) MAXIMUM — PAS PLUS :
+Ces substances sont controversées mais NE SONT PAS classées cancérogènes par le CIRC. JAUNE maximum, JAMAIS rouge, JAMAIS orange quand elles sont seules :
+- Huile de palme : controversée, pro-inflammatoire, acides gras saturés. Quand raffinée à haute température peut contenir des contaminants (esters glycidiques, 3-MCPD). NON classée cancérogène Groupe 1 par le CIRC. JAUNE maximum.
+- Huile de canola / colza : controversée, ultra-transformée, pro-inflammatoire. JAUNE maximum.
+- Arôme naturel : terme trompeur, manque de transparence, mais pas de classification cancérogène directe. JAUNE maximum.
+- Arôme artificiel : terme trompeur, composition inconnue. JAUNE maximum.
 - Aspartame / E951, Sucralose / E955 : édulcorants controversés
 - BHA / E320, BHT / E321 : conservateurs controversés
 - E150c, E150d : caramel avec 4-MEI potentiellement cancérigène
@@ -166,16 +169,32 @@ SUBSTANCES À SIGNALER EN "possible" (JAUNE) MINIMUM :
 - Extrait de levure : forme cachée de glutamate
 - Annatto / E160b : colorant naturel mais réactions allergiques possibles
 
+EXEMPLE CONCRET : Un biscuit industriel contenant huile de palme + huile de canola + arôme naturel = badge_global: "probable" MAXIMUM (accumulation de substances controversées). JAMAIS "danger" rouge. Ces substances ne sont PAS classées Groupe 1 CIRC.
+
 RÈGLE DU CUMUL (substances VÉRITABLEMENT problématiques uniquement, PAS les ingrédients naturels) :
 - 3 à 4 substances véritablement problématiques → badge_global: "probable" (ORANGE)
 - 5 substances véritablement problématiques ou plus → badge_global: "danger" (ROUGE)
 ATTENTION : Le sucre, le sel, le vinaigre, les épices, l'eau, les légumes NE COMPTENT PAS dans le cumul. Seuls les additifs chimiques, exhausteurs de goût, colorants artificiels, huiles industrielles et conservateurs synthétiques comptent.
 
+RÈGLE CRITIQUE — BADGE DANGER ROUGE :
+Le badge DANGER rouge ("danger") est EXCLUSIVEMENT réservé aux substances RÉELLEMENT classées Groupe 1 par le CIRC :
+- Nitrites (E249, E250, E251, E252)
+- Formaldéhyde (E240)
+- Benzène
+- Amiante
+- Alcool éthylique
+- Goudron de houille (coal tar)
+- Chrome hexavalent
+- Plomb (acétate de plomb)
+- PFAS
+- Colorants azoïques textiles libérant des amines aromatiques cancérigènes
+Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, arôme naturel, huiles de graines, ou toute substance qui n'est PAS classée Groupe 1 CIRC.
+
 LOGIQUE DE BADGE (dans cet ordre, du plus grave au moins grave) :
-1. Au moins un Groupe 1 CIRC → badge_global: "danger"
+1. Au moins un VRAI Groupe 1 CIRC (voir liste ci-dessus) → badge_global: "danger"
 2. 5 substances véritablement problématiques ou plus → badge_global: "danger"
 3. Au moins un Groupe 2A CIRC ou une substance classée orange → badge_global: "probable"
-4. 3 ou 4 substances véritablement problématiques → badge_global: "probable"
+4. 3 ou 4 substances controversées (jaunes) ensemble → badge_global: "probable" MAXIMUM (pas danger)
 5. Au moins un Groupe 2B CIRC ou 1-2 substances classées jaune → badge_global: "possible"
 6. Produit naturel avec ingrédients simples, pas d'additifs chimiques → badge_global: "aucun"
 
@@ -414,6 +433,7 @@ const ADDITIVE_ALTERNATIVES: Record<string, { nom: string; raison: string }[]> =
   'en:e223': [{ nom: 'Produits bio sans sulfites', raison: 'Évite les réactions allergiques et l\'asthme' }],
   'en:e224': [{ nom: 'Produits bio sans sulfites', raison: 'Évite les réactions allergiques et l\'asthme' }],
   'en:e422': [{ nom: 'Produits avec glycérol végétal certifié', raison: 'Sans contaminants 3-MCPD et esters glycidiques' }],
+  'palm-oil': [{ nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3 anti-inflammatoires, sans contaminants de raffinage' }, { nom: 'Huile de coco vierge', raison: 'Stable à haute température, sans acides gras trans' }, { nom: 'Beurre bio', raison: 'Source naturelle de graisses sans transformation industrielle' }],
   'canola-oil': [{ nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3 anti-inflammatoires, pressée à froid' }, { nom: 'Huile de coco vierge', raison: 'Stable à haute température, sans oméga-6 pro-inflammatoire' }, { nom: 'Beurre bio', raison: 'Source naturelle de graisses sans transformation industrielle' }],
   'sunflower-oil': [{ nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3, anti-inflammatoire naturel' }, { nom: 'Huile d\'avocat', raison: 'Stable à haute température, profil lipidique équilibré' }],
   'grapeseed-oil': [{ nom: 'Huile d\'olive extra vierge', raison: 'Meilleur ratio oméga-3/oméga-6' }, { nom: 'Huile de coco', raison: 'Stable à la cuisson, sans excès d\'oméga-6' }],
