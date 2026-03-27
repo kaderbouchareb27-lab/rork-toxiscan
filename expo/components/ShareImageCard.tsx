@@ -1,0 +1,294 @@
+import React from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
+import { getRiskBadgeInfo } from '@/constants/additives';
+
+interface ShareImageCardProps {
+  productName: string;
+  brand: string;
+  riskGroup: RiskGroup;
+  photoUri?: string | null;
+  thumbnailBase64?: string | null;
+  imageUrl?: string | null;
+  substances?: SubstanceDetected[];
+  detectedIngredients?: DetectedIngredient[];
+  detectedAdditives?: AdditiveInfo[];
+}
+
+function getBadgeLabel(riskGroup: RiskGroup): string {
+  switch (riskGroup) {
+    case 'group1': return 'DANGER';
+    case 'group2a': return 'DÉTECTÉ';
+    case 'group2b': return 'DÉTECTÉ';
+    case 'none':
+    default: return 'OK';
+  }
+}
+
+function getBadgeColor(riskGroup: RiskGroup): string {
+  switch (riskGroup) {
+    case 'group1': return '#FF3B30';
+    case 'group2a': return '#FF9500';
+    case 'group2b': return '#FFCC00';
+    case 'none':
+    default: return '#34C759';
+  }
+}
+
+function getBadgeTextColor(riskGroup: RiskGroup): string {
+  return riskGroup === 'group2b' ? '#1A1A1A' : '#FFFFFF';
+}
+
+function getTopSubstances(props: ShareImageCardProps): string[] {
+  const results: string[] = [];
+
+  const dangerousSubstances = props.substances?.filter(
+    s => s.niveau_risque !== 'aucun'
+  ) ?? [];
+  if (dangerousSubstances.length > 0) {
+    for (const s of dangerousSubstances.slice(0, 3)) {
+      results.push(s.nom);
+    }
+    return results;
+  }
+
+  const dangerousIngredients = props.detectedIngredients?.filter(
+    i => i.niveau_risque !== 'aucun'
+  ) ?? [];
+  if (dangerousIngredients.length > 0) {
+    for (const i of dangerousIngredients.slice(0, 3)) {
+      results.push(i.nom);
+    }
+    return results;
+  }
+
+  if (props.detectedAdditives && props.detectedAdditives.length > 0) {
+    for (const a of props.detectedAdditives.slice(0, 3)) {
+      results.push(a.name);
+    }
+    return results;
+  }
+
+  return results;
+}
+
+const TOXISCAN_LOGO = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
+
+export default function ShareImageCard(props: ShareImageCardProps) {
+  const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
+  const badge = getRiskBadgeInfo(riskGroup);
+  const badgeLabel = getBadgeLabel(riskGroup);
+  const badgeColor = getBadgeColor(riskGroup);
+  const badgeText = getBadgeTextColor(riskGroup);
+  const substances = getTopSubstances(props);
+  const productImageUri = thumbnailBase64 ?? photoUri ?? imageUrl ?? null;
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.topSection}>
+        <Image source={{ uri: TOXISCAN_LOGO }} style={styles.logo} />
+        <Text style={styles.appName}>ToxiScan</Text>
+      </View>
+
+      <Text style={styles.productName} numberOfLines={2}>{productName}</Text>
+      {brand ? <Text style={styles.brand} numberOfLines={1}>{brand}</Text> : null}
+
+      {productImageUri ? (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: productImageUri }} style={styles.productImage} resizeMode="cover" />
+        </View>
+      ) : (
+        <View style={styles.imagePlaceholder}>
+          <Text style={styles.placeholderText}>📷</Text>
+        </View>
+      )}
+
+      <View style={[styles.badgeContainer, { backgroundColor: badgeColor }]}>
+        <Text style={[styles.badgeLabel, { color: badgeText }]}>{badgeLabel}</Text>
+        {badge.sublabel ? (
+          <Text style={[styles.badgeSublabel, { color: badgeText }]}>{badge.sublabel}</Text>
+        ) : null}
+      </View>
+
+      {substances.length > 0 ? (
+        <View style={styles.substancesSection}>
+          <Text style={styles.substancesTitle}>Substances détectées</Text>
+          {substances.map((s, i) => (
+            <View key={`sub-${i}`} style={styles.substanceRow}>
+              <View style={[styles.substanceDot, { backgroundColor: badgeColor }]} />
+              <Text style={styles.substanceText}>{s}</Text>
+            </View>
+          ))}
+        </View>
+      ) : riskGroup === 'none' ? (
+        <View style={styles.substancesSection}>
+          <Text style={styles.safeText}>Aucune substance dangereuse détectée</Text>
+        </View>
+      ) : null}
+
+      <View style={styles.bottomSection}>
+        <View style={styles.divider} />
+        <Text style={styles.ctaText}>Scannez vos produits gratuitement avec ToxiScan</Text>
+        <Text style={styles.storeText}>Disponible sur l'App Store</Text>
+        <Image source={{ uri: TOXISCAN_LOGO }} style={styles.bottomLogo} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    width: 1080,
+    height: 1920,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    paddingHorizontal: 80,
+    paddingTop: 120,
+    paddingBottom: 80,
+  },
+  topSection: {
+    alignItems: 'center',
+    marginBottom: 60,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  appName: {
+    fontSize: 42,
+    fontWeight: '800',
+    color: '#34C759',
+    marginTop: 16,
+    letterSpacing: 1,
+  },
+  productName: {
+    fontSize: 48,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    textAlign: 'center',
+    lineHeight: 58,
+    marginBottom: 8,
+  },
+  brand: {
+    fontSize: 32,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  imageContainer: {
+    width: 400,
+    height: 400,
+    borderRadius: 32,
+    overflow: 'hidden',
+    backgroundColor: '#F8F8F8',
+    marginBottom: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  productImage: {
+    width: 400,
+    height: 400,
+  },
+  imagePlaceholder: {
+    width: 400,
+    height: 400,
+    borderRadius: 32,
+    backgroundColor: '#F2F2F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 50,
+  },
+  placeholderText: {
+    fontSize: 80,
+  },
+  badgeContainer: {
+    paddingHorizontal: 60,
+    paddingVertical: 28,
+    borderRadius: 24,
+    alignItems: 'center',
+    marginBottom: 40,
+    width: '100%',
+  },
+  badgeLabel: {
+    fontSize: 52,
+    fontWeight: '900',
+    letterSpacing: 3,
+  },
+  badgeSublabel: {
+    fontSize: 24,
+    marginTop: 8,
+    opacity: 0.9,
+  },
+  substancesSection: {
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 40,
+  },
+  substancesTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  substanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 14,
+    justifyContent: 'center',
+  },
+  substanceDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+  },
+  substanceText: {
+    fontSize: 28,
+    color: '#1A1A1A',
+    fontWeight: '500',
+  },
+  safeText: {
+    fontSize: 28,
+    color: '#34C759',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  bottomSection: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    width: '100%',
+  },
+  divider: {
+    width: 120,
+    height: 3,
+    backgroundColor: '#E5E5EA',
+    borderRadius: 2,
+    marginBottom: 40,
+  },
+  ctaText: {
+    fontSize: 30,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    textAlign: 'center',
+    lineHeight: 40,
+    marginBottom: 12,
+  },
+  storeText: {
+    fontSize: 24,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  bottomLogo: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    opacity: 0.7,
+  },
+});

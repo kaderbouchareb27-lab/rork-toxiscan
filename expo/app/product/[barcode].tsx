@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,15 @@ import {
   TouchableOpacity,
   Share,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database } from 'lucide-react-native';
+import { captureRef } from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
+import ShareImageCard from '@/components/ShareImageCard';
 import * as Localization from 'expo-localization';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -87,6 +91,8 @@ export default function ProductScreen() {
   const { history, toggleFavorite } = useScanHistory();
   const { isPro } = useSubscription();
   const { recordShare } = useBadges();
+  const shareCardRef = useRef<View>(null);
+  const [isShareLoading, setIsShareLoading] = useState<boolean>(false);
 
   const product = useMemo(() => {
     console.log('[Product] Looking for product with barcode:', barcode);
@@ -144,22 +150,58 @@ export default function ProductScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    setIsShareLoading(true);
     try {
-      const badgeEmoji = product.riskGroup === 'group1' ? '🔴' : product.riskGroup === 'group2a' ? '🟠' : product.riskGroup === 'group2b' ? '🟡' : '🟢';
-      const substancesText = product.detectedAdditives.length > 0
-        ? `\n\nSubstances détectées :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
-        : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
-        ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
-        : '';
-      const result = await Share.share({
-        message: `${badgeEmoji} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec ToxiScan — disponible sur l'App Store`,
-      });
-      if (result.action === Share.sharedAction) {
-        recordShare();
-        console.log('[Product] Share completed, badge recorded');
+      if (Platform.OS !== 'web' && shareCardRef.current) {
+        console.log('[Product] Capturing share image...');
+        const uri = await captureRef(shareCardRef, {
+          format: 'png',
+          quality: 1,
+          result: 'tmpfile',
+        });
+        console.log('[Product] Share image captured:', uri);
+
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'image/png',
+            dialogTitle: 'Partager le résultat ToxiScan',
+            UTI: 'public.png',
+          });
+          recordShare();
+          console.log('[Product] Image share completed, badge recorded');
+        } else {
+          console.log('[Product] Sharing not available, falling back to text');
+          await fallbackTextShare();
+        }
+      } else {
+        await fallbackTextShare();
       }
     } catch (error) {
       console.log('[Product] Share error:', error);
+      try {
+        await fallbackTextShare();
+      } catch (fallbackError) {
+        console.log('[Product] Fallback share error:', fallbackError);
+      }
+    } finally {
+      setIsShareLoading(false);
+    }
+  };
+
+  const fallbackTextShare = async () => {
+    const badgeEmoji = product.riskGroup === 'group1' ? '🔴' : product.riskGroup === 'group2a' ? '🟠' : product.riskGroup === 'group2b' ? '🟡' : '🟢';
+    const substancesText = product.detectedAdditives.length > 0
+      ? `\n\nSubstances détectées :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
+      : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
+      ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
+      : '';
+    const result = await Share.share({
+      message: `${badgeEmoji} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec ToxiScan — disponible sur l'App Store`,
+    });
+    if (result.action === Share.sharedAction) {
+      recordShare();
+      console.log('[Product] Text share completed, badge recorded');
     }
   };
 
@@ -580,9 +622,21 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <TouchableOpacity style={styles.bigShareButton} onPress={handleShare} activeOpacity={0.85} testID="big-share-button">
-          <Share2 color={Colors.white} size={22} />
-          <Text style={styles.bigShareButtonText}>Partager ce résultat</Text>
+        <TouchableOpacity
+          style={[styles.bigShareButton, isShareLoading && styles.bigShareButtonLoading]}
+          onPress={handleShare}
+          activeOpacity={0.85}
+          testID="big-share-button"
+          disabled={isShareLoading}
+        >
+          {isShareLoading ? (
+            <ActivityIndicator color={Colors.white} size="small" />
+          ) : (
+            <Share2 color={Colors.white} size={22} />
+          )}
+          <Text style={styles.bigShareButtonText}>
+            {isShareLoading ? 'Préparation...' : 'Partager ce résultat'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.drToxiButton} onPress={handleAskDrToxi} activeOpacity={0.8} testID="ask-dr-toxi">
@@ -592,6 +646,22 @@ export default function ProductScreen() {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
+
+      <View style={styles.offscreenContainer} pointerEvents="none">
+        <View ref={shareCardRef} collapsable={false}>
+          <ShareImageCard
+            productName={product.name}
+            brand={product.brand}
+            riskGroup={product.riskGroup}
+            photoUri={product.photoUri}
+            thumbnailBase64={product.thumbnailBase64}
+            imageUrl={product.imageUrl}
+            substances={product.substances}
+            detectedIngredients={product.detectedIngredients}
+            detectedAdditives={product.detectedAdditives}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -1046,6 +1116,15 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 32,
+  },
+  offscreenContainer: {
+    position: 'absolute' as const,
+    left: -9999,
+    top: -9999,
+    opacity: 0,
+  },
+  bigShareButtonLoading: {
+    opacity: 0.8,
   },
   offSourceTag: {
     flexDirection: 'row' as const,
