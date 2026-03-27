@@ -6,7 +6,8 @@ import createContextHook from '@nkzw/create-context-hook';
 const SUBSCRIPTION_KEY = 'toxiscan_subscription';
 const USAGE_KEY = 'toxiscan_daily_usage';
 
-const FREE_DRTOXI_LIMIT = 1;
+const FREE_DRTOXI_LIMIT = 3;
+const FREE_HISTORY_LIMIT = 3;
 
 interface DailyUsage {
   date: string;
@@ -112,6 +113,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     setPro,
     restorePurchase,
     drToxiLimit: FREE_DRTOXI_LIMIT,
+    freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: subscriptionQuery.isLoading || usageQuery.isLoading,
   }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, setPro, restorePurchase, subscriptionQuery.isLoading, usageQuery.isLoading]);
 });

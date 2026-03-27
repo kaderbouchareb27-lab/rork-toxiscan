@@ -296,10 +296,10 @@ export default function DrToxiScreen() {
       {!isPro && (
         <View style={styles.counterBanner}>
           <Text style={styles.counterText}>
-            {drToxiRemaining}/{drToxiLimit} message gratuit{isPro ? '' : ' — Illimité avec Pro'}
+            {drToxiRemaining}/{drToxiLimit} messages gratuits{isPro ? '' : ' — Illimité avec Pro'}
           </Text>
           <Text style={styles.counterSubtext}>
-            L'historique du chat n'est pas sauvegardé sans abonnement
+            Historique limité à 3 produits — Illimité avec Pro
           </Text>
         </View>
       )}

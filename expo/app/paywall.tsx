@@ -100,7 +100,7 @@ export default function PaywallScreen() {
               Passez à ToxiScan Pro pour discuter avec Dr. Toxi en illimité
             </Text>
             <Text style={styles.subtitle}>
-              Vous avez utilisé votre message gratuit
+              Vous avez utilisé vos 3 messages gratuits
             </Text>
           </>
         ) : isFromHistory ? (
@@ -109,7 +109,7 @@ export default function PaywallScreen() {
               Sauvegardez tout votre historique
             </Text>
             <Text style={styles.subtitle}>
-              Sans abonnement, seuls les scans du jour sont visibles
+              Sans abonnement, seuls les 3 derniers produits sont visibles
             </Text>
           </>
         ) : isFromAlerts ? (
@@ -133,8 +133,8 @@ export default function PaywallScreen() {
         )}
 
         <View style={styles.benefitsContainer}>
-          <BenefitRow icon={<MessageCircle color={Colors.white} size={14} />} text="Dr. Toxi illimité (1 message gratuit sans abo)" />
-          <BenefitRow icon={<Clock color={Colors.white} size={14} />} text="Historique permanent de tous vos scans" />
+          <BenefitRow icon={<MessageCircle color={Colors.white} size={14} />} text="Dr. Toxi illimité (3 messages gratuits sans abo)" />
+          <BenefitRow icon={<Clock color={Colors.white} size={14} />} text="Historique illimité (3 produits gratuits)" />
           <BenefitRow icon={<Bell color={Colors.white} size={14} />} text="Alertes en temps réel des produits interdits et cancérigènes" />
           <BenefitRow icon={<Heart color={Colors.white} size={14} />} text="5$ reversés à la lutte contre le cancer (abonnement annuel)" />
         </View>

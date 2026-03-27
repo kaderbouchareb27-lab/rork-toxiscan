@@ -76,7 +76,7 @@ export default function ProfileScreen() {
                 {isPro ? 'ToxiScan Pro' : 'ToxiScan Gratuit'}
               </Text>
               <Text style={[styles.subscriptionStatus, !isPro && styles.subscriptionStatusFree]}>
-                {isPro ? 'Dr. Toxi illimité, historique permanent, alertes en temps réel' : 'Scans illimités — 1 message Dr. Toxi gratuit'}
+                {isPro ? 'Dr. Toxi illimité, historique permanent, alertes en temps réel' : 'Scans illimités — 3 messages Dr. Toxi gratuits'}
               </Text>
             </View>
             {!isPro && <ChevronRight color={Colors.textTertiary} size={16} />}

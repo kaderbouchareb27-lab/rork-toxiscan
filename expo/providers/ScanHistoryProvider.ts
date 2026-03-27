@@ -81,11 +81,13 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
   }), [history, todayHistory, addProduct, clearHistory, stats, historyQuery.isLoading]);
 });
 
+const FREE_HISTORY_LIMIT = 3;
+
 export function useFilteredHistory(filter: RiskGroup | 'all', isPro: boolean) {
-  const { history, todayHistory } = useScanHistory();
+  const { history } = useScanHistory();
   return useMemo(() => {
-    const source = isPro ? history : todayHistory;
+    const source = isPro ? history : history.slice(0, FREE_HISTORY_LIMIT);
     if (filter === 'all') return source;
     return source.filter(p => p.riskGroup === filter);
-  }, [history, todayHistory, filter, isPro]);
+  }, [history, filter, isPro]);
 }
