@@ -42,21 +42,21 @@ export default function AIConsentScreen() {
           </View>
         </View>
 
-        <Text style={styles.title}>ToxiScan utilise le Toolkit IA de Rork</Text>
+        <Text style={styles.title}>ToxiScan utilise l'intelligence artificielle</Text>
 
         <View style={styles.infoCard}>
           <Text style={styles.infoText}>
-            Cette application utilise le Toolkit IA de Rork pour :
+            Cette application utilise l'IA pour :
           </Text>
 
           <View style={styles.bulletList}>
             <View style={styles.bulletRow}>
               <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Analyser les photos de listes d'ingrédients</Text>
+              <Text style={styles.bulletText}>Analyser les photos de vos produits et ingrédients</Text>
             </View>
             <View style={styles.bulletRow}>
               <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Identifier les substances dans tout objet du quotidien</Text>
+              <Text style={styles.bulletText}>Identifier les substances potentiellement dangereuses</Text>
             </View>
             <View style={styles.bulletRow}>
               <View style={styles.bullet} />
@@ -65,7 +65,7 @@ export default function AIConsentScreen() {
           </View>
 
           <Text style={styles.infoTextSecondary}>
-            Vos photos et messages sont traités par le Toolkit IA de Rork de manière sécurisée. Aucune donnée personnelle n'est conservée.
+            Vos photos et messages sont traités de manière sécurisée. Aucune donnée personnelle n'est conservée.
           </Text>
         </View>
 
