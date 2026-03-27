@@ -41,15 +41,6 @@ export interface DetectedIngredient {
   explication: string | null;
 }
 
-export interface PhotoAnalysisResult {
-  ingredients_detectes: DetectedIngredient[];
-  badge_global: 'danger' | 'probable' | 'possible' | 'aucun';
-  resume: string;
-  erreur?: string;
-  photo_type?: 'ingredients' | 'front' | 'unknown';
-  alternatives_saines?: HealthyAlternative[];
-}
-
 export interface UniversalAnalysisResult {
   categorie_produit: ProductCategory;
   objet_identifie: string;
@@ -106,17 +97,3 @@ export interface ChatMessage {
   timestamp: string;
 }
 
-export interface OpenFoodFactsProduct {
-  code: string;
-  product?: {
-    product_name?: string;
-    brands?: string;
-    image_url?: string;
-    image_front_url?: string;
-    additives_tags?: string[];
-    ingredients_text?: string;
-    categories?: string;
-    categories_tags?: string[];
-  };
-  status: number;
-}

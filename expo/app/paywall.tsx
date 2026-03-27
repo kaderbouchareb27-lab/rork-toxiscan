@@ -71,7 +71,7 @@ export default function PaywallScreen() {
     );
   }, []);
 
-  const showCloseButton = isFromProfile;
+  const showCloseButton = isFromProfile || isFromDrToxi;
 
   return (
     <SafeAreaView style={styles.container}>
