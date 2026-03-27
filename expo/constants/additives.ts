@@ -57,6 +57,61 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // GLYCÉROL
   { code: 'en:e422', name: 'Glycérol / Glycérine', group: 'group2b', description: 'Généralement considéré sûr en petite quantité, mais le glycérol industriel peut contenir des contaminants (3-MCPD et esters glycidiques) classés cancérogènes possibles par le CIRC. Privilégiez les produits utilisant du glycérol d\'origine végétale certifié.' },
 
+  // LAIT POUR BÉBÉ ET PRODUITS BÉBÉ
+  { code: 'pfas', name: 'PFAS / Polluants éternels (perfluoroalkyl)', group: 'group1', description: 'Retrouvés dans presque toutes les marques de lait pour bébé selon Consumer Reports. Cancérogène, perturbateur endocrinien, affaiblit le système immunitaire des bébés.' },
+  { code: 'bpa', name: 'BPA (Bisphénol A)', group: 'group2a', description: 'Présent dans le revêtement intérieur des canettes de lait pour bébé liquide. Perturbateur endocrinien, lié au cancer du sein et de la prostate.' },
+  { code: 'melamine', name: 'Mélamine', group: 'group1', description: 'Utilisée dans certains laits pour bébé. Toxique pour les reins, peut causer des calculs rénaux et une insuffisance rénale.' },
+  { code: '1-4-dioxane', name: '1,4-Dioxane', group: 'group2a', description: 'Contaminant dans les shampoings et savons pour bébé. Cancérogène probable selon le CIRC.' },
+  { code: 'dmdm-hydantoin', name: 'DMDM Hydantoïne', group: 'group2a', description: 'Conservateur qui libère du formaldéhyde. Présent dans les lingettes bébé, crèmes, shampoings.' },
+  { code: 'bronopol', name: 'Bronopol', group: 'group2a', description: 'Conservateur qui libère du formaldéhyde. Présent dans les lingettes bébé et produits de soins.' },
+  { code: 'phthalate-dbp', name: 'Phtalate DBP (Dibutyl phtalate)', group: 'group2a', description: 'Perturbateur endocrinien présent dans les jouets en plastique, crèmes bébé, couches.' },
+  { code: 'phthalate-dehp', name: 'Phtalate DEHP', group: 'group2a', description: 'Perturbateur endocrinien présent dans les jouets en plastique souple, dispositifs médicaux, couches.' },
+  { code: 'phthalate-dep', name: 'Phtalate DEP (Diéthyl phtalate)', group: 'group2b', description: 'Perturbateur endocrinien présent dans les cosmétiques et parfums pour bébé.' },
+
+  // DENTIFRICE
+  { code: 'triclosan', name: 'Triclosan', group: 'group2a', description: 'Antibactérien, perturbateur endocrinien. Interdit dans les savons mais encore dans certains dentifrices.' },
+  { code: 'sls', name: 'SLS (Sodium Lauryl Sulfate)', group: 'group2b', description: 'Irritant, peut provoquer des ulcères buccaux. Présent dans les dentifrices et shampoings.' },
+  { code: 'propylene-glycol', name: 'Propylène glycol', group: 'group2b', description: 'Irritant, peut être contaminé par des impuretés cancérigènes. Présent dans dentifrices et cosmétiques.' },
+  { code: 'dea', name: 'DEA (Diéthanolamine)', group: 'group2a', description: 'Réagit avec d\'autres ingrédients pour former des nitrosamines cancérigènes. Présent dans certains dentifrices et cosmétiques.' },
+  { code: 'microplastics', name: 'Microplastiques / Microbilles', group: 'group2b', description: 'Polluant persistant présent dans certains dentifrices et exfoliants. S\'accumule dans l\'organisme.' },
+
+  // VÊTEMENTS ET TEXTILES (compléments)
+  { code: 'pfas-textile', name: 'PFAS / PFC dans textiles', group: 'group1', description: 'Présents dans les vêtements imperméables, anti-taches, anti-rides. Cancérogène, perturbateur endocrinien.' },
+  { code: 'azo-dyes', name: 'Colorants azoïques textiles', group: 'group1', description: 'Utilisés dans les textiles colorés, peuvent libérer des amines aromatiques cancérigènes.' },
+  { code: 'npe', name: 'Nonylphénols éthoxylés (NPE)', group: 'group2a', description: 'Détergent industriel pour textiles. Perturbateur endocrinien puissant.' },
+  { code: 'chrome-vi', name: 'Chrome hexavalent (Cr VI)', group: 'group1', description: 'Utilisé dans le tannage du cuir. Cancérogène avéré Groupe 1 CIRC.' },
+  { code: 'dmf', name: 'Diméthylformamide (DMF)', group: 'group2a', description: 'Solvant dans les textiles synthétiques. Toxique pour le foie.' },
+  { code: 'antimony', name: 'Antimoine', group: 'group2b', description: 'Présent dans le polyester. Potentiellement cancérigène.' },
+
+  // PRODUITS MÉNAGERS (compléments)
+  { code: '2-butoxyethanol', name: '2-Butoxyéthanol', group: 'group2a', description: 'Présent dans les nettoyants pour vitres et multi-surfaces. Toxique pour le foie et les reins.' },
+  { code: 'ammonia', name: 'Ammoniac', group: 'group2b', description: 'Présent dans les nettoyants. Irritant respiratoire puissant.' },
+  { code: 'chlorine-bleach', name: 'Chlore / Eau de Javel (hypochlorite de sodium)', group: 'group2a', description: 'Produit des dioxines, cancérogènes avérés. Irritant respiratoire.' },
+  { code: 'perchloroethylene', name: 'Perchloréthylène', group: 'group2a', description: 'Utilisé dans le nettoyage à sec. Cancérogène probable Groupe 2A CIRC.' },
+  { code: 'phosphates', name: 'Phosphates', group: 'group2b', description: 'Présents dans les détergents. Polluant environnemental, toxique à haute dose.' },
+  { code: 'phthalates-fragrance', name: 'Phtalates (parfums d\'ambiance)', group: 'group2a', description: 'Présents dans les parfums d\'ambiance, bougies parfumées, désodorisants. Perturbateurs endocriniens.' },
+  { code: 'apeo', name: 'Alkylphénols éthoxylés (APEO)', group: 'group2a', description: 'Présents dans les détergents. Perturbateurs endocriniens.' },
+  { code: 'mit-cmit', name: 'Isothiazolinones (MIT, CMIT)', group: 'group2a', description: 'Conservateurs dans les produits ménagers. Allergènes puissants, sensibilisants cutanés.' },
+  { code: 'quaternium-15', name: 'Quaternium-15', group: 'group2a', description: 'Conservateur qui libère du formaldéhyde. Présent dans certains produits ménagers et cosmétiques.' },
+
+  // COSMÉTIQUES (compléments)
+  { code: 'mica-contaminated', name: 'Mica contaminé', group: 'group2b', description: 'Peut contenir de l\'amiante dans certains maquillages. Risque d\'inhalation de fibres cancérigènes.' },
+  { code: 'ppd', name: 'P-Phénylènediamine (PPD)', group: 'group2b', description: 'Présent dans les teintures pour cheveux. Allergène puissant et cancérogène possible.' },
+  { code: 'resorcinol', name: 'Résorcinol', group: 'group2b', description: 'Présent dans les teintures pour cheveux. Perturbateur endocrinien.' },
+  { code: 'toluene', name: 'Toluène', group: 'group2b', description: 'Présent dans les vernis à ongles. Neurotoxique, cancérogène possible.' },
+  { code: 'acetaldehyde', name: 'Acétaldéhyde', group: 'group2b', description: 'Présent dans les lissages brésiliens. Cancérogène possible.' },
+  { code: 'lead-acetate', name: 'Plomb (acétate de plomb)', group: 'group1', description: 'Présent dans certaines teintures pour cheveux. Cancérogène avéré, neurotoxique.' },
+  { code: 'coal-tar', name: 'Goudron de houille (coal tar)', group: 'group1', description: 'Présent dans les shampoings antipelliculaires. Cancérogène avéré Groupe 1 CIRC.' },
+  { code: 'mercury-thimerosal', name: 'Mercure (thimérosal)', group: 'group1', description: 'Présent dans certains produits éclaircissants pour la peau. Neurotoxique puissant.' },
+
+  // USTENSILES ET CONTENANTS (compléments)
+  { code: 'pfoa-ptfe', name: 'PFOA / PTFE (Teflon)', group: 'group2b', description: 'Présent dans les poêles antiadhésives. Cancérogène quand chauffé à haute température. Libère des gaz toxiques.' },
+  { code: 'aluminum', name: 'Aluminium (casseroles/papier)', group: 'group2b', description: 'Présent dans les casseroles et papier aluminium. Lié à Alzheimer, controversé pour le cancer. Migration accrue avec aliments acides.' },
+  { code: 'melamine-cookware', name: 'Mélamine (vaisselle)', group: 'group2a', description: 'Peut libérer du formaldéhyde quand chauffée. Ne jamais utiliser au micro-ondes.' },
+  { code: 'polycarbonate-7', name: 'Polycarbonate (plastique #7)', group: 'group2a', description: 'Contient du BPA. Perturbateur endocrinien, à éviter pour les contenants alimentaires.' },
+  { code: 'pvc-3', name: 'PVC (plastique #3)', group: 'group2a', description: 'Contient des phtalates. Perturbateur endocrinien, ne jamais chauffer.' },
+  { code: 'polystyrene-6', name: 'Polystyrène (plastique #6)', group: 'group2b', description: 'Peut libérer du styrène, cancérogène possible Groupe 2B CIRC. Éviter avec aliments chauds.' },
+
   // ADDITIFS GÉNÉRALEMENT SÛRS mais signalés
   { code: 'en:e150a', name: 'Caramel ordinaire', group: 'none', description: 'Colorant caramel simple, généralement considéré sûr.' },
   { code: 'en:e415', name: 'Gomme xanthane', group: 'none', description: 'Épaississant généralement considéré sûr. Additif courant dans l\'industrie alimentaire.' },

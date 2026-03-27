@@ -38,9 +38,9 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - Analyser : additifs, conservateurs, édulcorants, colorants, exhausteurs de gout, huiles
 
 2. USTENSILES DE CUISINE (categorie: "kitchen_utensil") :
-   - Poêles : Teflon/PTFE rayé = DANGER (PFOA, Groupe 2B), fonte/inox/céramique = sûr
+   - Poêles : Teflon/PTFE rayé = DANGER (PFOA/PTFE, cancérogène quand chauffé à haute température, libère des gaz toxiques), fonte/inox/céramique = sûr
    - Friteuses : plastique à haute température = risque, verre/inox = sûr
-   - Casseroles : aluminium = controversé (lien Alzheimer), inox/fonte = sûr
+   - Casseroles : aluminium = controversé (migration avec aliments acides, lien Alzheimer), inox/fonte = sûr
    - Moules silicone : risque à haute température (>200°C), libération de formaldéhyde possible
    - Planches à découper : plastique rayé = microplastiques, bois = sûr
    - Spatules/ustensiles : plastique chauffé = risque (migration de substances), bois/inox = sûr
@@ -54,21 +54,67 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - Contenants en verre : sûr (BONUS POSITIF, mentionner que c'est un excellent choix)
    - Canettes aluminium : revêtement intérieur BPA (Groupe 2B)
    - Boîtes de conserve : revêtement intérieur BPA ou BPS
+   - Polycarbonate (plastique #7) : contient du BPA, perturbateur endocrinien
+   - PVC (plastique #3) : contient des phtalates, perturbateur endocrinien
+   - Polystyrène (plastique #6) : libère du styrène, cancérogène possible Groupe 2B
+   - Mélamine (vaisselle) : libère du formaldéhyde quand chauffée
+   - Aluminium (casseroles/papier) : migration avec aliments acides, lié à Alzheimer
 
 4. VÊTEMENTS ET TEXTILES (categorie: "clothing") :
    - Polyester : microplastiques, antimoine (Groupe 2B)
    - Vêtements neufs non lavés : formaldéhyde (Groupe 1)
    - Teintures azoïques : amines aromatiques cancérigènes (Groupe 1)
    - Cuir traité : chrome hexavalent (Groupe 1)
+   - PFAS/PFC dans vêtements imperméables, anti-taches, anti-rides : cancérogène, perturbateur endocrinien
+   - Nonylphénols éthoxylés (NPE) : détergent industriel, perturbateur endocrinien
+   - Diméthylformamide (DMF) : solvant dans textiles synthétiques, toxique pour le foie
    - Coton conventionnel : résidus de pesticides possibles
    - Coton bio, lin, chanvre : sûrs
 
 5. COSMÉTIQUES ET HYGIÈNE (categorie: "cosmetic") :
    - Parabènes, formaldéhyde, triclosan, talc, filtres UV chimiques
+   - 1,4-dioxane : contaminant dans les produits contenant SLS, SLES, PEG. Cancérogène probable
+   - DMDM Hydantoïne, Bronopol, Quaternium-15 : conservateurs libérateurs de formaldéhyde
+   - Mica contaminé : peut contenir de l'amiante dans certains maquillages
+   - PPD (p-phénylènediamine) : teintures cheveux, allergène et cancérogène possible
+   - Résorcinol : teintures cheveux, perturbateur endocrinien
+   - Toluène : vernis à ongles, neurotoxique
+   - Acétaldéhyde : lissages brésiliens, cancérogène possible
+   - Plomb (acétate de plomb) : certaines teintures cheveux, cancérogène avéré
+   - Goudron de houille (coal tar) : shampoings antipelliculaires, cancérogène avéré Groupe 1
+   - Mercure (thimérosal) : produits éclaircissants pour la peau, neurotoxique
+   - SLS (Sodium Lauryl Sulfate) : irritant, ulcères buccaux
+   - DEA (diéthanolamine) : forme des nitrosamines cancérigènes
+   - Propylène glycol : irritant, peut contenir des impuretés cancérigènes
+
+5b. DENTIFRICE (categorie: "cosmetic") :
+   - Triclosan : perturbateur endocrinien
+   - SLS : irritant, ulcères buccaux
+   - Dioxyde de titane / E171 : colorant blanc classé 2B CIRC, interdit en France
+   - Fluorure en excès : toxique pour les enfants en grande quantité
+   - Propylène glycol : irritant
+   - DEA (diéthanolamine) : nitrosamines cancérigènes
+   - Microplastiques / microbilles : polluant persistant
+
+5c. PRODUITS BÉBÉ (categorie: "cosmetic" ou "food") :
+   - PFAS / polluants éternels : retrouvés dans presque toutes les marques de lait pour bébé. Cancérogène, perturbateur endocrinien
+   - BPA : revêtement intérieur canettes de lait bébé liquide. Perturbateur endocrinien
+   - Mélamine : toxique pour les reins
+   - 1,4-dioxane : contaminant dans shampoings/savons bébé. Cancérogène probable
+   - Formaldéhyde : contaminant dans produits de bain bébé. Cancérogène avéré Groupe 1
+   - DMDM Hydantoïne, Bronopol : conservateurs libérateurs de formaldéhyde dans lingettes, crèmes, shampoings bébé
+   - Phtalates (DBP, DEHP, DEP) : jouets plastique, crèmes bébé, couches. Perturbateurs endocriniens
 
 6. PRODUITS MÉNAGERS (categorie: "household") :
-   - Désodorisants, bougies parfumées (formaldéhyde, benzène)
+   - Désodorisants, bougies parfumées (formaldéhyde, benzène, phtalates)
    - Produits de nettoyage (2-butoxyéthanol, formaldéhyde)
+   - Chlore / eau de Javel : produit des dioxines cancérogènes
+   - Perchloréthylène : nettoyage à sec, cancérogène probable Groupe 2A
+   - Ammoniac : irritant respiratoire
+   - Phosphates : polluant
+   - Isothiazolinones (MIT, CMIT) : conservateurs allergènes puissants
+   - Alkylphénols éthoxylés (APEO) : perturbateurs endocriniens
+   - Quaternium-15 : libère du formaldéhyde
 
 7. ÉLECTRONIQUE (categorie: "electronics") :
    - Retardateurs de flamme bromés, cadmium
@@ -382,6 +428,34 @@ const ADDITIVE_ALTERNATIVES: Record<string, { nom: string; raison: string }[]> =
   'yeast-extract': [{ nom: 'Herbes et épices naturelles', raison: 'Rehaussent le goût sans glutamate caché' }],
   'artificial-flavor': [{ nom: 'Produits aromatisés naturellement aux fruits ou épices', raison: 'Arômes réels issus de vrais aliments' }],
   'en:e160b': [{ nom: 'Produits colorés au curcuma ou paprika', raison: 'Colorants naturels sans risque allergique' }],
+  'pfas': [{ nom: 'Produits certifiés sans PFAS', raison: 'Évite les polluants éternels cancérogènes' }, { nom: 'Contenants en verre ou inox', raison: 'Aucune contamination par les PFAS' }],
+  'bpa': [{ nom: 'Contenants en verre', raison: 'Aucun BPA, matériau inerte' }, { nom: 'Biberons en verre ou sans BPA certifié', raison: 'Plus sûr pour les bébés' }],
+  'melamine': [{ nom: 'Lait bio certifié', raison: 'Contrôles stricts, sans mélamine' }],
+  '1-4-dioxane': [{ nom: 'Produits certifiés EWG Verified ou EcoCert', raison: 'Formules sans contaminants cancérigènes' }],
+  'dmdm-hydantoin': [{ nom: 'Produits sans conservateurs libérateurs de formaldéhyde', raison: 'Cherchez la mention "sans formaldéhyde" ou certifications bio' }],
+  'bronopol': [{ nom: 'Lingettes à l\'eau ou au liniment', raison: 'Sans conservateurs chimiques pour la peau de bébé' }],
+  'triclosan': [{ nom: 'Dentifrice sans triclosan', raison: 'Évite le perturbateur endocrinien' }, { nom: 'Savon de Marseille', raison: 'Antibactérien naturel sans triclosan' }],
+  'sls': [{ nom: 'Dentifrice ou shampoing sans SLS/SLES', raison: 'Moins irritant pour les muqueuses et le cuir chevelu' }],
+  'dea': [{ nom: 'Cosmétiques certifiés bio sans DEA', raison: 'Évite la formation de nitrosamines cancérigènes' }],
+  'ppd': [{ nom: 'Teinture végétale (henné)', raison: 'Colorant naturel sans PPD ni produits chimiques' }],
+  'toluene': [{ nom: 'Vernis à ongles "3-free" ou "5-free"', raison: 'Formule sans toluène, formaldéhyde ni DBP' }],
+  'coal-tar': [{ nom: 'Shampoing antipelliculaire naturel (arbre à thé, huile de coco)', raison: 'Sans goudron de houille cancérigène' }],
+  'lead-acetate': [{ nom: 'Teinture végétale sans plomb', raison: 'Évite le plomb cancérogène et neurotoxique' }],
+  'mercury-thimerosal': [{ nom: 'Crème éclaircissante certifiée sans mercure', raison: 'Évite le mercure neurotoxique' }],
+  'pfoa-ptfe': [{ nom: 'Poêle en fonte ou en inox', raison: 'Pas de revêtement antiadhésif toxique' }, { nom: 'Poêle en céramique', raison: 'Alternative sans PFOA ni PTFE' }],
+  'aluminum': [{ nom: 'Casserole en inox ou en fonte', raison: 'Pas de migration d\'aluminium' }],
+  'polycarbonate-7': [{ nom: 'Contenant en verre ou en inox', raison: 'Sans BPA, matériaux inertes' }],
+  'pvc-3': [{ nom: 'Film alimentaire en cire d\'abeille', raison: 'Alternative naturelle sans phtalates' }],
+  'polystyrene-6': [{ nom: 'Contenant en verre ou carton certifié', raison: 'Sans styrène cancérigène' }],
+  '2-butoxyethanol': [{ nom: 'Nettoyant au vinaigre blanc et bicarbonate', raison: 'Nettoyant naturel sans substances toxiques' }],
+  'chlorine-bleach': [{ nom: 'Percarbonate de soude', raison: 'Désinfectant naturel sans dioxines' }],
+  'perchloroethylene': [{ nom: 'Nettoyage à l\'eau ou nettoyage vert', raison: 'Évite le solvant cancérigène du nettoyage à sec' }],
+  'mit-cmit': [{ nom: 'Produits ménagers certifiés EcoCert', raison: 'Sans isothiazolinones allergènes' }],
+  'quaternium-15': [{ nom: 'Produits sans conservateurs libérateurs de formaldéhyde', raison: 'Évite l\'exposition au formaldéhyde cancérigène' }],
+  'phthalate-dbp': [{ nom: 'Jouets en bois naturel ou certifiés sans phtalates', raison: 'Plus sûr pour les enfants, sans perturbateurs endocriniens' }],
+  'phthalate-dehp': [{ nom: 'Jouets en bois ou silicone alimentaire', raison: 'Sans phtalates perturbateurs endocriniens' }],
+  'resorcinol': [{ nom: 'Teinture végétale', raison: 'Sans résorcinol perturbateur endocrinien' }],
+  'melamine-cookware': [{ nom: 'Vaisselle en verre, porcelaine ou bambou', raison: 'Pas de libération de formaldéhyde' }],
 };
 
 export function generateBarcodeAlternatives(detectedAdditives: { code: string; name: string; group: string }[]): { nom: string; raison: string }[] {
