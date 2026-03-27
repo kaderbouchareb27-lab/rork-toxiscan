@@ -130,13 +130,32 @@ export default function ScannerScreen() {
       console.log('[Scanner] Universal analysis starting for:', imageUri);
 
       let base64: string;
+      let thumbnailBase64: string | undefined;
       try {
         if (Platform.OS === 'web') {
           base64 = await compressImageWeb(imageUri, 800);
+          try {
+            thumbnailBase64 = await compressImageWeb(imageUri, 120);
+          } catch (e) {
+            console.warn('[Scanner] Thumbnail generation failed on web:', e);
+          }
         } else {
           base64 = await compressImageNative(imageUri);
+          try {
+            const thumbResult = await ImageManipulator.manipulateAsync(
+              imageUri,
+              [{ resize: { width: 120 } }],
+              { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+            );
+            thumbnailBase64 = thumbResult.base64 ?? undefined;
+          } catch (e) {
+            console.warn('[Scanner] Thumbnail generation failed on native:', e);
+          }
         }
         console.log('[Scanner] Image compressed, base64 length:', base64.length);
+        if (thumbnailBase64) {
+          console.log('[Scanner] Thumbnail generated, length:', thumbnailBase64.length);
+        }
       } catch (compressionError) {
         console.error('[Scanner] Image compression failed:', compressionError);
         throw new Error('Impossible de traiter la photo. Veuillez réessayer.');
@@ -161,7 +180,11 @@ export default function ScannerScreen() {
         throw new Error('Impossible d\'analyser ce produit. Veuillez reprendre la photo avec un meilleur éclairage.');
       }
 
-      return universalResultToScannedProduct(result, imageUri);
+      const product = universalResultToScannedProduct(result, imageUri);
+      if (thumbnailBase64) {
+        product.thumbnailBase64 = `data:image/jpeg;base64,${thumbnailBase64}`;
+      }
+      return product;
     },
     onSuccess: (product) => {
       console.log('[Scanner] Analysis success:', product.name, product.riskGroup);

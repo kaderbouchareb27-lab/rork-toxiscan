@@ -183,8 +183,8 @@ export default function ProductScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.productHeader}>
           {isPhotoScan ? (
-            product.photoUri ? (
-              <Image source={{ uri: product.photoUri }} style={styles.productImage} contentFit="cover" />
+            product.thumbnailBase64 || product.photoUri ? (
+              <Image source={{ uri: product.thumbnailBase64 ?? product.photoUri ?? '' }} style={styles.productImage} contentFit="cover" />
             ) : (
               <View style={styles.imagePlaceholder}>
                 <Camera color={Colors.textTertiary} size={40} />

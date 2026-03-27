@@ -75,7 +75,9 @@ export default function HistoryScreen() {
         activeOpacity={0.7}
         testID={`history-item-${item.barcode}`}
       >
-        {isPhoto && item.photoUri ? (
+        {isPhoto && item.thumbnailBase64 ? (
+          <Image source={{ uri: item.thumbnailBase64 }} style={styles.thumbnail} contentFit="cover" />
+        ) : isPhoto && item.photoUri ? (
           <Image source={{ uri: item.photoUri }} style={styles.thumbnail} contentFit="cover" />
         ) : item.imageUrl ? (
           <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} contentFit="contain" />

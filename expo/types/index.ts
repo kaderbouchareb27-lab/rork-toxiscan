@@ -73,6 +73,7 @@ export interface ScannedProduct {
   ingredientsText: string;
   scanMethod: ScanMethod;
   photoUri?: string;
+  thumbnailBase64?: string;
   detectedIngredients?: DetectedIngredient[];
   analysisSummary?: string;
   photoType?: PhotoType;
