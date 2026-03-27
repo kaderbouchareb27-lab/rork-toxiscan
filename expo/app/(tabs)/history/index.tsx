@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Shield, Trash2, Camera, Lock, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Shield, Trash2, Camera, Lock, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
@@ -33,11 +33,10 @@ export default function HistoryScreen() {
   const [showAlerts, setShowAlerts] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const { clearHistory } = useScanHistory();
-  const filteredHistory = useFilteredHistory(activeFilter);
   const { isPro } = useSubscription();
+  const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
-  const displayedHistory = isPro ? filteredHistory : filteredHistory.slice(0, 3);
-  const hasLockedItems = !isPro && filteredHistory.length > 3;
+  const displayedHistory = filteredHistory;
 
   const handleProductPress = useCallback((barcode: string) => {
     console.log('[History] Opening product:', barcode);
@@ -145,31 +144,69 @@ export default function HistoryScreen() {
         />
       </View>
 
-      <TouchableOpacity
-        style={styles.alertsToggle}
-        onPress={() => setShowAlerts(prev => !prev)}
-        activeOpacity={0.7}
-        testID="toggle-alerts"
-      >
-        <Text style={styles.alertsToggleText}>Alertes santé</Text>
-        {showAlerts ? (
-          <ChevronUp color={Colors.primary} size={18} />
-        ) : (
-          <ChevronDown color={Colors.primary} size={18} />
-        )}
-      </TouchableOpacity>
+      {isPro ? (
+        <>
+          <TouchableOpacity
+            style={styles.alertsToggle}
+            onPress={() => setShowAlerts(prev => !prev)}
+            activeOpacity={0.7}
+            testID="toggle-alerts"
+          >
+            <Text style={styles.alertsToggleText}>Alertes santé</Text>
+            {showAlerts ? (
+              <ChevronUp color={Colors.primary} size={18} />
+            ) : (
+              <ChevronDown color={Colors.primary} size={18} />
+            )}
+          </TouchableOpacity>
 
-      {showAlerts && (
-        <View style={styles.alertsSection}>
-          <HealthAlerts />
+          {showAlerts && (
+            <View style={styles.alertsSection}>
+              <HealthAlerts />
+            </View>
+          )}
+        </>
+      ) : (
+        <TouchableOpacity
+          style={styles.alertsLockedBanner}
+          onPress={() => router.push('/paywall?source=alerts')}
+          activeOpacity={0.8}
+          testID="alerts-locked"
+        >
+          <Lock color={Colors.primary} size={16} />
+          <Text style={styles.alertsLockedText}>Alertes en temps réel — Abonnement Pro</Text>
+          <ChevronRight color={Colors.textTertiary} size={16} />
+        </TouchableOpacity>
+      )}
+
+      {!isPro && (
+        <View style={styles.historyInfoBanner}>
+          <Text style={styles.historyInfoText}>
+            Historique du jour uniquement — Abonnez-vous pour sauvegarder vos scans
+          </Text>
         </View>
       )}
 
       {filteredHistory.length === 0 ? (
         <View style={styles.emptyState}>
           <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
-          <Text style={styles.emptyTitle}>Aucun produit analysé</Text>
-          <Text style={styles.emptySubtitle}>Photographiez ou scannez votre premier produit</Text>
+          <Text style={styles.emptyTitle}>
+            {isPro ? 'Aucun produit analysé' : 'Aucun scan aujourd\'hui'}
+          </Text>
+          <Text style={styles.emptySubtitle}>
+            {isPro ? 'Photographiez ou scannez votre premier produit' : 'Photographiez un produit pour le voir ici'}
+          </Text>
+          {!isPro && (
+            <TouchableOpacity
+              style={styles.unlockFullHistoryButton}
+              onPress={() => router.push('/paywall?source=history')}
+              activeOpacity={0.8}
+              testID="history-unlock"
+            >
+              <Lock color={Colors.white} size={14} />
+              <Text style={styles.unlockFullHistoryText}>Débloquer l'historique complet</Text>
+            </TouchableOpacity>
+          )}
         </View>
       ) : (
         <FlatList
@@ -178,18 +215,18 @@ export default function HistoryScreen() {
           renderItem={renderProduct}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={hasLockedItems ? (
+          ListFooterComponent={!isPro ? (
             <TouchableOpacity
               style={styles.lockedBanner}
-              onPress={() => router.push('/paywall')}
+              onPress={() => router.push('/paywall?source=history')}
               activeOpacity={0.8}
               testID="history-unlock"
             >
               <Lock color={Colors.primary} size={18} />
               <View style={styles.lockedInfo}>
-                <Text style={styles.lockedTitle}>Historique complet</Text>
+                <Text style={styles.lockedTitle}>Historique permanent</Text>
                 <Text style={styles.lockedSubtitle}>
-                  {filteredHistory.length - 3} produit{filteredHistory.length - 3 > 1 ? 's' : ''} masqué{filteredHistory.length - 3 > 1 ? 's' : ''} — Passez à Pro
+                  Sauvegardez tous vos scans — Passez à Pro
                 </Text>
               </View>
             </TouchableOpacity>
@@ -373,5 +410,49 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.border,
+  },
+  alertsLockedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(52, 199, 89, 0.04)',
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.border,
+    gap: 8,
+  },
+  alertsLockedText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '500' as const,
+    color: Colors.textSecondary,
+  },
+  historyInfoBanner: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 149, 0, 0.06)',
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.border,
+  },
+  historyInfoText: {
+    fontSize: 12,
+    color: '#FF9500',
+    textAlign: 'center',
+    fontWeight: '500' as const,
+  },
+  unlockFullHistoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    marginTop: 16,
+  },
+  unlockFullHistoryText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: Colors.white,
   },
 });

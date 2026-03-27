@@ -26,6 +26,8 @@ export default function PaywallScreen() {
   const { setPro } = useSubscription();
   const isFromProfile = source === 'profile';
   const isFromDrToxi = source === 'drtoxi';
+  const isFromHistory = source === 'history';
+  const isFromAlerts = source === 'alerts';
 
   const handlePlanSelect = useCallback((plan: PlanType) => {
     console.log('[Paywall] Plan selected:', plan);
@@ -71,7 +73,7 @@ export default function PaywallScreen() {
     );
   }, []);
 
-  const showCloseButton = isFromProfile || isFromDrToxi;
+  const showCloseButton = isFromProfile || isFromDrToxi || isFromHistory || isFromAlerts;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -98,7 +100,25 @@ export default function PaywallScreen() {
               Passez à ToxiScan Pro pour discuter avec Dr. Toxi en illimité
             </Text>
             <Text style={styles.subtitle}>
-              Vous avez utilisé votre message gratuit du jour
+              Vous avez utilisé votre message gratuit
+            </Text>
+          </>
+        ) : isFromHistory ? (
+          <>
+            <Text style={styles.title}>
+              Sauvegardez tout votre historique
+            </Text>
+            <Text style={styles.subtitle}>
+              Sans abonnement, seuls les scans du jour sont visibles
+            </Text>
+          </>
+        ) : isFromAlerts ? (
+          <>
+            <Text style={styles.title}>
+              Alertes en temps réel
+            </Text>
+            <Text style={styles.subtitle}>
+              Soyez alerté des nouveaux produits interdits, toxiques ou cancérigènes
             </Text>
           </>
         ) : (
@@ -113,9 +133,9 @@ export default function PaywallScreen() {
         )}
 
         <View style={styles.benefitsContainer}>
-          <BenefitRow icon={<MessageCircle color={Colors.white} size={14} />} text="Dr. Toxi illimité" />
-          <BenefitRow icon={<Clock color={Colors.white} size={14} />} text="Historique complet des scans" />
-          <BenefitRow icon={<Bell color={Colors.white} size={14} />} text="Alertes personnalisées (sans gluten, végétarien, sans lactose, sans huile de palme)" />
+          <BenefitRow icon={<MessageCircle color={Colors.white} size={14} />} text="Dr. Toxi illimité (1 message gratuit sans abo)" />
+          <BenefitRow icon={<Clock color={Colors.white} size={14} />} text="Historique permanent de tous vos scans" />
+          <BenefitRow icon={<Bell color={Colors.white} size={14} />} text="Alertes en temps réel des produits interdits et cancérigènes" />
           <BenefitRow icon={<Heart color={Colors.white} size={14} />} text="5$ reversés à la lutte contre le cancer (abonnement annuel)" />
         </View>
 

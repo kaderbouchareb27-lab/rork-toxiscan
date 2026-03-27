@@ -6,6 +6,16 @@ import { ScannedProduct, RiskGroup } from '@/types';
 
 const STORAGE_KEY = 'toxiscan_history';
 
+function getTodayString(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+function isToday(dateString: string): boolean {
+  const today = getTodayString();
+  return dateString.startsWith(today);
+}
+
 export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
   const [history, setHistory] = useState<ScannedProduct[]>([]);
   const queryClient = useQueryClient();
@@ -48,6 +58,10 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
     saveMutation.mutate([]);
   }, [saveMutation]);
 
+  const todayHistory = useMemo(() => {
+    return history.filter(p => isToday(p.scannedAt));
+  }, [history]);
+
   const stats = useMemo(() => {
     const total = history.length;
     const danger = history.filter(p => p.riskGroup === 'group1').length;
@@ -59,17 +73,19 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
 
   return useMemo(() => ({
     history,
+    todayHistory,
     addProduct,
     clearHistory,
     stats,
     isLoading: historyQuery.isLoading,
-  }), [history, addProduct, clearHistory, stats, historyQuery.isLoading]);
+  }), [history, todayHistory, addProduct, clearHistory, stats, historyQuery.isLoading]);
 });
 
-export function useFilteredHistory(filter: RiskGroup | 'all') {
-  const { history } = useScanHistory();
+export function useFilteredHistory(filter: RiskGroup | 'all', isPro: boolean) {
+  const { history, todayHistory } = useScanHistory();
   return useMemo(() => {
-    if (filter === 'all') return history;
-    return history.filter(p => p.riskGroup === filter);
-  }, [history, filter]);
+    const source = isPro ? history : todayHistory;
+    if (filter === 'all') return source;
+    return source.filter(p => p.riskGroup === filter);
+  }, [history, todayHistory, filter, isPro]);
 }

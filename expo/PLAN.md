@@ -8,25 +8,30 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 
 ## Modèle économique
 
-### GRATUIT (illimité pour tous)
-- [x] Scans illimités par photo
+### GRATUIT
+- [x] Scans/photos de produits illimités
 - [x] Résultats avec badges de couleur (rouge, orange, jaune, vert)
 - [x] Substances détectées avec explications
 - [x] Recommandations et alternatives plus saines
 - [x] Magasins bio recommandés
 - [x] Le saviez-vous (fait du jour)
-- [x] 1 message Dr. Toxi par jour
+- [x] 1 message Dr. Toxi gratuit (historique chat du jour seulement, pas sauvegardé le lendemain)
 - [x] Partage des résultats sur les réseaux sociaux
+- [x] Quiz santé totalement gratuit
+- [x] Pages légales (confidentialité, FAQ, transparence IA)
+- [x] Historique des scans du jour uniquement (non persisté le lendemain)
 
 ### PREMIUM ToxiScan Pro (2,99$/mois ou 29,99$/an)
 - [x] Dr. Toxi illimité
-- [x] Historique complet des scans
-- [ ] Alertes personnalisées (sans gluten, végétarien, sans lactose, sans huile de palme)
+- [x] Historique permanent de tous les scans (sauvegardé)
+- [x] Alertes en temps réel des nouveaux produits interdits, toxiques ou cancérigènes
 - [x] 5$ reversés à des associations cancer (abonnement annuel)
 
 ### Paywall
 - [x] Pas de paywall au démarrage
-- [x] Paywall UNIQUEMENT quand 2ème message Dr. Toxi du jour (pas de X, pas de fermer)
+- [x] Paywall quand 2ème message Dr. Toxi tenté (bouton Fermer disponible)
+- [x] Paywall accessible depuis Historique pour débloquer l'historique permanent
+- [x] Paywall accessible depuis Alertes pour débloquer les alertes en temps réel
 - [x] Paywall accessible depuis Profil → "Passer à ToxiScan Pro" (avec bouton Fermer)
 - [x] Option annuelle 29,99$/an avec badge "Économisez 17%"
 - [x] Option mensuelle 2,99$/mois
@@ -49,18 +54,19 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Scans totalement illimités et gratuits
 
 ### Historique
-- [x] Liste chronologique de tous les produits scannés
+- [x] Liste chronologique des produits scannés
 - [x] Filtres rapides par niveau de risque
 - [x] Réouverture d'une fiche produit en un tap
-- [x] Historique complet réservé aux abonnés Pro (3 derniers visibles en gratuit)
+- [x] Gratuit : historique du jour uniquement (effacé le lendemain)
+- [x] Pro : historique permanent sauvegardé
 
 ### Dr. Toxi — Assistant IA
 - [x] Chat conversationnel avec un expert virtuel en toxicologie
 - [x] Suggestions de questions rapides
 - [x] Réponses courtes, factuelles, en français
 - [x] Bannière de transparence IA
-- [x] 1 message gratuit par jour
-- [x] Paywall sans X quand 2ème message tenté
+- [x] 1 message gratuit (historique chat non sauvegardé sans abo)
+- [x] Paywall quand 2ème message tenté
 - [x] Bouton "Partager" après chaque réponse de Dr. Toxi
 
 ### Profil
