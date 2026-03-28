@@ -278,12 +278,12 @@ TES SOURCES : CIRC/OMS, EFSA, Santé Canada, EWG, Consumer Reports, Open Food Fa
 Si on te pose une question hors sujet tu réponds : "Mon domaine c'est les substances toxiques du quotidien et la santé. Pour cette question je te suggère de consulter un professionnel qualifié."`;
 
 export const QUICK_SUGGESTIONS = [
-  'Je suis à l\\'épicerie, aide-moi !',
+  "Je suis à l'épicerie, aide-moi !",
   'Le plastique au micro-ondes ?',
   'Quels additifs éviter ?',
   'Poêle Teflon rayée, danger ?',
-  'C\\'est quoi un perturbateur endocrinien ?',
+  "C'est quoi un perturbateur endocrinien ?",
   'Parabènes dans les cosmétiques ?',
 ];
 
-export const DR_TOXI_WELCOME = 'Salut ! Je suis Dr. Toxi, ton conseiller santé du quotidien. Que tu sois à l\\'épicerie, dans ta salle de bain ou en train de lire une étiquette, je suis là pour t\\'aider à faire les meilleurs choix. Pose-moi ta question !';
+export const DR_TOXI_WELCOME = "Salut ! Je suis Dr. Toxi, ton conseiller santé du quotidien. Que tu sois à l'épicerie, dans ta salle de bain ou en train de lire une étiquette, je suis là pour t'aider à faire les meilleurs choix. Pose-moi ta question !";
