@@ -339,7 +339,7 @@ export default function DrToxiScreen() {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     Alert.alert(
-      '📸 Scanne un produit',
+      'Scanne un produit',
       'Assure-toi que le texte est net et bien éclairé',
       [
         { text: 'Annuler', style: 'cancel' },
@@ -460,7 +460,7 @@ export default function DrToxiScreen() {
                 <Camera color={Colors.white} size={20} strokeWidth={2} />
               </View>
               <View style={styles.scanInChatContent}>
-                <Text style={styles.scanInChatTitle}>📸 Scanne un produit</Text>
+                <Text style={styles.scanInChatTitle}>Scanne un produit</Text>
                 <Text style={styles.scanInChatSubtitle}>Prends en photo une étiquette pour un verdict instantané</Text>
               </View>
               <ChevronRight color={Colors.primary} size={18} />
