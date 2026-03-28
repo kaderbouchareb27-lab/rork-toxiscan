@@ -7,7 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ShieldCheck, Brain } from 'lucide-react-native';
+import { Brain } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -33,49 +33,25 @@ export default function AIConsentScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.iconRow}>
-          <View style={styles.iconContainer}>
-            <Brain color={Colors.primary} size={36} />
-          </View>
-          <View style={styles.iconContainer}>
-            <ShieldCheck color={Colors.primary} size={36} />
-          </View>
+        <View style={styles.iconContainer}>
+          <Brain color={Colors.primary} size={36} />
         </View>
 
         <Text style={styles.title}>ToxiScan utilise l'intelligence artificielle</Text>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.infoText}>
-            ToxiScan et Dr. Toxi ont été spécialement entraînés pour reconnaître des centaines de substances toxiques, cancérigènes et controversées dans vos produits du quotidien.
-          </Text>
+        <Text style={styles.description}>
+          Dr. Toxi et le scanner de produits sont alimentés par l'IA pour analyser vos produits du quotidien et vous conseiller sur les substances potentiellement nocives.
+        </Text>
 
-          <Text style={styles.infoText}>
-            Notre IA analyse vos photos pour :
-          </Text>
-
-          <View style={styles.bulletList}>
-            <View style={styles.bulletRow}>
-              <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Détecter les substances dangereuses dans les aliments, cosmétiques et produits ménagers</Text>
-            </View>
-            <View style={styles.bulletRow}>
-              <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Identifier les additifs, colorants, conservateurs et perturbateurs endocriniens</Text>
-            </View>
-            <View style={styles.bulletRow}>
-              <View style={styles.bullet} />
-              <Text style={styles.bulletText}>Vous conseiller grâce à Dr. Toxi, votre expert en toxicologie du quotidien</Text>
-            </View>
-          </View>
-
-          <Text style={styles.infoTextSources}>
-            Notre base de connaissances est construite à partir des classifications officielles du CIRC/OMS, de l'EFSA et de Santé Canada.
-          </Text>
-
-          <Text style={styles.infoTextSecondary}>
-            Vos photos et messages sont traités de manière sécurisée. Aucune donnée personnelle n'est conservée.
-          </Text>
+        <View style={styles.techCard}>
+          <Text style={styles.techLabel}>Technologies utilisées :</Text>
+          <Text style={styles.techValue}>OpenAI GPT-4o mini (texte et vision)</Text>
+          <Text style={styles.techValue}>Open Food Facts (données produits)</Text>
         </View>
+
+        <Text style={styles.sourcesText}>
+          Basé sur les classifications officielles du CIRC/OMS, de l'EFSA (Europe) et de Santé Canada.
+        </Text>
 
         <TouchableOpacity
           style={styles.acceptButton}
@@ -83,8 +59,10 @@ export default function AIConsentScreen() {
           activeOpacity={0.8}
           testID="accept-ai-consent"
         >
-          <Text style={styles.acceptButtonText}>J'accepte et je continue</Text>
+          <Text style={styles.acceptButtonText}>Compris</Text>
         </TouchableOpacity>
+
+        <Text style={styles.privacyText}>Vos photos et messages sont traités de manière sécurisée. Aucune donnée personnelle n'est conservée.</Text>
 
         <TouchableOpacity onPress={handlePrivacy} style={styles.privacyLink} testID="privacy-link">
           <Text style={styles.privacyLinkText}>Politique de confidentialité</Text>
@@ -105,11 +83,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 28,
-  },
   iconContainer: {
     width: 72,
     height: 72,
@@ -117,6 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(52, 199, 89, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 28,
   },
   title: {
     fontSize: 24,
@@ -124,55 +98,45 @@ const styles = StyleSheet.create({
     color: Colors.text,
     textAlign: 'center',
     lineHeight: 32,
-    marginBottom: 24,
+    marginBottom: 16,
     letterSpacing: -0.3,
   },
-  infoCard: {
+  description: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+    paddingHorizontal: 8,
+  },
+  techCard: {
     backgroundColor: Colors.surface,
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 14,
+    padding: 16,
     width: '100%',
-    marginBottom: 32,
+    marginBottom: 20,
   },
-  infoText: {
-    fontSize: 15,
-    color: Colors.text,
-    lineHeight: 22,
-    marginBottom: 14,
-  },
-  bulletList: {
-    gap: 10,
-    marginBottom: 14,
-  },
-  bulletRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  bullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.primary,
-    marginTop: 8,
-  },
-  bulletText: {
-    flex: 1,
-    fontSize: 15,
-    color: Colors.text,
-    lineHeight: 22,
-  },
-  infoTextSources: {
+  techLabel: {
     fontSize: 13,
+    fontWeight: '600' as const,
     color: Colors.text,
-    lineHeight: 20,
-    marginBottom: 10,
-    fontStyle: 'italic' as const,
+    marginBottom: 8,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
   },
-  infoTextSecondary: {
+  techValue: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    lineHeight: 22,
+  },
+  sourcesText: {
     fontSize: 13,
     color: Colors.textSecondary,
+    textAlign: 'center',
     lineHeight: 20,
+    marginBottom: 32,
+    fontStyle: 'italic' as const,
+    paddingHorizontal: 8,
   },
   acceptButton: {
     width: '100%',
@@ -191,6 +155,14 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 17,
     fontWeight: '600' as const,
+  },
+  privacyText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 8,
+    paddingHorizontal: 16,
   },
   privacyLink: {
     paddingVertical: 8,
