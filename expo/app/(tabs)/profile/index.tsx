@@ -14,7 +14,6 @@ import { ChevronRight, Shield, FileText, HelpCircle, Eye, Mail, Star, Crown, Ute
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
