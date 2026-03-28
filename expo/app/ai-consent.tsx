@@ -40,7 +40,7 @@ export default function AIConsentScreen() {
         <Text style={styles.title}>ToxiScan utilise l'intelligence artificielle</Text>
 
         <Text style={styles.description}>
-          Dr. Toxi et le scanner de produits sont alimentés par l'IA pour analyser vos produits du quotidien et vous conseiller sur les substances potentiellement nocives.
+          Dr. Toxi, ton conseiller santé, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.
         </Text>
 
         <View style={styles.techCard}>
@@ -49,8 +49,12 @@ export default function AIConsentScreen() {
           <Text style={styles.techValue}>Open Food Facts (données produits)</Text>
         </View>
 
-        <Text style={styles.sourcesText}>
-          Basé sur les classifications officielles du CIRC/OMS, de l'EFSA (Europe) et de Santé Canada.
+        <Text style={styles.disclaimerText}>
+          Les analyses sont basées sur des données publiques et des classifications d'organismes reconnus (OMS, EFSA, Santé Canada), mais ne remplacent pas un avis médical.
+        </Text>
+
+        <Text style={styles.disclaimerText}>
+          ToxiScan fournit des informations à titre informatif uniquement.
         </Text>
 
         <TouchableOpacity
@@ -129,13 +133,12 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 22,
   },
-  sourcesText: {
+  disclaimerText: {
     fontSize: 13,
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 32,
-    fontStyle: 'italic' as const,
+    marginBottom: 8,
     paddingHorizontal: 8,
   },
   acceptButton: {
@@ -144,6 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: Colors.primary,
     alignItems: 'center',
+    marginTop: 16,
     marginBottom: 16,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
