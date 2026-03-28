@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Colors from "@/constants/colors";
 
 export default function NotFoundScreen() {
+  console.log("[NotFound] Rendering not found screen");
   return (
     <>
       <Stack.Screen options={{ title: "Page introuvable" }} />

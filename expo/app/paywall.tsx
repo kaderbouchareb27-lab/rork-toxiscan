@@ -415,3 +415,4 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
+// Paywall screen

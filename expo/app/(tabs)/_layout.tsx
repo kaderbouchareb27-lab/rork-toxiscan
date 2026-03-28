@@ -4,6 +4,7 @@ import React from "react";
 import Colors from "@/constants/colors";
 
 export default function TabLayout() {
+  console.log("[TabLayout] Rendering tab layout");
   return (
     <Tabs
       screenOptions={{

@@ -1167,3 +1167,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
+// Product detail screen

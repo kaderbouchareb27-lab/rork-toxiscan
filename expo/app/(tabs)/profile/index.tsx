@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronRight, Shield, FileText, HelpCircle, Eye, Mail, Star, Crown, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Gift } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -123,32 +124,32 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        {totalAnswered > 0 && (
-          <View style={styles.card}>
-            <View style={styles.quizScoreHeader}>
-              <Brain color={Colors.primary} size={18} />
-              <Text style={styles.cardTitle}>Quiz Santé</Text>
+        <TouchableOpacity
+          style={styles.quizCard}
+          onPress={() => {
+            if (Platform.OS !== 'web') {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+            router.push('/quiz');
+          }}
+          activeOpacity={0.8}
+          testID="quiz-launch"
+        >
+          <View style={styles.quizCardLeft}>
+            <View style={styles.quizIconContainer}>
+              <Brain color={Colors.primary} size={20} strokeWidth={2} />
             </View>
-            <View style={styles.quizScoreRow}>
-              <View style={styles.quizScoreStat}>
-                <Text style={styles.quizScoreNumber}>{totalCorrect}</Text>
-                <Text style={styles.quizScoreLabel}>Bonnes réponses</Text>
-              </View>
-              <View style={styles.quizScoreDivider} />
-              <View style={styles.quizScoreStat}>
-                <Text style={styles.quizScoreNumber}>{totalAnswered}</Text>
-                <Text style={styles.quizScoreLabel}>Questions</Text>
-              </View>
-              <View style={styles.quizScoreDivider} />
-              <View style={styles.quizScoreStat}>
-                <Text style={[styles.quizScoreNumber, { color: Colors.primary }]}>
-                  {totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0}%
-                </Text>
-                <Text style={styles.quizScoreLabel}>Réussite</Text>
-              </View>
+            <View style={styles.quizCardContent}>
+              <Text style={styles.quizCardTitle}>Quiz Santé</Text>
+              <Text style={styles.quizCardSubtitle}>
+                {totalAnswered > 0
+                  ? `${totalCorrect}/${totalAnswered} bonnes réponses (${Math.round((totalCorrect / totalAnswered) * 100)}%)`
+                  : '10 questions pour tester vos connaissances'}
+              </Text>
             </View>
           </View>
-        )}
+          <ChevronRight color={Colors.primary} size={18} />
+        </TouchableOpacity>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>ToxiScan détecte les risques dans :</Text>
@@ -366,35 +367,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
   },
-  quizScoreHeader: {
+  quizCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 14,
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(52, 199, 89, 0.04)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 199, 89, 0.12)',
   },
-  quizScoreRow: {
+  quizCardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  quizScoreStat: {
-    alignItems: 'center',
+    gap: 12,
     flex: 1,
   },
-  quizScoreNumber: {
-    fontSize: 22,
+  quizIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quizCardContent: {
+    flex: 1,
+  },
+  quizCardTitle: {
+    fontSize: 15,
     fontWeight: '700' as const,
     color: Colors.text,
   },
-  quizScoreLabel: {
+  quizCardSubtitle: {
     fontSize: 12,
     color: Colors.textSecondary,
     marginTop: 2,
-  },
-  quizScoreDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: Colors.border,
   },
   badgesCard: {
     backgroundColor: Colors.surface,
@@ -492,3 +501,4 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
+// Profile screen

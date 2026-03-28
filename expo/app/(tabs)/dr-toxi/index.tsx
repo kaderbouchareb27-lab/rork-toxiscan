@@ -14,7 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, Brain, ChevronRight, Share2, Camera } from 'lucide-react-native';
+import { Send, ChevronRight, Share2, Camera } from 'lucide-react-native';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
@@ -424,11 +424,9 @@ export default function DrToxiScreen() {
         </View>
       </View>
 
-      <View style={styles.disclaimerBanner}>
-        <Text style={styles.disclaimerText}>
-          Les réponses de Dr. Toxi sont à titre informatif uniquement et ne remplacent pas un avis médical.
-        </Text>
-      </View>
+      <Text style={styles.disclaimerText}>
+        Informatif uniquement — ne remplace pas un avis médical.
+      </Text>
 
       {!isPro && (
         <View style={styles.counterBanner}>
@@ -480,28 +478,7 @@ export default function DrToxiScreen() {
               ))}
             </View>
 
-            <TouchableOpacity
-              style={styles.quizCard}
-              onPress={() => {
-                if (Platform.OS !== 'web') {
-                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                }
-                router.push('/quiz');
-              }}
-              activeOpacity={0.8}
-              testID="quiz-launch"
-            >
-              <View style={styles.quizCardLeft}>
-                <View style={styles.quizIconContainer}>
-                  <Brain color={Colors.primary} size={20} strokeWidth={2} />
-                </View>
-                <View style={styles.quizCardContent}>
-                  <Text style={styles.quizCardTitle}>Quiz Santé</Text>
-                  <Text style={styles.quizCardSubtitle}>10 questions pour tester vos connaissances</Text>
-                </View>
-              </View>
-              <ChevronRight color={Colors.primary} size={20} />
-            </TouchableOpacity>
+
           </View>
         ) : (
           <FlatList
@@ -607,15 +584,13 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: 1,
   },
-  disclaimerBanner: {
-    backgroundColor: Colors.surfaceSecondary,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-  },
   disclaimerText: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: Colors.textTertiary,
     textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 4,
+    paddingBottom: 2,
   },
   counterBanner: {
     backgroundColor: 'rgba(52, 199, 89, 0.08)',
@@ -640,17 +615,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   welcomeAvatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    marginBottom: 20,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 24,
   },
   welcomeText: {
-    fontSize: 16,
+    fontSize: 17,
     color: Colors.text,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 20,
+    marginBottom: 28,
   },
   scanInChatCard: {
     flexDirection: 'row',
@@ -660,7 +635,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderWidth: 1.5,
     borderColor: Colors.primary,
-    marginBottom: 20,
+    marginBottom: 28,
     width: '100%',
     gap: 12,
   },
@@ -689,7 +664,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
   },
   suggestionChip: {
     paddingHorizontal: 14,
@@ -703,45 +678,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
   },
-  quizCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(52, 199, 89, 0.04)',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.12)',
-    marginTop: 20,
-    width: '100%',
-  },
-  quizCardLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  quizIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quizCardContent: {
-    flex: 1,
-  },
-  quizCardTitle: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: Colors.text,
-  },
-  quizCardSubtitle: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
+
   messagesList: {
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -902,3 +839,4 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
 });
+

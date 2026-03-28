@@ -201,3 +201,4 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
+// AI Consent screen

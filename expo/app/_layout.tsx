@@ -41,6 +41,7 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   useEffect(() => {
+    console.log("[RootLayout] Mounting root layout");
     void SplashScreen.hideAsync().then(() => {
       console.log("[RootLayout] Splash screen hidden");
     });
