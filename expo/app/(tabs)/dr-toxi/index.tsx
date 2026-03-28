@@ -11,18 +11,21 @@ import {
   ActivityIndicator,
   Image,
   Share,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, Brain, ChevronRight, Share2 } from 'lucide-react-native';
+import { Send, Brain, ChevronRight, Share2, Camera } from 'lucide-react-native';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import Colors from '@/constants/colors';
 import { ChatMessage } from '@/types';
 import { generateText } from '@rork-ai/toolkit-sdk';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { router } from 'expo-router';
-import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME } from '@/constants/drToxiPrompt';
+import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISION_PROMPT, VISION_LOADING_MESSAGES } from '@/constants/drToxiPrompt';
 
 const LOADING_TIPS = [
   'Le brocoli est l\'aliment anti-cancer #1 selon les chercheurs.',
@@ -41,31 +44,103 @@ const LOADING_TIPS = [
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
+function compressImageWeb(uri: string, maxSize: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxSize || height > maxSize) {
+        const ratio = Math.min(maxSize / width, maxSize / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('Canvas not supported')); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      resolve(dataUrl.split(',')[1]);
+    };
+    img.onerror = reject;
+    img.src = uri;
+  });
+}
 
+async function compressImageNative(uri: string): Promise<string> {
+  try {
+    console.log('[DrToxi] Compressing native image...');
+    const manipulated = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: 1024 } }],
+      { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+    );
+
+    if (manipulated.base64) {
+      console.log('[DrToxi] Native image compressed, base64 length:', manipulated.base64.length);
+      return manipulated.base64;
+    }
+
+    console.log('[DrToxi] ImageManipulator did not return base64, falling back');
+    const FileSystemLegacy = await import('expo-file-system/legacy');
+    const base64 = await FileSystemLegacy.readAsStringAsync(manipulated.uri, {
+      encoding: FileSystemLegacy.EncodingType.Base64,
+    });
+    return base64;
+  } catch (error) {
+    console.error('[DrToxi] Native compression error:', error);
+    const FileSystemLegacy = await import('expo-file-system/legacy');
+    const base64 = await FileSystemLegacy.readAsStringAsync(uri, {
+      encoding: FileSystemLegacy.EncodingType.Base64,
+    });
+    return base64;
+  }
+}
+
+async function getBase64FromUri(uri: string): Promise<string> {
+  if (Platform.OS === 'web') {
+    return compressImageWeb(uri, 1024);
+  }
+  return compressImageNative(uri);
+}
 
 export default function DrToxiScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>('');
   const [tipIndex, setTipIndex] = useState<number>(0);
+  const [visionTipIndex, setVisionTipIndex] = useState<number>(0);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState<boolean>(false);
   const flatListRef = useRef<FlatList>(null);
   const { canUseDrToxi, drToxiRemaining, drToxiLimit, isPro, consumeDrToxi } = useSubscription();
   const { recordDrToxiQuestion, recordShare } = useBadges();
 
   const sendMutation = useMutation({
-    mutationFn: async (userMessage: string) => {
-      console.log('[DrToxi] Sending message:', userMessage);
+    mutationFn: async (payload: { text: string; imageBase64?: string }) => {
+      console.log('[DrToxi] Sending message:', payload.text.substring(0, 50));
 
       const conversationHistory = messages.map(m => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
       }));
 
+      const systemPrompt = payload.imageBase64
+        ? DR_TOXI_SYSTEM_PROMPT + '\n\n--- MODE SCANNER VISION ---\n\n' + DR_TOXI_VISION_PROMPT
+        : DR_TOXI_SYSTEM_PROMPT;
+
+      const userContent: string | Array<{ type: 'text'; text: string } | { type: 'image'; image: string }> = payload.imageBase64
+        ? [
+            { type: 'text' as const, text: payload.text || 'Analyse ce produit pour moi.' },
+            { type: 'image' as const, image: payload.imageBase64 },
+          ]
+        : payload.text;
+
       const response = await generateText({
         messages: [
-          { role: 'user', content: DR_TOXI_SYSTEM_PROMPT },
-          { role: 'assistant', content: 'Compris ! Je suis Dr. Toxi, ton conseiller santé du quotidien. Je suis prêt à t\'aider.' },
-          ...conversationHistory,
-          { role: 'user', content: userMessage },
+          { role: 'user' as const, content: systemPrompt },
+          { role: 'assistant' as const, content: 'Compris ! Je suis Dr. Toxi, ton conseiller santé du quotidien. Je suis prêt à t\'aider.' },
+          ...conversationHistory.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+          { role: 'user' as const, content: userContent },
         ],
       });
 
@@ -90,16 +165,18 @@ export default function DrToxiScreen() {
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, assistantMessage]);
+      setIsAnalyzingImage(false);
       if (Platform.OS !== 'web') {
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     },
     onError: (error) => {
       console.error('[DrToxi] Error:', error);
+      setIsAnalyzingImage(false);
       const errorMessage: ChatMessage = {
         id: Date.now().toString() + '_error',
         role: 'assistant',
-        content: 'Désolé, je n\'ai pas pu traiter votre demande. Réessayez dans un instant.',
+        content: 'Oups, j\'ai pas réussi à analyser cette image 😅 Réessaie en prenant la photo un peu plus près, avec une bonne lumière. Vise bien la liste d\'ingrédients !',
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -114,6 +191,15 @@ export default function DrToxiScreen() {
     }, 4000);
     return () => clearInterval(interval);
   }, [sendMutation.isPending]);
+
+  useEffect(() => {
+    if (!isAnalyzingImage) return;
+    setVisionTipIndex(Math.floor(Math.random() * VISION_LOADING_MESSAGES.length));
+    const interval = setInterval(() => {
+      setVisionTipIndex(prev => (prev + 1) % VISION_LOADING_MESSAGES.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isAnalyzingImage]);
 
   const handleSend = useCallback((text?: string) => {
     const messageText = text ?? input.trim();
@@ -138,8 +224,130 @@ export default function DrToxiScreen() {
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    sendMutation.mutate(messageText);
+    sendMutation.mutate({ text: messageText });
   }, [input, sendMutation, canUseDrToxi]);
+
+  const handleImagePicked = useCallback(async (uri: string) => {
+    if (!canUseDrToxi) {
+      console.log('[DrToxi] Message limit reached, showing paywall');
+      router.push('/paywall?source=drtoxi');
+      return;
+    }
+
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString() + '_user',
+      role: 'user',
+      content: '📸 Photo envoyée pour analyse',
+      timestamp: new Date().toISOString(),
+      imageUri: uri,
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsAnalyzingImage(true);
+
+    try {
+      console.log('[DrToxi] Compressing image for vision analysis...');
+      const base64 = await getBase64FromUri(uri);
+      console.log('[DrToxi] Image compressed, base64 length:', base64.length);
+      sendMutation.mutate({ text: 'Analyse cette photo de produit ou d\'étiquette d\'ingrédients.', imageBase64: base64 });
+    } catch (error) {
+      console.error('[DrToxi] Image compression error:', error);
+      setIsAnalyzingImage(false);
+      const errorMsg: ChatMessage = {
+        id: Date.now().toString() + '_error',
+        role: 'assistant',
+        content: 'Oups, j\'ai pas réussi à traiter cette image. Réessaie avec une autre photo !',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    }
+  }, [canUseDrToxi, sendMutation]);
+
+  const handleCameraPress = useCallback(async () => {
+    if (sendMutation.isPending || isAnalyzingImage) return;
+
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Dr. Toxi a besoin de ta caméra 📸',
+          'Pour analyser les étiquettes de tes produits en direct et te donner un verdict instantané.',
+          [
+            { text: 'Plus tard', style: 'cancel' },
+            { text: 'Autoriser la caméra', onPress: () => {
+              if (Platform.OS !== 'web') {
+                void import('expo-linking').then(Linking => {
+                  void Linking.openSettings();
+                }).catch(() => {});
+              }
+            }},
+          ]
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        allowsEditing: false,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        console.log('[DrToxi] Camera photo taken:', result.assets[0].uri.substring(0, 50));
+        void handleImagePicked(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('[DrToxi] Camera error:', error);
+      Alert.alert('Erreur', 'Impossible d\'ouvrir la caméra. Essaie de choisir une photo depuis ta galerie.');
+    }
+  }, [sendMutation.isPending, isAnalyzingImage, handleImagePicked]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleGalleryPress = useCallback(async () => {
+    if (sendMutation.isPending || isAnalyzingImage) return;
+
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        allowsEditing: false,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        console.log('[DrToxi] Gallery photo selected:', result.assets[0].uri.substring(0, 50));
+        void handleImagePicked(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('[DrToxi] Gallery error:', error);
+    }
+  }, [sendMutation.isPending, isAnalyzingImage, handleImagePicked]);
+
+  const handlePhotoAction = useCallback(() => {
+    if (sendMutation.isPending || isAnalyzingImage) return;
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    Alert.alert(
+      '📸 Scanne un produit',
+      'Assure-toi que le texte est net et bien éclairé',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: '📁 Galerie', onPress: () => void handleGalleryPress() },
+        { text: '📷 Caméra', onPress: () => void handleCameraPress() },
+      ]
+    );
+  }, [sendMutation.isPending, isAnalyzingImage, handleGalleryPress, handleCameraPress]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -175,11 +383,20 @@ export default function DrToxiScreen() {
           <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.avatarSmall} />
         )}
         <View style={styles.messageColumn}>
-          <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.botBubble]}>
-            <Text style={[styles.messageText, isUser ? styles.userMessageText : styles.botMessageText]}>
-              {item.content}
-            </Text>
-          </View>
+          {isUser && item.imageUri ? (
+            <View style={[styles.messageBubble, styles.userBubble, styles.imageBubble]}>
+              <Image source={{ uri: item.imageUri }} style={styles.chatImage} resizeMode="cover" />
+              <Text style={[styles.messageText, styles.userMessageText, styles.imageCaption]}>
+                📸 Photo envoyée pour analyse
+              </Text>
+            </View>
+          ) : (
+            <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.botBubble]}>
+              <Text style={[styles.messageText, isUser ? styles.userMessageText : styles.botMessageText]}>
+                {item.content}
+              </Text>
+            </View>
+          )}
           {!isUser && !item.id.includes('_error') && (
             <TouchableOpacity
               style={styles.shareResponseButton}
@@ -194,6 +411,8 @@ export default function DrToxiScreen() {
       </View>
     );
   }, [handleShareResponse]);
+
+  const isLoading = sendMutation.isPending || isAnalyzingImage;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -230,6 +449,23 @@ export default function DrToxiScreen() {
             <Text style={styles.welcomeText}>
               {DR_TOXI_WELCOME}
             </Text>
+
+            <TouchableOpacity
+              style={styles.scanInChatCard}
+              onPress={handleCameraPress}
+              activeOpacity={0.7}
+              testID="scan-in-chat"
+            >
+              <View style={styles.scanInChatIcon}>
+                <Camera color={Colors.white} size={20} strokeWidth={2} />
+              </View>
+              <View style={styles.scanInChatContent}>
+                <Text style={styles.scanInChatTitle}>📸 Scanne un produit</Text>
+                <Text style={styles.scanInChatSubtitle}>Prends en photo une étiquette pour un verdict instantané</Text>
+              </View>
+              <ChevronRight color={Colors.primary} size={18} />
+            </TouchableOpacity>
+
             <View style={styles.suggestionsContainer}>
               {QUICK_SUGGESTIONS.map((suggestion) => (
                 <TouchableOpacity
@@ -278,21 +514,36 @@ export default function DrToxiScreen() {
           />
         )}
 
-        {sendMutation.isPending && (
+        {isLoading && (
           <View style={styles.typingContainer}>
             <View style={styles.typingIndicator}>
               <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.avatarSmall} />
               <ActivityIndicator size="small" color={Colors.primary} />
-              <Text style={styles.typingText}>Dr. Toxi réfléchit...</Text>
+              <Text style={styles.typingText}>
+                {isAnalyzingImage
+                  ? `🔍 ${VISION_LOADING_MESSAGES[visionTipIndex]}`
+                  : 'Dr. Toxi réfléchit...'}
+              </Text>
             </View>
-            <View style={styles.tipBanner}>
-              <Text style={styles.tipLabel}>Le saviez-vous ?</Text>
-              <Text style={styles.tipText}>{LOADING_TIPS[tipIndex]}</Text>
-            </View>
+            {!isAnalyzingImage && (
+              <View style={styles.tipBanner}>
+                <Text style={styles.tipLabel}>Le saviez-vous ?</Text>
+                <Text style={styles.tipText}>{LOADING_TIPS[tipIndex]}</Text>
+              </View>
+            )}
           </View>
         )}
 
         <View style={styles.inputContainer}>
+          <TouchableOpacity
+            style={[styles.cameraButton, isLoading && styles.cameraButtonDisabled]}
+            onPress={handlePhotoAction}
+            disabled={isLoading}
+            activeOpacity={0.7}
+            testID="camera-button"
+          >
+            <Camera color={isLoading ? Colors.textTertiary : Colors.primary} size={20} />
+          </TouchableOpacity>
           <TextInput
             style={styles.textInput}
             placeholder="Posez votre question..."
@@ -306,9 +557,9 @@ export default function DrToxiScreen() {
             testID="chat-input"
           />
           <TouchableOpacity
-            style={[styles.sendButton, (!input.trim() || sendMutation.isPending) && styles.sendButtonDisabled]}
+            style={[styles.sendButton, (!input.trim() || isLoading) && styles.sendButtonDisabled]}
             onPress={() => handleSend()}
-            disabled={!input.trim() || sendMutation.isPending}
+            disabled={!input.trim() || isLoading}
             testID="send-button"
           >
             <Send color={Colors.white} size={18} />
@@ -379,7 +630,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500' as const,
   },
-
   chatContainer: {
     flex: 1,
   },
@@ -400,7 +650,40 @@ const styles = StyleSheet.create({
     color: Colors.text,
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 28,
+    marginBottom: 20,
+  },
+  scanInChatCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    marginBottom: 20,
+    width: '100%',
+    gap: 12,
+  },
+  scanInChatIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanInChatContent: {
+    flex: 1,
+  },
+  scanInChatTitle: {
+    fontSize: 15,
+    fontWeight: '700' as const,
+    color: Colors.text,
+  },
+  scanInChatSubtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
   suggestionsContainer: {
     flexDirection: 'row',
@@ -493,6 +776,23 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceSecondary,
     borderBottomLeftRadius: 4,
   },
+  imageBubble: {
+    paddingHorizontal: 4,
+    paddingTop: 4,
+    paddingBottom: 8,
+    overflow: 'hidden',
+  },
+  chatImage: {
+    width: 200,
+    height: 260,
+    borderRadius: 14,
+  },
+  imageCaption: {
+    fontSize: 13,
+    marginTop: 6,
+    textAlign: 'center',
+    paddingHorizontal: 8,
+  },
   messageText: {
     fontSize: 15,
     lineHeight: 22,
@@ -529,6 +829,7 @@ const styles = StyleSheet.create({
   typingText: {
     fontSize: 13,
     color: Colors.textSecondary,
+    flex: 1,
   },
   tipBanner: {
     marginTop: 8,
@@ -551,12 +852,30 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 12,
-    gap: 10,
+    gap: 6,
     borderTopWidth: 0.5,
     borderTopColor: Colors.border,
     backgroundColor: Colors.background,
+  },
+  cameraButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+  },
+  galleryButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cameraButtonDisabled: {
+    opacity: 0.4,
   },
   textInput: {
     flex: 1,
