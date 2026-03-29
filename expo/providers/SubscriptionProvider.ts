@@ -8,7 +8,7 @@ import Purchases, { PurchasesPackage, CustomerInfo } from 'react-native-purchase
 const USAGE_KEY = 'toxiscan_daily_usage';
 const FREE_DRTOXI_LIMIT = 3;
 const FREE_HISTORY_LIMIT = 3;
-const ENTITLEMENT_ID = 'ToxiScan Pro';
+const ENTITLEMENT_ID = 'toxiscan_pro';
 
 interface DailyUsage {
   date: string;
