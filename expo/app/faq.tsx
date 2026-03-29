@@ -157,4 +157,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-// FAQ screen

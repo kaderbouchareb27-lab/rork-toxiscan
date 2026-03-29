@@ -122,6 +122,7 @@ export default function QuizScreen() {
   }, [currentIndex, questions.length, fadeAnim, resultFade, scoreScale]);
 
   const handleRestart = useCallback(() => {
+    console.log('[Quiz] Restarting quiz');
     setCurrentIndex(0);
     setSelectedIndex(null);
     setRevealed(false);
@@ -142,14 +143,14 @@ export default function QuizScreen() {
     return [styles.option, styles.optionDimmed];
   };
 
-  const getScoreColor = () => {
+  const getScoreColor = (): string => {
     const pct = score / questions.length;
     if (pct >= 0.8) return Colors.primary;
     if (pct >= 0.5) return '#FF9500';
     return '#FF3B30';
   };
 
-  const getScoreMessage = () => {
+  const getScoreMessage = (): string => {
     const pct = score / questions.length;
     if (pct === 1) return 'Parfait ! Vous êtes un expert en santé !';
     if (pct >= 0.8) return 'Excellent ! Vous en savez beaucoup !';
@@ -171,6 +172,7 @@ export default function QuizScreen() {
             onPress={() => router.back()}
             style={styles.closeButton}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            testID="quiz-close"
           >
             <X color={Colors.text} size={22} />
           </TouchableOpacity>
@@ -190,7 +192,7 @@ export default function QuizScreen() {
             <View style={styles.answersGrid}>
               {answers.map((correct, i) => (
                 <View
-                  key={i}
+                  key={`answer-${i}`}
                   style={[
                     styles.answerDot,
                     { backgroundColor: correct ? Colors.primary : '#FF3B30' },
@@ -211,6 +213,7 @@ export default function QuizScreen() {
               style={styles.restartButton}
               onPress={handleRestart}
               activeOpacity={0.8}
+              testID="quiz-restart"
             >
               <RotateCcw color={Colors.primary} size={18} />
               <Text style={styles.restartButtonText}>Rejouer</Text>
@@ -219,6 +222,7 @@ export default function QuizScreen() {
               style={styles.backButton}
               onPress={() => router.back()}
               activeOpacity={0.8}
+              testID="quiz-back"
             >
               <Text style={styles.backButtonText}>Retour</Text>
             </TouchableOpacity>
@@ -235,6 +239,7 @@ export default function QuizScreen() {
           onPress={() => router.back()}
           style={styles.closeButton}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          testID="quiz-close"
         >
           <X color={Colors.text} size={22} />
         </TouchableOpacity>
@@ -259,7 +264,7 @@ export default function QuizScreen() {
           <View style={styles.optionsList}>
             {currentQuestion.options.map((option, index) => (
               <TouchableOpacity
-                key={index}
+                key={`option-${index}`}
                 style={getOptionStyle(index)}
                 onPress={() => handleSelect(index)}
                 activeOpacity={0.7}
@@ -307,6 +312,7 @@ export default function QuizScreen() {
             style={styles.nextButton}
             onPress={handleNext}
             activeOpacity={0.8}
+            testID="quiz-next"
           >
             <Text style={styles.nextButtonText}>
               {currentIndex >= questions.length - 1 ? 'Voir le résultat' : 'Question suivante'}
@@ -590,4 +596,3 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
 });
-// Quiz screen

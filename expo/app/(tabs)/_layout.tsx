@@ -27,36 +27,28 @@ export default function TabLayout() {
         name="(scanner)"
         options={{
           title: "Scanner",
-          tabBarIcon: ({ color, size }) => (
-            <ScanBarcode color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <ScanBarcode color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
           title: "Historique",
-          tabBarIcon: ({ color, size }) => (
-            <ClipboardList color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="dr-toxi"
         options={{
           title: "Dr. Toxi",
-          tabBarIcon: ({ color, size }) => (
-            <MessageCircle color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profil",
-          tabBarIcon: ({ color, size }) => (
-            <User color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
     </Tabs>

@@ -193,11 +193,11 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   }, []);
 
   const purchasePackage = useCallback((pkg: PurchasesPackage) => {
-    purchaseMutation.mutate(pkg);
+    return purchaseMutation.mutateAsync(pkg);
   }, [purchaseMutation]);
 
   const restorePurchase = useCallback(() => {
-    restoreMutation.mutate();
+    return restoreMutation.mutateAsync();
   }, [restoreMutation]);
 
   const currentOffering = offeringsQuery.data ?? null;

@@ -174,15 +174,15 @@ export const [BadgesProvider, useBadges] = createContextHook(() => {
     if (shareCount >= 25 && !updated.month25Claimed) {
       updated.month25Claimed = true;
       setShareRewardMessage(
-        'Félicitations ! Tu as partagé 25 résultats avec ta communauté. Tu gagnes 1 mois de ToxiScan Pro gratuit !'
+        'Bravo ! Tu as partagé 25 fois. Merci de faire connaître ToxiScan !'
       );
-      console.log('[Badges] Share reward: 1 month Pro unlocked');
+      console.log('[Badges] Share reward: 25 shares milestone');
     } else if (shareCount >= 100 && !updated.year100Claimed) {
       updated.year100Claimed = true;
       setShareRewardMessage(
-        'Incroyable ! Tu as partagé 100 résultats avec ta communauté. Tu es un vrai ambassadeur ToxiScan. On t\'offre 1 an de ToxiScan Pro !'
+        'Incroyable ! 100 partages ! Tu es un vrai ambassadeur ToxiScan. Merci pour ton soutien !'
       );
-      console.log('[Badges] Share reward: 1 year Pro unlocked');
+      console.log('[Badges] Share reward: 100 shares milestone');
     }
 
     return updated;

@@ -312,4 +312,3 @@ const slideStyles = StyleSheet.create({
     color: Colors.textSecondary,
   },
 });
-// Onboarding screen

@@ -405,4 +405,3 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
 });
-// History screen for ToxiScan

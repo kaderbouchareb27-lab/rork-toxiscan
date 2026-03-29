@@ -79,7 +79,7 @@ async function fetchFromSource(
 
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'ToxiScan/1.0 (contact@toxiscan.app)' },
+      headers: { 'User-Agent': 'ToxiScan/1.0 (contact@toxiscan.com)' },
     });
 
     clearTimeout(timer);

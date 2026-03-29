@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -24,7 +25,10 @@ const ICON_URL = 'https://r2-pub.rork.com/generated-images/948662bd-b633-4d6d-84
 export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
-  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress } = useSubscription();
+  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress, isPro } = useSubscription();
+
+  const isLimitReached = source === 'drtoxi' || source === 'history' || source === 'favorite' || source === 'alerts';
+  const showCloseButton = !isLimitReached || isPro;
 
   const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_monthly') ?? null;
   const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_annual') ?? null;
@@ -43,7 +47,7 @@ export default function PaywallScreen() {
     setSelectedPlan(plan);
   }, []);
 
-  const handleSubscribe = useCallback(() => {
+  const handleSubscribe = useCallback(async () => {
     const pkg = selectedPlan === 'annual' ? annualPackage : monthlyPackage;
     if (!pkg) {
       console.log('[Paywall] No package available for plan:', selectedPlan);
@@ -54,20 +58,37 @@ export default function PaywallScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    purchasePackage(pkg);
+    try {
+      await purchasePackage(pkg);
+      Alert.alert(
+        'Bienvenue dans ToxiScan Pro !',
+        'Merci pour votre abonnement. Profitez de toutes les fonctionnalités premium.',
+        [{ text: 'Super !', onPress: () => router.replace('/') }]
+      );
+    } catch (error: unknown) {
+      const err = error as { userCancelled?: boolean };
+      if (!err.userCancelled) {
+        Alert.alert('Erreur', "L'achat n'a pas pu être complété. Réessayez.");
+      }
+    }
   }, [selectedPlan, annualPackage, monthlyPackage, purchasePackage]);
 
   const handleDismiss = useCallback(() => {
-    console.log('[Paywall] Dismissed');
+    console.log('[Paywall] Dismissed from source:', source);
     router.back();
-  }, []);
+  }, [source]);
 
-  const handleRestore = useCallback(() => {
+  const handleRestore = useCallback(async () => {
     console.log('[Paywall] Restore tapped');
-    restorePurchase();
+    try {
+      await restorePurchase();
+      Alert.alert('Abonnement restauré avec succès !', 'Vos fonctionnalités premium sont de nouveau actives.');
+    } catch {
+      Alert.alert('Restauration', 'Aucun abonnement actif trouvé à restaurer.');
+    }
   }, [restorePurchase]);
 
-  const getContextTitle = () => {
+  const getContextTitle = (): string => {
     switch (source) {
       case 'drtoxi':
         return 'Discutez avec Dr. Toxi en illimité';
@@ -82,7 +103,7 @@ export default function PaywallScreen() {
     }
   };
 
-  const getContextSubtitle = () => {
+  const getContextSubtitle = (): string => {
     switch (source) {
       case 'drtoxi':
         return 'Vous avez utilisé vos 3 messages gratuits du jour';
@@ -101,11 +122,13 @@ export default function PaywallScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
-        <View style={styles.closeCircle}>
-          <X color={Colors.textSecondary} size={18} />
-        </View>
-      </TouchableOpacity>
+      {showCloseButton && (
+        <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
+          <View style={styles.closeCircle}>
+            <X color={Colors.textSecondary} size={18} />
+          </View>
+        </TouchableOpacity>
+      )}
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -186,12 +209,12 @@ export default function PaywallScreen() {
         <View style={styles.donationRow}>
           <Heart color={Colors.primary} size={16} fill={Colors.primary} />
           <Text style={styles.donationText}>
-            Pour chaque abonnement annuel, 5$ sont reversés à des associations qui aident les patients atteints de cancer à payer leurs traitements et médicaments.
+            Une partie des revenus est destinée à soutenir la recherche contre le cancer.
           </Text>
         </View>
 
         <Text style={styles.legalText}>
-          L'abonnement se renouvelle automatiquement.{'\n'}
+          Le paiement sera débité de votre compte iTunes à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf annulation au moins 24h avant la fin de la période en cours.{'\n'}
           Annulez à tout moment dans les réglages de votre appareil.
         </Text>
 
@@ -202,6 +225,16 @@ export default function PaywallScreen() {
             <Text style={styles.restoreText}>Restaurer un achat</Text>
           )}
         </TouchableOpacity>
+
+        <View style={styles.legalLinksRow}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://toxiscan.com/terms')}>
+            <Text style={styles.legalLinkText}>Conditions d'utilisation</Text>
+          </TouchableOpacity>
+          <Text style={styles.legalLinkSeparator}>|</Text>
+          <TouchableOpacity onPress={() => Linking.openURL('https://toxiscan.com/privacy')}>
+            <Text style={styles.legalLinkText}>Politique de confidentialité</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -400,7 +433,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     marginBottom: 20,
-    paddingHorizontal: 8,
     backgroundColor: 'rgba(52, 199, 89, 0.06)',
     borderRadius: 14,
     padding: 14,
@@ -430,6 +462,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     textDecorationLine: 'underline' as const,
+  },
+  legalLinksRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  legalLinkText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    textDecorationLine: 'underline' as const,
+  },
+  legalLinkSeparator: {
+    fontSize: 12,
+    color: Colors.textTertiary,
   },
   bottomSpacer: {
     height: 20,

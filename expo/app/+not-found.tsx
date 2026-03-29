@@ -9,7 +9,9 @@ export default function NotFoundScreen() {
     <>
       <Stack.Screen options={{ title: "Page introuvable" }} />
       <View style={styles.container}>
+        <Text style={styles.emoji}>🔍</Text>
         <Text style={styles.title}>Cette page n'existe pas</Text>
+        <Text style={styles.subtitle}>La page que vous cherchez est introuvable.</Text>
         <Link href="/" style={styles.link}>
           <Text style={styles.linkText}>Retour à l'accueil</Text>
         </Link>
@@ -25,14 +27,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
     backgroundColor: Colors.background,
+    gap: 8,
+  },
+  emoji: {
+    fontSize: 48,
+    marginBottom: 8,
   },
   title: {
     fontSize: 18,
-    fontWeight: "600" as const,
+    fontWeight: "700" as const,
     color: Colors.text,
   },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: "center" as const,
+    marginBottom: 8,
+  },
   link: {
-    marginTop: 20,
+    marginTop: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
     backgroundColor: Colors.primary,

@@ -54,7 +54,7 @@ export default function PrivacyScreen() {
 
       <View style={styles.contactCard}>
         <Text style={styles.contactLabel}>Contact</Text>
-        <Text style={styles.contactEmail}>kader@toxiscan.com</Text>
+        <Text style={styles.contactEmail}>contact@toxiscan.com</Text>
       </View>
 
       <View style={styles.spacer} />
@@ -160,4 +160,3 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-// Privacy screen

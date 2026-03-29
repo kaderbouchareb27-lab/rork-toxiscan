@@ -83,7 +83,7 @@ function ConfettiPiece({ index, isVisible }: { index: number; isVisible: boolean
 
     const delay = Math.random() * 400;
 
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: Dimensions.get('window').height * 0.6,
@@ -110,6 +110,8 @@ function ConfettiPiece({ index, isVisible }: { index: number; isVisible: boolean
         ]),
       ]).start();
     }, delay);
+
+    return () => clearTimeout(timeout);
   }, [isVisible, translateY, translateX, opacity, rotate]);
 
   if (!isVisible) return null;
@@ -610,4 +612,3 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
   },
 });
-// Badges screen

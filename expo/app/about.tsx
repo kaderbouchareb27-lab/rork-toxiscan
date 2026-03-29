@@ -29,7 +29,7 @@ export default function AboutScreen() {
 
       <View style={styles.donationCard}>
         <Text style={styles.donationText}>
-          Pour chaque abonnement annuel, 5$ sont reversés à des associations qui aident les patients atteints de cancer à payer leurs traitements et médicaments.
+          Une partie des revenus est destinée à soutenir la recherche contre le cancer.
         </Text>
       </View>
 
@@ -148,4 +148,3 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-// About screen

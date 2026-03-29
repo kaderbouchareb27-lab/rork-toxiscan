@@ -189,4 +189,3 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-// Transparency screen

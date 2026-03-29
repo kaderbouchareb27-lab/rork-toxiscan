@@ -503,7 +503,6 @@ const styles = StyleSheet.create({
     textAlign: 'center' as const,
     paddingHorizontal: 16,
   },
-
   cardsSection: {
     paddingHorizontal: 20,
     gap: 12,
@@ -620,4 +619,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-// Scanner Screen

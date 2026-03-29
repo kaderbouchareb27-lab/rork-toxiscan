@@ -19,6 +19,7 @@ import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/colors';
 import { ChatMessage } from '@/types';
 import { generateText } from '@rork-ai/toolkit-sdk';
@@ -105,15 +106,57 @@ async function getBase64FromUri(uri: string): Promise<string> {
   return compressImageNative(uri);
 }
 
+const CHAT_STORAGE_KEY = 'toxiscan_drtoxi_chat';
+const MAX_PERSISTED_MESSAGES = 50;
+
+async function loadPersistedMessages(): Promise<ChatMessage[]> {
+  try {
+    const stored = await AsyncStorage.getItem(CHAT_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored) as ChatMessage[];
+    console.log('[DrToxi] Loaded', parsed.length, 'persisted messages');
+    return parsed;
+  } catch (error) {
+    console.log('[DrToxi] Error loading persisted messages:', error);
+    return [];
+  }
+}
+
+async function persistMessages(messages: ChatMessage[]): Promise<void> {
+  try {
+    const toStore = messages.slice(-MAX_PERSISTED_MESSAGES);
+    await AsyncStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toStore));
+    console.log('[DrToxi] Persisted', toStore.length, 'messages');
+  } catch (error) {
+    console.log('[DrToxi] Error persisting messages:', error);
+  }
+}
+
 export default function DrToxiScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>('');
   const [tipIndex, setTipIndex] = useState<number>(0);
   const [visionTipIndex, setVisionTipIndex] = useState<number>(0);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState<boolean>(false);
+  const [hasLoadedMessages, setHasLoadedMessages] = useState<boolean>(false);
   const flatListRef = useRef<FlatList>(null);
   const { canUseDrToxi, drToxiRemaining, drToxiLimit, isPro, consumeDrToxi } = useSubscription();
   const { recordDrToxiQuestion, recordShare } = useBadges();
+
+  useEffect(() => {
+    void loadPersistedMessages().then((loaded) => {
+      if (loaded.length > 0) {
+        setMessages(loaded);
+      }
+      setHasLoadedMessages(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (hasLoadedMessages && messages.length > 0) {
+      void persistMessages(messages);
+    }
+  }, [messages, hasLoadedMessages]);
 
   const sendMutation = useMutation({
     mutationFn: async (payload: { text: string; imageBase64?: string }) => {
@@ -284,8 +327,8 @@ export default function DrToxiScreen() {
             { text: 'Plus tard', style: 'cancel' },
             { text: 'Autoriser la caméra', onPress: () => {
               if (Platform.OS !== 'web') {
-                void import('expo-linking').then(Linking => {
-                  void Linking.openSettings();
+                void import('expo-linking').then(LinkingModule => {
+                  void LinkingModule.openSettings();
                 }).catch(() => {});
               }
             }},
@@ -295,7 +338,7 @@ export default function DrToxiScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         quality: 0.8,
         allowsEditing: false,
       });
@@ -308,7 +351,7 @@ export default function DrToxiScreen() {
       console.error('[DrToxi] Camera error:', error);
       Alert.alert('Erreur', 'Impossible d\'ouvrir la caméra. Essaie de choisir une photo depuis ta galerie.');
     }
-  }, [sendMutation.isPending, isAnalyzingImage, handleImagePicked]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sendMutation.isPending, isAnalyzingImage, handleImagePicked]);
 
   const handleGalleryPress = useCallback(async () => {
     if (sendMutation.isPending || isAnalyzingImage) return;
@@ -319,7 +362,7 @@ export default function DrToxiScreen() {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         quality: 0.8,
         allowsEditing: false,
       });
@@ -477,8 +520,6 @@ export default function DrToxiScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-
-
           </View>
         ) : (
           <FlatList
@@ -678,7 +719,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
   },
-
   messagesList: {
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -804,13 +844,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(52, 199, 89, 0.1)',
   },
-  galleryButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   cameraButtonDisabled: {
     opacity: 0.4,
   },
@@ -839,4 +872,3 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
 });
-

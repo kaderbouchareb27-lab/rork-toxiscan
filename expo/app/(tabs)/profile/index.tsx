@@ -11,8 +11,9 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Gift } from 'lucide-react-native';
+import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import * as StoreReview from 'expo-store-review';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
 
@@ -31,7 +32,7 @@ export default function ProfileScreen() {
   const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
 
   const handleContact = useCallback(async () => {
-    const url = 'mailto:kader@toxiscan.com';
+    const url = 'mailto:contact@toxiscan.com';
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) {
@@ -39,14 +40,14 @@ export default function ProfileScreen() {
       } else {
         Alert.alert(
           'Nous contacter',
-          'Envoyez-nous un courriel à :\nkader@toxiscan.com',
+          'Envoyez-nous un courriel à :\ncontact@toxiscan.com',
           [{ text: 'OK' }]
         );
       }
     } catch {
       Alert.alert(
         'Nous contacter',
-        'Envoyez-nous un courriel à :\nkader@toxiscan.com',
+        'Envoyez-nous un courriel à :\ncontact@toxiscan.com',
         [{ text: 'OK' }]
       );
     }
@@ -59,6 +60,31 @@ export default function ProfileScreen() {
     router.push(route as never);
   }, []);
 
+  const handleRateApp = useCallback(async () => {
+    console.log('[Profile] Rate app tapped');
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    try {
+      if (Platform.OS !== 'web' && await StoreReview.hasAction()) {
+        await StoreReview.requestReview();
+      } else {
+        Alert.alert(
+          'Noter ToxiScan',
+          'Votre avis compte ! Merci de nous soutenir.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.log('[Profile] StoreReview error:', error);
+      Alert.alert(
+        'Noter ToxiScan',
+        'Votre avis compte ! Merci de nous soutenir.',
+        [{ text: 'OK' }]
+      );
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -66,24 +92,37 @@ export default function ProfileScreen() {
 
         <TouchableOpacity
           style={[styles.card, isPro ? styles.proCard : styles.freeCard]}
-          onPress={() => handleMenuPress('/paywall?source=profile')}
-          activeOpacity={0.8}
+          onPress={() => !isPro && handleMenuPress('/paywall?source=profile')}
+          activeOpacity={isPro ? 1 : 0.8}
           testID="subscription-card"
         >
           <View style={styles.subscriptionRow}>
-            <Image
-              source={{ uri: DR_TOXI_AVATAR }}
-              style={styles.subscriptionAvatar}
-            />
+            {isPro ? (
+              <View style={styles.proCheckCircle}>
+                <Check color={Colors.white} size={18} strokeWidth={3} />
+              </View>
+            ) : (
+              <Image
+                source={{ uri: DR_TOXI_AVATAR }}
+                style={styles.subscriptionAvatar}
+              />
+            )}
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionLabel}>
-                {isPro ? 'ToxiScan Pro' : 'ToxiScan Pro'}
+                {isPro ? 'ToxiScan Pro' : 'ToxiScan Gratuit'}
               </Text>
               <Text style={[styles.subscriptionStatus, !isPro && styles.subscriptionStatusFree]}>
-                {isPro ? 'Dr. Toxi illimité, historique illimité, favoris, notifications' : 'Dr. Toxi illimité, historique illimité, favoris, notifications'}
+                {isPro ? 'Actif — Dr. Toxi illimité, historique complet' : 'Dr. Toxi illimité, historique illimité, favoris'}
               </Text>
             </View>
-            <ChevronRight color={Colors.textTertiary} size={16} />
+            {isPro ? (
+              <Text style={styles.proActiveBadge}>Actif</Text>
+            ) : (
+              <View style={styles.upgradeButton}>
+                <Crown color={Colors.white} size={14} />
+                <Text style={styles.upgradeButtonText}>Pro</Text>
+              </View>
+            )}
           </View>
         </TouchableOpacity>
 
@@ -200,20 +239,12 @@ export default function ProfileScreen() {
           <MenuItem
             icon={<Star color={Colors.textSecondary} size={18} />}
             label="Noter l'app"
-            onPress={() => { console.log('[Profile] Rate app tapped'); }}
+            onPress={handleRateApp}
             testID="rate-link"
           />
         </View>
 
-        <View style={styles.partnerCard}>
-          <View style={styles.partnerIconContainer}>
-            <Gift color={Colors.textTertiary} size={20} />
-          </View>
-          <Text style={styles.partnerTitle}>Offres partenaires</Text>
-          <Text style={styles.partnerText}>Bientôt disponible — des offres exclusives de marques bio pour nos utilisateurs les plus actifs</Text>
-        </View>
-
-        <Text style={styles.versionText}>ToxiScan v2.0.0</Text>
+        <Text style={styles.versionText}>ToxiScan v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -316,6 +347,38 @@ const styles = StyleSheet.create({
   subscriptionStatusFree: {
     color: Colors.textSecondary,
   },
+  proCheckCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  proActiveBadge: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: Colors.primary,
+    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  upgradeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  upgradeButtonText: {
+    fontSize: 13,
+    fontWeight: '700' as const,
+    color: Colors.white,
+  },
   statsTotal: {
     fontSize: 14,
     color: Colors.textSecondary,
@@ -350,7 +413,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600' as const,
     color: Colors.text,
-    textAlign: 'right',
+    textAlign: 'right' as const,
   },
   menuItem: {
     flexDirection: 'row',
@@ -472,38 +535,6 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.primary,
   },
-  partnerCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderStyle: 'dashed',
-    opacity: 0.7,
-  },
-  partnerIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.surfaceSecondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  partnerTitle: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: Colors.textSecondary,
-    marginBottom: 6,
-  },
-  partnerText: {
-    fontSize: 13,
-    color: Colors.textTertiary,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
   versionText: {
     textAlign: 'center',
     fontSize: 12,
@@ -511,4 +542,3 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
-// Profile screen
