@@ -181,7 +181,7 @@ export default function DrToxiScreen() {
       const response = await generateText({
         messages: [
           { role: 'user' as const, content: systemPrompt },
-          { role: 'assistant' as const, content: 'Compris ! Je suis Dr. Toxi, ton conseiller santé du quotidien. Je suis prêt à t\'aider.' },
+          { role: 'assistant' as const, content: 'Compris ! Je suis Dr. Toxi, ton expert en ingrédients du quotidien. Je suis prêt à t\'aider.' },
           ...conversationHistory.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
           { role: 'user' as const, content: userContent },
         ],
@@ -463,7 +463,7 @@ export default function DrToxiScreen() {
         <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.avatar} />
         <View style={styles.headerInfo}>
           <Text style={styles.headerTitle}>Dr. Toxi</Text>
-          <Text style={styles.headerSubtitle}>Ton conseiller santé du quotidien</Text>
+          <Text style={styles.headerSubtitle}>Ton expert en ingrédients du quotidien</Text>
         </View>
       </View>
 

@@ -40,7 +40,7 @@ export default function AIConsentScreen() {
         <Text style={styles.title}>ToxiScan utilise l'intelligence artificielle</Text>
 
         <Text style={styles.description}>
-          Dr. Toxi, ton conseiller santé, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.
+          Dr. Toxi, ton expert en ingrédients, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.
         </Text>
 
         <View style={styles.techCard}>

@@ -25,10 +25,7 @@ const ICON_URL = 'https://r2-pub.rork.com/generated-images/948662bd-b633-4d6d-84
 export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
-  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress, isPro } = useSubscription();
-
-  const isLimitReached = source === 'drtoxi' || source === 'history' || source === 'favorite' || source === 'alerts';
-  const showCloseButton = !isLimitReached || isPro;
+  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress } = useSubscription();
 
   const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_monthly') ?? null;
   const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_annual') ?? null;
@@ -122,13 +119,11 @@ export default function PaywallScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {showCloseButton && (
-        <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
-          <View style={styles.closeCircle}>
-            <X color={Colors.textSecondary} size={18} />
-          </View>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
+        <View style={styles.closeCircle}>
+          <X color={Colors.textSecondary} size={18} />
+        </View>
+      </TouchableOpacity>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
