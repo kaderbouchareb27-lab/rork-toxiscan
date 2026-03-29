@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -23,7 +24,16 @@ const ICON_URL = 'https://r2-pub.rork.com/generated-images/948662bd-b633-4d6d-84
 export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
-  const { setPro } = useSubscription();
+  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress } = useSubscription();
+
+  const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_monthly') ?? null;
+  const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_annual') ?? null;
+
+  const monthlyPrice = monthlyPackage?.product?.priceString ?? '2,99 $';
+  const annualPrice = annualPackage?.product?.priceString ?? '29,99 $';
+  const annualMonthly = annualPackage?.product?.price != null
+    ? `${(annualPackage.product.price / 12).toFixed(2).replace('.', ',')} ${annualPackage.product.currencyCode ?? '$'}`
+    : '2,50 $';
 
   const handlePlanSelect = useCallback((plan: PlanType) => {
     console.log('[Paywall] Plan selected:', plan);
@@ -34,22 +44,18 @@ export default function PaywallScreen() {
   }, []);
 
   const handleSubscribe = useCallback(() => {
-    console.log('[Paywall] Subscribe tapped, plan:', selectedPlan);
+    const pkg = selectedPlan === 'annual' ? annualPackage : monthlyPackage;
+    if (!pkg) {
+      console.log('[Paywall] No package available for plan:', selectedPlan);
+      Alert.alert('Erreur', 'Impossible de charger les offres. Veuillez réessayer.');
+      return;
+    }
+    console.log('[Paywall] Purchasing package:', pkg.identifier);
     if (Platform.OS !== 'web') {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    Alert.alert(
-      'Abonnement activé',
-      'RevenueCat sera intégré prochainement. Pour le moment, le mode Pro est activé localement.',
-      [{
-        text: 'OK',
-        onPress: () => {
-          setPro(true);
-          router.back();
-        },
-      }]
-    );
-  }, [selectedPlan, setPro]);
+    purchasePackage(pkg);
+  }, [selectedPlan, annualPackage, monthlyPackage, purchasePackage]);
 
   const handleDismiss = useCallback(() => {
     console.log('[Paywall] Dismissed');
@@ -58,12 +64,8 @@ export default function PaywallScreen() {
 
   const handleRestore = useCallback(() => {
     console.log('[Paywall] Restore tapped');
-    Alert.alert(
-      'Restauration',
-      'RevenueCat sera intégré prochainement. Aucun achat à restaurer pour le moment.',
-      [{ text: 'OK' }]
-    );
-  }, []);
+    restorePurchase();
+  }, [restorePurchase]);
 
   const getContextTitle = () => {
     switch (source) {
@@ -95,9 +97,11 @@ export default function PaywallScreen() {
     }
   };
 
+  const isLoading = purchaseInProgress || restoreInProgress;
+
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close">
+      <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
         <View style={styles.closeCircle}>
           <X color={Colors.textSecondary} size={18} />
         </View>
@@ -128,6 +132,7 @@ export default function PaywallScreen() {
             onPress={() => handlePlanSelect('annual')}
             activeOpacity={0.8}
             testID="plan-annual"
+            disabled={isLoading}
           >
             <View style={styles.planBadge}>
               <Text style={styles.planBadgeText}>Économisez 17%</Text>
@@ -138,8 +143,8 @@ export default function PaywallScreen() {
               </View>
             </View>
             <View style={styles.planInfo}>
-              <Text style={styles.planTitle}>Annuel — 29,99 $/an</Text>
-              <Text style={styles.planSubtext}>soit 2,50 $/mois</Text>
+              <Text style={styles.planTitle}>Annuel — {annualPrice}/an</Text>
+              <Text style={styles.planSubtext}>soit {annualMonthly}/mois</Text>
             </View>
           </TouchableOpacity>
 
@@ -148,6 +153,7 @@ export default function PaywallScreen() {
             onPress={() => handlePlanSelect('monthly')}
             activeOpacity={0.8}
             testID="plan-monthly"
+            disabled={isLoading}
           >
             <View style={styles.planRadio}>
               <View style={[styles.radioOuter, selectedPlan === 'monthly' && styles.radioOuterSelected]}>
@@ -155,19 +161,26 @@ export default function PaywallScreen() {
               </View>
             </View>
             <View style={styles.planInfo}>
-              <Text style={styles.planTitle}>Mensuel — 2,99 $/mois</Text>
+              <Text style={styles.planTitle}>Mensuel — {monthlyPrice}/mois</Text>
             </View>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          style={styles.ctaButton}
+          style={[styles.ctaButton, isLoading && styles.ctaButtonDisabled]}
           onPress={handleSubscribe}
           activeOpacity={0.85}
           testID="paywall-subscribe"
+          disabled={isLoading}
         >
-          <Crown color={Colors.white} size={20} />
-          <Text style={styles.ctaButtonText}>Passer à ToxiScan Pro</Text>
+          {purchaseInProgress ? (
+            <ActivityIndicator color={Colors.white} size="small" />
+          ) : (
+            <>
+              <Crown color={Colors.white} size={20} />
+              <Text style={styles.ctaButtonText}>Passer à ToxiScan Pro</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <View style={styles.donationRow}>
@@ -182,8 +195,12 @@ export default function PaywallScreen() {
           Annulez à tout moment dans les réglages de votre appareil.
         </Text>
 
-        <TouchableOpacity onPress={handleRestore} style={styles.restoreButton} testID="paywall-restore">
-          <Text style={styles.restoreText}>Restaurer un achat</Text>
+        <TouchableOpacity onPress={handleRestore} style={styles.restoreButton} testID="paywall-restore" disabled={isLoading}>
+          {restoreInProgress ? (
+            <ActivityIndicator color={Colors.textSecondary} size="small" />
+          ) : (
+            <Text style={styles.restoreText}>Restaurer un achat</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />
@@ -370,6 +387,9 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 6,
   },
+  ctaButtonDisabled: {
+    opacity: 0.7,
+  },
   ctaButtonText: {
     color: Colors.white,
     fontSize: 17,
@@ -415,4 +435,3 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-// Paywall screen

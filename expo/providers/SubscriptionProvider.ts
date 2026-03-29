@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
+import Purchases, { PurchasesPackage, CustomerInfo } from 'react-native-purchases';
 
-const SUBSCRIPTION_KEY = 'toxiscan_subscription';
 const USAGE_KEY = 'toxiscan_daily_usage';
-
 const FREE_DRTOXI_LIMIT = 3;
 const FREE_HISTORY_LIMIT = 3;
+const ENTITLEMENT_ID = 'ToxiScan Pro';
 
 interface DailyUsage {
   date: string;
@@ -23,15 +24,57 @@ function getDefaultUsage(): DailyUsage {
   return { date: getTodayString(), drToxiCount: 0 };
 }
 
+function getRCToken(): string {
+  if (__DEV__ || Platform.OS === 'web') return process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? '';
+  return Platform.select({
+    ios: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY,
+    android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY,
+    default: process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY,
+  }) ?? '';
+}
+
+const rcToken = getRCToken();
+if (rcToken) {
+  console.log('[RevenueCat] Configuring with token:', rcToken.substring(0, 12) + '...');
+  Purchases.configure({ apiKey: rcToken });
+} else {
+  console.warn('[RevenueCat] No API key found, purchases will not work');
+}
+
 export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   const [isPro, setIsPro] = useState<boolean>(false);
   const [usage, setUsage] = useState<DailyUsage>(getDefaultUsage());
+  const queryClient = useQueryClient();
 
-  const subscriptionQuery = useQuery({
-    queryKey: ['subscription'],
+  const customerInfoQuery = useQuery({
+    queryKey: ['customerInfo'],
     queryFn: async () => {
-      const value = await AsyncStorage.getItem(SUBSCRIPTION_KEY);
-      return value === 'true';
+      try {
+        const info = await Purchases.getCustomerInfo();
+        console.log('[RevenueCat] Customer info fetched, entitlements:', JSON.stringify(Object.keys(info.entitlements.active)));
+        return info;
+      } catch (e) {
+        console.log('[RevenueCat] Error fetching customer info:', e);
+        return null;
+      }
+    },
+    refetchInterval: 1000 * 60 * 5,
+  });
+
+  const offeringsQuery = useQuery({
+    queryKey: ['offerings'],
+    queryFn: async () => {
+      try {
+        const offerings = await Purchases.getOfferings();
+        console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
+        if (offerings.current?.availablePackages) {
+          console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map(p => p.identifier));
+        }
+        return offerings.current ?? null;
+      } catch (e) {
+        console.log('[RevenueCat] Error fetching offerings:', e);
+        return null;
+      }
     },
   });
 
@@ -49,10 +92,12 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   });
 
   useEffect(() => {
-    if (subscriptionQuery.data !== undefined) {
-      setIsPro(subscriptionQuery.data);
+    if (customerInfoQuery.data) {
+      const hasEntitlement = !!customerInfoQuery.data.entitlements.active[ENTITLEMENT_ID];
+      console.log('[RevenueCat] Has ToxiScan Pro entitlement:', hasEntitlement);
+      setIsPro(hasEntitlement);
     }
-  }, [subscriptionQuery.data]);
+  }, [customerInfoQuery.data]);
 
   useEffect(() => {
     if (usageQuery.data) {
@@ -64,6 +109,19 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     }
   }, [usageQuery.data]);
 
+  useEffect(() => {
+    const listener = (info: CustomerInfo) => {
+      console.log('[RevenueCat] Customer info updated via listener');
+      const hasEntitlement = !!info.entitlements.active[ENTITLEMENT_ID];
+      setIsPro(hasEntitlement);
+      queryClient.setQueryData(['customerInfo'], info);
+    };
+    Purchases.addCustomerInfoUpdateListener(listener);
+    return () => {
+      Purchases.removeCustomerInfoUpdateListener(listener);
+    };
+  }, [queryClient]);
+
   const saveUsageMutation = useMutation({
     mutationFn: async (newUsage: DailyUsage) => {
       await AsyncStorage.setItem(USAGE_KEY, JSON.stringify(newUsage));
@@ -71,10 +129,44 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     },
   });
 
-  const saveSubscriptionMutation = useMutation({
-    mutationFn: async (value: boolean) => {
-      await AsyncStorage.setItem(SUBSCRIPTION_KEY, value ? 'true' : 'false');
-      return value;
+  const purchaseMutation = useMutation({
+    mutationFn: async (pkg: PurchasesPackage) => {
+      console.log('[RevenueCat] Purchasing package:', pkg.identifier);
+      const result = await Purchases.purchasePackage(pkg);
+      console.log('[RevenueCat] Purchase result, entitlements:', JSON.stringify(Object.keys(result.customerInfo.entitlements.active)));
+      return result;
+    },
+    onSuccess: (result) => {
+      const hasEntitlement = !!result.customerInfo.entitlements.active[ENTITLEMENT_ID];
+      setIsPro(hasEntitlement);
+      queryClient.setQueryData(['customerInfo'], result.customerInfo);
+      console.log('[RevenueCat] Purchase success, isPro:', hasEntitlement);
+    },
+    onError: (error: unknown) => {
+      const err = error as { userCancelled?: boolean; message?: string };
+      if (err.userCancelled) {
+        console.log('[RevenueCat] Purchase cancelled by user');
+      } else {
+        console.log('[RevenueCat] Purchase error:', err.message ?? error);
+      }
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async () => {
+      console.log('[RevenueCat] Restoring purchases...');
+      const info = await Purchases.restorePurchases();
+      console.log('[RevenueCat] Restore result, entitlements:', JSON.stringify(Object.keys(info.entitlements.active)));
+      return info;
+    },
+    onSuccess: (info) => {
+      const hasEntitlement = !!info.entitlements.active[ENTITLEMENT_ID];
+      setIsPro(hasEntitlement);
+      queryClient.setQueryData(['customerInfo'], info);
+      console.log('[RevenueCat] Restore success, isPro:', hasEntitlement);
+    },
+    onError: (error: unknown) => {
+      console.log('[RevenueCat] Restore error:', error);
     },
   });
 
@@ -97,13 +189,18 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const setPro = useCallback((value: boolean) => {
     setIsPro(value);
-    saveSubscriptionMutation.mutate(value);
-    console.log('[Subscription] Pro status set to:', value);
-  }, [saveSubscriptionMutation]);
+    console.log('[Subscription] Pro status manually set to:', value);
+  }, []);
+
+  const purchasePackage = useCallback((pkg: PurchasesPackage) => {
+    purchaseMutation.mutate(pkg);
+  }, [purchaseMutation]);
 
   const restorePurchase = useCallback(() => {
-    console.log('[Subscription] Restore purchase - RevenueCat not yet integrated');
-  }, []);
+    restoreMutation.mutate();
+  }, [restoreMutation]);
+
+  const currentOffering = offeringsQuery.data ?? null;
 
   return useMemo(() => ({
     isPro,
@@ -112,8 +209,12 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     consumeDrToxi,
     setPro,
     restorePurchase,
+    purchasePackage,
+    currentOffering,
+    purchaseInProgress: purchaseMutation.isPending,
+    restoreInProgress: restoreMutation.isPending,
     drToxiLimit: FREE_DRTOXI_LIMIT,
     freeHistoryLimit: FREE_HISTORY_LIMIT,
-    isLoading: subscriptionQuery.isLoading || usageQuery.isLoading,
-  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, setPro, restorePurchase, subscriptionQuery.isLoading, usageQuery.isLoading]);
+    isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
+  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, setPro, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading]);
 });
