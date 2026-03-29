@@ -14,7 +14,7 @@ export default function DonationBanner() {
         <Heart color={Colors.primary} size={18} strokeWidth={2} fill={Colors.primary} />
       </View>
       <Text style={styles.text}>
-        Pour chaque abonnement annuel, 5$ sont reversés à des associations qui aident les patients atteints de cancer à payer leurs traitements et médicaments.
+        Une partie des revenus est destinée à soutenir la recherche contre le cancer.
       </Text>
     </View>
   );
