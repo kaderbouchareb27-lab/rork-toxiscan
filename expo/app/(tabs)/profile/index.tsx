@@ -6,14 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  Image,
   Alert,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, Shield, FileText, HelpCircle, Eye, Mail, Star, Crown, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Gift } from 'lucide-react-native';
+import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Gift } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
+
+const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
@@ -62,26 +65,25 @@ export default function ProfileScreen() {
         <Text style={styles.title}>Profil</Text>
 
         <TouchableOpacity
-          style={[styles.card, isPro && styles.proCard]}
-          onPress={isPro ? undefined : () => handleMenuPress('/paywall?source=profile')}
-          activeOpacity={isPro ? 1 : 0.8}
+          style={[styles.card, isPro ? styles.proCard : styles.freeCard]}
+          onPress={() => handleMenuPress('/paywall?source=profile')}
+          activeOpacity={0.8}
           testID="subscription-card"
         >
           <View style={styles.subscriptionRow}>
-            {isPro ? (
-              <Crown color={Colors.primary} size={20} />
-            ) : (
-              <Shield color={Colors.textSecondary} size={20} />
-            )}
+            <Image
+              source={{ uri: DR_TOXI_AVATAR }}
+              style={styles.subscriptionAvatar}
+            />
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionLabel}>
-                {isPro ? 'ToxiScan Pro' : 'ToxiScan Gratuit'}
+                {isPro ? 'ToxiScan Pro' : 'ToxiScan Pro'}
               </Text>
               <Text style={[styles.subscriptionStatus, !isPro && styles.subscriptionStatusFree]}>
-                {isPro ? 'Dr. Toxi illimité, historique illimité, favoris, notifications' : 'Scans photo illimités — 3 messages Dr. Toxi/jour — 3 produits en historique'}
+                {isPro ? 'Dr. Toxi illimité, historique illimité, favoris, notifications' : 'Dr. Toxi illimité, historique illimité, favoris, notifications'}
               </Text>
             </View>
-            {!isPro && <ChevronRight color={Colors.textTertiary} size={16} />}
+            <ChevronRight color={Colors.textTertiary} size={16} />
           </View>
         </TouchableOpacity>
 
@@ -276,6 +278,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(52, 199, 89, 0.3)',
     backgroundColor: 'rgba(52, 199, 89, 0.04)',
+  },
+  freeCard: {
+    borderWidth: 1,
+    borderColor: 'rgba(52, 199, 89, 0.15)',
+  },
+  subscriptionAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
   },
   cardTitle: {
     fontSize: 16,
