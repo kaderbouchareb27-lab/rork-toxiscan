@@ -12,7 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database } from 'lucide-react-native';
+import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, Activity } from 'lucide-react-native';
+import { Animated as RNAnimated } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import ShareImageCard from '@/components/ShareImageCard';
@@ -23,8 +24,116 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo } from '@/constants/additives';
-import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
+import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative, AdditiveInfo } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
+
+interface RiskLevel {
+  color: string;
+  label: string;
+}
+
+function getRiskLevel(score: number): RiskLevel {
+  if (score <= 20) return { color: '#34C759', label: 'Risque faible — Bon choix' };
+  if (score <= 40) return { color: '#A8D844', label: 'Risque limité — Acceptable' };
+  if (score <= 60) return { color: '#FF9500', label: 'Risque modéré — À limiter' };
+  if (score <= 80) return { color: '#FF6B35', label: 'Risque élevé — À éviter si possible' };
+  return { color: '#FF3B30', label: 'Risque très élevé — Déconseillé' };
+}
+
+function calculateRiskScore(product: {
+  detectedAdditives: AdditiveInfo[];
+  detectedIngredients?: DetectedIngredient[];
+  substances?: SubstanceDetected[];
+  ingredientsText: string;
+}): number {
+  let score = 0;
+
+  for (const additive of product.detectedAdditives) {
+    if (additive.group === 'group1') score += 30;
+    else if (additive.group === 'group2a') score += 20;
+    else if (additive.group === 'group2b') score += 10;
+    else score += 5;
+  }
+
+  if (product.substances) {
+    for (const s of product.substances) {
+      if (s.niveau_risque === 'danger') score += 30;
+      else if (s.niveau_risque === 'probable') score += 20;
+      else if (s.niveau_risque === 'possible') score += 10;
+    }
+  }
+
+  if (product.detectedIngredients) {
+    for (const i of product.detectedIngredients) {
+      if (i.niveau_risque === 'danger') score += 30;
+      else if (i.niveau_risque === 'probable') score += 20;
+      else if (i.niveau_risque === 'possible') score += 10;
+    }
+  }
+
+  const ingLower = (product.ingredientsText ?? '').toLowerCase();
+  const controversialPatterns = [
+    'tartrazine', 'jaune de quinoléine', 'amarante', 'rouge allura', 'bleu brillant',
+    'aspartame', 'acésulfame', 'sucralose', 'saccharine',
+    'nitrite de sodium', 'nitrate de potassium', 'bha', 'bht',
+    'e102', 'e104', 'e110', 'e122', 'e123', 'e124', 'e129', 'e131', 'e132', 'e133',
+    'e950', 'e951', 'e952', 'e954', 'e955',
+    'e249', 'e250', 'e251', 'e252', 'e320', 'e321',
+  ];
+  for (const pattern of controversialPatterns) {
+    if (ingLower.includes(pattern)) score += 5;
+  }
+
+  const firstIngredient = ingLower.split(',')[0] ?? '';
+  const sugarTerms = ['sucre', 'sugar', 'glucose', 'fructose', 'sirop de glucose', 'glucose-fructose'];
+  if (sugarTerms.some(t => firstIngredient.includes(t))) score += 10;
+
+  if (ingLower.includes('huile de palme') || ingLower.includes('palm oil')) score += 5;
+
+  return Math.min(score, 100);
+}
+
+function RiskScoreBar({ score }: { score: number }) {
+  const animRef = useRef(new RNAnimated.Value(0));
+  const level = getRiskLevel(score);
+
+  React.useEffect(() => {
+    RNAnimated.timing(animRef.current, {
+      toValue: score,
+      duration: 800,
+      useNativeDriver: false,
+    }).start();
+  }, [score]);
+
+  const widthInterpolation = animRef.current.interpolate({
+    inputRange: [0, 100],
+    outputRange: ['0%', '100%'],
+    extrapolate: 'clamp',
+  });
+
+  return (
+    <View style={riskScoreStyles.container} testID="risk-score-block">
+      <View style={riskScoreStyles.titleRow}>
+        <Activity color={level.color} size={18} />
+        <Text style={riskScoreStyles.title}>Score de risque ToxiScan</Text>
+      </View>
+      <View style={riskScoreStyles.scoreRow}>
+        <View style={riskScoreStyles.barContainer}>
+          <View style={riskScoreStyles.barTrack}>
+            <RNAnimated.View
+              style={[
+                riskScoreStyles.barFill,
+                { width: widthInterpolation, backgroundColor: level.color },
+              ]}
+            />
+          </View>
+        </View>
+        <Text style={[riskScoreStyles.scoreValue, { color: level.color }]}>{score}</Text>
+      </View>
+      <Text style={riskScoreStyles.levelLabel}>{level.label}</Text>
+    </View>
+  );
+}
 
 function getRiskIcon(group: RiskGroup, size: number) {
   switch (group) {
@@ -250,6 +359,8 @@ export default function ProductScreen() {
 
   const showBioStores = product.riskGroup === 'group1' || product.riskGroup === 'group2a';
   const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
+
+  const riskScore = useMemo(() => calculateRiskScore(product), [product]);
 
   const dangerousSubstances = product.substances?.filter(
     (s: SubstanceDetected) => s.niveau_risque !== 'aucun'
@@ -536,6 +647,8 @@ export default function ProductScreen() {
             </View>
           </View>
         )}
+
+        <RiskScoreBar score={riskScore} />
 
         {showBioStores && (
           <View style={styles.section}>
@@ -1165,6 +1278,63 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800' as const,
     color: '#FFFFFF',
+  },
+});
+
+const riskScoreStyles = StyleSheet.create({
+  container: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 18,
+    marginTop: 20,
+    marginBottom: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 14,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#1A1A1A',
+  },
+  scoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  barContainer: {
+    flex: 1,
+  },
+  barTrack: {
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#F0F0F0',
+    overflow: 'hidden' as const,
+  },
+  barFill: {
+    height: 12,
+    borderRadius: 6,
+  },
+  scoreValue: {
+    fontSize: 32,
+    fontWeight: '800' as const,
+    minWidth: 48,
+    textAlign: 'right' as const,
+  },
+  levelLabel: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    marginTop: 10,
   },
 });
 // Product detail screen - ToxiScan
