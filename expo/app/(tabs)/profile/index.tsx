@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown } from 'lucide-react-native';
+import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as StoreReview from 'expo-store-review';
 import Colors from '@/constants/colors';
@@ -211,6 +211,12 @@ export default function ProfileScreen() {
             label="Politique de confidentialité"
             onPress={() => handleMenuPress('/privacy')}
             testID="privacy-link"
+          />
+          <MenuItem
+            icon={<ScrollText color={Colors.textSecondary} size={18} />}
+            label="Conditions d'utilisation"
+            onPress={() => handleMenuPress('/terms')}
+            testID="terms-link"
           />
           <MenuItem
             icon={<HelpCircle color={Colors.textSecondary} size={18} />}
