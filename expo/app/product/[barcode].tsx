@@ -45,10 +45,13 @@ function calculateRiskScore(product: {
   detectedIngredients?: DetectedIngredient[];
   substances?: SubstanceDetected[];
   ingredientsText: string;
+  riskGroup?: string;
 }): number {
   let score = 0;
+  let hasAnyRisk = false;
 
   for (const additive of product.detectedAdditives) {
+    hasAnyRisk = true;
     if (additive.group === 'group1') score += 30;
     else if (additive.group === 'group2a') score += 20;
     else if (additive.group === 'group2b') score += 10;
@@ -57,17 +60,17 @@ function calculateRiskScore(product: {
 
   if (product.substances) {
     for (const s of product.substances) {
-      if (s.niveau_risque === 'danger') score += 30;
-      else if (s.niveau_risque === 'probable') score += 20;
-      else if (s.niveau_risque === 'possible') score += 10;
+      if (s.niveau_risque === 'danger') { score += 30; hasAnyRisk = true; }
+      else if (s.niveau_risque === 'probable') { score += 20; hasAnyRisk = true; }
+      else if (s.niveau_risque === 'possible') { score += 10; hasAnyRisk = true; }
     }
   }
 
   if (product.detectedIngredients) {
     for (const i of product.detectedIngredients) {
-      if (i.niveau_risque === 'danger') score += 30;
-      else if (i.niveau_risque === 'probable') score += 20;
-      else if (i.niveau_risque === 'possible') score += 10;
+      if (i.niveau_risque === 'danger') { score += 30; hasAnyRisk = true; }
+      else if (i.niveau_risque === 'probable') { score += 20; hasAnyRisk = true; }
+      else if (i.niveau_risque === 'possible') { score += 10; hasAnyRisk = true; }
     }
   }
 
@@ -81,14 +84,22 @@ function calculateRiskScore(product: {
     'e249', 'e250', 'e251', 'e252', 'e320', 'e321',
   ];
   for (const pattern of controversialPatterns) {
-    if (ingLower.includes(pattern)) score += 5;
+    if (ingLower.includes(pattern)) { score += 5; hasAnyRisk = true; }
   }
 
   const firstIngredient = ingLower.split(',')[0] ?? '';
   const sugarTerms = ['sucre', 'sugar', 'glucose', 'fructose', 'sirop de glucose', 'glucose-fructose'];
-  if (sugarTerms.some(t => firstIngredient.includes(t))) score += 10;
+  if (sugarTerms.some(t => firstIngredient.includes(t))) { score += 10; hasAnyRisk = true; }
 
-  if (ingLower.includes('huile de palme') || ingLower.includes('palm oil')) score += 5;
+  if (ingLower.includes('huile de palme') || ingLower.includes('palm oil')) { score += 5; hasAnyRisk = true; }
+
+  if (!hasAnyRisk && product.riskGroup === 'none') {
+    return 0;
+  }
+
+  if (!hasAnyRisk) {
+    return 5;
+  }
 
   return Math.min(score, 100);
 }
@@ -360,7 +371,13 @@ export default function ProductScreen() {
   const showBioStores = product.riskGroup === 'group1' || product.riskGroup === 'group2a';
   const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
 
-  const riskScore = useMemo(() => calculateRiskScore(product), [product]);
+  const riskScore = useMemo(() => calculateRiskScore({
+    detectedAdditives: product.detectedAdditives,
+    detectedIngredients: product.detectedIngredients,
+    substances: product.substances,
+    ingredientsText: product.ingredientsText,
+    riskGroup: product.riskGroup,
+  }), [product]);
 
   const dangerousSubstances = product.substances?.filter(
     (s: SubstanceDetected) => s.niveau_risque !== 'aucun'
@@ -483,6 +500,7 @@ export default function ProductScreen() {
         ) : null}
 
         <RiskScoreBar score={riskScore} />
+
 
         {isUniversalScan && dangerousSubstances.length > 0 ? (
           <View style={styles.section}>
