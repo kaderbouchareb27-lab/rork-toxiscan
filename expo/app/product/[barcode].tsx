@@ -482,6 +482,8 @@ export default function ProductScreen() {
           </View>
         ) : null}
 
+        <RiskScoreBar score={riskScore} />
+
         {isUniversalScan && dangerousSubstances.length > 0 ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Substances détectées</Text>
@@ -647,8 +649,6 @@ export default function ProductScreen() {
             </View>
           </View>
         )}
-
-        <RiskScoreBar score={riskScore} />
 
         {showBioStores && (
           <View style={styles.section}>
