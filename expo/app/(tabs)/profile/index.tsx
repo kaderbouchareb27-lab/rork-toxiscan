@@ -215,7 +215,7 @@ export default function ProfileScreen() {
           <MenuItem
             icon={<ScrollText color={Colors.textSecondary} size={18} />}
             label="Conditions d'utilisation"
-            onPress={() => handleMenuPress('/terms')}
+            onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Conditions-d-utilisation-33586d85fa4b801fa0a6d69dfbdf9d1e')}
             testID="terms-link"
           />
           <MenuItem
@@ -250,7 +250,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Text style={styles.versionText}>Dr.Toxi v1.0.0</Text>
+        <Text style={styles.versionText}>Dr.Toxi v3.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );

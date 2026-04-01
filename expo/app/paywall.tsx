@@ -249,7 +249,7 @@ export default function PaywallScreen() {
         </TouchableOpacity>
 
         <View style={styles.legalLinksRow}>
-          <TouchableOpacity onPress={() => Linking.openURL('https://toxiscan.com/terms')}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Conditions-d-utilisation-33586d85fa4b801fa0a6d69dfbdf9d1e')}>
             <Text style={styles.legalLinkText}>Conditions d'utilisation</Text>
           </TouchableOpacity>
           <Text style={styles.legalLinkSeparator}>|</Text>
