@@ -157,10 +157,10 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
       console.log('[RevenueCat] Restoring purchases...');
       const info = await Purchases.restorePurchases();
       console.log('[RevenueCat] Restore result, entitlements:', JSON.stringify(Object.keys(info.entitlements.active)));
-      return info;
-    },
-    onSuccess: (info) => {
       const hasEntitlement = !!info.entitlements.active[ENTITLEMENT_ID];
+      return { info, hasEntitlement };
+    },
+    onSuccess: ({ info, hasEntitlement }) => {
       setIsPro(hasEntitlement);
       queryClient.setQueryData(['customerInfo'], info);
       console.log('[RevenueCat] Restore success, isPro:', hasEntitlement);
@@ -187,17 +187,15 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     console.log('[Subscription] Dr. Toxi message consumed:', updated.drToxiCount, '/', FREE_DRTOXI_LIMIT);
   }, [isPro, usage, saveUsageMutation]);
 
-  const setPro = useCallback((value: boolean) => {
-    setIsPro(value);
-    console.log('[Subscription] Pro status manually set to:', value);
-  }, []);
+
 
   const purchasePackage = useCallback((pkg: PurchasesPackage) => {
     return purchaseMutation.mutateAsync(pkg);
   }, [purchaseMutation]);
 
-  const restorePurchase = useCallback(() => {
-    return restoreMutation.mutateAsync();
+  const restorePurchase = useCallback(async () => {
+    const result = await restoreMutation.mutateAsync();
+    return result.hasEntitlement;
   }, [restoreMutation]);
 
   const currentOffering = offeringsQuery.data ?? null;
@@ -207,7 +205,6 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     drToxiRemaining,
     canUseDrToxi,
     consumeDrToxi,
-    setPro,
     restorePurchase,
     purchasePackage,
     currentOffering,
@@ -216,5 +213,5 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     drToxiLimit: FREE_DRTOXI_LIMIT,
     freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
-  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, setPro, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading]);
+  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading]);
 });

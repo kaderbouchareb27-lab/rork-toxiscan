@@ -30,11 +30,11 @@ export default function PaywallScreen() {
   const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_monthly') ?? null;
   const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find(p => p.identifier === '$rc_annual') ?? null;
 
-  const monthlyPrice = monthlyPackage?.product?.priceString ?? '2,99 $';
-  const annualPrice = annualPackage?.product?.priceString ?? '29,99 $';
+  const monthlyPrice = monthlyPackage?.product?.priceString ?? '2,99 CA$';
+  const annualPrice = annualPackage?.product?.priceString ?? '19,99 CA$';
   const annualMonthly = annualPackage?.product?.price != null
-    ? `${(annualPackage.product.price / 12).toFixed(2).replace('.', ',')} ${annualPackage.product.currencyCode ?? '$'}`
-    : '2,50 $';
+    ? `${(annualPackage.product.price / 12).toFixed(2).replace('.', ',')} ${annualPackage.product.currencyCode ?? 'CAD'}`
+    : '1,67 CA$';
 
   const handlePlanSelect = useCallback((plan: PlanType) => {
     console.log('[Paywall] Plan selected:', plan);
@@ -78,10 +78,18 @@ export default function PaywallScreen() {
   const handleRestore = useCallback(async () => {
     console.log('[Paywall] Restore tapped');
     try {
-      await restorePurchase();
-      Alert.alert('Abonnement restauré avec succès !', 'Vos fonctionnalités premium sont de nouveau actives.');
+      const hasEntitlement = await restorePurchase();
+      if (hasEntitlement) {
+        Alert.alert(
+          'Abonnement restauré !',
+          'Vos fonctionnalités premium sont de nouveau actives.',
+          [{ text: 'Super !', onPress: () => router.replace('/') }]
+        );
+      } else {
+        Alert.alert('Aucun abonnement trouvé', 'Aucun abonnement actif n\'a été trouvé pour ce compte.');
+      }
     } catch {
-      Alert.alert('Restauration', 'Aucun abonnement actif trouvé à restaurer.');
+      Alert.alert('Erreur', 'Impossible de restaurer les achats. Veuillez réessayer.');
     }
   }, [restorePurchase]);
 
@@ -153,7 +161,7 @@ export default function PaywallScreen() {
             disabled={isLoading}
           >
             <View style={styles.planBadge}>
-              <Text style={styles.planBadgeText}>Économisez 17%</Text>
+              <Text style={styles.planBadgeText}>Économisez 45%</Text>
             </View>
             <View style={styles.planRadio}>
               <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
