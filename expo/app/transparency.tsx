@@ -10,14 +10,14 @@ export default function TransparencyScreen() {
         <View style={styles.iconCircle}>
           <Eye color={Colors.primary} size={28} />
         </View>
-        <Text style={styles.title}>Comment ToxiScan utilise l'intelligence artificielle</Text>
+        <Text style={styles.title}>Comment Dr.Toxi utilise l'intelligence artificielle</Text>
       </View>
 
       <View style={styles.highlightCard}>
-        <Text style={styles.highlightText}>ToxiScan croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.</Text>
+        <Text style={styles.highlightText}>Dr.Toxi croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.</Text>
       </View>
 
-      <Text style={styles.heading}>ToxiScan utilise l'IA à deux endroits :</Text>
+      <Text style={styles.heading}>Dr.Toxi utilise l'IA à deux endroits :</Text>
 
       <View style={styles.featureCard}>
         <View style={styles.featureIcon}>

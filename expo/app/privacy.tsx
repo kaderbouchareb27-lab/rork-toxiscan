@@ -9,7 +9,7 @@ export default function PrivacyScreen() {
       <Text style={styles.updated}>Dernière mise à jour : mars 2026</Text>
 
       <View style={styles.highlightCard}>
-        <Text style={styles.highlightText}>ToxiScan respecte votre vie privée. Nous ne vendons jamais vos données.</Text>
+        <Text style={styles.highlightText}>Dr.Toxi respecte votre vie privée. Nous ne vendons jamais vos données.</Text>
       </View>
 
       <Text style={styles.heading}>Données collectées</Text>
@@ -29,7 +29,7 @@ export default function PrivacyScreen() {
 
       <Text style={styles.heading}>Intelligence artificielle</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="ToxiScan utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi" />
+        <BulletItem text="Dr.Toxi utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi" />
         <BulletItem text="Les photos et messages sont traités par notre IA de manière sécurisée" />
         <BulletItem text="Notre IA ne conserve pas les données au-delà du traitement" />
         <BulletItem text="Les résultats sont à titre informatif et ne constituent pas un avis médical" />

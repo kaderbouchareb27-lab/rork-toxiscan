@@ -33,7 +33,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   { id: 'scan_10', name: 'Détective santé', description: '10 produits scannés', category: 'scan', threshold: 10, icon: 'search', color: '#007AFF' },
   { id: 'scan_50', name: 'Expert en étiquettes', description: '50 produits scannés', category: 'scan', threshold: 50, icon: 'award', color: '#FF9500' },
   { id: 'scan_100', name: 'Chasseur de toxines', description: '100 produits scannés', category: 'scan', threshold: 100, icon: 'target', color: '#FF3B30' },
-  { id: 'scan_500', name: 'Légende ToxiScan', description: '500 produits scannés', category: 'scan', threshold: 500, icon: 'trophy', color: '#AF52DE' },
+  { id: 'scan_500', name: 'Légende Dr.Toxi', description: '500 produits scannés', category: 'scan', threshold: 500, icon: 'trophy', color: '#AF52DE' },
 
   { id: 'green_1', name: 'Bon choix', description: 'Premier produit vert trouvé', category: 'green', threshold: 1, icon: 'leaf', color: '#34C759' },
   { id: 'green_10', name: 'Panier sain', description: '10 produits verts trouvés', category: 'green', threshold: 10, icon: 'shopping-bag', color: '#30D158' },
@@ -174,13 +174,13 @@ export const [BadgesProvider, useBadges] = createContextHook(() => {
     if (shareCount >= 25 && !updated.month25Claimed) {
       updated.month25Claimed = true;
       setShareRewardMessage(
-        'Bravo ! Tu as partagé 25 fois. Merci de faire connaître ToxiScan !'
+        'Bravo ! Tu as partagé 25 fois. Merci de faire connaître Dr.Toxi !'
       );
       console.log('[Badges] Share reward: 25 shares milestone');
     } else if (shareCount >= 100 && !updated.year100Claimed) {
       updated.year100Claimed = true;
       setShareRewardMessage(
-        'Incroyable ! 100 partages ! Tu es un vrai ambassadeur ToxiScan. Merci pour ton soutien !'
+        'Incroyable ! 100 partages ! Tu es un vrai ambassadeur Dr.Toxi. Merci pour ton soutien !'
       );
       console.log('[Badges] Share reward: 100 shares milestone');
     }

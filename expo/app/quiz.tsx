@@ -156,7 +156,7 @@ export default function QuizScreen() {
     if (pct >= 0.8) return 'Excellent ! Vous en savez beaucoup !';
     if (pct >= 0.6) return 'Bien joué ! Continuez à apprendre.';
     if (pct >= 0.4) return 'Pas mal ! Il y a encore à découvrir.';
-    return 'Continuez à vous informer avec ToxiScan !';
+    return 'Continuez à vous informer avec Dr.Toxi !';
   };
 
   const progressWidth = progressAnim.interpolate({

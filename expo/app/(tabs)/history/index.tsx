@@ -119,7 +119,7 @@ export default function HistoryScreen() {
         </View>
         <Text style={styles.premiumUpsellTitle}>Historique complet</Text>
         <Text style={styles.premiumUpsellText}>
-          Retrouvez tous vos produits scannés avec ToxiScan Pro
+          Retrouvez tous vos produits scannés avec Dr.Toxi Pro
         </Text>
         <TouchableOpacity
           style={styles.premiumUpsellButton}

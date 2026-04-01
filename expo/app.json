@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ToxiScan",
+    "name": "Dr.Toxi",
     "slug": "toxis",
     "version": "3.0.0",
     "orientation": "portrait",
@@ -17,7 +17,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "app.rork.7x6ujs5cfo0x23gzhbn3e",
       "infoPlist": {
-        "NSCameraUsageDescription": "ToxiScan utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
+        "NSCameraUsageDescription": "Dr.Toxi utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
       }
     },
     "android": {
@@ -43,7 +43,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "ToxiScan utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
+          "cameraPermission": "Dr.Toxi utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
         }
       ],
       "expo-font",

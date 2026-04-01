@@ -271,7 +271,7 @@ export default function ScannerScreen() {
       if (status !== 'granted') {
         Alert.alert(
           'Permission requise',
-          'ToxiScan a besoin de votre appareil photo. Activez la permission dans les réglages de votre appareil.',
+          'Dr.Toxi a besoin de votre appareil photo. Activez la permission dans les réglages de votre appareil.',
           [
             { text: 'Annuler', style: 'cancel' },
             { text: 'Ouvrir les réglages', onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
@@ -405,7 +405,7 @@ export default function ScannerScreen() {
             </View>
             <Text style={styles.modalTitle}>Accès à la caméra</Text>
             <Text style={styles.modalDescription}>
-              ToxiScan utilise votre appareil photo pour analyser tout objet du quotidien et détecter les substances potentiellement cancérigènes.
+              Dr.Toxi utilise votre appareil photo pour analyser tout objet du quotidien et détecter les substances potentiellement cancérigènes.
             </Text>
             <Text style={styles.modalNote}>
               Vos photos ne sont ni stockées ni partagées.

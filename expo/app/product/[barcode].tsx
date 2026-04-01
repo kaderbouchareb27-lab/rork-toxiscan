@@ -115,7 +115,7 @@ function RiskScoreBar({ score }: { score: number }) {
     <View style={riskScoreStyles.container} testID="risk-score-block">
       <View style={riskScoreStyles.titleRow}>
         <Activity color={level.color} size={18} />
-        <Text style={riskScoreStyles.title}>Score de risque ToxiScan</Text>
+        <Text style={riskScoreStyles.title}>Score de risque Dr.Toxi</Text>
       </View>
       <View style={riskScoreStyles.scoreRow}>
         <View style={riskScoreStyles.barContainer}>
@@ -274,7 +274,7 @@ export default function ProductScreen() {
         if (isAvailable) {
           await Sharing.shareAsync(uri, {
             mimeType: 'image/png',
-            dialogTitle: 'Partager le résultat ToxiScan',
+            dialogTitle: 'Partager le résultat Dr.Toxi',
             UTI: 'public.png',
           });
           recordShare();
@@ -306,7 +306,7 @@ export default function ProductScreen() {
       ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
       : '';
     const result = await Share.share({
-      message: `${badgeEmoji} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec ToxiScan — disponible sur l'App Store`,
+      message: `${badgeEmoji} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec Dr.Toxi — disponible sur l'App Store`,
     });
     if (result.action === Share.sharedAction) {
       recordShare();
@@ -1337,4 +1337,4 @@ const riskScoreStyles = StyleSheet.create({
     marginTop: 10,
   },
 });
-// Product detail screen - ToxiScan
+// Product detail screen - Dr.Toxi

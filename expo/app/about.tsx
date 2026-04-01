@@ -9,7 +9,7 @@ export default function AboutScreen() {
         <View style={styles.logoCircle}>
           <Text style={styles.logoText}>T</Text>
         </View>
-        <Text style={styles.appName}>ToxiScan</Text>
+        <Text style={styles.appName}>Dr.Toxi</Text>
         <Text style={styles.tagline}>Scannez. Comprenez. Protégez.</Text>
       </View>
 
@@ -20,11 +20,11 @@ export default function AboutScreen() {
       </Text>
 
       <Text style={styles.paragraph}>
-        ToxiScan est né de cette réalité. Mon objectif est simple : vous donner le pouvoir de savoir. Savoir ce qu'il y a vraiment dans vos produits. Savoir quels ingrédients éviter. Savoir comment protéger votre famille.
+        Dr.Toxi est né de cette réalité. Mon objectif est simple : vous donner le pouvoir de savoir. Savoir ce qu'il y a vraiment dans vos produits. Savoir quels ingrédients éviter. Savoir comment protéger votre famille.
       </Text>
 
       <Text style={styles.paragraph}>
-        On ne peut pas tout contrôler. Mais on peut faire de meilleurs choix quand on a la bonne information. C'est exactement ce que ToxiScan vous offre : l'information, simplement, clairement, honnêtement.
+        On ne peut pas tout contrôler. Mais on peut faire de meilleurs choix quand on a la bonne information. C'est exactement ce que Dr.Toxi vous offre : l'information, simplement, clairement, honnêtement.
       </Text>
 
       <View style={styles.donationCard}>
@@ -39,7 +39,7 @@ export default function AboutScreen() {
 
       <View style={styles.signatureBlock}>
         <Text style={styles.signature}>Abdelkader Bouchareb</Text>
-        <Text style={styles.role}>Fondateur & Développeur de ToxiScan</Text>
+        <Text style={styles.role}>Fondateur & Développeur de Dr.Toxi</Text>
       </View>
 
       <View style={styles.addressBlock}>

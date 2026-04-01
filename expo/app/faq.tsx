@@ -11,8 +11,8 @@ interface FAQItem {
 
 const FAQ_DATA: FAQItem[] = [
   {
-    question: 'Comment fonctionne ToxiScan ?',
-    answer: 'Photographiez la liste d\'ingrédients d\'un produit ou scannez son code-barres. ToxiScan identifie les substances et les compare aux classifications du CIRC/OMS.',
+    question: 'Comment fonctionne Dr.Toxi ?',
+    answer: 'Photographiez la liste d\'ingrédients d\'un produit ou scannez son code-barres. Dr.Toxi identifie les substances et les compare aux classifications du CIRC/OMS.',
   },
   {
     question: 'Que signifient les badges ?',
@@ -27,8 +27,8 @@ const FAQ_DATA: FAQItem[] = [
     answer: 'Open Food Facts (produits) et CIRC/OMS (classifications de risque).',
   },
   {
-    question: 'ToxiScan remplace-t-il un avis médical ?',
-    answer: 'Non. ToxiScan est un outil d\'information. Il ne remplace jamais l\'avis d\'un professionnel de santé.',
+    question: 'Dr.Toxi remplace-t-il un avis médical ?',
+    answer: 'Non. Dr.Toxi est un outil d\'information. Il ne remplace jamais l\'avis d\'un professionnel de santé.',
   },
   {
     question: 'Mes photos sont-elles conservées ?',
@@ -47,8 +47,8 @@ const FAQ_DATA: FAQItem[] = [
     answer: 'Oui. Nous ne vendons jamais vos données. Consultez notre Politique de confidentialité pour tous les détails.',
   },
   {
-    question: 'ToxiScan analyse seulement les aliments ?',
-    answer: 'Non. ToxiScan peut analyser tout ce qui vous entoure : aliments, cosmétiques, produits ménagers, ustensiles de cuisine, vêtements, contenants. Photographiez n\'importe quel objet et ToxiScan vous dira s\'il contient des matières potentiellement cancérigènes.',
+    question: 'Dr.Toxi analyse seulement les aliments ?',
+    answer: 'Non. Dr.Toxi peut analyser tout ce qui vous entoure : aliments, cosmétiques, produits ménagers, ustensiles de cuisine, vêtements, contenants. Photographiez n\'importe quel objet et Dr.Toxi vous dira s\'il contient des matières potentiellement cancérigènes.',
   },
 ];
 

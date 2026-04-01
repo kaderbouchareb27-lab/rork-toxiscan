@@ -75,7 +75,7 @@ export default function PaywallScreen() {
     try {
       await purchasePackage(pkg);
       Alert.alert(
-        'Bienvenue dans ToxiScan Pro !',
+        'Bienvenue dans Dr.Toxi Pro !',
         'Merci pour votre abonnement. Profitez de toutes les fonctionnalités premium.',
         [{ text: 'Super !', onPress: () => router.replace('/') }]
       );
@@ -123,7 +123,7 @@ export default function PaywallScreen() {
       case 'alerts':
         return 'Alertes en temps réel';
       default:
-        return 'Passez à ToxiScan Pro';
+        return 'Passez à Dr.Toxi Pro';
     }
   };
 
@@ -134,7 +134,7 @@ export default function PaywallScreen() {
       case 'history':
         return 'Sans abonnement, seuls les 3 derniers produits sont visibles';
       case 'favorite':
-        return 'Les favoris sont une fonctionnalité exclusive ToxiScan Pro';
+        return 'Les favoris sont une fonctionnalité exclusive Dr.Toxi Pro';
       case 'alerts':
         return 'Soyez alerté des nouveaux produits interdits, toxiques ou cancérigènes';
       default:
@@ -223,7 +223,7 @@ export default function PaywallScreen() {
           ) : (
             <>
               <Crown color={Colors.white} size={20} />
-              <Text style={styles.ctaButtonText}>Passer à ToxiScan Pro</Text>
+              <Text style={styles.ctaButtonText}>Passer à Dr.Toxi Pro</Text>
             </>
           )}
         </TouchableOpacity>
@@ -253,7 +253,7 @@ export default function PaywallScreen() {
             <Text style={styles.legalLinkText}>Conditions d'utilisation</Text>
           </TouchableOpacity>
           <Text style={styles.legalLinkSeparator}>|</Text>
-          <TouchableOpacity onPress={() => Linking.openURL('https://www.notion.so/Politique-de-confidentialit-ToxiScan-33286d85fa4b808f9170ea136941f2cc')}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://www.notion.so/Politique-de-confidentialit-Dr-Toxi-33286d85fa4b808f9170ea136941f2cc')}>
             <Text style={styles.legalLinkText}>Politique de confidentialité</Text>
           </TouchableOpacity>
         </View>

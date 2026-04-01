@@ -94,7 +94,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   useEffect(() => {
     if (customerInfoQuery.data) {
       const hasEntitlement = !!customerInfoQuery.data.entitlements.active[ENTITLEMENT_ID];
-      console.log('[RevenueCat] Has ToxiScan Pro entitlement:', hasEntitlement);
+      console.log('[RevenueCat] Has Dr.Toxi Pro entitlement:', hasEntitlement);
       setIsPro(hasEntitlement);
     }
   }, [customerInfoQuery.data]);

@@ -27,7 +27,7 @@ const universalAnalysisSchema = z.object({
   erreur: z.string().optional(),
 });
 
-const UNIVERSAL_ANALYSIS_PROMPT = `Tu es un détecteur universel de substances cancérigènes et nocives pour l'application ToxiScan. Tu dois être JUSTE et INTELLIGENT dans ton analyse : strict sur les vrais dangers, rassurant sur les produits naturels.
+const UNIVERSAL_ANALYSIS_PROMPT = `Tu es un détecteur universel de substances cancérigènes et nocives pour l'application Dr.Toxi. Tu dois être JUSTE et INTELLIGENT dans ton analyse : strict sur les vrais dangers, rassurant sur les produits naturels.
 
 L'utilisateur photographie N'IMPORTE QUEL objet du quotidien. Tu dois identifier l'objet ET analyser ses risques.
 
@@ -261,7 +261,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
   const promptParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT];
   if (openFactsContext) {
     promptParts.push('\n\n' + openFactsContext);
-    promptParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base ToxiScan.');
+    promptParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
   }
 
   const result = await generateObject({

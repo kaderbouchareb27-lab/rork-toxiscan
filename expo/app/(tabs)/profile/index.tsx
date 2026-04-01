@@ -70,7 +70,7 @@ export default function ProfileScreen() {
         await StoreReview.requestReview();
       } else {
         Alert.alert(
-          'Noter ToxiScan',
+          'Noter Dr.Toxi',
           'Votre avis compte ! Merci de nous soutenir.',
           [{ text: 'OK' }]
         );
@@ -78,7 +78,7 @@ export default function ProfileScreen() {
     } catch (error) {
       console.log('[Profile] StoreReview error:', error);
       Alert.alert(
-        'Noter ToxiScan',
+        'Noter Dr.Toxi',
         'Votre avis compte ! Merci de nous soutenir.',
         [{ text: 'OK' }]
       );
@@ -109,7 +109,7 @@ export default function ProfileScreen() {
             )}
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionLabel}>
-                {isPro ? 'ToxiScan Pro' : 'ToxiScan Gratuit'}
+                {isPro ? 'Dr.Toxi Pro' : 'Dr.Toxi Gratuit'}
               </Text>
               <Text style={[styles.subscriptionStatus, !isPro && styles.subscriptionStatusFree]}>
                 {isPro ? 'Actif — Dr. Toxi illimité, historique complet' : 'Dr. Toxi illimité, historique illimité, favoris'}
@@ -192,7 +192,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>ToxiScan détecte les risques dans :</Text>
+          <Text style={styles.cardTitle}>Dr.Toxi détecte les risques dans :</Text>
           <View style={styles.categoriesGrid}>
             <CategoryItem icon={<Apple color={Colors.primary} size={16} />} label="Aliments et boissons" />
             <CategoryItem icon={<Droplets color={Colors.primary} size={16} />} label="Cosmétiques et soins" />
@@ -244,7 +244,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Text style={styles.versionText}>ToxiScan v1.0.0</Text>
+        <Text style={styles.versionText}>Dr.Toxi v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );

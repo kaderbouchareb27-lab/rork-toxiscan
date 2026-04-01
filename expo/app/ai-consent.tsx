@@ -37,7 +37,7 @@ export default function AIConsentScreen() {
           <Brain color={Colors.primary} size={36} />
         </View>
 
-        <Text style={styles.title}>ToxiScan utilise l'intelligence artificielle</Text>
+        <Text style={styles.title}>Dr.Toxi utilise l'intelligence artificielle</Text>
 
         <Text style={styles.description}>
           Dr. Toxi, ton expert en ingrédients, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.
@@ -54,7 +54,7 @@ export default function AIConsentScreen() {
         </Text>
 
         <Text style={styles.disclaimerText}>
-          ToxiScan fournit des informations à titre informatif uniquement.
+          Dr.Toxi fournit des informations à titre informatif uniquement.
         </Text>
 
         <TouchableOpacity

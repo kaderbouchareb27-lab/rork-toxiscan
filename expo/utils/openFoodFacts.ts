@@ -79,7 +79,7 @@ async function fetchFromSource(
 
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'ToxiScan/1.0 (contact@toxiscan.com)' },
+      headers: { 'User-Agent': 'Dr.Toxi/1.0 (contact@toxiscan.com)' },
     });
 
     clearTimeout(timer);
@@ -178,7 +178,7 @@ export function formatOpenFactsContext(result: OpenFactsResult): string {
   if (p.packaging) lines.push(`Emballage : ${p.packaging}`);
 
   lines.push('=== FIN DES DONNÉES OPEN FOOD FACTS ===');
-  lines.push('IMPORTANT : Utilise ces données comme source complémentaire. Ta PRIORITÉ reste de chercher les ingrédients cancérigènes et toxiques de notre base ToxiScan. Open Food Facts enrichit les données mais ton analyse toxicologique est le coeur de ToxiScan.');
+  lines.push('IMPORTANT : Utilise ces données comme source complémentaire. Ta PRIORITÉ reste de chercher les ingrédients cancérigènes et toxiques de notre base Dr.Toxi. Open Food Facts enrichit les données mais ton analyse toxicologique est le coeur de Dr.Toxi.');
 
   return lines.join('\n');
 }

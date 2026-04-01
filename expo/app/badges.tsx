@@ -243,7 +243,7 @@ export default function BadgesScreen() {
     }
     try {
       await Share.share({
-        message: `J'ai débloqué le badge "${badge.name}" sur ToxiScan ! ${badge.description}\n\nScannez vos produits gratuitement avec ToxiScan — disponible sur l'App Store`,
+        message: `J'ai débloqué le badge "${badge.name}" sur Dr.Toxi ! ${badge.description}\n\nScannez vos produits gratuitement avec Dr.Toxi — disponible sur l'App Store`,
       });
     } catch (error) {
       console.log('[Badges] Share error:', error);

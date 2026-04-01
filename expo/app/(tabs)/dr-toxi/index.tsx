@@ -407,7 +407,7 @@ export default function DrToxiScreen() {
     }
     try {
       const result = await Share.share({
-        message: `Dr. Toxi (ToxiScan) :\n\n${content}\n\nScannez vos produits avec ToxiScan — gratuit sur l'App Store`,
+        message: `Dr.Toxi :\n\n${content}\n\nScannez vos produits avec Dr.Toxi — gratuit sur l'App Store`,
       });
       if (result.action === Share.sharedAction) {
         recordShare();

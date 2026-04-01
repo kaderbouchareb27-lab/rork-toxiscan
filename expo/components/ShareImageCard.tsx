@@ -87,7 +87,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
     <View style={styles.card}>
       <View style={styles.topSection}>
         <Image source={{ uri: TOXISCAN_LOGO }} style={styles.logo} />
-        <Text style={styles.appName}>ToxiScan</Text>
+        <Text style={styles.appName}>Dr.Toxi</Text>
       </View>
 
       <Text style={styles.productName} numberOfLines={2}>{productName}</Text>
@@ -128,7 +128,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
 
       <View style={styles.bottomSection}>
         <View style={styles.divider} />
-        <Text style={styles.ctaText}>Scannez vos produits gratuitement avec ToxiScan</Text>
+        <Text style={styles.ctaText}>Scannez vos produits gratuitement avec Dr.Toxi</Text>
         <Text style={styles.storeText}>Disponible sur l'App Store</Text>
         <Image source={{ uri: TOXISCAN_LOGO }} style={styles.bottomLogo} />
       </View>
