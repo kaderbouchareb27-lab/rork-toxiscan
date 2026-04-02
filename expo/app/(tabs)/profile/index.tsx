@@ -254,7 +254,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Text style={styles.versionText}>Dr.Toxi v3.0.0</Text>
+        <Text style={styles.versionText}>Dr.Toxi v6.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
