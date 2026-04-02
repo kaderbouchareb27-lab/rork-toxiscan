@@ -66,20 +66,24 @@ export default function ProfileScreen() {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     try {
-      if (Platform.OS !== 'web' && await StoreReview.hasAction()) {
-        await StoreReview.requestReview();
-      } else {
-        Alert.alert(
-          'Noter Dr.Toxi',
-          'Votre avis compte ! Merci de nous soutenir.',
-          [{ text: 'OK' }]
-        );
+      if (Platform.OS !== 'web') {
+        const isAvailable = await StoreReview.isAvailableAsync();
+        console.log('[Profile] StoreReview isAvailable:', isAvailable);
+        if (isAvailable) {
+          await StoreReview.requestReview();
+          return;
+        }
       }
+      Alert.alert(
+        'Merci !',
+        'La notation sera disponible une fois l\'app publiée sur l\'App Store. Merci pour votre soutien !',
+        [{ text: 'OK' }]
+      );
     } catch (error) {
       console.log('[Profile] StoreReview error:', error);
       Alert.alert(
-        'Noter Dr.Toxi',
-        'Votre avis compte ! Merci de nous soutenir.',
+        'Merci !',
+        'La notation sera disponible une fois l\'app publiée sur l\'App Store. Merci pour votre soutien !',
         [{ text: 'OK' }]
       );
     }
