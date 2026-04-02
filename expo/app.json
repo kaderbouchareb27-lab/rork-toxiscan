@@ -46,6 +46,7 @@
           "cameraPermission": "Dr.Toxi utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
         }
       ],
+      "react-native-purchases",
       "expo-font",
       "expo-web-browser",
       "expo-localization"
