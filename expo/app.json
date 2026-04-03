@@ -2,7 +2,7 @@
   "expo": {
     "name": "ToxiScan",
     "slug": "7x6ujs5cfo0x23gzhbn3e",
-    "version": "1.0.0",
+    "version": "8.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rork-app",
@@ -15,7 +15,8 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.toxis"
+      "bundleIdentifier": "app.rork.toxis",
+      "buildNumber": "8"
     },
     "android": {
       "adaptiveIcon": {
