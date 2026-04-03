@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Dr.Toxi",
-    "slug": "toxis",
-    "version": "6.0.0",
+    "name": "ToxiScan",
+    "slug": "7x6ujs5cfo0x23gzhbn3e",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rork-app",
@@ -15,20 +15,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.7x6ujs5cfo0x23gzhbn3e",
-      "infoPlist": {
-        "NSCameraUsageDescription": "Dr.Toxi utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
-      }
+      "bundleIdentifier": "app.rork.7x6ujs5cfo0x23gzhbn3e"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.7x6ujs5cfo0x23gzhbn3e",
-      "permissions": [
-        "CAMERA"
-      ]
+      "package": "app.rork.7x6ujs5cfo0x23gzhbn3e"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -40,15 +34,8 @@
           "origin": "https://rork.com/"
         }
       ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Dr.Toxi utilise votre appareil photo pour scanner les codes-barres et photographier les listes d'ingrédients de vos produits afin d'identifier les substances potentiellement dangereuses."
-        }
-      ],
       "expo-font",
-      "expo-web-browser",
-      "expo-localization"
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,25 +1,19 @@
 import { Tabs } from "expo-router";
-import { ScanBarcode, ClipboardList, MessageCircle, User } from "lucide-react-native";
+import { ScanBarcode, Clock, MessageCircle, User } from "lucide-react-native";
 import React from "react";
+
 import Colors from "@/constants/colors";
 
 export default function TabLayout() {
-  console.log("[TabLayout] Rendering tab layout");
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.tabBarInactive,
+        tabBarInactiveTintColor: Colors.light.tabIconDefault,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.white,
           borderTopColor: Colors.border,
-          borderTopWidth: 0.5,
-          elevation: 0,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "500" as const,
+          backgroundColor: Colors.white,
         },
       }}
     >
@@ -34,7 +28,7 @@ export default function TabLayout() {
         name="history"
         options={{
           title: "Historique",
-          tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
         }}
       />
       <Tabs.Screen
