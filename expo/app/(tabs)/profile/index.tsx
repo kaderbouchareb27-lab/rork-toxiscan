@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import Constants from 'expo-constants';
 import * as StoreReview from 'expo-store-review';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
@@ -254,7 +255,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Text style={styles.versionText}>Dr.Toxi v6.0.0</Text>
+        <Text style={styles.versionText}>Dr.Toxi v{Constants.expoConfig?.version ?? '1.0.0'}</Text>
       </ScrollView>
     </SafeAreaView>
   );
