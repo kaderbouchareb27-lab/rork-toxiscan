@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, Shield, Heart, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react-native';
@@ -92,11 +93,20 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const flatListRef = useRef<FlatList>(null);
   const { completeOnboarding } = useOnboarding();
+  const buttonScale = useRef(new Animated.Value(1)).current;
+
+  console.log('[Onboarding] Rendering, current slide:', currentIndex + 1);
 
   const handleNext = useCallback(() => {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+
+    Animated.sequence([
+      Animated.timing(buttonScale, { toValue: 0.95, duration: 60, useNativeDriver: true }),
+      Animated.timing(buttonScale, { toValue: 1, duration: 60, useNativeDriver: true }),
+    ]).start();
+
     if (currentIndex < slides.length - 1) {
       const nextIndex = currentIndex + 1;
       console.log('[Onboarding] Moving to slide:', nextIndex + 1);
@@ -107,7 +117,7 @@ export default function OnboardingScreen() {
       completeOnboarding();
       router.replace('/');
     }
-  }, [currentIndex, completeOnboarding]);
+  }, [currentIndex, completeOnboarding, buttonScale]);
 
   const handleSkip = useCallback(() => {
     console.log('[Onboarding] Skipping onboarding');
@@ -159,16 +169,18 @@ export default function OnboardingScreen() {
           ))}
         </View>
 
-        <TouchableOpacity
-          style={slideStyles.button}
-          onPress={handleNext}
-          activeOpacity={0.8}
-          testID="onboarding-next"
-        >
-          <Text style={slideStyles.buttonText}>
-            {currentIndex === slides.length - 1 ? 'Commencer' : 'Suivant'}
-          </Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: buttonScale }], width: '100%' }}>
+          <TouchableOpacity
+            style={slideStyles.button}
+            onPress={handleNext}
+            activeOpacity={0.8}
+            testID="onboarding-next"
+          >
+            <Text style={slideStyles.buttonText}>
+              {currentIndex === slides.length - 1 ? 'Commencer' : 'Suivant'}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
 
         {currentIndex < slides.length - 1 && (
           <TouchableOpacity

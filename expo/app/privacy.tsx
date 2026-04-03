@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Colors from '@/constants/colors';
 
 export default function PrivacyScreen() {
+  console.log('[Privacy] Rendering privacy screen');
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Politique de confidentialité</Text>
@@ -145,6 +146,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   contactLabel: {
     fontSize: 13,

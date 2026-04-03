@@ -40,6 +40,8 @@ export default function PaywallScreen() {
   const { source } = useLocalSearchParams<{ source?: string }>();
   const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress } = useSubscription();
 
+  console.log('[Paywall] Rendering paywall, source:', source);
+
   const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find((p) => p.identifier === '$rc_monthly') ?? null;
   const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find((p) => p.identifier === '$rc_annual') ?? null;
 
@@ -319,7 +321,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: Colors.text,
     textAlign: 'center',
     lineHeight: 28,
@@ -331,6 +333,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 28,
+    lineHeight: 21,
   },
   benefitsContainer: {
     width: '100%',
@@ -352,7 +355,7 @@ const styles = StyleSheet.create({
   },
   benefitText: {
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '500' as const,
     color: Colors.text,
     flex: 1,
   },
@@ -386,7 +389,7 @@ const styles = StyleSheet.create({
   },
   planBadgeText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: Colors.white,
   },
   planRadio: {
@@ -418,7 +421,7 @@ const styles = StyleSheet.create({
   },
   planTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '600' as const,
     color: Colors.text,
   },
   planSubtext: {
@@ -436,7 +439,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     borderRadius: 16,
     marginBottom: 20,
-    shadowColor: Colors.primary,
+    shadowColor: '#22A74B',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
     shadowRadius: 14,
@@ -448,7 +451,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     color: Colors.white,
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '700' as const,
   },
   donationRow: {
     flexDirection: 'row',
@@ -463,7 +466,7 @@ const styles = StyleSheet.create({
   },
   donationText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '500' as const,
     color: Colors.textSecondary,
     flex: 1,
     lineHeight: 19,

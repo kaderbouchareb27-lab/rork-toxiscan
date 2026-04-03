@@ -33,6 +33,7 @@ export default function ProfileScreen() {
   const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
 
   const handleContact = useCallback(async () => {
+    console.log('[Profile] Contact tapped');
     const url = 'mailto:contact@toxiscan.com';
     try {
       const supported = await Linking.canOpenURL(url);
@@ -55,6 +56,7 @@ export default function ProfileScreen() {
   }, []);
 
   const handleMenuPress = useCallback((route: string) => {
+    console.log('[Profile] Navigating to:', route);
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }

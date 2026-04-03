@@ -154,11 +154,12 @@ function BadgeCard({
 
   const handlePress = useCallback(() => {
     if (!isUnlocked) return;
+    console.log('[Badges] Badge pressed:', badge.name);
     Animated.sequence([
       Animated.timing(scaleAnim, { toValue: 0.95, duration: 80, useNativeDriver: true }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 80, useNativeDriver: true }),
     ]).start();
-  }, [isUnlocked, scaleAnim]);
+  }, [isUnlocked, scaleAnim, badge.name]);
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -228,6 +229,8 @@ export default function BadgesScreen() {
     dismissShareReward,
   } = useBadges();
 
+  console.log('[Badges] Rendering badges screen, unlocked:', unlockedCount, '/', totalCount);
+
   const showConfetti = newlyUnlocked !== null || shareRewardMessage !== null;
 
   const handleBack = useCallback(() => {
@@ -238,6 +241,7 @@ export default function BadgesScreen() {
   }, []);
 
   const handleShareBadge = useCallback(async (badge: BadgeDefinition) => {
+    console.log('[Badges] Sharing badge:', badge.name);
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -251,6 +255,7 @@ export default function BadgesScreen() {
   }, []);
 
   const handleDismissNewBadge = useCallback(() => {
+    console.log('[Badges] Dismissing new badge notification');
     if (Platform.OS !== 'web') {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -258,6 +263,7 @@ export default function BadgesScreen() {
   }, [dismissNewBadge]);
 
   const handleDismissReward = useCallback(() => {
+    console.log('[Badges] Dismissing share reward');
     if (Platform.OS !== 'web') {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }

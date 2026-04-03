@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -60,8 +61,18 @@ export default function HistoryScreen() {
   }, [isPro]);
 
   const handleClearHistory = useCallback(() => {
-    console.log('[History] Clearing history');
-    clearHistory();
+    console.log('[History] Clear history requested');
+    Alert.alert(
+      'Effacer l\'historique',
+      'Voulez-vous vraiment supprimer tout l\'historique de vos scans ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Effacer', style: 'destructive', onPress: () => {
+          console.log('[History] Clearing history confirmed');
+          clearHistory();
+        }},
+      ]
+    );
   }, [clearHistory]);
 
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {

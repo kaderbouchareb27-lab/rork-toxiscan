@@ -4,11 +4,12 @@ import { Brain, Shield, Eye } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 
 export default function TransparencyScreen() {
+  console.log('[Transparency] Rendering transparency screen');
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerSection}>
         <View style={styles.iconCircle}>
-          <Eye color={Colors.primary} size={28} />
+          <Eye color={Colors.primary} size={28} strokeWidth={1.5} />
         </View>
         <Text style={styles.title}>Comment Dr.Toxi utilise l'intelligence artificielle</Text>
       </View>
@@ -21,7 +22,7 @@ export default function TransparencyScreen() {
 
       <View style={styles.featureCard}>
         <View style={styles.featureIcon}>
-          <Brain color={Colors.primary} size={20} />
+          <Brain color={Colors.primary} size={20} strokeWidth={1.5} />
         </View>
         <View style={styles.featureContent}>
           <Text style={styles.featureTitle}>1. Analyse photo universelle</Text>
@@ -33,7 +34,7 @@ export default function TransparencyScreen() {
 
       <View style={styles.featureCard}>
         <View style={styles.featureIcon}>
-          <Shield color={Colors.primary} size={20} />
+          <Shield color={Colors.primary} size={20} strokeWidth={1.5} />
         </View>
         <View style={styles.featureContent}>
           <Text style={styles.featureTitle}>2. Dr. Toxi (chatbot expert)</Text>
@@ -141,6 +142,8 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     gap: 14,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   featureIcon: {
     width: 40,

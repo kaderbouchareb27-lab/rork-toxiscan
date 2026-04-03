@@ -207,6 +207,7 @@ function getNiveauLabel(niveau: string): string {
 }
 
 export default function ProductScreen() {
+  console.log("[ProductScreen] Rendering product detail screen");
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
   const { history, toggleFavorite } = useScanHistory();
   const { isPro } = useSubscription();

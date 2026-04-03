@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { BadgesProvider } from "@/providers/BadgesProvider";
@@ -34,12 +35,14 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   useEffect(() => {
+    console.log("[RootLayout] App mounted, hiding splash screen");
     void SplashScreen.hideAsync();
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style="dark" />
         <OnboardingProvider>
           <SubscriptionProvider>
             <ScanHistoryProvider>

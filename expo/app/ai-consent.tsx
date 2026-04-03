@@ -34,7 +34,7 @@ export default function AIConsentScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Brain color={Colors.primary} size={36} />
+          <Brain color={Colors.primary} size={36} strokeWidth={1.5} />
         </View>
 
         <Text style={styles.title}>Dr.Toxi utilise l'intelligence artificielle</Text>

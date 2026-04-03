@@ -26,6 +26,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 function getQuizQuestions() {
+  console.log('[Quiz] Generating quiz questions');
   const shuffled = shuffleArray(QUIZ_QUESTIONS);
   return shuffled.slice(0, 10);
 }
@@ -44,6 +45,8 @@ export default function QuizScreen() {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const scoreScale = useRef(new Animated.Value(0)).current;
 
+  console.log('[Quiz] Rendering quiz, question:', currentIndex + 1, 'finished:', finished);
+
   const currentQuestion = questions[currentIndex];
   const progress = (currentIndex + 1) / questions.length;
 
@@ -58,6 +61,7 @@ export default function QuizScreen() {
   const handleSelect = useCallback((index: number) => {
     if (revealed || selectedIndex !== null) return;
 
+    console.log('[Quiz] Option selected:', index);
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
@@ -91,6 +95,7 @@ export default function QuizScreen() {
 
   const handleNext = useCallback(() => {
     if (currentIndex >= questions.length - 1) {
+      console.log('[Quiz] Quiz finished, score:', score);
       setFinished(true);
       Animated.spring(scoreScale, {
         toValue: 1,
@@ -119,7 +124,7 @@ export default function QuizScreen() {
         useNativeDriver: true,
       }).start();
     });
-  }, [currentIndex, questions.length, fadeAnim, resultFade, scoreScale]);
+  }, [currentIndex, questions.length, fadeAnim, resultFade, scoreScale, score]);
 
   const handleRestart = useCallback(() => {
     console.log('[Quiz] Restarting quiz');
@@ -134,6 +139,14 @@ export default function QuizScreen() {
     progressAnim.setValue(0);
     scoreScale.setValue(0);
   }, [fadeAnim, resultFade, progressAnim, scoreScale]);
+
+  const handleClose = useCallback(() => {
+    console.log('[Quiz] Closing quiz');
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.back();
+  }, []);
 
   const getOptionStyle = (index: number) => {
     if (!revealed && selectedIndex === null) return styles.option;
@@ -169,7 +182,7 @@ export default function QuizScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={handleClose}
             style={styles.closeButton}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             testID="quiz-close"
@@ -220,7 +233,7 @@ export default function QuizScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => router.back()}
+              onPress={handleClose}
               activeOpacity={0.8}
               testID="quiz-back"
             >
@@ -236,7 +249,7 @@ export default function QuizScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={handleClose}
           style={styles.closeButton}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           testID="quiz-close"
@@ -359,6 +372,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600' as const,
     color: Colors.textSecondary,
+    minWidth: 36,
+    textAlign: 'right' as const,
   },
   progressBarContainer: {
     height: 4,
@@ -449,6 +464,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F5',
   },
   explanationHeader: {
     marginBottom: 10,
@@ -503,6 +520,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 14,
+    shadowColor: '#22A74B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   nextButtonText: {
     fontSize: 16,

@@ -144,6 +144,7 @@ export default function DrToxiScreen() {
   const { recordDrToxiQuestion, recordShare } = useBadges();
 
   useEffect(() => {
+    console.log('[DrToxi] Loading persisted messages');
     void loadPersistedMessages().then((loaded) => {
       if (loaded.length > 0) {
         setMessages(loaded);

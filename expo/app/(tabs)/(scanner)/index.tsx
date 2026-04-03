@@ -109,6 +109,7 @@ export default function ScannerScreen() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (hasAcceptedAIConsent === false) {
@@ -124,8 +125,15 @@ export default function ScannerScreen() {
         duration: 600,
         useNativeDriver: true,
       }).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.02, duration: 1800, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 1800, useNativeDriver: true }),
+        ])
+      ).start();
     }
-  }, [hasSeenOnboarding, hasAcceptedAIConsent, fadeAnim]);
+  }, [hasSeenOnboarding, hasAcceptedAIConsent, fadeAnim, pulseAnim]);
 
   const photoMutation = useMutation({
     mutationFn: async (imageUri: string) => {
@@ -288,7 +296,7 @@ export default function ScannerScreen() {
 
   const handleButtonPressIn = useCallback(() => {
     Animated.spring(buttonScale, {
-      toValue: 0.95,
+      toValue: 0.93,
       useNativeDriver: true,
       tension: 300,
       friction: 10,
@@ -363,7 +371,7 @@ export default function ScannerScreen() {
             </View>
 
             <View style={styles.actionSection}>
-              <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <Animated.View style={{ transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }}>
                 <TouchableOpacity
                   style={styles.scanButton}
                   onPress={handleTakePhoto}
@@ -484,9 +492,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 20,
     width: SCREEN_WIDTH - 48,
-    shadowColor: '#000',
+    shadowColor: '#22A74B',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 8,
   },
