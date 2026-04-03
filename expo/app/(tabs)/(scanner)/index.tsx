@@ -363,7 +363,7 @@ export default function ScannerScreen() {
           >
             <View style={styles.logoSection}>
               <RNImage
-                source={{ uri: 'https://r2-pub.rork.com/generated-images/948662bd-b633-4d6d-84ad-982e7075e1fc.png' }}
+                source={{ uri: 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr.png' }}
                 style={styles.logoImage}
                 resizeMode="contain"
               />

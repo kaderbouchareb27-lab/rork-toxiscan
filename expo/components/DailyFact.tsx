@@ -81,7 +81,7 @@ export default function DailyFact() {
       <View style={styles.header}>
         <View style={styles.avatarBubble}>
           <RNImage
-            source={{ uri: 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png' }}
+            source={{ uri: 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr.png' }}
             style={styles.avatarImage}
             resizeMode="contain"
           />

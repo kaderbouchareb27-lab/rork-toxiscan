@@ -20,7 +20,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 
 type PlanType = 'annual' | 'monthly';
 
-const ICON_URL = 'https://r2-pub.rork.com/generated-images/948662bd-b633-4d6d-84ad-982e7075e1fc.png';
+const ICON_URL = 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr.png';
 const FALLBACK_MONTHLY_PRICE = '2,99 CA$';
 const FALLBACK_ANNUAL_PRICE = '29,99 CA$';
 const FALLBACK_ANNUAL_MONTHLY = '2,50 CA$';

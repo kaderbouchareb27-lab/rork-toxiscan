@@ -18,7 +18,7 @@ import * as StoreReview from 'expo-store-review';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
 
-const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
+const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr.png';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';

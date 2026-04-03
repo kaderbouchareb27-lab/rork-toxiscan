@@ -72,7 +72,7 @@ function getTopSubstances(props: ShareImageCardProps): string[] {
   return results;
 }
 
-const TOXISCAN_LOGO = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
+const TOXISCAN_LOGO = 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr.png';
 
 export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;

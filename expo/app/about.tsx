@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import Colors from '@/constants/colors';
 
 export default function AboutScreen() {
@@ -7,10 +7,12 @@ export default function AboutScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.heroSection}>
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>T</Text>
-        </View>
-        <Text style={styles.appName}>Dr.Toxi</Text>
+        <Image
+          source={{ uri: 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr.png' }}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.appName}>ToxiScan</Text>
         <Text style={styles.tagline}>Scannez. Comprenez. Protégez.</Text>
       </View>
 
@@ -69,24 +71,11 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     paddingTop: 8,
   },
-  logoCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logoImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
     marginBottom: 12,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  logoText: {
-    fontSize: 28,
-    fontWeight: '800' as const,
-    color: Colors.white,
   },
   appName: {
     fontSize: 24,
