@@ -255,7 +255,7 @@ export default function PaywallScreen() {
             <Text style={styles.legalLinkText}>Conditions d'utilisation</Text>
           </TouchableOpacity>
           <Text style={styles.legalLinkSeparator}>|</Text>
-          <TouchableOpacity onPress={() => Linking.openURL('https://www.notion.so/Politique-de-confidentialit-Dr-Toxi-33286d85fa4b808f9170ea136941f2cc')}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Politique-de-confidentialit-ToxiScan-33286d85fa4b808f9170ea136941f2cc')}>
             <Text style={styles.legalLinkText}>Politique de confidentialité</Text>
           </TouchableOpacity>
         </View>
