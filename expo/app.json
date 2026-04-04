@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ToxiScan",
-    "slug": "toxine",
+    "slug": "toxis",
     "version": "9.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
