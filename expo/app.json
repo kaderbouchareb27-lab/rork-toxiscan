@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ToxiScan",
-    "slug": "7x6ujs5cfo0x23gzhbn3e",
+    "slug": "toxis",
     "version": "9.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.7x6ujs5cfo0x23gzhbn3e"
+      "package": "app.rork.toxis"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
