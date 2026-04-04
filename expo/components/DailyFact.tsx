@@ -113,36 +113,34 @@ export default function DailyFact() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#F0F0F5',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 18,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
+    gap: 10,
+    marginBottom: 12,
   },
   avatarBubble: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: 'rgba(52, 199, 89, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
   avatarImage: {
-    width: 24,
-    height: 24,
+    width: 26,
+    height: 26,
   },
   headerTitle: {
     fontSize: 15,
@@ -151,19 +149,19 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   factContent: {
-    minHeight: 40,
+    minHeight: 44,
     justifyContent: 'center',
   },
   factText: {
     fontSize: 14,
-    color: Colors.text,
+    color: '#4B5563',
     lineHeight: 21,
   },
   dotsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 5,
-    marginTop: 12,
+    marginTop: 14,
   },
   dot: {
     width: 5,
@@ -173,7 +171,7 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     backgroundColor: Colors.primary,
-    width: 14,
+    width: 16,
     borderRadius: 3,
   },
 });

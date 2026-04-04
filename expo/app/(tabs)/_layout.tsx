@@ -1,22 +1,30 @@
 import { Tabs } from "expo-router";
 import { ScanBarcode, Clock, MessageCircle, User } from "lucide-react-native";
 import React from "react";
+import { Platform } from "react-native";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#34C759",
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarActiveTintColor: "#2EBD53",
+        tabBarInactiveTintColor: "#B0B5BE",
         headerShown: false,
         tabBarStyle: {
           backgroundColor: "#FFFFFF",
-          borderTopColor: "#F2F2F7",
-          borderTopWidth: 1,
+          borderTopColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
+          ...(Platform.OS === "web" ? {} : {}),
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600" as const,
+          letterSpacing: 0.2,
         },
       }}
     >

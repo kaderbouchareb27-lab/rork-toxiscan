@@ -11,7 +11,7 @@ export default function DonationBanner() {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Heart color={Colors.primary} size={18} strokeWidth={2} fill={Colors.primary} />
+        <Heart color="#E8636E" size={16} strokeWidth={2} fill="#E8636E" />
       </View>
       <Text style={styles.text}>
         Une partie des revenus est destinée à soutenir la recherche contre le cancer.
@@ -25,17 +25,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(52, 199, 89, 0.06)',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.12)',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(232, 99, 110, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
