@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { BadgesProvider } from "@/providers/BadgesProvider";
+import { OnboardingProvider } from "@/providers/OnboardingProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 void SplashScreen.preventAutoHideAsync();
@@ -32,7 +33,9 @@ export default function RootLayout() {
         <SubscriptionProvider>
           <ScanHistoryProvider>
             <BadgesProvider>
-              <RootLayoutNav />
+              <OnboardingProvider>
+                <RootLayoutNav />
+              </OnboardingProvider>
             </BadgesProvider>
           </ScanHistoryProvider>
         </SubscriptionProvider>
