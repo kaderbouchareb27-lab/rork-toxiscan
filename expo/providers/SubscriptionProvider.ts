@@ -3,7 +3,19 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
-import Purchases, { PurchasesPackage, CustomerInfo } from 'react-native-purchases';
+
+type PurchasesPackage = any;
+type CustomerInfo = any;
+
+let Purchases: any = null;
+
+if (Platform.OS !== 'web') {
+  try {
+    Purchases = require('react-native-purchases').default;
+  } catch (e) {
+    console.log('[RevenueCat] Failed to load react-native-purchases:', e);
+  }
+}
 
 const USAGE_KEY = 'toxiscan_daily_usage';
 const FREE_DRTOXI_LIMIT = 3;
@@ -33,7 +45,7 @@ function getRCToken(): string {
   }) ?? '';
 }
 
-const isNative = Platform.OS !== 'web';
+const isNative = Platform.OS !== 'web' && Purchases !== null;
 
 if (isNative) {
   const rcToken = getRCToken();
@@ -74,7 +86,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
         const offerings = await Purchases.getOfferings();
         console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
         if (offerings.current?.availablePackages) {
-          console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map(p => p.identifier));
+          console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map((p: any) => p.identifier));
         }
         return offerings.current ?? null;
       } catch (e) {
