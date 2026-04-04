@@ -8,6 +8,7 @@ import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { BadgesProvider } from "@/providers/BadgesProvider";
 import { OnboardingProvider } from "@/providers/OnboardingProvider";
+import { QuizProvider } from "@/providers/QuizProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 void SplashScreen.preventAutoHideAsync();
@@ -34,7 +35,9 @@ export default function RootLayout() {
           <ScanHistoryProvider>
             <BadgesProvider>
               <OnboardingProvider>
-                <RootLayoutNav />
+                <QuizProvider>
+                  <RootLayoutNav />
+                </QuizProvider>
               </OnboardingProvider>
             </BadgesProvider>
           </ScanHistoryProvider>
