@@ -5,6 +5,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
+import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 void SplashScreen.preventAutoHideAsync();
@@ -28,7 +29,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView>
         <SubscriptionProvider>
-          <RootLayoutNav />
+          <ScanHistoryProvider>
+            <RootLayoutNav />
+          </ScanHistoryProvider>
         </SubscriptionProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
