@@ -5,11 +5,11 @@ const Colors = {
   primaryBorder: 'rgba(52, 199, 89, 0.15)',
   primaryGlow: 'rgba(52, 199, 89, 0.12)',
 
-  background: '#F5F6F8',
+  background: '#FFFFFF',
   surface: '#FFFFFF',
-  surfaceSecondary: '#F0F1F4',
+  surfaceSecondary: '#F5F5F5',
   surfaceElevated: '#FFFFFF',
-  surfaceTinted: '#F7FBF8',
+  surfaceTinted: '#FFFFFF',
 
   text: '#1A1C1E',
   textSecondary: '#6B7280',
