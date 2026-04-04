@@ -6,6 +6,7 @@ import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
+import { BadgesProvider } from "@/providers/BadgesProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 void SplashScreen.preventAutoHideAsync();
@@ -30,7 +31,9 @@ export default function RootLayout() {
       <GestureHandlerRootView>
         <SubscriptionProvider>
           <ScanHistoryProvider>
-            <RootLayoutNav />
+            <BadgesProvider>
+              <RootLayoutNav />
+            </BadgesProvider>
           </ScanHistoryProvider>
         </SubscriptionProvider>
       </GestureHandlerRootView>
