@@ -1,3 +1,4 @@
+// template
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -9,10 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Colors from "@/constants/colors";
 
 export default function ModalScreen() {
-  console.log("[Modal] Rendering modal screen");
   return (
     <Modal
       animationType="fade"
@@ -22,21 +21,22 @@ export default function ModalScreen() {
     >
       <Pressable style={styles.overlay} onPress={() => router.back()}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Information</Text>
+          <Text style={styles.title}>Modal</Text>
           <Text style={styles.description}>
-            Dr.Toxi vous aide à identifier les substances potentiellement dangereuses dans vos produits du quotidien.
+            This is an example modal with proper fade animation. You can edit it
+            in app/modal.tsx.
           </Text>
 
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => router.back()}
-            testID="modal-close"
           >
-            <Text style={styles.closeButtonText}>Fermer</Text>
+            <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </Pressable>
 
+      {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </Modal>
   );
@@ -50,43 +50,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: Colors.white,
-    borderRadius: 22,
-    padding: 28,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 24,
     margin: 20,
     alignItems: "center",
     minWidth: 300,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
   },
   title: {
     fontSize: 20,
-    fontWeight: "700" as const,
+    fontWeight: "bold",
     marginBottom: 16,
-    color: Colors.text,
-    letterSpacing: -0.3,
   },
   description: {
     textAlign: "center",
     marginBottom: 24,
-    color: Colors.textSecondary,
-    lineHeight: 22,
-    fontSize: 15,
+    color: "#666",
+    lineHeight: 20,
   },
   closeButton: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 14,
-    minWidth: 120,
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 10,
+    minWidth: 100,
   },
   closeButtonText: {
-    color: Colors.white,
-    fontWeight: "600" as const,
+    color: "white",
+    fontWeight: "600",
     textAlign: "center",
-    fontSize: 16,
   },
 });

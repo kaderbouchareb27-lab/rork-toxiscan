@@ -2,28 +2,21 @@ import { Tabs } from "expo-router";
 import { ScanBarcode, Clock, MessageCircle, User } from "lucide-react-native";
 import React from "react";
 
-import Colors from "@/constants/colors";
-
 export default function TabLayout() {
-  console.log("[TabLayout] Rendering tab layout");
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.light.tabIconDefault,
+        tabBarActiveTintColor: "#34C759",
+        tabBarInactiveTintColor: "#8E8E93",
         headerShown: false,
         tabBarStyle: {
-          borderTopColor: Colors.border,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          shadowOpacity: 0.08,
-          shadowOffset: { width: 0, height: -2 },
-          shadowRadius: 8,
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#F2F2F7",
+          borderTopWidth: 1,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600" as const,
-          letterSpacing: -0.1,
         },
       }}
     >

@@ -5,6 +5,11 @@
       "name": "ToxiScan",
       "path": "expo",
       "framework": "react-native"
+    },
+    {
+      "name": "ToxiScan",
+      "path": "expo",
+      "framework": "react-native"
     }
   ]
 }
