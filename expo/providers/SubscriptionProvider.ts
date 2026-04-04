@@ -33,12 +33,16 @@ function getRCToken(): string {
   }) ?? '';
 }
 
-const rcToken = getRCToken();
-if (rcToken) {
-  console.log('[RevenueCat] Configuring with token:', rcToken.substring(0, 12) + '...');
-  Purchases.configure({ apiKey: rcToken });
-} else {
-  console.warn('[RevenueCat] No API key found, purchases will not work');
+const isNative = Platform.OS !== 'web';
+
+if (isNative) {
+  const rcToken = getRCToken();
+  if (rcToken) {
+    console.log('[RevenueCat] Configuring with token:', rcToken.substring(0, 12) + '...');
+    Purchases.configure({ apiKey: rcToken });
+  } else {
+    console.warn('[RevenueCat] No API key found, purchases will not work');
+  }
 }
 
 export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
@@ -49,6 +53,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   const customerInfoQuery = useQuery({
     queryKey: ['customerInfo'],
     queryFn: async () => {
+      if (!isNative) return null;
       try {
         const info = await Purchases.getCustomerInfo();
         console.log('[RevenueCat] Customer info fetched, entitlements:', JSON.stringify(Object.keys(info.entitlements.active)));
@@ -64,6 +69,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   const offeringsQuery = useQuery({
     queryKey: ['offerings'],
     queryFn: async () => {
+      if (!isNative) return null;
       try {
         const offerings = await Purchases.getOfferings();
         console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
@@ -92,8 +98,10 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   });
 
   useEffect(() => {
-    if (customerInfoQuery.data) {
-      const hasEntitlement = !!customerInfoQuery.data.entitlements.active[ENTITLEMENT_ID];
+    const data = customerInfoQuery.data;
+    if (data) {
+      const entitlements = data.entitlements?.active ?? {};
+      const hasEntitlement = !!entitlements[ENTITLEMENT_ID];
       console.log('[RevenueCat] Has Dr.Toxi Pro entitlement:', hasEntitlement);
       setIsPro(hasEntitlement);
     }
@@ -110,9 +118,11 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   }, [usageQuery.data]);
 
   useEffect(() => {
+    if (!isNative) return;
     const listener = (info: CustomerInfo) => {
       console.log('[RevenueCat] Customer info updated via listener');
-      const hasEntitlement = !!info.entitlements.active[ENTITLEMENT_ID];
+      const entitlements = info.entitlements?.active ?? {};
+      const hasEntitlement = !!entitlements[ENTITLEMENT_ID];
       setIsPro(hasEntitlement);
       queryClient.setQueryData(['customerInfo'], info);
     };
@@ -131,15 +141,18 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const purchaseMutation = useMutation({
     mutationFn: async (pkg: PurchasesPackage) => {
+      if (!isNative) throw new Error('Purchases not available on web');
       console.log('[RevenueCat] Purchasing package:', pkg.identifier);
       const result = await Purchases.purchasePackage(pkg);
-      console.log('[RevenueCat] Purchase result, entitlements:', JSON.stringify(Object.keys(result.customerInfo.entitlements.active)));
+      const activeEntitlements = result?.customerInfo?.entitlements?.active ?? {};
+      console.log('[RevenueCat] Purchase result, entitlements:', JSON.stringify(Object.keys(activeEntitlements)));
       return result;
     },
     onSuccess: (result) => {
-      const hasEntitlement = !!result.customerInfo.entitlements.active[ENTITLEMENT_ID];
+      const activeEntitlements = result?.customerInfo?.entitlements?.active ?? {};
+      const hasEntitlement = !!activeEntitlements[ENTITLEMENT_ID];
       setIsPro(hasEntitlement);
-      queryClient.setQueryData(['customerInfo'], result.customerInfo);
+      queryClient.setQueryData(['customerInfo'], result?.customerInfo ?? null);
       console.log('[RevenueCat] Purchase success, isPro:', hasEntitlement);
     },
     onError: (error: unknown) => {
@@ -154,10 +167,12 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const restoreMutation = useMutation({
     mutationFn: async () => {
+      if (!isNative) throw new Error('Purchases not available on web');
       console.log('[RevenueCat] Restoring purchases...');
       const info = await Purchases.restorePurchases();
-      console.log('[RevenueCat] Restore result, entitlements:', JSON.stringify(Object.keys(info.entitlements.active)));
-      const hasEntitlement = !!info.entitlements.active[ENTITLEMENT_ID];
+      const activeEntitlements = info?.entitlements?.active ?? {};
+      console.log('[RevenueCat] Restore result, entitlements:', JSON.stringify(Object.keys(activeEntitlements)));
+      const hasEntitlement = !!activeEntitlements[ENTITLEMENT_ID];
       return { info, hasEntitlement };
     },
     onSuccess: ({ info, hasEntitlement }) => {
