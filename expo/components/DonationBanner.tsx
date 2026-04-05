@@ -4,17 +4,17 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import { Heart } from 'lucide-react-native';
+import { HeartHandshake } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 
 export default function DonationBanner() {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Heart color="#E8636E" size={16} strokeWidth={2} fill="#E8636E" />
+        <HeartHandshake color="#34C759" size={16} strokeWidth={2} />
       </View>
       <Text style={styles.text}>
-        Une partie des revenus est destinée à soutenir la recherche contre le cancer.
+        Une partie des revenus est destinee a aider les patients atteints de cancer a payer leurs traitements et medicaments.
       </Text>
     </View>
   );
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(232, 99, 110, 0.08)',
+    backgroundColor: 'rgba(52, 199, 89, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },

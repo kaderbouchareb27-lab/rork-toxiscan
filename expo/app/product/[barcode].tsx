@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, Activity } from 'lucide-react-native';
+import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, AlertCircle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, Activity, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react-native';
 import { Animated as RNAnimated } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -206,6 +206,57 @@ function getNiveauLabel(niveau: string): string {
   }
 }
 
+function getScoreBadgeInfo(score: number): { color: string; label: string; textColor: string } {
+  if (score <= 40) return { color: '#34C759', label: 'FAIBLE RISQUE', textColor: '#FFFFFF' };
+  if (score <= 70) return { color: '#FF9500', label: 'RISQUE MODERE', textColor: '#FFFFFF' };
+  return { color: '#FF3B30', label: 'RISQUE ELEVE', textColor: '#FFFFFF' };
+}
+
+function DrToxiVerdict({ score }: { score: number }) {
+  const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
+
+  let bgColor: string;
+  let title: string;
+  let message: string;
+  let IconComponent: React.ReactNode;
+
+  if (score <= 40) {
+    bgColor = '#E8F9ED';
+    title = 'Dr. Toxi recommande';
+    message = 'Ce produit est acceptable. Vous pouvez le consommer sans inquietude.';
+    IconComponent = <ShieldCheck color="#34C759" size={24} />;
+  } else if (score <= 70) {
+    bgColor = '#FFF3E0';
+    title = 'Dr. Toxi vous laisse le choix';
+    message = 'Ce produit contient des substances a surveiller. Consommation occasionnelle possible, mais considerez les alternatives ci-dessous.';
+    IconComponent = <ShieldQuestion color="#FF9500" size={24} />;
+  } else {
+    bgColor = '#FFEBEE';
+    title = 'Dr. Toxi deconseille';
+    message = 'Ce produit contient des substances preoccupantes. Je vous deconseille de l utiliser. Voici des alternatives plus sures.';
+    IconComponent = <ShieldAlert color="#FF3B30" size={24} />;
+  }
+
+  const borderColor = score <= 40 ? '#C4EDC9' : score <= 70 ? '#FFE0B2' : '#FFCDD2';
+  const titleColor = score <= 40 ? '#2D6A3E' : score <= 70 ? '#E65100' : '#C62828';
+  const textColor = score <= 40 ? '#3A6B4A' : score <= 70 ? '#BF360C' : '#B71C1C';
+
+  return (
+    <View style={[verdictStyles.container, { backgroundColor: bgColor, borderColor }]} testID="dr-toxi-verdict">
+      <View style={verdictStyles.headerRow}>
+        <Image source={{ uri: DR_TOXI_AVATAR }} style={verdictStyles.avatar} contentFit="cover" />
+        <View style={verdictStyles.headerText}>
+          <View style={verdictStyles.titleRow}>
+            {IconComponent}
+            <Text style={[verdictStyles.title, { color: titleColor }]}>{title}</Text>
+          </View>
+        </View>
+      </View>
+      <Text style={[verdictStyles.message, { color: textColor }]}>{message}</Text>
+    </View>
+  );
+}
+
 export default function ProductScreen() {
   console.log("[ProductScreen] Rendering product detail screen");
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
@@ -247,7 +298,7 @@ export default function ProductScreen() {
   }
 
   const badge = getRiskBadgeInfo(product.riskGroup);
-  const badgeTextColor = product.riskGroup === 'group2b' ? Colors.black : Colors.white;
+  const _badgeTextColor = product.riskGroup === 'group2b' ? Colors.black : Colors.white;
   const isPhotoScan = product.scanMethod === 'photo';
   const photoType: PhotoType = product.photoType ?? 'unknown';
   const isUniversalScan = product.barcode.startsWith('universal_');
@@ -393,7 +444,7 @@ export default function ProductScreen() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="back-button">
           <ChevronLeft color={Colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Résultat</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{product?.name ?? 'Resultat'}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={handleFavorite} style={styles.favoriteButton} testID="favorite-button">
             <Heart
@@ -482,19 +533,23 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <View style={[styles.badgeContainer, { backgroundColor: badge.color }]}>
-          <View style={styles.badgeContent}>
-            {getRiskIcon(product.riskGroup, 28)}
-            <View style={styles.badgeTextContainer}>
-              <Text style={[styles.badgeLabel, { color: badgeTextColor }]}>{badge.label}</Text>
-              {badge.sublabel ? (
-                <Text style={[styles.badgeSublabel, { color: badgeTextColor, opacity: 0.85 }]}>{badge.sublabel}</Text>
-              ) : null}
+        {(() => {
+          const scoreBadge = getScoreBadgeInfo(riskScore);
+          return (
+            <View style={[styles.badgeContainer, { backgroundColor: scoreBadge.color }]}>
+              <View style={styles.badgeContent}>
+                {getRiskIcon(product.riskGroup, 28)}
+                <View style={styles.badgeTextContainer}>
+                  <Text style={[styles.badgeLabel, { color: scoreBadge.textColor }]}>{scoreBadge.label}</Text>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
+          );
+        })()}
 
         <RiskScoreBar score={riskScore} />
+
+        <DrToxiVerdict score={riskScore} />
 
         {product.analysisSummary ? (
           <View style={styles.summaryCard}>
@@ -801,7 +856,7 @@ export default function ProductScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -1403,4 +1458,40 @@ const riskScoreStyles = StyleSheet.create({
     fontWeight: '500' as const,
   },
 });
-// Product detail screen - Dr.Toxi
+const verdictStyles = StyleSheet.create({
+  container: {
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 16,
+    marginBottom: 4,
+    borderWidth: 1.5,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  headerText: {
+    flex: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  title: {
+    fontSize: 17,
+    fontWeight: '700' as const,
+    letterSpacing: -0.2,
+  },
+  message: {
+    fontSize: 14,
+    lineHeight: 21,
+  },
+});
