@@ -444,6 +444,6 @@ export const VISION_LOADING_MESSAGES = [
   'Je lis les petits caractères pour toi...',
   'Je vérifie chaque ingrédient...',
   'Je compare avec ma base de données...',
-  'Deux secondes, je mets mes lunettes 🤓',
+  'Deux secondes, je mets mes lunettes...',
   'Je scanne tout ça...',
 ];

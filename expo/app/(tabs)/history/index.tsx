@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -30,9 +31,45 @@ const FILTERS: { key: FilterType; label: string; color?: string }[] = [
   { key: 'none', label: 'OK', color: '#34C759' },
 ];
 
+function SkeletonRow() {
+  const opacity = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity]);
+
+  return (
+    <Animated.View style={[styles.productRow, { opacity }]} testID="skeleton-row">
+      <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#E8EAED' }]} />
+      <View style={styles.productInfo}>
+        <View style={{ width: 140, height: 14, borderRadius: 7, backgroundColor: '#E8EAED', marginBottom: 8 }} />
+        <View style={{ width: 90, height: 10, borderRadius: 5, backgroundColor: '#F0F1F3' }} />
+      </View>
+      <View style={styles.badgeColumn}>
+        <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: '#E8EAED' }} />
+      </View>
+    </Animated.View>
+  );
+}
+
+function HistorySkeleton() {
+  return (
+    <View style={styles.listContent}>
+      {[0, 1, 2].map(i => <SkeletonRow key={`skel-${i}`} />)}
+    </View>
+  );
+}
+
 export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { clearHistory, history } = useScanHistory();
+  const { clearHistory, history, isLoading } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
@@ -202,7 +239,9 @@ export default function HistoryScreen() {
         </View>
       )}
 
-      {filteredHistory.length === 0 ? (
+      {isLoading ? (
+        <HistorySkeleton />
+      ) : filteredHistory.length === 0 ? (
         <View style={styles.emptyState}>
           <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
           <Text style={styles.emptyTitle}>

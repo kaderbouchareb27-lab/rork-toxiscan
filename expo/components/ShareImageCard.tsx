@@ -99,7 +99,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
         </View>
       ) : (
         <View style={styles.imagePlaceholder}>
-          <Text style={styles.placeholderText}>📷</Text>
+          <Text style={styles.placeholderText}>?</Text>
         </View>
       )}
 

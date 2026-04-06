@@ -22,6 +22,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { analyzeUniversalPhoto, universalResultToScannedProduct } from '@/utils/api';
+import { LOADING_TIPS } from '@/constants/loadingTips';
+import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
@@ -29,77 +31,6 @@ import DailyFact from '@/components/DailyFact';
 import DonationBanner from '@/components/DonationBanner';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const LOADING_TIPS = [
-  'Le brocoli est l\'aliment anti-cancer #1 selon les chercheurs.',
-  'Un contenant en verre est toujours plus sûr que le plastique.',
-  'Les nitrites (E250) sont classés cancérogènes avérés par le CIRC.',
-  'L\'huile d\'olive extra vierge est anti-inflammatoire naturelle.',
-  'Ne chauffez jamais un contenant plastique au micro-ondes.',
-  'Les poêles en fonte ou inox sont les plus sûres pour cuisiner.',
-  'Lisez toujours la liste d\'ingrédients, pas juste le devant du produit.',
-  'Le curcuma est un puissant anti-inflammatoire naturel.',
-  'Les colorants azoïques (E102, E110, E129) sont liés à l\'hyperactivité.',
-  'Privilégiez les produits avec moins de 5 ingrédients.',
-  'Le MSG (E621) est caché sous de nombreux noms : extrait de levure, arôme naturel...',
-  'Les bocaux en verre ne libèrent aucune substance dans vos aliments.',
-];
-
-function compressImageWeb(uri: string, maxSize: number): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > maxSize || height > maxSize) {
-        const ratio = Math.min(maxSize / width, maxSize / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) { reject(new Error('Canvas not supported')); return; }
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-      resolve(dataUrl.split(',')[1]);
-    };
-    img.onerror = reject;
-    img.src = uri;
-  });
-}
-
-async function compressImageNative(uri: string): Promise<string> {
-  try {
-    console.log('[Scanner] Compressing native image...');
-    const manipulated = await ImageManipulator.manipulateAsync(
-      uri,
-      [{ resize: { width: 800 } }],
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
-    );
-
-    if (manipulated.base64) {
-      console.log('[Scanner] Native image compressed successfully, base64 length:', manipulated.base64.length);
-      return manipulated.base64;
-    }
-
-    console.log('[Scanner] ImageManipulator did not return base64, falling back to file-system');
-    const FileSystemLegacy = await import('expo-file-system/legacy');
-    const base64 = await FileSystemLegacy.readAsStringAsync(manipulated.uri, {
-      encoding: FileSystemLegacy.EncodingType.Base64,
-    });
-    console.log('[Scanner] Fallback base64 length:', base64.length);
-    return base64;
-  } catch (error) {
-    console.error('[Scanner] Native compression error:', error);
-    console.log('[Scanner] Falling back to raw file read...');
-    const FileSystemLegacy = await import('expo-file-system/legacy');
-    const base64 = await FileSystemLegacy.readAsStringAsync(uri, {
-      encoding: FileSystemLegacy.EncodingType.Base64,
-    });
-    return base64;
-  }
-}
 
 export default function ScannerScreen() {
   const [showCameraPermissionModal, setShowCameraPermissionModal] = useState<boolean>(false);
@@ -150,7 +81,7 @@ export default function ScannerScreen() {
             console.warn('[Scanner] Thumbnail generation failed on web:', e);
           }
         } else {
-          base64 = await compressImageNative(imageUri);
+          base64 = await compressImageNative(imageUri, 800, 0.7);
           try {
             const thumbResult = await ImageManipulator.manipulateAsync(
               imageUri,

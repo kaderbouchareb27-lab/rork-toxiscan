@@ -14,7 +14,7 @@ export default function DonationBanner() {
         <HeartHandshake color="#34C759" size={16} strokeWidth={2} />
       </View>
       <Text style={styles.text}>
-        Une partie des revenus est destinee a aider les patients atteints de cancer a payer leurs traitements et medicaments.
+        Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.
       </Text>
     </View>
   );

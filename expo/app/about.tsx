@@ -32,7 +32,7 @@ export default function AboutScreen() {
 
       <View style={styles.donationCard}>
         <Text style={styles.donationText}>
-          Une partie des revenus est destinée à soutenir la recherche contre le cancer.
+          Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.
         </Text>
       </View>
 

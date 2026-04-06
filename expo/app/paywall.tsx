@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Linking,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Check, Heart, X, Crown } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -145,10 +145,11 @@ export default function PaywallScreen() {
   };
 
   const isLoading = purchaseInProgress || restoreInProgress;
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.closeButton} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
+    <View style={styles.container}>
+      <TouchableOpacity style={[styles.closeButton, { top: insets.top + 12 }]} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
         <View style={styles.closeCircle}>
           <X color={Colors.textSecondary} size={18} />
         </View>
@@ -233,7 +234,7 @@ export default function PaywallScreen() {
         <View style={styles.donationRow}>
           <Heart color={Colors.primary} size={16} fill={Colors.primary} />
           <Text style={styles.donationText}>
-            Une partie des revenus est destinée à soutenir la recherche contre le cancer.
+            Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.
           </Text>
         </View>
 
@@ -262,7 +263,7 @@ export default function PaywallScreen() {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -284,7 +285,6 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 60,
     right: 20,
     zIndex: 10,
   },

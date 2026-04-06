@@ -29,8 +29,8 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(['scanHistory'], data);
     },
   });
 

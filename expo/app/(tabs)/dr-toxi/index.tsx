@@ -18,7 +18,6 @@ import { Send, ChevronRight, Share2, Camera } from 'lucide-react-native';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/colors';
 import { ChatMessage } from '@/types';
@@ -27,83 +26,16 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { router } from 'expo-router';
 import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISION_PROMPT, VISION_LOADING_MESSAGES } from '@/constants/drToxiPrompt';
-
-const LOADING_TIPS = [
-  'Le brocoli est l\'aliment anti-cancer #1 selon les chercheurs.',
-  'Un contenant en verre est toujours plus sûr que le plastique.',
-  'Les nitrites (E250) sont classés cancérogènes avérés par le CIRC.',
-  'L\'huile d\'olive extra vierge est anti-inflammatoire naturelle.',
-  'Ne chauffez jamais un contenant plastique au micro-ondes.',
-  'Les poêles en fonte ou inox sont les plus sûres pour cuisiner.',
-  'Lisez toujours la liste d\'ingrédients, pas juste le devant du produit.',
-  'Le curcuma est un puissant anti-inflammatoire naturel.',
-  'Privilégiez les produits avec moins de 5 ingrédients.',
-  'Le MSG (E621) est caché sous de nombreux noms : extrait de levure, arôme naturel...',
-  'Les bocaux en verre ne libèrent aucune substance dans vos aliments.',
-  'Le thé vert contient des antioxydants puissants.',
-];
+import { LOADING_TIPS } from '@/constants/loadingTips';
+import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
-
-function compressImageWeb(uri: string, maxSize: number): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > maxSize || height > maxSize) {
-        const ratio = Math.min(maxSize / width, maxSize / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) { reject(new Error('Canvas not supported')); return; }
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-      resolve(dataUrl.split(',')[1]);
-    };
-    img.onerror = reject;
-    img.src = uri;
-  });
-}
-
-async function compressImageNative(uri: string): Promise<string> {
-  try {
-    console.log('[DrToxi] Compressing native image...');
-    const manipulated = await ImageManipulator.manipulateAsync(
-      uri,
-      [{ resize: { width: 1024 } }],
-      { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG, base64: true }
-    );
-
-    if (manipulated.base64) {
-      console.log('[DrToxi] Native image compressed, base64 length:', manipulated.base64.length);
-      return manipulated.base64;
-    }
-
-    console.log('[DrToxi] ImageManipulator did not return base64, falling back');
-    const FileSystemLegacy = await import('expo-file-system/legacy');
-    const base64 = await FileSystemLegacy.readAsStringAsync(manipulated.uri, {
-      encoding: FileSystemLegacy.EncodingType.Base64,
-    });
-    return base64;
-  } catch (error) {
-    console.error('[DrToxi] Native compression error:', error);
-    const FileSystemLegacy = await import('expo-file-system/legacy');
-    const base64 = await FileSystemLegacy.readAsStringAsync(uri, {
-      encoding: FileSystemLegacy.EncodingType.Base64,
-    });
-    return base64;
-  }
-}
 
 async function getBase64FromUri(uri: string): Promise<string> {
   if (Platform.OS === 'web') {
     return compressImageWeb(uri, 1024);
   }
-  return compressImageNative(uri);
+  return compressImageNative(uri, 1024, 0.8);
 }
 
 const CHAT_STORAGE_KEY = 'toxiscan_drtoxi_chat';
@@ -220,7 +152,7 @@ export default function DrToxiScreen() {
       const errorMessage: ChatMessage = {
         id: Date.now().toString() + '_error',
         role: 'assistant',
-        content: 'Oups, j\'ai pas réussi à analyser cette image 😅 Réessaie en prenant la photo un peu plus près, avec une bonne lumière. Vise bien la liste d\'ingrédients !',
+        content: 'Oups, j\'ai pas réussi à analyser cette image. Réessaie en prenant la photo un peu plus près, avec une bonne lumière. Vise bien la liste d\'ingrédients !',
         timestamp: new Date().toISOString(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -285,7 +217,7 @@ export default function DrToxiScreen() {
     const userMessage: ChatMessage = {
       id: Date.now().toString() + '_user',
       role: 'user',
-      content: '📸 Photo envoyée pour analyse',
+      content: 'Photo envoyée pour analyse',
       timestamp: new Date().toISOString(),
       imageUri: uri,
     };
@@ -322,7 +254,7 @@ export default function DrToxiScreen() {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Dr. Toxi a besoin de ta caméra 📸',
+          'Dr. Toxi a besoin de ta caméra',
           'Pour analyser les étiquettes de tes produits en direct et te donner un verdict instantané.',
           [
             { text: 'Plus tard', style: 'cancel' },
@@ -387,8 +319,8 @@ export default function DrToxiScreen() {
       'Assure-toi que le texte est net et bien éclairé',
       [
         { text: 'Annuler', style: 'cancel' },
-        { text: '📁 Galerie', onPress: () => void handleGalleryPress() },
-        { text: '📷 Caméra', onPress: () => void handleCameraPress() },
+        { text: 'Galerie', onPress: () => void handleGalleryPress() },
+        { text: 'Caméra', onPress: () => void handleCameraPress() },
       ]
     );
   }, [sendMutation.isPending, isAnalyzingImage, handleGalleryPress, handleCameraPress]);
@@ -431,7 +363,7 @@ export default function DrToxiScreen() {
             <View style={[styles.messageBubble, styles.userBubble, styles.imageBubble]}>
               <Image source={{ uri: item.imageUri }} style={styles.chatImage} resizeMode="cover" />
               <Text style={[styles.messageText, styles.userMessageText, styles.imageCaption]}>
-                📸 Photo envoyée pour analyse
+                Photo envoyée pour analyse
               </Text>
             </View>
           ) : (
@@ -540,7 +472,7 @@ export default function DrToxiScreen() {
               <ActivityIndicator size="small" color={Colors.primary} />
               <Text style={styles.typingText}>
                 {isAnalyzingImage
-                  ? `🔍 ${VISION_LOADING_MESSAGES[visionTipIndex]}`
+                  ? VISION_LOADING_MESSAGES[visionTipIndex]
                   : 'Dr. Toxi réfléchit...'}
               </Text>
             </View>
