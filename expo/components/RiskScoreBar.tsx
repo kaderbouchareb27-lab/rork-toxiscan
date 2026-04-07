@@ -10,7 +10,7 @@ interface RiskLevel {
 
 export function getRiskLevel(score: number): RiskLevel {
   if (score <= 20) return { color: '#4CD964', label: 'Risque faible — Bon choix' };
-  if (score <= 40) return { color: '#34C759', label: 'Risque limité — Acceptable' };
+  if (score <= 40) return { color: '#2E9E34', label: 'Risque limité — Acceptable' };
   if (score <= 60) return { color: '#FF9500', label: 'Risque modéré — À limiter' };
   if (score <= 80) return { color: '#FF6B35', label: 'Risque élevé — À éviter si possible' };
   return { color: '#FF3B30', label: 'Risque très élevé — Déconseillé' };

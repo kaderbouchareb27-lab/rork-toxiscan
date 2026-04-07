@@ -31,7 +31,7 @@ function getBadgeColor(riskGroup: RiskGroup): string {
     case 'group2a': return '#FF9500';
     case 'group2b': return '#FFCC00';
     case 'none':
-    default: return '#34C759';
+    default: return '#2E9E34';
   }
 }
 
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 42,
     fontWeight: '800',
-    color: '#34C759',
+    color: '#2E9E34',
     marginTop: 16,
     letterSpacing: 1,
   },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   },
   safeText: {
     fontSize: 28,
-    color: '#34C759',
+    color: '#2E9E34',
     fontWeight: '600',
     textAlign: 'center',
   },

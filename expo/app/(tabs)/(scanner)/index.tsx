@@ -322,7 +322,7 @@ export default function ScannerScreen() {
   if (hasAcceptedAIConsent === null || hasSeenOnboarding === null) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#34C759" />
+        <ActivityIndicator size="large" color="#2E9E34" />
       </View>
     );
   }
@@ -337,7 +337,7 @@ export default function ScannerScreen() {
                 <Animated.View style={[styles.spinnerRing, { transform: [{ rotate: spinDeg }] }]}>
                   <View style={styles.spinnerDot} />
                 </Animated.View>
-                <Sparkles color="#34C759" size={26} style={styles.spinnerCenter} />
+                <Sparkles color="#2E9E34" size={26} style={styles.spinnerCenter} />
               </View>
               <Text style={styles.loadingTitle}>Analyse en cours</Text>
               <Text style={styles.loadingSubtitle}>Dr. Toxi examine votre produit...</Text>
@@ -350,7 +350,7 @@ export default function ScannerScreen() {
               </View>
 
               <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}>
-                <Sparkles color="#34C759" size={14} />
+                <Sparkles color="#2E9E34" size={14} />
                 <Text style={styles.tipText}>{LOADING_TIPS[tipIndex]}</Text>
               </Animated.View>
             </View>
@@ -445,12 +445,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
-    backgroundColor: '#2EBD53',
+    backgroundColor: '#2E9E34',
     paddingVertical: 20,
     paddingHorizontal: 32,
     borderRadius: 22,
     width: SCREEN_WIDTH - 48,
-    shadowColor: '#1B8A3A',
+    shadowColor: '#237A28',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 24,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -499,8 +499,8 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 3,
-    borderColor: 'rgba(52, 199, 89, 0.15)',
-    borderTopColor: '#34C759',
+    borderColor: 'rgba(46, 158, 52, 0.15)',
+    borderTopColor: '#2E9E34',
   },
   spinnerDot: {
     position: 'absolute',
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
   },
   spinnerCenter: {
     position: 'absolute',
@@ -527,18 +527,18 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
     borderRadius: 3,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
   },
   progressText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#34C759',
+    color: '#2E9E34',
     minWidth: 36,
     textAlign: 'right' as const,
   },
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
     borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.1)',
+    borderColor: 'rgba(46, 158, 52, 0.1)',
   },
   tipText: {
     fontSize: 13,

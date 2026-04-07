@@ -161,7 +161,7 @@ export function getRiskBadgeInfo(group: RiskGroup): { label: string; sublabel: s
       return { label: 'DANGER', sublabel: 'Cancérogène possible (Groupe 2B)', color: '#FF3B30' };
     case 'none':
     default:
-      return { label: 'APPROUVÉ', sublabel: '', color: '#34C759' };
+      return { label: 'APPROUVÉ', sublabel: '', color: '#2E9E34' };
   }
 }
 

@@ -15,7 +15,7 @@ export default function DrToxiVerdict({ score }: { score: number }) {
     bgColor = '#E8F9ED';
     title = 'Dr. Toxi recommande';
     message = 'Ce produit est acceptable. Vous pouvez le consommer sans inquiétude.';
-    IconComponent = <ShieldCheck color="#34C759" size={24} />;
+    IconComponent = <ShieldCheck color="#2E9E34" size={24} />;
   } else if (score <= 70) {
     bgColor = '#FFF3E0';
     title = 'Dr. Toxi vous laisse le choix';

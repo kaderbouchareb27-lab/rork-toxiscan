@@ -423,11 +423,11 @@ const styles = StyleSheet.create({
   },
   optionSelected: {
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(52, 199, 89, 0.04)',
+    backgroundColor: 'rgba(46, 158, 52, 0.04)',
   },
   optionCorrect: {
     borderColor: Colors.primary,
-    backgroundColor: 'rgba(52, 199, 89, 0.06)',
+    backgroundColor: 'rgba(46, 158, 52, 0.06)',
   },
   optionWrong: {
     borderColor: '#FF3B30',
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 10,
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -597,11 +597,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     paddingVertical: 16,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: 'rgba(52, 199, 89, 0.2)',
+    borderColor: 'rgba(46, 158, 52, 0.2)',
   },
   restartButtonText: {
     fontSize: 16,

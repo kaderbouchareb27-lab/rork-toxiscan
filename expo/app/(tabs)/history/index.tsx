@@ -28,7 +28,7 @@ const FILTERS: { key: FilterType; label: string; color?: string }[] = [
   { key: 'group1', label: 'Danger', color: '#FF3B30' },
   { key: 'group2a', label: 'Probable', color: '#FF9500' },
   { key: 'group2b', label: 'Possible', color: '#FFCC00' },
-  { key: 'none', label: 'OK', color: '#34C759' },
+  { key: 'none', label: 'OK', color: '#2E9E34' },
 ];
 
 function SkeletonRow() {
@@ -163,7 +163,7 @@ export default function HistoryScreen() {
     return (
       <View style={styles.premiumUpsellCard}>
         <View style={styles.premiumUpsellIcon}>
-          <Lock color="#34C759" size={22} />
+          <Lock color="#2E9E34" size={22} />
         </View>
         <Text style={styles.premiumUpsellTitle}>Historique complet</Text>
         <Text style={styles.premiumUpsellText}>
@@ -440,19 +440,19 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     gap: 10,
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 4,
     borderWidth: 1.5,
-    borderColor: 'rgba(52, 199, 89, 0.2)',
+    borderColor: 'rgba(46, 158, 52, 0.2)',
   },
   premiumUpsellIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    backgroundColor: 'rgba(46, 158, 52, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
@@ -470,12 +470,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   premiumUpsellButton: {
-    backgroundColor: '#2EBD53',
+    backgroundColor: '#2E9E34',
     paddingVertical: 13,
     paddingHorizontal: 32,
     borderRadius: 16,
     marginTop: 4,
-    shadowColor: '#1B8A3A',
+    shadowColor: '#237A28',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

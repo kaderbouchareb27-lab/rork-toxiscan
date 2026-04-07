@@ -81,7 +81,7 @@ const ebStyles = StyleSheet.create({
     lineHeight: 20,
   },
   button: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 14,

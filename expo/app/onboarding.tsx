@@ -62,7 +62,7 @@ const slides: OnboardingSlide[] = [
             <AlertCircle color={Colors.black} size={22} />
             <Text style={[illustrationStyles.badgeText, { color: Colors.black }]}>Détecté</Text>
           </View>
-          <View style={[illustrationStyles.badge, { backgroundColor: '#34C759' }]}>
+          <View style={[illustrationStyles.badge, { backgroundColor: '#2E9E34' }]}>
             <CheckCircle color={Colors.white} size={22} />
             <Text style={[illustrationStyles.badgeText, { color: Colors.white }]}>OK</Text>
           </View>

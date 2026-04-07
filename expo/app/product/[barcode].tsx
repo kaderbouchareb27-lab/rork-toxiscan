@@ -34,7 +34,7 @@ function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
     case 'carcinogen': return '#FF3B30';
     case 'controversial': return '#FF9500';
-    case 'safe': return '#34C759';
+    case 'safe': return '#2E9E34';
   }
 }
 
@@ -76,7 +76,7 @@ function getNovaColor(group: number): string {
 }
 
 function getScoreBadgeInfo(score: number): { color: string; label: string; icon: React.ReactNode } {
-  if (score <= 40) return { color: '#34C759', label: 'APPROUVE', icon: <CheckCircle color="#FFFFFF" size={28} /> };
+  if (score <= 40) return { color: '#2E9E34', label: 'APPROUVE', icon: <CheckCircle color="#FFFFFF" size={28} /> };
   if (score <= 70) return { color: '#FF9500', label: 'PRUDENCE', icon: <AlertTriangle color="#FFFFFF" size={28} /> };
   return { color: '#FF3B30', label: 'DANGER', icon: <AlertOctagon color="#FFFFFF" size={28} /> };
 }
@@ -1119,7 +1119,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
     marginTop: 2,
@@ -1181,8 +1181,8 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingVertical: 20,
     borderRadius: 20,
-    backgroundColor: '#2EBD53',
-    shadowColor: '#1B8A3A',
+    backgroundColor: '#2E9E34',
+    shadowColor: '#237A28',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 18,
@@ -1206,7 +1206,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: 'rgba(52, 199, 89, 0.25)',
+    borderColor: 'rgba(46, 158, 52, 0.25)',
     backgroundColor: Colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
