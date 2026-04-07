@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
   Animated,
   Platform,
   Alert,
   Linking,
   ScrollView,
   Dimensions,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
@@ -127,6 +127,13 @@ export default function ScannerScreen() {
     },
     onSuccess: (product) => {
       console.log('[Scanner] Analysis success:', product.name, product.riskGroup);
+      setProgressPercent(100);
+      Animated.timing(progressAnim, {
+        toValue: 1,
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }).start();
       addProduct(product);
       recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
@@ -241,14 +248,76 @@ export default function ScannerScreen() {
   const isLoading = photoMutation.isPending;
 
   const [tipIndex, setTipIndex] = useState<number>(0);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  const spinnerRotation = useRef(new Animated.Value(0)).current;
+  const tipFadeAnim = useRef(new Animated.Value(1)).current;
+
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isLoading) {
+      setProgressPercent(0);
+      progressAnim.setValue(0);
+      return;
+    }
     setTipIndex(Math.floor(Math.random() * LOADING_TIPS.length));
-    const interval = setInterval(() => {
-      setTipIndex(prev => (prev + 1) % LOADING_TIPS.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isLoading]);
+
+    const tipInterval = setInterval(() => {
+      Animated.timing(tipFadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
+        setTipIndex(prev => (prev + 1) % LOADING_TIPS.length);
+        Animated.timing(tipFadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+      });
+    }, 3000);
+
+    const stages = [
+      { target: 15, delay: 300 },
+      { target: 30, delay: 1500 },
+      { target: 50, delay: 3500 },
+      { target: 65, delay: 6000 },
+      { target: 78, delay: 9000 },
+      { target: 88, delay: 13000 },
+      { target: 93, delay: 18000 },
+    ];
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    for (const stage of stages) {
+      const t = setTimeout(() => {
+        setProgressPercent(stage.target);
+        Animated.timing(progressAnim, {
+          toValue: stage.target / 100,
+          duration: 800,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }).start();
+      }, stage.delay);
+      timeouts.push(t);
+    }
+
+    const spinLoop = Animated.loop(
+      Animated.timing(spinnerRotation, {
+        toValue: 1,
+        duration: 1200,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    );
+    spinLoop.start();
+
+    return () => {
+      clearInterval(tipInterval);
+      timeouts.forEach(t => clearTimeout(t));
+      spinLoop.stop();
+      spinnerRotation.setValue(0);
+    };
+  }, [isLoading, progressAnim, spinnerRotation, tipFadeAnim]);
+
+  const spinDeg = spinnerRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const progressBarWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
   if (hasAcceptedAIConsent === null || hasSeenOnboarding === null) {
     return (
@@ -265,14 +334,25 @@ export default function ScannerScreen() {
           <View style={styles.loadingCenterSection}>
             <View style={styles.loadingState}>
               <View style={styles.loadingIconContainer}>
-                <ActivityIndicator size="large" color="#34C759" />
+                <Animated.View style={[styles.spinnerRing, { transform: [{ rotate: spinDeg }] }]}>
+                  <View style={styles.spinnerDot} />
+                </Animated.View>
+                <Sparkles color="#34C759" size={26} style={styles.spinnerCenter} />
               </View>
               <Text style={styles.loadingTitle}>Analyse en cours</Text>
               <Text style={styles.loadingSubtitle}>Dr. Toxi examine votre produit...</Text>
-              <View style={styles.tipContainer}>
+
+              <View style={styles.progressSection}>
+                <View style={styles.progressBarBg}>
+                  <Animated.View style={[styles.progressBarFill, { width: progressBarWidth }]} />
+                </View>
+                <Text style={styles.progressText}>{progressPercent}%</Text>
+              </View>
+
+              <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}>
                 <Sparkles color="#34C759" size={14} />
                 <Text style={styles.tipText}>{LOADING_TIPS[tipIndex]}</Text>
-              </View>
+              </Animated.View>
             </View>
           </View>
         ) : (
@@ -405,13 +485,62 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   loadingIconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(52, 199, 89, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+  },
+  spinnerRing: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: 'rgba(52, 199, 89, 0.15)',
+    borderTopColor: '#34C759',
+  },
+  spinnerDot: {
+    position: 'absolute',
+    top: -2,
+    left: '50%' as unknown as number,
+    marginLeft: -4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#34C759',
+  },
+  spinnerCenter: {
+    position: 'absolute',
+  },
+  progressSection: {
+    width: '100%',
+    maxWidth: 260,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 8,
+  },
+  progressBarBg: {
+    flex: 1,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
+    backgroundColor: '#34C759',
+  },
+  progressText: {
+    fontSize: 13,
+    fontWeight: '600' as const,
+    color: '#34C759',
+    minWidth: 36,
+    textAlign: 'right' as const,
   },
   loadingTitle: {
     fontSize: 20,
