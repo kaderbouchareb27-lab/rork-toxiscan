@@ -8,14 +8,13 @@ import {
   Animated,
   Platform,
   Alert,
-  Modal,
   Linking,
   ScrollView,
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
-import { ShieldCheck, Camera, Sparkles } from 'lucide-react-native';
+import { Camera, Sparkles } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -33,7 +32,6 @@ import DonationBanner from '@/components/DonationBanner';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ScannerScreen() {
-  const [showCameraPermissionModal, setShowCameraPermissionModal] = useState<boolean>(false);
   const { addProduct } = useScanHistory();
   const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasAcceptedAIConsent } = useOnboarding();
@@ -195,19 +193,11 @@ export default function ScannerScreen() {
         return;
       }
 
-      setShowCameraPermissionModal(true);
-    } catch (error) {
-      console.error('[Scanner] Permission check error:', error);
-    }
-  }, [launchCamera]);
-
-  const handlePermissionAccept = useCallback(async () => {
-    setShowCameraPermissionModal(false);
-
-    try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       console.log('[Scanner] Permission request result:', status);
-      if (status !== 'granted') {
+      if (status === 'granted') {
+        await launchCamera();
+      } else {
         Alert.alert(
           'Permission requise',
           'Dr.Toxi a besoin de votre appareil photo. Activez la permission dans les réglages de votre appareil.',
@@ -216,14 +206,12 @@ export default function ScannerScreen() {
             { text: 'Ouvrir les réglages', onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
           ]
         );
-        return;
       }
-
-      await launchCamera();
     } catch (error) {
-      console.error('[Scanner] Permission request error:', error);
+      console.error('[Scanner] Permission check error:', error);
     }
   }, [launchCamera]);
+
 
   const handleButtonPressIn = useCallback(() => {
     Animated.spring(buttonScale, {
@@ -328,48 +316,6 @@ export default function ScannerScreen() {
           </ScrollView>
         )}
       </Animated.View>
-
-      <Modal
-        visible={showCameraPermissionModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => {
-          setShowCameraPermissionModal(false);
-        }}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalIconContainer}>
-              <ShieldCheck color="#34C759" size={40} strokeWidth={1.6} />
-            </View>
-            <Text style={styles.modalTitle}>Accès à la caméra</Text>
-            <Text style={styles.modalDescription}>
-              Dr.Toxi utilise votre appareil photo pour analyser tout objet du quotidien et détecter les substances potentiellement cancérigènes.
-            </Text>
-            <Text style={styles.modalNote}>
-              Vos photos ne sont ni stockées ni partagées.
-            </Text>
-            <TouchableOpacity
-              style={styles.modalPrimaryButton}
-              onPress={handlePermissionAccept}
-              activeOpacity={0.85}
-              testID="permission-accept"
-            >
-              <Text style={styles.modalPrimaryButtonText}>Autoriser la caméra</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalSecondaryButton}
-              onPress={() => {
-                setShowCameraPermissionModal(false);
-              }}
-              activeOpacity={0.7}
-              testID="permission-later"
-            >
-              <Text style={styles.modalSecondaryButtonText}>Plus tard</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -501,81 +447,5 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     flex: 1,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 28,
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 28,
-    paddingHorizontal: 28,
-    paddingTop: 36,
-    paddingBottom: 28,
-    width: '100%',
-    maxWidth: 360,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 12,
-  },
-  modalIconContainer: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: '700' as const,
-    color: '#1A1C1E',
-    marginBottom: 12,
-    textAlign: 'center' as const,
-    letterSpacing: -0.3,
-  },
-  modalDescription: {
-    fontSize: 15,
-    color: '#4B5563',
-    textAlign: 'center' as const,
-    lineHeight: 22,
-    marginBottom: 8,
-  },
-  modalNote: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    textAlign: 'center' as const,
-    marginBottom: 24,
-  },
-  modalPrimaryButton: {
-    width: '100%',
-    backgroundColor: '#2EBD53',
-    paddingVertical: 17,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginBottom: 10,
-    shadowColor: '#1B8A3A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  modalPrimaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '600' as const,
-  },
-  modalSecondaryButton: {
-    paddingVertical: 10,
-  },
-  modalSecondaryButtonText: {
-    color: '#9CA3AF',
-    fontSize: 15,
-  },
+
 });

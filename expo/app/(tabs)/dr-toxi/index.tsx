@@ -257,8 +257,8 @@ export default function DrToxiScreen() {
           'Dr. Toxi a besoin de ta caméra',
           'Pour analyser les étiquettes de tes produits en direct et te donner un verdict instantané.',
           [
-            { text: 'Plus tard', style: 'cancel' },
-            { text: 'Autoriser la caméra', onPress: () => {
+            { text: 'Annuler', style: 'cancel' },
+            { text: 'Ouvrir les réglages', onPress: () => {
               if (Platform.OS !== 'web') {
                 void import('expo-linking').then(LinkingModule => {
                   void LinkingModule.openSettings();
