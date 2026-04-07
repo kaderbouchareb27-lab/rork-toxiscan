@@ -11,6 +11,7 @@ import {
   ScrollView,
   Dimensions,
   Easing,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
