@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   logoImage: {
-    width: 186,
-    height: 186,
+    width: 140,
+    height: 140,
     marginBottom: 14,
   },
   subtitle: {
