@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
-import { getRiskBadgeInfo } from '@/constants/additives';
+import { calculateRiskScore, classifySubstanceLevel, classifyAdditiveLevel } from '@/utils/riskScore';
 
 interface ShareImageCardProps {
   productName: string;
@@ -15,28 +15,10 @@ interface ShareImageCardProps {
   detectedAdditives?: AdditiveInfo[];
 }
 
-function getBadgeLabel(riskGroup: RiskGroup): string {
-  switch (riskGroup) {
-    case 'group1': return 'DANGER';
-    case 'group2a': return 'DÉTECTÉ';
-    case 'group2b': return 'DÉTECTÉ';
-    case 'none':
-    default: return 'OK';
-  }
-}
-
-function getBadgeColor(riskGroup: RiskGroup): string {
-  switch (riskGroup) {
-    case 'group1': return '#FF3B30';
-    case 'group2a': return '#FF9500';
-    case 'group2b': return '#FFCC00';
-    case 'none':
-    default: return '#2E9E34';
-  }
-}
-
-function getBadgeTextColor(riskGroup: RiskGroup): string {
-  return riskGroup === 'group2b' ? '#1A1A1A' : '#FFFFFF';
+function getScoreBadge(score: number): { label: string; sublabel: string; color: string; textColor: string } {
+  if (score <= 40) return { label: 'APPROUVE', sublabel: 'Faible risque', color: '#2E9E34', textColor: '#FFFFFF' };
+  if (score <= 70) return { label: 'PRUDENCE', sublabel: 'Favorise le cancer', color: '#FF9500', textColor: '#FFFFFF' };
+  return { label: 'DANGER', sublabel: 'Cancerogene detecte', color: '#FF3B30', textColor: '#FFFFFF' };
 }
 
 function getTopSubstances(props: ShareImageCardProps): string[] {
@@ -76,10 +58,17 @@ const TOXISCAN_LOGO = 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr
 
 export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
-  const badge = getRiskBadgeInfo(riskGroup);
-  const badgeLabel = getBadgeLabel(riskGroup);
-  const badgeColor = getBadgeColor(riskGroup);
-  const badgeText = getBadgeTextColor(riskGroup);
+  const riskScore = calculateRiskScore({
+    detectedAdditives: props.detectedAdditives ?? [],
+    detectedIngredients: props.detectedIngredients,
+    substances: props.substances,
+    ingredientsText: '',
+    riskGroup,
+  });
+  const badge = getScoreBadge(riskScore);
+  const badgeLabel = badge.label;
+  const badgeColor = badge.color;
+  const badgeText = badge.textColor;
   const substances = getTopSubstances(props);
   const productImageUri = thumbnailBase64 ?? photoUri ?? imageUrl ?? null;
 

@@ -16,7 +16,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     question: 'Que signifient les badges ?',
-    answer: 'Rouge (DANGER) : cancérogène avéré (Groupe 1 CIRC).\nOrange (DÉTECTÉ) : substance à risque (Groupe 2A).\nJaune (DÉTECTÉ) : substance controversée (Groupe 2B).\nVert (OK) : aucun additif classé détecté.',
+    answer: 'Rouge (DANGER) : substance classée cancérogène par le CIRC (Groupe 1, 2A ou 2B).\nOrange (PRUDENCE) : substance controversée non classée par le CIRC, mais qui favorise le cancer via l\'obésité, l\'inflammation ou la perturbation hormonale.\nVert (APPROUVÉ) : aucun lien connu avec le cancer.',
   },
   {
     question: 'La photo d\'ingrédients, comment ça marche ?',

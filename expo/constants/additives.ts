@@ -154,14 +154,14 @@ export function analyzeAdditives(additiveTags: string[]): { riskGroup: RiskGroup
 export function getRiskBadgeInfo(group: RiskGroup): { label: string; sublabel: string; color: string } {
   switch (group) {
     case 'group1':
-      return { label: 'DANGER', sublabel: 'Cancérogène avéré (Groupe 1)', color: '#FF3B30' };
+      return { label: 'DANGER', sublabel: 'Cancérogène avéré (Groupe 1 CIRC)', color: '#FF3B30' };
     case 'group2a':
-      return { label: 'DANGER', sublabel: 'Cancérogène probable (Groupe 2A)', color: '#FF3B30' };
+      return { label: 'PRUDENCE', sublabel: 'Favorise le cancer', color: '#FF9500' };
     case 'group2b':
-      return { label: 'DANGER', sublabel: 'Cancérogène possible (Groupe 2B)', color: '#FF3B30' };
+      return { label: 'PRUDENCE', sublabel: 'Substance controversée', color: '#FF9500' };
     case 'none':
     default:
-      return { label: 'APPROUVÉ', sublabel: '', color: '#2E9E34' };
+      return { label: 'APPROUVÉ', sublabel: 'Faible risque', color: '#2E9E34' };
   }
 }
 

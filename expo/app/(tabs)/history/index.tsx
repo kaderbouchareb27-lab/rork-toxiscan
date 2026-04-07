@@ -26,9 +26,9 @@ const FILTERS: { key: FilterType; label: string; color?: string }[] = [
   { key: 'all', label: 'Tous' },
   { key: 'favorites', label: 'Favoris', color: '#FF2D55' },
   { key: 'group1', label: 'Danger', color: '#FF3B30' },
-  { key: 'group2a', label: 'Probable', color: '#FF9500' },
-  { key: 'group2b', label: 'Possible', color: '#FFCC00' },
-  { key: 'none', label: 'OK', color: '#2E9E34' },
+  { key: 'group2a', label: 'Prudence', color: '#FF9500' },
+  { key: 'group2b', label: 'Prudence', color: '#FF9500' },
+  { key: 'none', label: 'Approuvé', color: '#2E9E34' },
 ];
 
 function SkeletonRow() {

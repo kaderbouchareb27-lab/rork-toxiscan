@@ -456,6 +456,7 @@ export default function ProductScreen() {
                     classification_circ: ingredient.classification_circ,
                     niveau_risque: ingredient.niveau_risque,
                     explication: ingredient.explication,
+                    nom: ingredient.nom,
                   });
                   return (
                     <View key={`danger-${index}`} style={styles.additiveCard}>
