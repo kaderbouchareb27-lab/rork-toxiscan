@@ -14,17 +14,17 @@ export default function DrToxiVerdict({ score }: { score: number }) {
   if (score <= 40) {
     bgColor = '#E8F9ED';
     title = 'Dr. Toxi recommande';
-    message = 'Ce produit est acceptable. Vous pouvez le consommer sans inqui\u00e9tude.';
+    message = 'Ce produit est acceptable. Vous pouvez le consommer sans inquiétude.';
     IconComponent = <ShieldCheck color="#34C759" size={24} />;
   } else if (score <= 70) {
     bgColor = '#FFF3E0';
     title = 'Dr. Toxi vous laisse le choix';
-    message = 'Ce produit ne contient pas de canc\u00e9rig\u00e8ne mais des substances controvers\u00e9es. Consommation occasionnelle possible.';
+    message = 'Ce produit ne contient pas de cancérigène mais des substances controversées. Consommation occasionnelle possible.';
     IconComponent = <ShieldQuestion color="#FF9500" size={24} />;
   } else {
     bgColor = '#FFEBEE';
-    title = 'Dr. Toxi d\u00e9conseille';
-    message = 'Ce produit contient au moins une substance canc\u00e9rig\u00e8ne. Je vous d\u00e9conseille de l\'utiliser.';
+    title = 'Dr. Toxi déconseille';
+    message = 'Ce produit contient au moins une substance cancérigène. Je vous déconseille de l\'utiliser.';
     IconComponent = <ShieldAlert color="#FF3B30" size={24} />;
   }
 

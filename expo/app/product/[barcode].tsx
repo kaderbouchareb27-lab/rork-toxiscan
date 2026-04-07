@@ -12,10 +12,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, ChevronDown, ChevronUp, AlertOctagon, Info } from 'lucide-react-native';
 import RiskScoreBar from '@/components/RiskScoreBar';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
-import { calculateRiskScore } from '@/utils/riskScore';
+import { calculateRiskScore, classifySubstanceLevel, classifyAdditiveLevel } from '@/utils/riskScore';
+import type { SubstanceLevel } from '@/utils/riskScore';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import ShareImageCard from '@/components/ShareImageCard';
@@ -29,68 +30,27 @@ import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 
-
-function getSubstanceBadgeColor(niveau: string): string {
-  switch (niveau) {
-    case 'danger':
-    case 'probable':
-    case 'possible':
-      return '#FF3B30';
-    default:
-      return '#FF9500';
+function getLevelBadgeColor(level: SubstanceLevel): string {
+  switch (level) {
+    case 'carcinogen': return '#FF3B30';
+    case 'controversial': return '#FF9500';
+    case 'safe': return '#34C759';
   }
 }
 
-function getSubstanceBadgeLabel(niveau: string): string {
-  switch (niveau) {
-    case 'danger':
-    case 'probable':
-    case 'possible':
-      return 'CANCERIGENE';
-    case 'aucun':
-      return 'SANS RISQUE';
-    default:
-      return 'CONTROVERSE';
+function getLevelBadgeLabel(level: SubstanceLevel): string {
+  switch (level) {
+    case 'carcinogen': return 'CANCERIGENE';
+    case 'controversial': return 'FAVORISE LE CANCER';
+    case 'safe': return 'FAIBLE RISQUE';
   }
 }
 
-function getSubstanceBadgeTextColor(_niveau: string): string {
-  return '#FFFFFF';
-}
-
-function getAdditiveGroupBadgeColor(group: RiskGroup): string {
-  switch (group) {
-    case 'group1':
-    case 'group2a':
-    case 'group2b':
-      return '#FF3B30';
-    case 'none':
-    default:
-      return '#34C759';
-  }
-}
-
-function getAdditiveGroupBadgeLabel(group: RiskGroup): string {
-  switch (group) {
-    case 'group1':
-    case 'group2a':
-    case 'group2b':
-      return 'CANCERIGENE';
-    case 'none':
-    default:
-      return 'SANS RISQUE';
-  }
-}
-
-function getRiskIcon(group: RiskGroup, size: number) {
-  switch (group) {
-    case 'group1':
-    case 'group2a':
-    case 'group2b':
-      return <AlertTriangle color={Colors.white} size={size} />;
-    case 'none':
-    default:
-      return <CheckCircle color={Colors.white} size={size} />;
+function getLevelIcon(level: SubstanceLevel, size: number) {
+  switch (level) {
+    case 'carcinogen': return <AlertOctagon color="#FFFFFF" size={size} />;
+    case 'controversial': return <AlertTriangle color="#FFFFFF" size={size} />;
+    case 'safe': return <CheckCircle color="#FFFFFF" size={size} />;
   }
 }
 
@@ -115,10 +75,10 @@ function getNovaColor(group: number): string {
   }
 }
 
-function getScoreBadgeInfo(score: number): { color: string; label: string; textColor: string } {
-  if (score <= 40) return { color: '#34C759', label: 'APPROUVE', textColor: '#FFFFFF' };
-  if (score <= 70) return { color: '#FF9500', label: 'PRUDENCE', textColor: '#FFFFFF' };
-  return { color: '#FF3B30', label: 'DANGER', textColor: '#FFFFFF' };
+function getScoreBadgeInfo(score: number): { color: string; label: string; icon: React.ReactNode } {
+  if (score <= 40) return { color: '#34C759', label: 'APPROUVE', icon: <CheckCircle color="#FFFFFF" size={28} /> };
+  if (score <= 70) return { color: '#FF9500', label: 'PRUDENCE', icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+  return { color: '#FF3B30', label: 'DANGER', icon: <AlertOctagon color="#FFFFFF" size={28} /> };
 }
 
 function truncateAnalysis(text: string, maxSentences: number): { short: string; full: string; hasMore: boolean } {
@@ -163,7 +123,7 @@ export default function ProductScreen() {
         </View>
         <View style={styles.emptyState}>
           <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
-          <Text style={styles.emptyText}>Produit non trouv\u00e9</Text>
+          <Text style={styles.emptyText}>Produit non trouvé</Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleBack} testID="retry-button">
             <Text style={styles.retryButtonText}>Retour</Text>
           </TouchableOpacity>
@@ -211,7 +171,7 @@ export default function ProductScreen() {
         if (isAvailable) {
           await Sharing.shareAsync(uri, {
             mimeType: 'image/png',
-            dialogTitle: 'Partager le r\u00e9sultat Dr.Toxi',
+            dialogTitle: 'Partager le résultat Dr.Toxi',
             UTI: 'public.png',
           });
           recordShare();
@@ -238,12 +198,12 @@ export default function ProductScreen() {
   const fallbackTextShare = async () => {
     const badgeLabel = riskScore <= 40 ? '[APPROUVE]' : riskScore <= 70 ? '[PRUDENCE]' : '[DANGER]';
     const substancesText = product.detectedAdditives.length > 0
-      ? `\n\nSubstances d\u00e9tect\u00e9es :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
+      ? `\n\nSubstances détectées :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
       : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
-      ? `\n\nSubstances d\u00e9tect\u00e9es :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
+      ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
       : '';
     const result = await Share.share({
-      message: `${badgeLabel} ${product.name} (${product.brand}) \u2014 ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec Dr.Toxi \u2014 disponible sur l'App Store`,
+      message: `${badgeLabel} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec Dr.Toxi — disponible sur l'App Store`,
     });
     if (result.action === Share.sharedAction) {
       recordShare();
@@ -323,7 +283,7 @@ export default function ProductScreen() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="back-button">
           <ChevronLeft color={Colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{product?.name ?? 'Resultat'}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{product?.name ?? 'Résultat'}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={handleFavorite} style={styles.favoriteButton} testID="favorite-button">
             <Heart
@@ -339,7 +299,6 @@ export default function ProductScreen() {
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* 1. Product photo and name */}
         <View style={styles.productHeader}>
           {isPhotoScan ? (
             product.thumbnailBase64 || product.photoUri ? (
@@ -369,13 +328,13 @@ export default function ProductScreen() {
           )}
 
           {product.materialDetected ? (
-            <Text style={styles.materialText}>Mat\u00e9riau : {product.materialDetected}</Text>
+            <Text style={styles.materialText}>Matériau : {product.materialDetected}</Text>
           ) : null}
 
           {isPhotoScan && !isUniversalScan && (
             <View style={styles.photoTag}>
               <Camera color={Colors.textSecondary} size={12} />
-              <Text style={styles.photoTagText}>Analys\u00e9 par photo</Text>
+              <Text style={styles.photoTagText}>Analysé par photo</Text>
             </View>
           )}
 
@@ -408,33 +367,29 @@ export default function ProductScreen() {
           <View style={styles.frontPhotoTip}>
             <Camera color="#FF9500" size={16} />
             <Text style={styles.frontPhotoTipText}>
-              Pour un r\u00e9sultat plus pr\u00e9cis, photographiez la liste d'ingr\u00e9dients au dos du produit
+              Pour un résultat plus précis, photographiez la liste d'ingrédients au dos du produit
             </Text>
           </View>
         )}
 
-        {/* 2. Detection badge (color matches score) */}
         {(() => {
           const scoreBadge = getScoreBadgeInfo(riskScore);
           return (
             <View style={[styles.badgeContainer, { backgroundColor: scoreBadge.color }]}>
               <View style={styles.badgeContent}>
-                {getRiskIcon(product.riskGroup, 28)}
+                {scoreBadge.icon}
                 <View style={styles.badgeTextContainer}>
-                  <Text style={[styles.badgeLabel, { color: scoreBadge.textColor }]}>{scoreBadge.label}</Text>
+                  <Text style={styles.badgeLabel}>{scoreBadge.label}</Text>
                 </View>
               </View>
             </View>
           );
         })()}
 
-        {/* 3. Risk score (0-100) */}
         <RiskScoreBar score={riskScore} />
 
-        {/* 4. Dr. Toxi verdict card */}
         <DrToxiVerdict score={riskScore} />
 
-        {/* 5. Short analysis (3-4 sentences) + "En savoir plus" collapsible */}
         {analysisData ? (
           <View style={styles.summaryCard}>
             <Text style={styles.summaryText}>
@@ -453,67 +408,80 @@ export default function ProductScreen() {
                   <ChevronDown color={Colors.primary} size={16} />
                 )}
                 <Text style={styles.expandButtonText}>
-                  {showFullAnalysis ? 'R\u00e9duire' : 'En savoir plus'}
+                  {showFullAnalysis ? 'Réduire' : 'En savoir plus'}
                 </Text>
               </TouchableOpacity>
             )}
           </View>
         ) : null}
 
-        {/* 6. Substances detected (with individual RED/ORANGE badges per substance) */}
         {isUniversalScan && dangerousSubstances.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Substances d\u00e9tect\u00e9es</Text>
-            {dangerousSubstances.map((substance: SubstanceDetected, index: number) => (
-              <View key={`substance-${index}`} style={styles.additiveCard}>
-                <View style={styles.additiveHeader}>
-                  <View style={[styles.additiveTag, { backgroundColor: getSubstanceBadgeColor(substance.niveau_risque) }]}>
-                    <Text style={[styles.additiveTagText, { color: getSubstanceBadgeTextColor(substance.niveau_risque) }]}>
-                      {getSubstanceBadgeLabel(substance.niveau_risque)}
-                    </Text>
+            <Text style={styles.sectionTitle}>Substances détectées</Text>
+            {dangerousSubstances.map((substance: SubstanceDetected, index: number) => {
+              const level = classifySubstanceLevel(substance);
+              return (
+                <View key={`substance-${index}`} style={styles.additiveCard}>
+                  <View style={styles.additiveHeader}>
+                    <View style={[styles.additiveTag, { backgroundColor: getLevelBadgeColor(level) }]}>
+                      <Text style={styles.additiveTagText}>
+                        {getLevelBadgeLabel(level)}
+                      </Text>
+                    </View>
+                    <Text style={styles.additiveName}>{substance.nom}</Text>
                   </View>
-                  <Text style={styles.additiveName}>{substance.nom}</Text>
+                  {substance.explication ? (
+                    <Text style={styles.additiveDescription}>{substance.explication}</Text>
+                  ) : null}
+                  {substance.source_exposition ? (
+                    <View style={styles.exposureRow}>
+                      <Text style={styles.exposureLabel}>Exposition :</Text>
+                      <Text style={styles.exposureValue}>{substance.source_exposition}</Text>
+                    </View>
+                  ) : null}
+                  <Text style={styles.additiveSource}>
+                    {level === 'carcinogen' ? 'Classification : CIRC/OMS' : level === 'controversial' ? 'Non classé cancérogène par le CIRC' : 'Aucun lien connu avec le cancer'}
+                  </Text>
                 </View>
-                {substance.explication ? (
-                  <Text style={styles.additiveDescription}>{substance.explication}</Text>
-                ) : null}
-                {substance.source_exposition ? (
-                  <View style={styles.exposureRow}>
-                    <Text style={styles.exposureLabel}>Exposition :</Text>
-                    <Text style={styles.exposureValue}>{substance.source_exposition}</Text>
-                  </View>
-                ) : null}
-                <Text style={styles.additiveSource}>Classification : CIRC/OMS</Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
         ) : isPhotoScan && product.detectedIngredients && product.detectedIngredients.length > 0 ? (
           <>
             {dangerousIngredients.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Substances d\u00e9tect\u00e9es</Text>
-                {dangerousIngredients.map((ingredient: DetectedIngredient, index: number) => (
-                  <View key={`danger-${index}`} style={styles.additiveCard}>
-                    <View style={styles.additiveHeader}>
-                      <View style={[styles.additiveTag, { backgroundColor: getSubstanceBadgeColor(ingredient.niveau_risque) }]}>
-                        <Text style={[styles.additiveTagText, { color: getSubstanceBadgeTextColor(ingredient.niveau_risque) }]}>
-                          {getSubstanceBadgeLabel(ingredient.niveau_risque)}
-                        </Text>
+                <Text style={styles.sectionTitle}>Substances détectées</Text>
+                {dangerousIngredients.map((ingredient: DetectedIngredient, index: number) => {
+                  const level = classifySubstanceLevel({
+                    classification_circ: ingredient.classification_circ,
+                    niveau_risque: ingredient.niveau_risque,
+                    explication: ingredient.explication,
+                  });
+                  return (
+                    <View key={`danger-${index}`} style={styles.additiveCard}>
+                      <View style={styles.additiveHeader}>
+                        <View style={[styles.additiveTag, { backgroundColor: getLevelBadgeColor(level) }]}>
+                          <Text style={styles.additiveTagText}>
+                            {getLevelBadgeLabel(level)}
+                          </Text>
+                        </View>
+                        <Text style={styles.additiveName}>{ingredient.nom}</Text>
                       </View>
-                      <Text style={styles.additiveName}>{ingredient.nom}</Text>
+                      {ingredient.explication ? (
+                        <Text style={styles.additiveDescription}>{ingredient.explication}</Text>
+                      ) : null}
+                      <Text style={styles.additiveSource}>
+                        {level === 'carcinogen' ? 'Classification : CIRC/OMS' : level === 'controversial' ? 'Non classé cancérogène par le CIRC' : 'Aucun lien connu avec le cancer'}
+                      </Text>
                     </View>
-                    {ingredient.explication ? (
-                      <Text style={styles.additiveDescription}>{ingredient.explication}</Text>
-                    ) : null}
-                    <Text style={styles.additiveSource}>Classification : CIRC/OMS</Text>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             )}
 
             {safeIngredients.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitleSmall}>Ingr\u00e9dients d\u00e9tect\u00e9s</Text>
+                <Text style={styles.sectionTitleSmall}>Ingrédients détectés</Text>
                 <View style={styles.safeIngredientsCard}>
                   <Text style={styles.safeIngredientsText}>
                     {safeIngredients.map((i: DetectedIngredient) => i.nom).join(', ')}
@@ -526,20 +494,23 @@ export default function ProductScreen() {
           <>
             {product.detectedAdditives.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Substances d\u00e9tect\u00e9es</Text>
+                <Text style={styles.sectionTitle}>Substances détectées</Text>
                 {product.detectedAdditives.map((additive, index) => {
+                  const level = classifyAdditiveLevel(additive);
                   return (
                     <View key={`${additive.code}-${index}`} style={styles.additiveCard}>
                       <View style={styles.additiveHeader}>
-                        <View style={[styles.additiveTag, { backgroundColor: getAdditiveGroupBadgeColor(additive.group) }]}>
-                          <Text style={[styles.additiveTagText, { color: '#FFFFFF' }]}>
-                            {getAdditiveGroupBadgeLabel(additive.group)}
+                        <View style={[styles.additiveTag, { backgroundColor: getLevelBadgeColor(level) }]}>
+                          <Text style={styles.additiveTagText}>
+                            {getLevelBadgeLabel(level)}
                           </Text>
                         </View>
                         <Text style={styles.additiveName}>{additive.name}</Text>
                       </View>
                       <Text style={styles.additiveDescription}>{additive.description}</Text>
-                      <Text style={styles.additiveSource}>Classification : CIRC/OMS</Text>
+                      <Text style={styles.additiveSource}>
+                        {level === 'carcinogen' ? 'Classification : CIRC/OMS' : level === 'controversial' ? 'Non classé cancérogène par le CIRC' : 'Aucun lien connu avec le cancer'}
+                      </Text>
                     </View>
                   );
                 })}
@@ -551,7 +522,7 @@ export default function ProductScreen() {
                 <View style={styles.noAdditivesCard}>
                   <CheckCircle color={Colors.safe} size={24} />
                   <Text style={styles.noAdditivesText}>
-                    Aucun additif class\u00e9 par le CIRC n'a \u00e9t\u00e9 d\u00e9tect\u00e9 dans ce produit.
+                    Aucun additif classé par le CIRC n'a été détecté dans ce produit.
                   </Text>
                 </View>
               </View>
@@ -561,7 +532,7 @@ export default function ProductScreen() {
 
         {isUniversalScan && safeSubstances.length > 0 && safeIngredients.length === 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitleSmall}>Composants d\u00e9tect\u00e9s</Text>
+            <Text style={styles.sectionTitleSmall}>Composants détectés</Text>
             <View style={styles.safeIngredientsCard}>
               <Text style={styles.safeIngredientsText}>
                 {safeSubstances.map((s: SubstanceDetected) => s.nom).join(', ')}
@@ -570,7 +541,6 @@ export default function ProductScreen() {
           </View>
         )}
 
-        {/* 7. Recommendations */}
         {product.recommendations && product.recommendations.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
@@ -588,7 +558,6 @@ export default function ProductScreen() {
           </View>
         )}
 
-        {/* 8. Alternatives (prominent for RED/ORANGE, collapsed for GREEN) */}
         {showAlternatives && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
@@ -615,7 +584,7 @@ export default function ProductScreen() {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <RefreshCw color={Colors.safe} size={18} />
-              <Text style={styles.sectionTitle}>Alternatives plus s\u00fbres</Text>
+              <Text style={styles.sectionTitle}>Alternatives plus sûres</Text>
             </View>
             <View style={styles.alternativesCard}>
               {product.saferAlternatives.map((alt, index) => (
@@ -632,19 +601,19 @@ export default function ProductScreen() {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <MapPin color="#2D8A4E" size={18} />
-              <Text style={styles.sectionTitle}>O\u00f9 trouver des alternatives saines ?</Text>
+              <Text style={styles.sectionTitle}>Où trouver des alternatives saines ?</Text>
             </View>
             <View style={styles.bioStoresCard}>
               <Text style={styles.bioStoresIntro}>
-                Privil\u00e9giez les produits biologiques certifi\u00e9s. Les magasins sp\u00e9cialis\u00e9s bio offrent des alternatives sans additifs, sans pesticides et sans substances controvers\u00e9es.
+                Privilégiez les produits biologiques certifiés. Les magasins spécialisés bio offrent des alternatives sans additifs, sans pesticides et sans substances controversées.
               </Text>
 
               {userCountry === 'canada' ? (
                 <>
-                  <Text style={styles.bioStoresSubtitle}>Magasins sp\u00e9cialis\u00e9s</Text>
+                  <Text style={styles.bioStoresSubtitle}>Magasins spécialisés</Text>
                   {[
-                    'Avril Supermarch\u00e9 Sant\u00e9',
-                    'Rachelle B\u00e9ry',
+                    'Avril Supermarché Santé',
+                    'Rachelle Béry',
                     'Tau Aliments Naturels',
                   ].map((store, i) => (
                     <View key={`store-ca-${i}`} style={styles.bioStoreItem}>
@@ -653,30 +622,30 @@ export default function ProductScreen() {
                     </View>
                   ))}
 
-                  <Text style={styles.bioStoresSubtitle}>Sections bio en \u00e9picerie</Text>
+                  <Text style={styles.bioStoresSubtitle}>Sections bio en épicerie</Text>
                   <Text style={styles.bioStoresNote}>IGA, Metro, Provigo, Maxi</Text>
 
-                  <Text style={styles.bioStoresSubtitle}>March\u00e9s locaux</Text>
-                  <Text style={styles.bioStoresNote}>March\u00e9 Jean-Talon, March\u00e9 Atwater</Text>
+                  <Text style={styles.bioStoresSubtitle}>Marchés locaux</Text>
+                  <Text style={styles.bioStoresNote}>Marché Jean-Talon, Marché Atwater</Text>
 
                   {isHouseholdOrCosmetic ? (
                     <>
-                      <Text style={styles.bioStoresSubtitle}>Marques propres recommand\u00e9es</Text>
-                      <Text style={styles.bioStoresNote}>ATTITUDE (priorit\u00e9 \u2014 vegan, hypoallerg\u00e9nique, disponible chez Jean Coutu, Pharmaprix, IGA, Metro, Walmart, Amazon.ca)</Text>
-                      <Text style={styles.bioStoresNote}>The Unscented Company (Montr\u00e9al, produits m\u00e9nagers)</Text>
-                      <Text style={styles.bioStoresNote}>Druide (cosm\u00e9tiques bio qu\u00e9b\u00e9cois)</Text>
+                      <Text style={styles.bioStoresSubtitle}>Marques propres recommandées</Text>
+                      <Text style={styles.bioStoresNote}>ATTITUDE (priorité — vegan, hypoallergénique, disponible chez Jean Coutu, Pharmaprix, IGA, Metro, Walmart, Amazon.ca)</Text>
+                      <Text style={styles.bioStoresNote}>The Unscented Company (Montréal, produits ménagers)</Text>
+                      <Text style={styles.bioStoresNote}>Druide (cosmétiques bio québécois)</Text>
                       <Text style={styles.bioStoresNote}>Oneka (soins corporels naturels)</Text>
                     </>
                   ) : (
                     <>
-                      <Text style={styles.bioStoresSubtitle}>Marques bio recommand\u00e9es</Text>
-                      <Text style={styles.bioStoresNote}>La Fourmi Bionique, GoGo Quinoa, Fontaine Sant\u00e9, Libert\u00e9 Bio</Text>
+                      <Text style={styles.bioStoresSubtitle}>Marques bio recommandées</Text>
+                      <Text style={styles.bioStoresNote}>La Fourmi Bionique, GoGo Quinoa, Fontaine Santé, Liberté Bio</Text>
                     </>
                   )}
                 </>
               ) : (
                 <>
-                  <Text style={styles.bioStoresSubtitle}>Magasins sp\u00e9cialis\u00e9s</Text>
+                  <Text style={styles.bioStoresSubtitle}>Magasins spécialisés</Text>
                   {[
                     'Biocoop',
                     'Naturalia',
@@ -695,16 +664,16 @@ export default function ProductScreen() {
 
                   {isHouseholdOrCosmetic ? (
                     <>
-                      <Text style={styles.bioStoresSubtitle}>Marques propres recommand\u00e9es</Text>
-                      <Text style={styles.bioStoresNote}>Ecover (produits m\u00e9nagers \u00e9cologiques)</Text>
-                      <Text style={styles.bioStoresNote}>L'Arbre Vert (produits m\u00e9nagers certifi\u00e9s \u00c9colabel)</Text>
-                      <Text style={styles.bioStoresNote}>Cattier (cosm\u00e9tiques bio certifi\u00e9s)</Text>
-                      <Text style={styles.bioStoresNote}>Coslys (cosm\u00e9tiques bio fran\u00e7ais)</Text>
+                      <Text style={styles.bioStoresSubtitle}>Marques propres recommandées</Text>
+                      <Text style={styles.bioStoresNote}>Ecover (produits ménagers écologiques)</Text>
+                      <Text style={styles.bioStoresNote}>L'Arbre Vert (produits ménagers certifiés Écolabel)</Text>
+                      <Text style={styles.bioStoresNote}>Cattier (cosmétiques bio certifiés)</Text>
+                      <Text style={styles.bioStoresNote}>Coslys (cosmétiques bio français)</Text>
                     </>
                   ) : (
                     <>
-                      <Text style={styles.bioStoresSubtitle}>Marques bio recommand\u00e9es</Text>
-                      <Text style={styles.bioStoresNote}>Bjorg, Bonneterre, Prim\u00e9al, Jardin Bio</Text>
+                      <Text style={styles.bioStoresSubtitle}>Marques bio recommandées</Text>
+                      <Text style={styles.bioStoresNote}>Bjorg, Bonneterre, Priméal, Jardin Bio</Text>
                     </>
                   )}
                 </>
@@ -713,7 +682,6 @@ export default function ProductScreen() {
           </View>
         )}
 
-        {/* 9. "Partager ce resultat" button */}
         <TouchableOpacity
           style={[styles.bigShareButton, isShareLoading && styles.bigShareButtonLoading]}
           onPress={handleShare}
@@ -727,14 +695,13 @@ export default function ProductScreen() {
             <Share2 color={Colors.white} size={22} />
           )}
           <Text style={styles.bigShareButtonText}>
-            {isShareLoading ? 'Pr\u00e9paration...' : 'Partager ce r\u00e9sultat'}
+            {isShareLoading ? 'Préparation...' : 'Partager ce résultat'}
           </Text>
         </TouchableOpacity>
 
-        {/* 10. "Demander a Dr. Toxi" button */}
         <TouchableOpacity style={styles.drToxiButton} onPress={handleAskDrToxi} activeOpacity={0.8} testID="ask-dr-toxi">
           <MessageCircle color={Colors.primary} size={20} />
-          <Text style={styles.drToxiButtonText}>Demander \u00e0 Dr. Toxi</Text>
+          <Text style={styles.drToxiButtonText}>Demander à Dr. Toxi</Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />
@@ -945,6 +912,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800' as const,
     letterSpacing: 0.5,
+    color: '#FFFFFF',
   },
   summaryCard: {
     backgroundColor: Colors.surface,
@@ -1021,9 +989,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   additiveTagText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700' as const,
     letterSpacing: 0.3,
+    color: '#FFFFFF',
   },
   additiveName: {
     fontSize: 15,
@@ -1219,6 +1188,9 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     elevation: 8,
   },
+  bigShareButtonLoading: {
+    opacity: 0.8,
+  },
   bigShareButtonText: {
     fontSize: 17,
     fontWeight: '800' as const,
@@ -1276,9 +1248,6 @@ const styles = StyleSheet.create({
     left: -9999,
     top: -9999,
     opacity: 0,
-  },
-  bigShareButtonLoading: {
-    opacity: 0.8,
   },
   offSourceTag: {
     flexDirection: 'row' as const,

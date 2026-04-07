@@ -50,7 +50,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             {this.state.error?.message ?? 'Erreur inconnue'}
           </Text>
           <TouchableOpacity style={ebStyles.button} onPress={this.handleReset}>
-            <Text style={ebStyles.buttonText}>R\u00e9essayer</Text>
+            <Text style={ebStyles.buttonText}>Réessayer</Text>
           </TouchableOpacity>
         </View>
       );
@@ -97,14 +97,14 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerBackTitle: "Retour" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="about" options={{ title: "\u00c0 propos" }} />
+      <Stack.Screen name="about" options={{ title: "À propos" }} />
       <Stack.Screen name="ai-consent" options={{ headerShown: false }} />
       <Stack.Screen name="badges" options={{ headerShown: false }} />
       <Stack.Screen name="faq" options={{ title: "FAQ" }} />
       <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="privacy" options={{ title: "Confidentialit\u00e9" }} />
+      <Stack.Screen name="privacy" options={{ title: "Confidentialité" }} />
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
       <Stack.Screen name="quiz" options={{ headerShown: false }} />
       <Stack.Screen name="terms" options={{ title: "Conditions" }} />
