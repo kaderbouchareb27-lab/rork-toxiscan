@@ -19,12 +19,12 @@ export default function DrToxiVerdict({ score }: { score: number }) {
   } else if (score <= 70) {
     bgColor = '#FFF3E0';
     title = 'Dr. Toxi vous laisse le choix';
-    message = 'Ce produit contient des substances \u00e0 surveiller. Consommation occasionnelle possible, mais consid\u00e9rez les alternatives ci-dessous.';
+    message = 'Ce produit ne contient pas de canc\u00e9rig\u00e8ne mais des substances controvers\u00e9es. Consommation occasionnelle possible.';
     IconComponent = <ShieldQuestion color="#FF9500" size={24} />;
   } else {
     bgColor = '#FFEBEE';
     title = 'Dr. Toxi d\u00e9conseille';
-    message = 'Ce produit contient des substances pr\u00e9occupantes. Je vous d\u00e9conseille de l\'utiliser. Voici des alternatives plus s\u00fbres.';
+    message = 'Ce produit contient au moins une substance canc\u00e9rig\u00e8ne. Je vous d\u00e9conseille de l\'utiliser.';
     IconComponent = <ShieldAlert color="#FF3B30" size={24} />;
   }
 

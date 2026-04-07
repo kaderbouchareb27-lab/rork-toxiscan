@@ -8,29 +8,29 @@ export function calculateRiskScore(product: {
   riskGroup?: string;
 }): number {
   let score = 0;
-  let hasAnyRisk = false;
+  let hasCarcinogen = false;
+  let hasControversial = false;
 
   for (const additive of product.detectedAdditives) {
-    hasAnyRisk = true;
-    if (additive.group === 'group1') score += 30;
-    else if (additive.group === 'group2a') score += 20;
-    else if (additive.group === 'group2b') score += 10;
-    else score += 5;
+    if (additive.group === 'group1') { score += 30; hasCarcinogen = true; }
+    else if (additive.group === 'group2a') { score += 20; hasCarcinogen = true; }
+    else if (additive.group === 'group2b') { score += 15; hasCarcinogen = true; }
+    else if (additive.group !== 'none') { score += 5; hasControversial = true; }
   }
 
   if (product.substances) {
     for (const s of product.substances) {
-      if (s.niveau_risque === 'danger') { score += 30; hasAnyRisk = true; }
-      else if (s.niveau_risque === 'probable') { score += 20; hasAnyRisk = true; }
-      else if (s.niveau_risque === 'possible') { score += 10; hasAnyRisk = true; }
+      if (s.niveau_risque === 'danger') { score += 30; hasCarcinogen = true; }
+      else if (s.niveau_risque === 'probable') { score += 20; hasCarcinogen = true; }
+      else if (s.niveau_risque === 'possible') { score += 15; hasCarcinogen = true; }
     }
   }
 
   if (product.detectedIngredients) {
     for (const i of product.detectedIngredients) {
-      if (i.niveau_risque === 'danger') { score += 30; hasAnyRisk = true; }
-      else if (i.niveau_risque === 'probable') { score += 20; hasAnyRisk = true; }
-      else if (i.niveau_risque === 'possible') { score += 10; hasAnyRisk = true; }
+      if (i.niveau_risque === 'danger') { score += 30; hasCarcinogen = true; }
+      else if (i.niveau_risque === 'probable') { score += 20; hasCarcinogen = true; }
+      else if (i.niveau_risque === 'possible') { score += 15; hasCarcinogen = true; }
     }
   }
 
@@ -44,21 +44,29 @@ export function calculateRiskScore(product: {
     'e249', 'e250', 'e251', 'e252', 'e320', 'e321',
   ];
   for (const pattern of controversialPatterns) {
-    if (ingLower.includes(pattern)) { score += 5; hasAnyRisk = true; }
+    if (ingLower.includes(pattern)) { score += 5; hasControversial = true; }
   }
 
   const firstIngredient = ingLower.split(',')[0] ?? '';
   const sugarTerms = ['sucre', 'sugar', 'glucose', 'fructose', 'sirop de glucose', 'glucose-fructose'];
-  if (sugarTerms.some(t => firstIngredient.includes(t))) { score += 10; hasAnyRisk = true; }
+  if (sugarTerms.some(t => firstIngredient.includes(t))) { score += 10; hasControversial = true; }
 
-  if (ingLower.includes('huile de palme') || ingLower.includes('palm oil')) { score += 5; hasAnyRisk = true; }
+  if (ingLower.includes('huile de palme') || ingLower.includes('palm oil')) { score += 5; hasControversial = true; }
 
-  if (!hasAnyRisk && product.riskGroup === 'none') {
+  if (!hasCarcinogen && !hasControversial && product.riskGroup === 'none') {
     return 0;
   }
 
-  if (!hasAnyRisk) {
+  if (!hasCarcinogen && !hasControversial) {
     return 5;
+  }
+
+  if (hasCarcinogen) {
+    return Math.max(Math.min(score, 100), 71);
+  }
+
+  if (hasControversial) {
+    return Math.max(Math.min(score, 70), 41);
   }
 
   return Math.min(score, 100);
