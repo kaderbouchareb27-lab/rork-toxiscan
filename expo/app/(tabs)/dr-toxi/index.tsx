@@ -254,10 +254,9 @@ export default function DrToxiScreen() {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Dr. Toxi a besoin de ta caméra',
-          'Pour analyser les étiquettes de tes produits en direct et te donner un verdict instantané.',
+          'Accès à la caméra désactivé',
+          'Pour photographier vos produits, activez la caméra dans les réglages de votre appareil.',
           [
-            { text: 'Annuler', style: 'cancel' },
             { text: 'Ouvrir les réglages', onPress: () => {
               if (Platform.OS !== 'web') {
                 void import('expo-linking').then(LinkingModule => {

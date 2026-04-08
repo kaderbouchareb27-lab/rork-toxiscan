@@ -191,10 +191,9 @@ export default function ScannerScreen() {
 
       if (existingStatus === 'denied') {
         Alert.alert(
-          'Accès refusé',
-          'Vous avez refusé l\'accès à la caméra. Pour utiliser cette fonctionnalité, activez la caméra dans les réglages de votre appareil.',
+          'Accès à la caméra désactivé',
+          'Pour photographier vos produits, activez la caméra dans les réglages de votre appareil.',
           [
-            { text: 'Annuler', style: 'cancel' },
             { text: 'Ouvrir les réglages', onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
           ]
         );
@@ -207,10 +206,9 @@ export default function ScannerScreen() {
         await launchCamera();
       } else {
         Alert.alert(
-          'Permission requise',
-          'Dr.Toxi a besoin de votre appareil photo. Activez la permission dans les réglages de votre appareil.',
+          'Accès à la caméra désactivé',
+          'Pour photographier vos produits, activez la caméra dans les réglages de votre appareil.',
           [
-            { text: 'Annuler', style: 'cancel' },
             { text: 'Ouvrir les réglages', onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
           ]
         );
