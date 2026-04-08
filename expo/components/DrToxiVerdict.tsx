@@ -1,49 +1,69 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react-native';
+import { ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react-native';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
-export default function DrToxiVerdict({ score }: { score: number }) {
-  let bgColor: string;
-  let title: string;
-  let message: string;
-  let IconComponent: React.ReactNode;
+export type VerdictLevel = 'danger' | 'prudence' | 'approuve';
 
-  if (score <= 40) {
-    bgColor = '#E8F9ED';
-    title = 'Dr. Toxi recommande';
-    message = 'Ce produit est acceptable. Vous pouvez le consommer sans inquiétude.';
-    IconComponent = <ShieldCheck color="#2E9E34" size={24} />;
-  } else if (score <= 70) {
-    bgColor = '#FFF3E0';
-    title = 'Dr. Toxi vous laisse le choix';
-    message = 'Ce produit ne contient pas de cancérigène mais des substances controversées. Consommation occasionnelle possible.';
-    IconComponent = <ShieldQuestion color="#FF9500" size={24} />;
-  } else {
-    bgColor = '#FFEBEE';
-    title = 'Dr. Toxi déconseille';
-    message = 'Ce produit contient au moins une substance cancérigène. Je vous déconseille de l\'utiliser.';
-    IconComponent = <ShieldAlert color="#FF3B30" size={24} />;
-  }
+interface DrToxiVerdictProps {
+  level: VerdictLevel;
+}
 
-  const borderColor = score <= 40 ? '#C4EDC9' : score <= 70 ? '#FFE0B2' : '#FFCDD2';
-  const titleColor = score <= 40 ? '#2D6A3E' : score <= 70 ? '#E65100' : '#C62828';
-  const textColor = score <= 40 ? '#3A6B4A' : score <= 70 ? '#BF360C' : '#B71C1C';
+const VERDICT_CONFIG: Record<VerdictLevel, {
+  bgColor: string;
+  borderColor: string;
+  titleColor: string;
+  textColor: string;
+  title: string;
+  message: string;
+  icon: React.ReactNode;
+}> = {
+  danger: {
+    bgColor: '#FFEBEE',
+    borderColor: '#FFCDD2',
+    titleColor: '#C62828',
+    textColor: '#B71C1C',
+    title: 'Dr. Toxi déconseille ce produit',
+    message: 'Ce produit contient au moins une substance classée cancérigène. Je vous déconseille de le consommer.',
+    icon: <ShieldX color="#FF3B30" size={24} />,
+  },
+  prudence: {
+    bgColor: '#FFF3E0',
+    borderColor: '#FFE0B2',
+    titleColor: '#E65100',
+    textColor: '#BF360C',
+    title: 'Dr. Toxi ne recommande pas ce produit',
+    message: 'Ce produit ne contient pas de cancérigène classé par le CIRC, mais contient des substances controversées qui favorisent le cancer indirectement selon de nombreuses études scientifiques.',
+    icon: <ShieldAlert color="#FF9500" size={24} />,
+  },
+  approuve: {
+    bgColor: '#E8F9ED',
+    borderColor: '#C4EDC9',
+    titleColor: '#2D6A3E',
+    textColor: '#3A6B4A',
+    title: 'Dr. Toxi approuve ce produit',
+    message: 'Bravo! Ce produit ne contient aucune substance cancérigène ni controversée. C\'est un excellent choix. Partagez-le avec vos proches!',
+    icon: <ShieldCheck color="#2E9E34" size={24} />,
+  },
+};
+
+export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
+  const config = VERDICT_CONFIG[level];
 
   return (
-    <View style={[styles.container, { backgroundColor: bgColor, borderColor }]} testID="dr-toxi-verdict">
+    <View style={[styles.container, { backgroundColor: config.bgColor, borderColor: config.borderColor }]} testID="dr-toxi-verdict">
       <View style={styles.headerRow}>
         <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.avatar} contentFit="cover" />
         <View style={styles.headerText}>
           <View style={styles.titleRow}>
-            {IconComponent}
-            <Text style={[styles.title, { color: titleColor }]}>{title}</Text>
+            {config.icon}
+            <Text style={[styles.title, { color: config.titleColor }]}>{config.title}</Text>
           </View>
         </View>
       </View>
-      <Text style={[styles.message, { color: textColor }]}>{message}</Text>
+      <Text style={[styles.message, { color: config.textColor }]}>{config.message}</Text>
     </View>
   );
 }
@@ -76,9 +96,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700' as const,
     letterSpacing: -0.2,
+    flex: 1,
   },
   message: {
     fontSize: 14,
