@@ -14,7 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, ChevronRight, Share2, Camera } from 'lucide-react-native';
+import { Send, ChevronRight, Share2, Camera, ChevronLeft } from 'lucide-react-native';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
@@ -392,6 +392,14 @@ export default function DrToxiScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+          testID="dr-toxi-back"
+        >
+          <ChevronLeft color={Colors.text} size={24} />
+        </TouchableOpacity>
         <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.avatar} />
         <View style={styles.headerInfo}>
           <Text style={styles.headerTitle}>Dr. Toxi</Text>
@@ -525,12 +533,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.surfaceSecondary,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    gap: 12,
+    gap: 10,
     backgroundColor: Colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

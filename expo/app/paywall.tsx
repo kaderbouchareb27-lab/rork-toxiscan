@@ -14,9 +14,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Check, Heart, X, Crown } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useQueryClient as __useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useSubscription } from '@/providers/SubscriptionProvider';
+
+let Purchases: any = null;
+if (Platform.OS !== 'web') {
+  try {
+    Purchases = require('react-native-purchases').default;
+  } catch (e) {
+    console.log('[Paywall] Failed to load react-native-purchases');
+  }
+}
 
 type PlanType = 'annual' | 'monthly';
 
@@ -39,6 +49,7 @@ export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
   const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress } = useSubscription();
+  const queryClient = __useQueryClient();
 
   console.log('[Paywall] Rendering paywall, source:', source);
 
@@ -75,7 +86,19 @@ export default function PaywallScreen() {
     }
 
     try {
-      await purchasePackage(pkg);
+      const result = await purchasePackage(pkg);
+      const activeEntitlements = result?.customerInfo?.entitlements?.active ?? {};
+      const confirmed = !!activeEntitlements['toxiscan_pro'];
+      console.log('[Paywall] Purchase completed, entitlement confirmed:', confirmed);
+      if (Platform.OS !== 'web' && Purchases) {
+        try {
+          const freshInfo = await Purchases.getCustomerInfo();
+          console.log('[Paywall] Fresh customer info fetched post-purchase');
+          queryClient.setQueryData(['customerInfo'], freshInfo);
+        } catch (e) {
+          console.log('[Paywall] Error refreshing customer info:', e);
+        }
+      }
       Alert.alert(
         'Bienvenue dans Dr.Toxi Pro !',
         'Merci pour votre abonnement. Profitez de toutes les fonctionnalités premium.',
@@ -88,7 +111,7 @@ export default function PaywallScreen() {
         Alert.alert('Erreur', "L'achat n'a pas pu être complété.");
       }
     }
-  }, [annualPackage, monthlyPackage, purchasePackage, selectedPlan]);
+  }, [annualPackage, monthlyPackage, purchasePackage, selectedPlan, queryClient]);
 
   const handleDismiss = useCallback(() => {
     console.log('[Paywall] Dismissed from source:', source);
@@ -100,6 +123,15 @@ export default function PaywallScreen() {
     try {
       const hasEntitlement = await restorePurchase();
       if (hasEntitlement) {
+        if (Platform.OS !== 'web' && Purchases) {
+          try {
+            const freshInfo = await Purchases.getCustomerInfo();
+            queryClient.setQueryData(['customerInfo'], freshInfo);
+            console.log('[Paywall] Refreshed customer info after restore');
+          } catch (e) {
+            console.log('[Paywall] Error refreshing after restore:', e);
+          }
+        }
         Alert.alert(
           'Abonnement restauré !',
           'Vos fonctionnalités premium sont de nouveau actives.',
@@ -112,7 +144,7 @@ export default function PaywallScreen() {
       console.log('[Paywall] Restore error:', error);
       Alert.alert('Erreur', 'Impossible de restaurer les achats. Veuillez réessayer.');
     }
-  }, [restorePurchase]);
+  }, [restorePurchase, queryClient]);
 
   const getContextTitle = (): string => {
     switch (source) {
