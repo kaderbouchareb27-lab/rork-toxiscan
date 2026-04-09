@@ -81,8 +81,13 @@ export function classifySubstanceLevel(substance: {
   const combined = circ + ' ' + explication;
 
   if (isExplicitlyNotIARC(combined)) {
-    console.log(`[RiskScore] "${substance.nom}" explicitly NOT IARC classified -> controversial`);
-    return 'controversial';
+    const hasControversialKeyword = CONTROVERSIAL_KEYWORDS.some(kw => combined.includes(kw));
+    if (hasControversialKeyword) {
+      console.log(`[RiskScore] "${substance.nom}" NOT IARC but has controversial keywords -> controversial`);
+      return 'controversial';
+    }
+    console.log(`[RiskScore] "${substance.nom}" explicitly NOT IARC classified, no controversial keywords -> safe`);
+    return 'safe';
   }
 
   if (isConfirmedIARCCarcinogen(circ, explication, nom)) {
@@ -117,8 +122,13 @@ export function classifyAdditiveLevel(additive: AdditiveInfo): SubstanceLevel {
   const nom = additive.name.toLowerCase();
 
   if (isExplicitlyNotIARC(desc)) {
-    console.log(`[RiskScore] Additive "${additive.name}" explicitly NOT IARC -> controversial`);
-    return 'controversial';
+    const hasControversialKeyword = CONTROVERSIAL_KEYWORDS.some(kw => desc.includes(kw));
+    if (hasControversialKeyword) {
+      console.log(`[RiskScore] Additive "${additive.name}" NOT IARC but has controversial keywords -> controversial`);
+      return 'controversial';
+    }
+    console.log(`[RiskScore] Additive "${additive.name}" explicitly NOT IARC, no controversial keywords -> safe`);
+    return 'safe';
   }
 
   if (isConfirmedIARCCarcinogen('', desc, nom)) {
@@ -130,7 +140,25 @@ export function classifyAdditiveLevel(additive: AdditiveInfo): SubstanceLevel {
     return 'carcinogen';
   }
 
-  return 'controversial';
+  const hasIARCKeywords = [
+    ...IARC_CONFIRMED_KEYWORDS,
+    ...IARC_PROBABLE_KEYWORDS,
+    ...IARC_POSSIBLE_KEYWORDS,
+  ].some(kw => desc.includes(kw));
+
+  if (hasIARCKeywords) {
+    console.log(`[RiskScore] Additive "${additive.name}" has IARC keywords -> carcinogen`);
+    return 'carcinogen';
+  }
+
+  const hasControversialKeyword = CONTROVERSIAL_KEYWORDS.some(kw => desc.includes(kw));
+  if (hasControversialKeyword) {
+    console.log(`[RiskScore] Additive "${additive.name}" has controversial keywords -> controversial`);
+    return 'controversial';
+  }
+
+  console.log(`[RiskScore] Additive "${additive.name}" no IARC/controversial keywords found -> safe`);
+  return 'safe';
 }
 
 export function calculateRiskScore(product: {
