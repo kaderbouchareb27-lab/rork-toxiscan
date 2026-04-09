@@ -15,7 +15,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, AlertOctagon } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
-import { classifySubstanceLevel, classifyAdditiveLevel } from '@/utils/riskScore';
+import { classifySubstanceLevel, classifyAdditiveLevel, isIARCClassified, isDangerLevel } from '@/utils/riskScore';
 import type { SubstanceLevel } from '@/utils/riskScore';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -32,16 +32,20 @@ import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 
 function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
-    case 'carcinogen': return '#FF3B30';
-    case 'controversial': return '#FF9500';
+    case 'group1': return '#FF3B30';
+    case 'group2a': return '#E65100';
+    case 'group2b': return '#FF9500';
+    case 'controversial': return '#8E8E93';
     case 'safe': return '#2E9E34';
   }
 }
 
 function getLevelBadgeLabel(level: SubstanceLevel): string {
   switch (level) {
-    case 'carcinogen': return 'CANCERIGENE';
-    case 'controversial': return 'FAVORISE LE CANCER';
+    case 'group1': return 'CANCÉRIGÈNE CONFIRMÉ';
+    case 'group2a': return 'PROBABLEMENT CANCÉRIGÈNE';
+    case 'group2b': return 'POSSIBLEMENT CANCÉRIGÈNE';
+    case 'controversial': return 'SUBSTANCE CONTROVERSÉE';
     case 'safe': return 'FAIBLE RISQUE';
   }
 }
@@ -131,19 +135,22 @@ export default function ProductScreen() {
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
   const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
-    let _hasCarcinogen = false;
+    let _hasDanger = false;
+    let _hasGroup2B = false;
     let _hasControversial = false;
 
     for (const additive of product.detectedAdditives) {
       const level = classifyAdditiveLevel(additive);
-      if (level === 'carcinogen') _hasCarcinogen = true;
+      if (isDangerLevel(level)) _hasDanger = true;
+      else if (level === 'group2b') _hasGroup2B = true;
       else if (level === 'controversial') _hasControversial = true;
     }
 
     if (product.substances) {
       for (const s of product.substances) {
         const level = classifySubstanceLevel(s);
-        if (level === 'carcinogen') _hasCarcinogen = true;
+        if (isDangerLevel(level)) _hasDanger = true;
+        else if (level === 'group2b') _hasGroup2B = true;
         else if (level === 'controversial') _hasControversial = true;
       }
     }
@@ -156,17 +163,18 @@ export default function ProductScreen() {
           explication: i.explication,
           nom: i.nom,
         });
-        if (level === 'carcinogen') _hasCarcinogen = true;
+        if (isDangerLevel(level)) _hasDanger = true;
+        else if (level === 'group2b') _hasGroup2B = true;
         else if (level === 'controversial') _hasControversial = true;
       }
     }
 
     let _verdictLevel: VerdictLevel = 'approuve';
-    if (_hasCarcinogen) _verdictLevel = 'danger';
-    else if (_hasControversial) _verdictLevel = 'prudence';
+    if (_hasDanger) _verdictLevel = 'danger';
+    else if (_hasGroup2B || _hasControversial) _verdictLevel = 'prudence';
 
-    console.log('[Product] Verdict:', _verdictLevel, 'carcinogen:', _hasCarcinogen, 'controversial:', _hasControversial);
-    return { verdictLevel: _verdictLevel, hasCarcinogen: _hasCarcinogen, hasControversial: _hasControversial };
+    console.log('[Product] Verdict:', _verdictLevel, 'danger(1/2A):', _hasDanger, 'group2B:', _hasGroup2B, 'controversial:', _hasControversial);
+    return { verdictLevel: _verdictLevel, hasCarcinogen: _hasDanger, hasControversial: _hasGroup2B || _hasControversial };
   }, [product]);
 
   const isGreen = verdictLevel === 'approuve';
@@ -432,7 +440,7 @@ export default function ProductScreen() {
                     <Text style={styles.additiveDescription}>{shortenText(substance.explication, 2)}</Text>
                   ) : null}
                   <Text style={styles.additiveSource}>
-                    {level === 'carcinogen' ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
+                    {isIARCClassified(level) ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
                   </Text>
                 </View>
               );
@@ -463,7 +471,7 @@ export default function ProductScreen() {
                     <Text style={styles.additiveDescription}>{shortenText(ingredient.explication, 2)}</Text>
                   ) : null}
                   <Text style={styles.additiveSource}>
-                    {level === 'carcinogen' ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
+                    {isIARCClassified(level) ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
                   </Text>
                 </View>
               );
@@ -487,7 +495,7 @@ export default function ProductScreen() {
                   </View>
                   <Text style={styles.additiveDescription}>{shortenText(additive.description, 2)}</Text>
                   <Text style={styles.additiveSource}>
-                    {level === 'carcinogen' ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
+                    {isIARCClassified(level) ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
                   </Text>
                 </View>
               );

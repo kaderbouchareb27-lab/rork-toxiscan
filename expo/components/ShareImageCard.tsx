@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
-import { calculateRiskScore, classifySubstanceLevel, classifyAdditiveLevel } from '@/utils/riskScore';
+import { calculateRiskScore, classifySubstanceLevel, classifyAdditiveLevel, isDangerLevel } from '@/utils/riskScore';
 
 interface ShareImageCardProps {
   productName: string;
@@ -16,9 +16,9 @@ interface ShareImageCardProps {
 }
 
 function getScoreBadge(score: number): { label: string; sublabel: string; color: string; textColor: string } {
-  if (score <= 40) return { label: 'APPROUVE', sublabel: 'Faible risque', color: '#2E9E34', textColor: '#FFFFFF' };
-  if (score <= 70) return { label: 'PRUDENCE', sublabel: 'Favorise le cancer', color: '#FF9500', textColor: '#FFFFFF' };
-  return { label: 'DANGER', sublabel: 'Cancerogene detecte', color: '#FF3B30', textColor: '#FFFFFF' };
+  if (score <= 40) return { label: 'APPROUVE', sublabel: 'Aucune substance cancerigene', color: '#2E9E34', textColor: '#FFFFFF' };
+  if (score <= 70) return { label: 'PRUDENCE', sublabel: 'Substance controversee detectee', color: '#FF9500', textColor: '#FFFFFF' };
+  return { label: 'DANGER', sublabel: 'Cancerigene classe par le CIRC', color: '#FF3B30', textColor: '#FFFFFF' };
 }
 
 function getTopSubstances(props: ShareImageCardProps): string[] {

@@ -186,27 +186,29 @@ ATTENTION : Le sucre, le sel, le vinaigre, les épices, l'eau, les légumes, les
 ATTENTION CUMUL : sucre + sel + huile dans un même produit ≠ 3 substances problématiques. Ce sont des ingrédients de base. Le cumul ne s'applique qu'aux VRAIS additifs/contaminants.
 
 RÈGLE CRITIQUE — BADGE DANGER ROUGE :
-Le badge DANGER rouge ("danger") est EXCLUSIVEMENT réservé aux substances RÉELLEMENT classées Groupe 1 par le CIRC :
-- Nitrites (E249, E250, E251, E252)
-- Formaldéhyde (E240)
-- Benzène
-- Amiante
-- Alcool éthylique
-- Goudron de houille (coal tar)
-- Chrome hexavalent
-- Plomb (acétate de plomb)
-- PFAS
-- Colorants azoïques textiles libérant des amines aromatiques cancérigènes
-Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, arôme naturel, huiles de graines, ou toute substance qui n'est PAS classée Groupe 1 CIRC.
+Le badge DANGER rouge ("danger") est EXCLUSIVEMENT réservé aux substances RÉELLEMENT classées Groupe 1 ou Groupe 2A par le CIRC :
+- Groupe 1 : Nitrites (E249, E250, E251, E252), Formaldéhyde (E240), Benzène, Amiante, Goudron de houille, Chrome hexavalent, Plomb, PFAS
+- Groupe 2A : substances classées probablement cancérogènes par le CIRC
+Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, arôme naturel, huiles de graines, MSG, maltodextrine, ou toute substance qui n'est PAS classée Groupe 1 ou 2A par le CIRC.
+
+RÈGLE CRITIQUE — COHÉRENCE CLASSIFICATION/BADGE :
+Si classification_circ contient "Non classé" ou "Non classé par le CIRC", alors :
+- niveau_risque NE PEUT PAS être "danger"
+- Le badge NE PEUT PAS être rouge
+- Maximum autorisé : niveau_risque "possible" (jaune) si la substance est controversée
+Il est STRICTEMENT INTERDIT d'afficher un badge DANGER ou de dire qu'une substance est cancérogène si elle est "Non classée par le CIRC".
+Chaque substance doit avoir une classification_circ EXACTE et HONNÊTE. Si elle n'est pas classée par le CIRC, écrire "Non classé par le CIRC" — JAMAIS un groupe CIRC inventé.
 
 LOGIQUE DE BADGE (dans cet ordre, du plus grave au moins grave) :
-1. Au moins un VRAI Groupe 1 CIRC (voir liste ci-dessus) → badge_global: "danger"
-2. 5 substances véritablement problématiques ou plus (additifs chimiques RÉELS classés par le CIRC ou reconnus dangereux, PAS sucre/sel/huile de base) → badge_global: "danger"
-3. Au moins un Groupe 2A CIRC ou une substance classée orange → badge_global: "probable"
-4. 3 ou 4 substances controversées (jaunes, additifs chimiques) ensemble → badge_global: "probable" MAXIMUM (pas danger)
-5. Au moins un Groupe 2B CIRC ou 1-2 substances classées jaune → badge_global: "possible"
+1. Au moins un VRAI Groupe 1 CIRC → badge_global: "danger"
+2. Au moins un Groupe 2A CIRC → badge_global: "danger"
+3. Au moins un Groupe 2B CIRC → badge_global: "probable"
+4. 3 ou 4 substances controversées NON classées CIRC ensemble → badge_global: "probable" MAXIMUM (JAMAIS danger)
+5. 1-2 substances controversées NON classées CIRC → badge_global: "possible"
 6. Sucre en grande quantité comme ingrédient principal → badge_global: "possible" (JAUNE)
 7. Produit naturel avec ingrédients simples, pas d'additifs chimiques → badge_global: "aucun"
+
+IMPORTANT : Les substances NON classées par le CIRC (MSG, maltodextrine, huile de tournesol, huile de canola, arôme naturel, etc.) ne peuvent JAMAIS à elles seules déclencher un badge "danger". Même 10 substances controversées non-CIRC = "probable" MAXIMUM.
 
 OBJECTIF DE TOXISCAN : Informer intelligemment. Rassurer quand un produit est bon. Alerter quand un produit est vraiment dangereux. Ne PAS créer de l'angoisse inutile sur des produits naturels et sains.
 
@@ -386,12 +388,8 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
 
 function applyCumulativeRule(riskGroup: RiskGroup, controversialCount: number): RiskGroup {
   const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
-  if (controversialCount >= 5 && groupPriority[riskGroup] < groupPriority['group1']) {
-    console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (5+), upgrading to RED');
-    return 'group1';
-  }
   if (controversialCount >= 3 && groupPriority[riskGroup] < groupPriority['group2a']) {
-    console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (3+), upgrading to ORANGE');
+    console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (3+), upgrading to ORANGE (group2a max for non-IARC)');
     return 'group2a';
   }
   return riskGroup;
