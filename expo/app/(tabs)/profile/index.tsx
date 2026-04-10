@@ -257,7 +257,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Text style={styles.versionText}>ToxiScan v{Constants.expoConfig?.version ?? '8.0.0'}</Text>
+        <Text style={styles.versionText}>ToxiScan v2.1</Text>
       </ScrollView>
     </SafeAreaView>
   );
