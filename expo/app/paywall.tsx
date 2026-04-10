@@ -100,16 +100,42 @@ export default function PaywallScreen() {
         }
       }
       Alert.alert(
-        'Bienvenue dans Dr.Toxi Pro !',
-        'Merci pour votre abonnement. Profitez de toutes les fonctionnalités premium.',
-        [{ text: 'Super !', onPress: () => router.replace('/') }]
+        'Tout est prêt',
+        'Votre achat a été effectué avec succès.',
+        [{ text: 'OK', onPress: () => router.replace('/') }]
       );
     } catch (error: unknown) {
-      const err = error as { userCancelled?: boolean };
-      console.log('[Paywall] Purchase error:', error);
-      if (!err.userCancelled) {
-        Alert.alert('Erreur', "L'achat n'a pas pu être complété.");
+      const err = error as { userCancelled?: boolean; code?: number; message?: string };
+      console.log('[Paywall] Purchase error:', JSON.stringify(error));
+      
+      if (err.userCancelled) {
+        console.log('[Paywall] Purchase cancelled by user');
+        return;
       }
+
+      if (Platform.OS !== 'web' && Purchases) {
+        try {
+          console.log('[Paywall] Checking entitlement after error...');
+          const freshInfo = await Purchases.getCustomerInfo();
+          const activeEntitlements = freshInfo?.entitlements?.active ?? {};
+          const hasEntitlement = !!activeEntitlements['toxiscan_pro'];
+          console.log('[Paywall] Post-error entitlement check:', hasEntitlement);
+          queryClient.setQueryData(['customerInfo'], freshInfo);
+          
+          if (hasEntitlement) {
+            Alert.alert(
+              'Tout est prêt',
+              'Votre achat a été effectué avec succès.',
+              [{ text: 'OK', onPress: () => router.replace('/') }]
+            );
+            return;
+          }
+        } catch (recheckError) {
+          console.log('[Paywall] Error rechecking entitlement:', recheckError);
+        }
+      }
+
+      Alert.alert('Erreur', "L'achat n'a pas pu être complété. Si vous avez été débité, appuyez sur 'Restaurer les achats'.");
     }
   }, [annualPackage, monthlyPackage, purchasePackage, selectedPlan, queryClient]);
 
