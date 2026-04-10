@@ -20,7 +20,7 @@ if (Platform.OS !== 'web') {
 const USAGE_KEY = 'toxiscan_daily_usage';
 const FREE_DRTOXI_LIMIT = 3;
 const FREE_HISTORY_LIMIT = 3;
-const ENTITLEMENT_ID = 'toxiscan_pro';
+const ENTITLEMENT_ID = 'toxicsan pro Pro';
 
 interface DailyUsage {
   date: string;
