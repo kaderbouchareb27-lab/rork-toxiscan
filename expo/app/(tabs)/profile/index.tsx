@@ -257,7 +257,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <Text style={styles.versionText}>ToxiScan v2.1</Text>
+        <Text style={styles.versionText}>ToxiScan v2.2</Text>
       </ScrollView>
     </SafeAreaView>
   );
