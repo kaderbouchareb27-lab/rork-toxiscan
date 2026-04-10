@@ -8,7 +8,6 @@ export type ProductCategory =
   | 'food'
   | 'beverage'
   | 'kitchen_utensil'
-  | 'container'
   | 'clothing'
   | 'cosmetic'
   | 'household'

@@ -5,7 +5,7 @@ import { generateObject } from '@rork-ai/toolkit-sdk';
 import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 
 const universalAnalysisSchema = z.object({
-  categorie_produit: z.enum(['food', 'beverage', 'kitchen_utensil', 'container', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other']),
+  categorie_produit: z.enum(['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other']),
   objet_identifie: z.string(),
   materiau_detecte: z.string(),
   substances_detectees: z.array(z.object({
@@ -31,11 +31,18 @@ const UNIVERSAL_ANALYSIS_PROMPT = `Tu es un détecteur universel de substances c
 
 L'utilisateur photographie N'IMPORTE QUEL objet du quotidien. Tu dois identifier l'objet ET analyser ses risques.
 
+RÈGLE ABSOLUE — IGNORER L'EMBALLAGE / LE CONTENANT :
+Tu dois UNIQUEMENT analyser les INGRÉDIENTS et SUBSTANCES du produit, JAMAIS le matériau d'emballage ou le contenant (plastique, verre, carton, métal, aluminium, polystyrène, etc.).
+Si le nom du produit ou la description mentionne un type d'emballage (ex: "en contenant plastique", "en bocal de verre", "en boîte métal"), IGNORE complètement cette information pour le calcul du risque.
+Le type d'emballage NE DOIT JAMAIS influencer le badge_global ni le niveau_risque.
+Exemple : "Guacamole en contenant plastique" avec ingrédients avocat, tomate, oignon, coriandre, jus de lime, sel, vinaigre = badge_global: "aucun" (VERT). Les ingrédients sont 100% naturels.
+
 CATÉGORIES D'OBJETS À RECONNAÎTRE :
 
 1. ALIMENTS ET BOISSONS (categorie: "food" ou "beverage") :
    - Listes d'ingrédients, produits alimentaires, boissons
    - Analyser : additifs, conservateurs, édulcorants, colorants, exhausteurs de gout, huiles
+   - IGNORER le type d'emballage (plastique, verre, carton, métal) dans l'analyse des risques
 
 2. USTENSILES DE CUISINE (categorie: "kitchen_utensil") :
    - Poêles : Teflon/PTFE rayé = DANGER (PFOA/PTFE, cancérogène quand chauffé à haute température, libère des gaz toxiques), fonte/inox/céramique = sûr
@@ -48,19 +55,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - Papier aluminium : migration d'aluminium si contact acide/chaleur
    - Papier parchemin/cuisson : généralement sûr sauf si blanchi au chlore
 
-3. CONTENANTS (categorie: "container") :
-   - Bouteilles plastique : BPA, phtalates, surtout si exposées au soleil/chaleur
-   - Tupperware/contenants plastique : risque au micro-ondes
-   - Contenants en verre : sûr (BONUS POSITIF, mentionner que c'est un excellent choix)
-   - Canettes aluminium : revêtement intérieur BPA (Groupe 2B)
-   - Boîtes de conserve : revêtement intérieur BPA ou BPS
-   - Polycarbonate (plastique #7) : contient du BPA, perturbateur endocrinien
-   - PVC (plastique #3) : contient des phtalates, perturbateur endocrinien
-   - Polystyrène (plastique #6) : libère du styrène, cancérogène possible Groupe 2B
-   - Mélamine (vaisselle) : libère du formaldéhyde quand chauffée
-   - Aluminium (casseroles/papier) : migration avec aliments acides, lié à Alzheimer
-
-4. VÊTEMENTS ET TEXTILES (categorie: "clothing") :
+3. VÊTEMENTS ET TEXTILES (categorie: "clothing") :
    - Polyester : microplastiques, antimoine (Groupe 2B)
    - Vêtements neufs non lavés : formaldéhyde (Groupe 1)
    - Teintures azoïques : amines aromatiques cancérigènes (Groupe 1)
@@ -71,7 +66,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - Coton conventionnel : résidus de pesticides possibles
    - Coton bio, lin, chanvre : sûrs
 
-5. COSMÉTIQUES ET HYGIÈNE (categorie: "cosmetic") :
+4. COSMÉTIQUES ET HYGIÈNE (categorie: "cosmetic") :
    - Parabènes, formaldéhyde, triclosan, talc, filtres UV chimiques
    - 1,4-dioxane : contaminant dans les produits contenant SLS, SLES, PEG. Cancérogène probable
    - DMDM Hydantoïne, Bronopol, Quaternium-15 : conservateurs libérateurs de formaldéhyde
@@ -87,7 +82,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - DEA (diéthanolamine) : forme des nitrosamines cancérigènes
    - Propylène glycol : irritant, peut contenir des impuretés cancérigènes
 
-5b. DENTIFRICE (categorie: "cosmetic") :
+4b. DENTIFRICE (categorie: "cosmetic") :
    - Triclosan : perturbateur endocrinien
    - SLS : irritant, ulcères buccaux
    - Dioxyde de titane / E171 : colorant blanc classé 2B CIRC, interdit en France
@@ -96,7 +91,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - DEA (diéthanolamine) : nitrosamines cancérigènes
    - Microplastiques / microbilles : polluant persistant
 
-5c. PRODUITS BÉBÉ (categorie: "cosmetic" ou "food") :
+4c. PRODUITS BÉBÉ (categorie: "cosmetic" ou "food") :
    - PFAS / polluants éternels : retrouvés dans presque toutes les marques de lait pour bébé. Cancérogène, perturbateur endocrinien
    - BPA : revêtement intérieur canettes de lait bébé liquide. Perturbateur endocrinien
    - Mélamine : toxique pour les reins
@@ -105,7 +100,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - DMDM Hydantoïne, Bronopol : conservateurs libérateurs de formaldéhyde dans lingettes, crèmes, shampoings bébé
    - Phtalates (DBP, DEHP, DEP) : jouets plastique, crèmes bébé, couches. Perturbateurs endocriniens
 
-6. PRODUITS MÉNAGERS (categorie: "household") :
+5. PRODUITS MÉNAGERS (categorie: "household") :
    - Désodorisants, bougies parfumées (formaldéhyde, benzène, phtalates)
    - Produits de nettoyage (2-butoxyéthanol, formaldéhyde)
    - Chlore / eau de Javel : produit des dioxines cancérogènes
@@ -116,14 +111,14 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - Alkylphénols éthoxylés (APEO) : perturbateurs endocriniens
    - Quaternium-15 : libère du formaldéhyde
 
-7. ÉLECTRONIQUE (categorie: "electronics") :
+6. ÉLECTRONIQUE (categorie: "electronics") :
    - Retardateurs de flamme bromés, cadmium
 
-8. MEUBLES (categorie: "furniture") :
+7. MEUBLES (categorie: "furniture") :
    - Panneaux MDF/aggloméré : formaldéhyde (Groupe 1)
    - Mousses polyuréthane : isocyanates, retardateurs de flamme
 
-9. JOUETS (categorie: "toy") :
+8. JOUETS (categorie: "toy") :
    - Plastique PVC souple : phtalates
    - Peintures : plomb possible
 
@@ -139,8 +134,6 @@ Ces ingrédients sont NATURELS et NE DOIVENT PAS déclencher un badge jaune ou p
 - Huile d'olive / huile de coco / beurre
 - Moutarde
 - Jus de citron naturel
-- Contenant en verre = BONUS POSITIF (pas de migration de substances, excellent choix)
-
 RÈGLE CLÉ : Un produit avec des ingrédients simples et naturels (eau, sel, vinaigre, sucre en petite quantité, épices, légumes) sans additifs chimiques = badge_global: "aucun" (VERT). Même si le produit contient du sucre ou du sel, si c'est un produit naturel avec une liste d'ingrédients courte et simple, c'est VERT.
 1 seul ingrédient légèrement controversé dans un produit autrement 100% naturel = rester VERT.
 
@@ -232,7 +225,6 @@ Exemples corrects :
 - Sardines à l'huile de tournesol → "Sardines à l'huile d'olive"
 - Sardines en boîte métal avec BPA → "Sardines en bocal de verre" ou "Sardines en boîte sans BPA"
 - Poêle Teflon rayée → "Poêle en fonte" ou "Poêle en inox" (même catégorie : poêle)
-- Contenant plastique → "Contenant en verre" ou "Contenant en inox" (même catégorie : contenant)
 - Jambon avec nitrites → "Jambon sans nitrites"
 Exemples INCORRECTS à ne JAMAIS faire :
 - Sardines → proposer "Huile d'olive" (produit différent)
@@ -399,7 +391,6 @@ const CATEGORY_LABELS: Record<ProductCategory, string> = {
   food: 'Aliment',
   beverage: 'Boisson',
   kitchen_utensil: 'Ustensile de cuisine',
-  container: 'Contenant',
   clothing: 'Vêtement / Textile',
   cosmetic: 'Cosmétique / Hygiène',
   household: 'Produit ménager',
