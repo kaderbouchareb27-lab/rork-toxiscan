@@ -15,10 +15,10 @@ interface ShareImageCardProps {
   detectedAdditives?: AdditiveInfo[];
 }
 
-function getScoreBadge(score: number): { label: string; sublabel: string; color: string; textColor: string } {
-  if (score <= 40) return { label: 'APPROUVE', sublabel: 'Aucune substance cancerigene', color: '#2E9E34', textColor: '#FFFFFF' };
-  if (score <= 70) return { label: 'PRUDENCE', sublabel: 'Substance controversee detectee', color: '#FF9500', textColor: '#FFFFFF' };
-  return { label: 'DANGER', sublabel: 'Cancerigene classe par le CIRC', color: '#FF3B30', textColor: '#FFFFFF' };
+function getScoreBadge(score: number): { label: string; sublabel: string; color: string; textColor: string; explanation: string } {
+  if (score <= 40) return { label: 'APPROUVE', sublabel: 'Aucune substance cancerigene', color: '#2E9E34', textColor: '#FFFFFF', explanation: 'Dr.Toxi confirme : ce produit ne contient aucune substance cancérigène connue. Vous pouvez le consommer en toute tranquillité.' };
+  if (score <= 70) return { label: 'PRUDENCE', sublabel: 'Substance controversee detectee', color: '#FF9500', textColor: '#FFFFFF', explanation: 'Dr.Toxi alerte : ce produit contient des substances controversées dont les effets sur la santé font débat. Consommation à limiter.' };
+  return { label: 'DANGER', sublabel: 'Cancerigene classe par le CIRC', color: '#FF3B30', textColor: '#FFFFFF', explanation: 'Dr.Toxi déconseille ce produit : il contient des substances classées cancérigènes par le CIRC. Évitez sa consommation régulière.' };
 }
 
 function getTopSubstances(props: ShareImageCardProps): string[] {
@@ -76,7 +76,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
     <View style={styles.card}>
       <View style={styles.topSection}>
         <Image source={{ uri: TOXISCAN_LOGO }} style={styles.logo} />
-        <Text style={styles.appName}>Dr.Toxi</Text>
+        <Text style={styles.appName}>ToxiScan</Text>
       </View>
 
       <Text style={styles.productName} numberOfLines={2}>{productName}</Text>
@@ -99,6 +99,10 @@ export default function ShareImageCard(props: ShareImageCardProps) {
         ) : null}
       </View>
 
+      <View style={styles.explanationSection}>
+        <Text style={[styles.explanationText, { color: badgeColor }]}>{badge.explanation}</Text>
+      </View>
+
       {substances.length > 0 ? (
         <View style={styles.substancesSection}>
           <Text style={styles.substancesTitle}>Substances détectées</Text>
@@ -117,7 +121,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
 
       <View style={styles.bottomSection}>
         <View style={styles.divider} />
-        <Text style={styles.ctaText}>Scannez vos produits gratuitement avec Dr.Toxi</Text>
+        <Text style={styles.ctaTitle}>ToxiScan Anti-Cancer</Text>
         <Text style={styles.storeText}>Disponible sur l'App Store</Text>
         <Image source={{ uri: TOXISCAN_LOGO }} style={styles.bottomLogo} />
       </View>
@@ -260,19 +264,32 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     marginBottom: 40,
   },
-  ctaText: {
-    fontSize: 30,
-    fontWeight: '600',
+  explanationSection: {
+    width: '100%',
+    paddingHorizontal: 10,
+    marginBottom: 30,
+  },
+  explanationText: {
+    fontSize: 26,
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 38,
+    fontStyle: 'italic' as const,
+  },
+  ctaTitle: {
+    fontSize: 40,
+    fontWeight: '800' as const,
     color: '#1A1A1A',
     textAlign: 'center',
-    lineHeight: 40,
-    marginBottom: 12,
+    marginBottom: 14,
+    letterSpacing: 1,
   },
   storeText: {
-    fontSize: 24,
+    fontSize: 32,
     color: '#8E8E93',
     textAlign: 'center',
     marginBottom: 30,
+    fontWeight: '500' as const,
   },
   bottomLogo: {
     width: 60,
