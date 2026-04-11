@@ -19,10 +19,12 @@ import { classifySubstanceLevel, classifyAdditiveLevel, isIARCClassified, isDang
 import type { SubstanceLevel } from '@/utils/riskScore';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
+import * as StoreReview from 'expo-store-review';
 import ShareImageCard from '@/components/ShareImageCard';
 import * as Localization from 'expo-localization';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -96,6 +98,36 @@ export default function ProductScreen() {
   const { recordShare } = useBadges();
   const shareCardRef = useRef<View>(null);
   const [isShareLoading, setIsShareLoading] = useState<boolean>(false);
+  const hasRequestedReview = useRef<boolean>(false);
+
+  useEffect(() => {
+    const maybeRequestReview = async () => {
+      if (hasRequestedReview.current) return;
+      try {
+        const countStr = await AsyncStorage.getItem('toxiscan_scan_count');
+        const count = countStr ? parseInt(countStr, 10) : 0;
+        const newCount = count + 1;
+        await AsyncStorage.setItem('toxiscan_scan_count', String(newCount));
+        console.log('[ProductScreen] Scan count:', newCount);
+
+        if (newCount === 3 || newCount === 10 || newCount === 25) {
+          hasRequestedReview.current = true;
+          const isAvailable = await StoreReview.isAvailableAsync();
+          if (isAvailable) {
+            console.log('[ProductScreen] Requesting store review...');
+            setTimeout(() => {
+              void StoreReview.requestReview();
+            }, 1500);
+          } else {
+            console.log('[ProductScreen] Store review not available');
+          }
+        }
+      } catch (e) {
+        console.log('[ProductScreen] Review request error:', e);
+      }
+    };
+    void maybeRequestReview();
+  }, []);
 
   const product = useMemo(() => {
     console.log('[Product] Looking for product with barcode:', barcode);
