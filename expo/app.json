@@ -2,7 +2,7 @@
   "expo": {
     "name": "ToxiScan",
     "slug": "toxis",
-    "version": "9.0.1",
+    "version": "2.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rork-app",
@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.rork.toxis",
-      "buildNumber": "11",
+      "buildNumber": "23",
       "infoPlist": {
         "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients."
       }
