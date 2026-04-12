@@ -56,15 +56,32 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
    - Papier parchemin/cuisson : généralement sûr sauf si blanchi au chlore
 
 3. VÊTEMENTS ET TEXTILES (categorie: "clothing") :
-   - Polyester : microplastiques, antimoine (Groupe 2B)
+   ANALYSE PAR COMPOSITION DE FIBRES (étiquette de vêtement) :
+   Quand tu vois une étiquette de composition textile, applique ce système de couleurs :
+   - VERT (badge_global: "aucun") = 100% fibres naturelles (coton, lin, laine, soie, chanvre, jute, ramie). Aucune substance suspecte. Résumé positif : "Composition 100% naturelle, aucune fibre synthétique détectée."
+   - ORANGE (badge_global: "probable") = contient des fibres synthétiques (polyester, nylon/polyamide, élasthanne/spandex/lycra, acrylique, viscose issue de procédés chimiques). Les fibres synthétiques sont des perturbateurs endocriniens suspectés : elles libèrent des microplastiques au contact de la peau et au lavage, et peuvent contenir de l'antimoine (Groupe 2B CIRC). Résumé : "Ce vêtement contient des fibres synthétiques ([liste des fibres]). Les textiles synthétiques libèrent des microplastiques et peuvent contenir des perturbateurs endocriniens. Privilégiez les fibres naturelles."
+   - ROUGE (badge_global: "danger") = contient des substances clairement dangereuses mentionnées sur l'étiquette : formaldéhyde (Groupe 1), teintures azoïques / amines aromatiques (Groupe 1), BPA, chrome hexavalent (Groupe 1), PFAS/PFC, traitements anti-taches/anti-rides chimiques. Résumé : "Ce vêtement contient des substances dangereuses ([substance]). [Explication du danger]."
+
+   Fibres synthétiques à signaler en ORANGE :
+   - Polyester : microplastiques, antimoine (Groupe 2B), perturbateur endocrinien suspecté
+   - Nylon / Polyamide : microplastiques, dérivé pétrochimique
+   - Élasthanne / Spandex / Lycra : dérivé pétrochimique, microplastiques
+   - Acrylique : microplastiques, peut libérer des composés volatils
+   - Viscose / Rayonne (si procédé chimique) : disulfure de carbone, soude caustique
+
+   Substances ROUGES (danger avéré) :
    - Vêtements neufs non lavés : formaldéhyde (Groupe 1)
    - Teintures azoïques : amines aromatiques cancérigènes (Groupe 1)
    - Cuir traité : chrome hexavalent (Groupe 1)
    - PFAS/PFC dans vêtements imperméables, anti-taches, anti-rides : cancérogène, perturbateur endocrinien
    - Nonylphénols éthoxylés (NPE) : détergent industriel, perturbateur endocrinien
    - Diméthylformamide (DMF) : solvant dans textiles synthétiques, toxique pour le foie
-   - Coton conventionnel : résidus de pesticides possibles
-   - Coton bio, lin, chanvre : sûrs
+
+   Fibres naturelles VERTES (sûres) :
+   - Coton bio, lin, chanvre, laine, soie, jute, ramie
+   - Coton conventionnel : généralement sûr, résidus de pesticides possibles mais faibles
+
+   RÈGLE MÉLANGE : Si un vêtement est par exemple "60% coton, 40% polyester", c'est ORANGE car il contient des fibres synthétiques. Seul un vêtement 100% fibres naturelles est VERT.
 
 4. COSMÉTIQUES ET HYGIÈNE (categorie: "cosmetic") :
    - Parabènes, formaldéhyde, triclosan, talc, filtres UV chimiques

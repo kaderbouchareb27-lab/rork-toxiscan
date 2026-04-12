@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
-import { Camera, Sparkles } from 'lucide-react-native';
+import { Camera, Sparkles, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -386,6 +386,33 @@ export default function ScannerScreen() {
               <Text style={styles.scanHint}>
                 Photographiez la liste d'ingrédients pour un résultat précis
               </Text>
+
+              <View style={styles.scanTypesRow}>
+                <View style={styles.scanTypeItem}>
+                  <Salad color="#A0A0A0" size={14} strokeWidth={1.5} />
+                  <Text style={styles.scanTypeText}>Aliments</Text>
+                </View>
+                <View style={styles.scanTypeDot} />
+                <View style={styles.scanTypeItem}>
+                  <Droplets color="#A0A0A0" size={14} strokeWidth={1.5} />
+                  <Text style={styles.scanTypeText}>Cosmétiques</Text>
+                </View>
+                <View style={styles.scanTypeDot} />
+                <View style={styles.scanTypeItem}>
+                  <SprayCan color="#A0A0A0" size={14} strokeWidth={1.5} />
+                  <Text style={styles.scanTypeText}>Ménagers</Text>
+                </View>
+                <View style={styles.scanTypeDot} />
+                <View style={styles.scanTypeItem}>
+                  <Shirt color="#A0A0A0" size={14} strokeWidth={1.5} />
+                  <Text style={styles.scanTypeText}>Vêtements</Text>
+                </View>
+                <View style={styles.scanTypeDot} />
+                <View style={styles.scanTypeItem}>
+                  <UtensilsCrossed color="#A0A0A0" size={14} strokeWidth={1.5} />
+                  <Text style={styles.scanTypeText}>Ustensiles</Text>
+                </View>
+              </View>
             </View>
 
             <View style={styles.cardsSection}>
@@ -468,6 +495,31 @@ const styles = StyleSheet.create({
     textAlign: 'center' as const,
     paddingHorizontal: 20,
     lineHeight: 18,
+  },
+  scanTypesRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginTop: 20,
+    flexWrap: 'wrap' as const,
+    gap: 6,
+    paddingHorizontal: 8,
+  },
+  scanTypeItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
+  },
+  scanTypeText: {
+    fontSize: 11,
+    color: '#B0B0B0',
+    letterSpacing: 0.1,
+  },
+  scanTypeDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#D0D0D0',
   },
   cardsSection: {
     paddingHorizontal: 20,
