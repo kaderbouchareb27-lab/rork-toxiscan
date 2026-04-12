@@ -28,6 +28,7 @@ import { router } from 'expo-router';
 import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISION_PROMPT, VISION_LOADING_MESSAGES } from '@/constants/drToxiPrompt';
 import { LOADING_TIPS } from '@/constants/loadingTips';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
+import { getChatRegionPrompt } from '@/utils/regionDetection';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
@@ -100,9 +101,10 @@ export default function DrToxiScreen() {
         content: m.content,
       }));
 
+      const regionPrompt = getChatRegionPrompt();
       const systemPrompt = payload.imageBase64
-        ? DR_TOXI_SYSTEM_PROMPT + '\n\n--- MODE SCANNER VISION ---\n\n' + DR_TOXI_VISION_PROMPT
-        : DR_TOXI_SYSTEM_PROMPT;
+        ? DR_TOXI_SYSTEM_PROMPT + regionPrompt + '\n\n--- MODE SCANNER VISION ---\n\n' + DR_TOXI_VISION_PROMPT
+        : DR_TOXI_SYSTEM_PROMPT + regionPrompt;
 
       const userContent: string | Array<{ type: 'text'; text: string } | { type: 'image'; image: string }> = payload.imageBase64
         ? [

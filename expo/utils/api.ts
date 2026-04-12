@@ -3,6 +3,7 @@ import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { generateObject } from '@rork-ai/toolkit-sdk';
 import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
+import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 
 const universalAnalysisSchema = z.object({
   categorie_produit: z.enum(['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other']),
@@ -269,7 +270,8 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     console.log('[API] Including Open Food Facts data in analysis prompt');
   }
 
-  const promptParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT];
+  const regionPrompt = getAnalysisRegionPrompt();
+  const promptParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
   if (openFactsContext) {
     promptParts.push('\n\n' + openFactsContext);
     promptParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');

@@ -21,7 +21,6 @@ import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as StoreReview from 'expo-store-review';
 import ShareImageCard from '@/components/ShareImageCard';
-import * as Localization from 'expo-localization';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,6 +30,7 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
+import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 
 function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
@@ -312,21 +312,8 @@ export default function ProductScreen() {
 
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
 
-  const userCountry = (() => {
-    try {
-      const locales = Localization.getLocales();
-      const region = locales?.[0]?.regionCode?.toUpperCase() ?? '';
-      console.log('[Product] Detected region:', region);
-      if (['CA'].includes(region)) return 'canada';
-      if (['FR'].includes(region)) return 'france';
-      const lang = locales?.[0]?.languageCode?.toLowerCase() ?? '';
-      if (lang === 'fr') return 'france';
-      return 'canada';
-    } catch (e) {
-      console.log('[Product] Localization error:', e);
-      return 'canada';
-    }
-  })();
+  const regionInfo = useMemo(() => detectRegion(), []);
+  const userCountry = regionInfo.region;
 
   const showBioStores = !isGreen && (hasCarcinogen || hasControversial);
   const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
@@ -602,71 +589,38 @@ export default function ProductScreen() {
                 Privilégiez les produits biologiques certifiés sans additifs ni substances controversées.
               </Text>
 
-              {userCountry === 'canada' ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>Magasins spécialisés</Text>
-                  {[
-                    'Avril Supermarché Santé',
-                    'Rachelle Béry',
-                    'Tau Aliments Naturels',
-                  ].map((store, i) => (
-                    <View key={`store-ca-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2D8A4E" size={14} />
-                      <Text style={styles.bioStoreText}>{store}</Text>
-                    </View>
-                  ))}
+              <>
+                <Text style={styles.bioStoresSubtitle}>
+                  {regionInfo.language === 'en' ? 'Specialty stores' : 'Magasins spécialisés'}
+                </Text>
+                {getRegionSpecialtyStores(userCountry).map((store, i) => (
+                  <View key={`store-spec-${i}`} style={styles.bioStoreItem}>
+                    <Store color="#2D8A4E" size={14} />
+                    <Text style={styles.bioStoreText}>{store}</Text>
+                  </View>
+                ))}
 
-                  <Text style={styles.bioStoresSubtitle}>Sections bio en épicerie</Text>
-                  <Text style={styles.bioStoresNote}>IGA, Metro, Provigo, Maxi</Text>
+                <Text style={styles.bioStoresSubtitle}>
+                  {regionInfo.language === 'en' ? 'Organic sections in grocery stores' : 'Sections bio en épicerie'}
+                </Text>
+                <Text style={styles.bioStoresNote}>{getRegionGroceryStores(userCountry).join(', ')}</Text>
 
-                  <Text style={styles.bioStoresSubtitle}>Marchés locaux</Text>
-                  <Text style={styles.bioStoresNote}>Marché Jean-Talon, Marché Atwater</Text>
+                {getRegionLocalMarkets(userCountry).length > 0 && (
+                  <>
+                    <Text style={styles.bioStoresSubtitle}>
+                      {regionInfo.language === 'en' ? 'Local markets' : 'Marchés locaux'}
+                    </Text>
+                    <Text style={styles.bioStoresNote}>{getRegionLocalMarkets(userCountry).join(', ')}</Text>
+                  </>
+                )}
 
-                  {isHouseholdOrCosmetic ? (
-                    <>
-                      <Text style={styles.bioStoresSubtitle}>Marques propres recommandées</Text>
-                      <Text style={styles.bioStoresNote}>ATTITUDE (vegan, hypoallergénique)</Text>
-                      <Text style={styles.bioStoresNote}>The Unscented Company, Druide, Oneka</Text>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.bioStoresSubtitle}>Marques bio recommandées</Text>
-                      <Text style={styles.bioStoresNote}>La Fourmi Bionique, GoGo Quinoa, Fontaine Santé, Liberté Bio</Text>
-                    </>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>Magasins spécialisés</Text>
-                  {[
-                    'Biocoop',
-                    'Naturalia',
-                    'La Vie Claire',
-                    "Bio c' Bon",
-                    'Marcel & Fils',
-                  ].map((store, i) => (
-                    <View key={`store-fr-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2D8A4E" size={14} />
-                      <Text style={styles.bioStoreText}>{store}</Text>
-                    </View>
-                  ))}
-
-                  <Text style={styles.bioStoresSubtitle}>Sections bio en grande surface</Text>
-                  <Text style={styles.bioStoresNote}>Carrefour Bio, Auchan Bio, Leclerc Bio</Text>
-
-                  {isHouseholdOrCosmetic ? (
-                    <>
-                      <Text style={styles.bioStoresSubtitle}>Marques propres recommandées</Text>
-                      <Text style={styles.bioStoresNote}>Ecover, L'Arbre Vert, Cattier, Coslys</Text>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.bioStoresSubtitle}>Marques bio recommandées</Text>
-                      <Text style={styles.bioStoresNote}>Bjorg, Bonneterre, Priméal, Jardin Bio</Text>
-                    </>
-                  )}
-                </>
-              )}
+                <Text style={styles.bioStoresSubtitle}>
+                  {regionInfo.language === 'en'
+                    ? (isHouseholdOrCosmetic ? 'Recommended clean brands' : 'Recommended organic brands')
+                    : (isHouseholdOrCosmetic ? 'Marques propres recommandées' : 'Marques bio recommandées')}
+                </Text>
+                <Text style={styles.bioStoresNote}>{getRegionCleanBrands(userCountry, isHouseholdOrCosmetic).join(', ')}</Text>
+              </>
             </View>
           </View>
         )}
