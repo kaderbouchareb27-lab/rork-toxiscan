@@ -1,60 +1,61 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Colors from '@/constants/colors';
+import { isEnglish } from '@/utils/i18n';
 
 export default function PrivacyScreen() {
   console.log('[Privacy] Rendering privacy screen');
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Politique de confidentialité</Text>
-      <Text style={styles.updated}>Dernière mise à jour : mars 2026</Text>
+      <Text style={styles.title}>{isEnglish() ? 'Privacy Policy' : 'Politique de confidentialité'}</Text>
+      <Text style={styles.updated}>{isEnglish() ? 'Last updated: March 2026' : 'Dernière mise à jour : mars 2026'}</Text>
 
       <View style={styles.highlightCard}>
-        <Text style={styles.highlightText}>Dr.Toxi respecte votre vie privée. Nous ne vendons jamais vos données.</Text>
+        <Text style={styles.highlightText}>{isEnglish() ? 'Dr.Toxi respects your privacy. We never sell your data.' : 'Dr.Toxi respecte votre vie privée. Nous ne vendons jamais vos données.'}</Text>
       </View>
 
-      <Text style={styles.heading}>Données collectées</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Data collected' : 'Données collectées'}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Photos de listes d'ingrédients (analysées par notre IA, non conservées)" />
-        <BulletItem text="Historique de vos scans (stocké localement sur votre appareil uniquement)" />
-        <BulletItem text="Messages envoyés à Dr. Toxi (traités par notre IA, non conservés)" />
+        <BulletItem text={isEnglish() ? 'Ingredient list photos (analyzed by our AI, not stored)' : "Photos de listes d'ingrédients (analysées par notre IA, non conservées)"} />
+        <BulletItem text={isEnglish() ? 'Your scan history (stored locally on your device only)' : 'Historique de vos scans (stocké localement sur votre appareil uniquement)'} />
+        <BulletItem text={isEnglish() ? 'Messages sent to Dr. Toxi (processed by our AI, not stored)' : 'Messages envoyés à Dr. Toxi (traités par notre IA, non conservés)'} />
       </View>
 
-      <Text style={styles.heading}>Données NON collectées</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Data NOT collected' : 'Données NON collectées'}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="PAS de nom, email, téléphone ou localisation" />
-        <BulletItem text="PAS de vente de données à des tiers" />
-        <BulletItem text="PAS de publicité ciblée" />
-        <BulletItem text="PAS de trackers ou analytics intrusifs" />
+        <BulletItem text={isEnglish() ? 'NO name, email, phone, or location' : 'PAS de nom, email, téléphone ou localisation'} />
+        <BulletItem text={isEnglish() ? 'NO selling data to third parties' : 'PAS de vente de données à des tiers'} />
+        <BulletItem text={isEnglish() ? 'NO targeted advertising' : 'PAS de publicité ciblée'} />
+        <BulletItem text={isEnglish() ? 'NO intrusive trackers or analytics' : 'PAS de trackers ou analytics intrusifs'} />
       </View>
 
-      <Text style={styles.heading}>Intelligence artificielle</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Artificial Intelligence' : 'Intelligence artificielle'}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Dr.Toxi utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi" />
-        <BulletItem text="Les photos et messages sont traités par notre IA de manière sécurisée" />
-        <BulletItem text="Notre IA ne conserve pas les données au-delà du traitement" />
-        <BulletItem text="Les résultats sont à titre informatif et ne constituent pas un avis médical" />
+        <BulletItem text={isEnglish() ? 'Dr.Toxi uses artificial intelligence to analyze ingredient photos and for the Dr. Toxi chatbot' : "Dr.Toxi utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi"} />
+        <BulletItem text={isEnglish() ? 'Photos and messages are processed securely by our AI' : 'Les photos et messages sont traités par notre IA de manière sécurisée'} />
+        <BulletItem text={isEnglish() ? 'Our AI does not retain data beyond processing' : 'Notre IA ne conserve pas les données au-delà du traitement'} />
+        <BulletItem text={isEnglish() ? 'Results are for informational purposes and do not constitute medical advice' : 'Les résultats sont à titre informatif et ne constituent pas un avis médical'} />
       </View>
 
-      <Text style={styles.heading}>Base de données produits</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Product database' : 'Base de données produits'}</Text>
       <Text style={styles.body}>
-        Les informations sur les produits proviennent d'Open Food Facts, une base de données collaborative et ouverte. Les classifications de risque sont basées sur les données publiques du CIRC/OMS (Centre International de Recherche sur le Cancer).
+        {isEnglish() ? 'Product information comes from Open Food Facts, a collaborative and open database. Risk classifications are based on public data from the IARC/WHO (International Agency for Research on Cancer).' : "Les informations sur les produits proviennent d'Open Food Facts, une base de données collaborative et ouverte. Les classifications de risque sont basées sur les données publiques du CIRC/OMS (Centre International de Recherche sur le Cancer)."}
       </Text>
 
-      <Text style={styles.heading}>Stockage local</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Local storage' : 'Stockage local'}</Text>
       <Text style={styles.body}>
-        Votre historique de scans et vos préférences sont stockés uniquement sur votre appareil via AsyncStorage. Ces données ne quittent jamais votre téléphone et ne sont pas synchronisées vers nos serveurs.
+        {isEnglish() ? 'Your scan history and preferences are stored only on your device via AsyncStorage. This data never leaves your phone and is not synced to our servers.' : 'Votre historique de scans et vos préférences sont stockés uniquement sur votre appareil via AsyncStorage. Ces données ne quittent jamais votre téléphone et ne sont pas synchronisées vers nos serveurs.'}
       </Text>
 
-      <Text style={styles.heading}>Vos droits</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Your rights' : 'Vos droits'}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Supprimer votre historique à tout moment dans l'app (Historique → icône corbeille)" />
-        <BulletItem text="Nous contacter pour toute demande de suppression ou question" />
-        <BulletItem text="Désinstaller l'app pour supprimer toutes les données locales" />
+        <BulletItem text={isEnglish() ? "Delete your history at any time in the app (History → trash icon)" : "Supprimer votre historique à tout moment dans l'app (Historique → icône corbeille)"} />
+        <BulletItem text={isEnglish() ? 'Contact us for any deletion request or question' : 'Nous contacter pour toute demande de suppression ou question'} />
+        <BulletItem text={isEnglish() ? 'Uninstall the app to delete all local data' : "Désinstaller l'app pour supprimer toutes les données locales"} />
       </View>
 
       <View style={styles.contactCard}>
-        <Text style={styles.contactLabel}>Contact</Text>
+        <Text style={styles.contactLabel}>{isEnglish() ? 'Contact' : 'Contact'}</Text>
         <Text style={styles.contactEmail}>contact@toxiscan.com</Text>
       </View>
 

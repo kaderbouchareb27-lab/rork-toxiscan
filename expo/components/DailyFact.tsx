@@ -12,6 +12,7 @@ import { Image as RNImage } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { DAILY_FACTS, getTodayFactIndex } from '@/mocks/scannerContent';
+import { t } from '@/utils/i18n';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 50;
@@ -86,7 +87,7 @@ export default function DailyFact() {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.headerTitle}>Le saviez-vous ?</Text>
+        <Text style={styles.headerTitle}>{t('daily_fact_title')}</Text>
       </View>
 
       <Animated.View

@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { ScanBarcode, Clock, MessageCircle, User } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
+import { t } from '@/utils/i18n';
 
 export default function TabLayout() {
   return (
@@ -31,28 +32,28 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(scanner)"
         options={{
-          title: "Scanner",
+          title: t('tab_scanner'),
           tabBarIcon: ({ color, size }) => <ScanBarcode color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: "Historique",
+          title: t('tab_history'),
           tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="dr-toxi"
         options={{
-          title: "Dr. Toxi",
+          title: t('tab_drtoxi'),
           tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profil",
+          title: t('tab_profile'),
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

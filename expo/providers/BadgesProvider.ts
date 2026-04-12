@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
+import { t } from '@/utils/i18n';
 
 const BADGES_STORAGE_KEY = 'toxiscan_badges';
 const REWARD_STORAGE_KEY = 'toxiscan_share_rewards';
@@ -174,13 +175,13 @@ export const [BadgesProvider, useBadges] = createContextHook(() => {
     if (shareCount >= 25 && !updated.month25Claimed) {
       updated.month25Claimed = true;
       setShareRewardMessage(
-        'Bravo ! Tu as partagé 25 fois. Merci de faire connaître Dr.Toxi !'
+        t('share_reward_25')
       );
       console.log('[Badges] Share reward: 25 shares milestone');
     } else if (shareCount >= 100 && !updated.year100Claimed) {
       updated.year100Claimed = true;
       setShareRewardMessage(
-        'Incroyable ! 100 partages ! Tu es un vrai ambassadeur Dr.Toxi. Merci pour ton soutien !'
+        t('share_reward_100')
       );
       console.log('[Badges] Share reward: 100 shares milestone');
     }

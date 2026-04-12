@@ -1,3 +1,5 @@
+import { isEnglish } from '@/utils/i18n';
+
 export interface HealthAlert {
   id: string;
   title: string;
@@ -57,7 +59,7 @@ export const HEALTH_ALERTS: HealthAlert[] = [
   },
 ];
 
-export const DAILY_FACTS: DailyFact[] = [
+const DAILY_FACTS_FR: DailyFact[] = [
   { id: 'fact-1', text: 'Le cancer colorectal a augmenté de 45% chez les moins de 50 ans depuis 1990.' },
   { id: 'fact-2', text: 'Chauffer du plastique au micro-ondes libère des microplastiques dans votre nourriture.' },
   { id: 'fact-3', text: 'Les nitrites dans la charcuterie sont classés cancérogènes avérés depuis 2015.' },
@@ -95,7 +97,47 @@ export const DAILY_FACTS: DailyFact[] = [
   { id: 'fact-35', text: 'Le plomb dans certaines teintures pour cheveux est un cancérogène avéré et neurotoxique.' },
 ];
 
-export const QUIZ_QUESTIONS: QuizQuestion[] = [
+const DAILY_FACTS_EN: DailyFact[] = [
+  { id: 'fact-1', text: 'Colorectal cancer has increased by 45% in people under 50 since 1990.' },
+  { id: 'fact-2', text: 'Heating plastic in the microwave releases microplastics into your food.' },
+  { id: 'fact-3', text: 'Nitrites in processed meat have been classified as proven carcinogens since 2015.' },
+  { id: 'fact-4', text: 'Broccoli contains sulforaphane, one of the most powerful known anti-cancer compounds.' },
+  { id: 'fact-5', text: 'A scratched Teflon pan can release PFOAs, classified as possible carcinogens by the IARC.' },
+  { id: 'fact-6', text: 'Turmeric is the most studied spice for its anti-cancer properties, with over 12,000 publications.' },
+  { id: 'fact-7', text: 'Azo dyes (E102, E110, E129) are banned in children\'s food in several countries.' },
+  { id: 'fact-8', text: 'A glass jar releases no chemicals into your food, unlike plastic.' },
+  { id: 'fact-9', text: 'The WHO estimates that 30 to 50% of cancers could be prevented through better diet and lifestyle.' },
+  { id: 'fact-10', text: 'Formaldehyde, a Group 1 carcinogen, is found in some unwashed new clothes.' },
+  { id: 'fact-11', text: 'Extra virgin olive oil contains oleocanthal, an anti-inflammatory as powerful as ibuprofen.' },
+  { id: 'fact-12', text: 'Titanium dioxide (E171) has been banned in France since 2020 but remains legal in Canada and the USA.' },
+  { id: 'fact-13', text: 'Plastic tea bags release billions of microplastics into your cup with each brew.' },
+  { id: 'fact-14', text: 'Monosodium glutamate (MSG) hides under more than 40 different names on labels.' },
+  { id: 'fact-15', text: 'Canned goods are often lined with a coating containing BPA, an endocrine disruptor.' },
+  { id: 'fact-16', text: 'Cast iron and stainless steel are the safest materials for cooking at high temperatures.' },
+  { id: 'fact-17', text: '"Natural flavors" can contain up to 100 different chemical substances under a single name.' },
+  { id: 'fact-18', text: 'Red 40, banned in Europe, is the most used food coloring in North America.' },
+  { id: 'fact-19', text: 'Washing your new clothes before wearing them removes much of the residual formaldehyde.' },
+  { id: 'fact-20', text: 'PFAS, dubbed "forever chemicals", take thousands of years to break down in the environment.' },
+  { id: 'fact-21', text: 'PFAS (forever chemicals) were found in almost all baby formula brands according to Consumer Reports.' },
+  { id: 'fact-22', text: 'Triclosan, found in some toothpastes, is an endocrine disruptor banned in soaps.' },
+  { id: 'fact-23', text: 'Coal tar in anti-dandruff shampoos is classified as a proven Group 1 carcinogen.' },
+  { id: 'fact-24', text: 'Waterproof clothing often contains PFAS, carcinogenic forever chemicals.' },
+  { id: 'fact-25', text: 'Hexavalent chromium used in leather tanning is a proven IARC Group 1 carcinogen.' },
+  { id: 'fact-26', text: 'Bleach produces dioxins, classified as proven carcinogens. Prefer sodium percarbonate.' },
+  { id: 'fact-27', text: 'Baby wipes may contain DMDM hydantoin, a preservative that releases formaldehyde.' },
+  { id: 'fact-28', text: 'Polystyrene (plastic #6) can release styrene, a possible carcinogen, especially with hot food.' },
+  { id: 'fact-29', text: 'Toluene in nail polish is neurotoxic. Look for "3-free" or "5-free" polishes.' },
+  { id: 'fact-30', text: 'Azo dyes in textiles can release carcinogenic aromatic amines on skin contact.' },
+  { id: 'fact-31', text: 'Perchloroethylene used in dry cleaning is classified as a probable Group 2A carcinogen.' },
+  { id: 'fact-32', text: 'BPA in liquid baby formula cans is an endocrine disruptor linked to breast cancer.' },
+  { id: 'fact-33', text: 'Melamine dishes can release formaldehyde when heated. Never use them in the microwave.' },
+  { id: 'fact-34', text: 'Isothiazolinones (MIT, CMIT) in household products are powerful allergens.' },
+  { id: 'fact-35', text: 'Lead in some hair dyes is a proven carcinogen and neurotoxicant.' },
+];
+
+export const DAILY_FACTS: DailyFact[] = isEnglish() ? DAILY_FACTS_EN : DAILY_FACTS_FR;
+
+const QUIZ_QUESTIONS_FR: QuizQuestion[] = [
   {
     id: 'quiz-1',
     question: 'Quel colorant alimentaire est interdit en Europe mais autorisé en Amérique du Nord ?',
@@ -237,6 +279,31 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     explanation: 'Un vernis "5-free" est formulé sans les 5 substances les plus toxiques : toluène (neurotoxique), formaldéhyde (cancérogène), DBP (phtalate), résine de formaldéhyde et camphre synthétique.',
   },
 ];
+
+const QUIZ_QUESTIONS_EN: QuizQuestion[] = [
+  { id: 'quiz-1', question: 'Which food coloring is banned in Europe but allowed in North America?', options: ['E150d (caramel)', 'Red 40 (E129)', 'E100 (curcumin)'], correctIndex: 1, explanation: 'Red 40 (Allura Red, E129) is one of the most controversial azo dyes. It is banned in several European countries due to its links with hyperactivity in children and potential carcinogenic risks.' },
+  { id: 'quiz-2', question: 'At what temperature does plastic start releasing toxic substances?', options: ['50°C / 122°F', '70°C / 158°F', '100°C / 212°F'], correctIndex: 1, explanation: 'From 70°C (158°F), plastics begin releasing endocrine disruptors like BPA and phthalates. This is why you should never heat food in a plastic container in the microwave.' },
+  { id: 'quiz-3', question: 'What is the #1 anti-cancer food according to studies?', options: ['Broccoli', 'Carrot', 'Tomato'], correctIndex: 0, explanation: 'Broccoli contains sulforaphane, a compound that activates the body\'s detoxification enzymes and inhibits cancer cell growth. It is the most studied food for its anti-cancer properties.' },
+  { id: 'quiz-4', question: 'Which additive is classified as a proven carcinogen (Group 1) by the IARC?', options: ['Aspartame (E951)', 'Sodium nitrite (E250)', 'Citric acid (E330)'], correctIndex: 1, explanation: 'Nitrites (E249, E250), used as preservatives in processed meat, are classified as proven carcinogens (Group 1) by the IARC. They form carcinogenic nitrosamines in the stomach.' },
+  { id: 'quiz-5', question: 'What material is safest for storing food?', options: ['Food-grade plastic', 'Aluminum', 'Glass'], correctIndex: 2, explanation: 'Glass is chemically inert: it releases no substances into food, regardless of temperature. It is the safest material for food storage.' },
+  { id: 'quiz-6', question: 'What does "natural flavor" mean on a label?', options: ['Pure extract from a fruit or vegetable', 'Can contain dozens of chemical substances', 'No health risk'], correctIndex: 1, explanation: 'The term "natural flavor" is misleading: it can encompass up to 100 different chemical substances, some produced by synthesis. Regulations do not require manufacturers to detail the composition.' },
+  { id: 'quiz-7', question: 'How long do PFAS ("forever chemicals") persist in the environment?', options: ['10 years', '100 years', 'Thousands of years'], correctIndex: 2, explanation: 'PFAS are called "forever chemicals" because their chemical structure makes them virtually indestructible. They accumulate in water, soil, and the human body for thousands of years.' },
+  { id: 'quiz-8', question: 'What is the best reflex when buying new clothes?', options: ['Wear them right away', 'Wash them before wearing', 'Air them out for 24h'], correctIndex: 1, explanation: 'New clothes often contain formaldehyde (IARC Group 1) used as an anti-wrinkle agent. A first wash removes a large portion of these potentially carcinogenic chemical residues.' },
+  { id: 'quiz-9', question: 'Why is sunflower oil considered problematic?', options: ['It contains cholesterol', 'It is rich in pro-inflammatory omega-6', 'It is always GMO'], correctIndex: 1, explanation: 'Sunflower oil is very rich in omega-6, a pro-inflammatory fatty acid. Chronic inflammation is a recognized factor in the development of many cancers. Prefer extra virgin olive oil.' },
+  { id: 'quiz-10', question: 'Titanium dioxide (E171) is banned in food in which country?', options: ['Canada', 'United States', 'France'], correctIndex: 2, explanation: 'France banned E171 in food in 2020, followed by the European Union in 2022, due to genotoxicity concerns. It remains legal in Canada and the United States.' },
+  { id: 'quiz-11', question: 'Under what name can glutamate (MSG) hide on a label?', options: ['Vitamin C', 'Yeast extract', 'Folic acid'], correctIndex: 1, explanation: 'Yeast extract is a hidden form of monosodium glutamate. Manufacturers use it to bypass mandatory labeling. Other hidden names: hydrolyzed protein, natural flavor, yeast autolysate.' },
+  { id: 'quiz-12', question: 'What percentage of cancers could be prevented according to the WHO?', options: ['10 to 20%', '30 to 50%', '70 to 80%'], correctIndex: 1, explanation: 'The WHO estimates that 30 to 50% of cancers could be prevented through better diet, avoidance of toxic substances, and a healthy lifestyle. Hence the importance of knowing what our products contain.' },
+  { id: 'quiz-13', question: 'Which substance is found in almost all baby formulas according to Consumer Reports?', options: ['Vitamin D', 'PFAS (forever chemicals)', 'Calcium'], correctIndex: 1, explanation: 'PFAS (per- and polyfluoroalkyl substances) were found in almost all baby formula brands tested. These forever chemicals are carcinogenic, endocrine disruptors, and weaken babies\' immune systems.' },
+  { id: 'quiz-14', question: 'Which preservative in baby wipes releases formaldehyde?', options: ['Vitamin E', 'DMDM Hydantoin', 'Glycerin'], correctIndex: 1, explanation: 'DMDM hydantoin is a preservative that slowly releases formaldehyde, a proven IARC Group 1 carcinogen. It is found in many baby wipes, creams, and shampoos.' },
+  { id: 'quiz-15', question: 'Which substance in anti-dandruff shampoos is a proven Group 1 carcinogen?', options: ['Zinc pyrithione', 'Coal tar', 'Ketoconazole'], correctIndex: 1, explanation: 'Coal tar used in some anti-dandruff shampoos is classified as a proven IARC Group 1 carcinogen. Prefer natural alternatives like tea tree oil.' },
+  { id: 'quiz-16', question: 'Which type of plastic contains BPA?', options: ['Plastic #1 (PET)', 'Plastic #7 (Polycarbonate)', 'Plastic #5 (PP)'], correctIndex: 1, explanation: 'Polycarbonate (plastic #7) contains BPA, an endocrine disruptor linked to breast and prostate cancer. Prefer glass, stainless steel, or plastic #5 (PP) containers which are safer.' },
+  { id: 'quiz-17', question: 'Why should you avoid bleach as a disinfectant?', options: ['It smells bad', 'It produces carcinogenic dioxins', 'It is expensive'], correctIndex: 1, explanation: 'Bleach (sodium hypochlorite) produces dioxins, substances classified as proven carcinogens. Sodium percarbonate is a natural and effective alternative for disinfecting.' },
+  { id: 'quiz-18', question: 'Which substance in waterproof clothing is carcinogenic?', options: ['Treated cotton', 'PFAS / PFC', 'Plain polyester'], correctIndex: 1, explanation: 'PFAS (perfluorochemicals) used to make clothing waterproof, stain-resistant, and wrinkle-resistant are carcinogenic forever chemicals and endocrine disruptors.' },
+  { id: 'quiz-19', question: 'Why is melamine dinnerware dangerous?', options: ['It breaks easily', 'It releases formaldehyde when heated', 'It changes color'], correctIndex: 1, explanation: 'Melamine dinnerware can release formaldehyde (Group 1 carcinogen) when heated. It should never be used in the microwave or for serving very hot food.' },
+  { id: 'quiz-20', question: 'What does a "5-free" nail polish mean?', options: ['It costs $5', 'It is free of 5 toxic substances (toluene, formaldehyde, DBP, etc.)', 'It dries in 5 minutes'], correctIndex: 1, explanation: 'A "5-free" polish is formulated without the 5 most toxic substances: toluene (neurotoxic), formaldehyde (carcinogen), DBP (phthalate), formaldehyde resin, and synthetic camphor.' },
+];
+
+export const QUIZ_QUESTIONS: QuizQuestion[] = isEnglish() ? QUIZ_QUESTIONS_EN : QUIZ_QUESTIONS_FR;
 
 export function getTodayAlerts(): HealthAlert[] {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);

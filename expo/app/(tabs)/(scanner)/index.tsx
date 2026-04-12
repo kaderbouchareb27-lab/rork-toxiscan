@@ -29,6 +29,7 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import DailyFact from '@/components/DailyFact';
 import DonationBanner from '@/components/DonationBanner';
+import { t } from '@/utils/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -98,12 +99,12 @@ export default function ScannerScreen() {
         }
       } catch (compressionError) {
         console.error('[Scanner] Image compression failed:', compressionError);
-        throw new Error('Impossible de traiter la photo. Veuillez réessayer.');
+        throw new Error(t('error_process_photo'));
       }
 
       if (!base64 || base64.length < 100) {
         console.error('[Scanner] Base64 too short or empty:', base64?.length);
-        throw new Error('La photo est invalide. Veuillez reprendre la photo.');
+        throw new Error(t('error_invalid_photo'));
       }
 
       console.log('[Scanner] Sending to API...');
@@ -112,12 +113,12 @@ export default function ScannerScreen() {
         result = await analyzeUniversalPhoto(base64);
       } catch (apiError) {
         console.error('[Scanner] API call failed:', apiError);
-        throw new Error('L\'analyse a échoué. Vérifiez votre connexion et réessayez.');
+        throw new Error(t('error_analysis_failed'));
       }
 
       if (result.erreur) {
         console.error('[Scanner] API returned error:', result.erreur);
-        throw new Error('Impossible d\'analyser ce produit. Veuillez reprendre la photo avec un meilleur éclairage.');
+        throw new Error(t('error_analyze_product'));
       }
 
       const product = universalResultToScannedProduct(result, imageUri);
@@ -149,11 +150,11 @@ export default function ScannerScreen() {
       }
       const userMessage = error.message && !error.message.includes('expected') && !error.message.includes('parse') && !error.message.includes('undefined')
         ? error.message
-        : 'Impossible d\'analyser la photo. Veuillez reprendre la photo et réessayer.';
+        : t('error_analyze_photo');
       Alert.alert(
-        'Erreur d\'analyse',
+        t('error_analysis_title'),
         userMessage,
-        [{ text: 'OK' }]
+        [{ text: t('ok') }]
       );
     },
   });
@@ -175,7 +176,7 @@ export default function ScannerScreen() {
       }
     } catch (error) {
       console.error('[Scanner] Camera error:', error);
-      Alert.alert('Erreur', 'Impossible d\'ouvrir la caméra.');
+      Alert.alert(t('error_generic'), t('error_open_camera'));
     }
   }, [photoMutation]);
 
@@ -191,10 +192,10 @@ export default function ScannerScreen() {
 
       if (existingStatus === 'denied') {
         Alert.alert(
-          'Accès à la caméra désactivé',
-          'Pour photographier vos produits, activez la caméra dans les réglages de votre appareil.',
+          t('camera_disabled_title'),
+          t('camera_disabled_msg'),
           [
-            { text: 'Ouvrir les réglages', onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
+            { text: t('open_settings'), onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
           ]
         );
         return;
@@ -206,10 +207,10 @@ export default function ScannerScreen() {
         await launchCamera();
       } else {
         Alert.alert(
-          'Accès à la caméra désactivé',
-          'Pour photographier vos produits, activez la caméra dans les réglages de votre appareil.',
+          t('camera_disabled_title'),
+          t('camera_disabled_msg'),
           [
-            { text: 'Ouvrir les réglages', onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
+            { text: t('open_settings'), onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
           ]
         );
       }
@@ -338,8 +339,8 @@ export default function ScannerScreen() {
                 </Animated.View>
                 <Sparkles color="#2E9E34" size={26} style={styles.spinnerCenter} />
               </View>
-              <Text style={styles.loadingTitle}>Analyse en cours</Text>
-              <Text style={styles.loadingSubtitle}>Dr. Toxi examine votre produit...</Text>
+              <Text style={styles.loadingTitle}>{t('analysis_in_progress')}</Text>
+              <Text style={styles.loadingSubtitle}>{t('drtoxi_examining')}</Text>
 
               <View style={styles.progressSection}>
                 <View style={styles.progressBarBg}>
@@ -365,7 +366,7 @@ export default function ScannerScreen() {
                 style={styles.logoImage}
                 resizeMode="contain"
               />
-              <Text style={styles.subtitle}>Protégez votre santé au quotidien</Text>
+              <Text style={styles.subtitle}>{t('protect_health')}</Text>
             </View>
 
             <View style={styles.actionSection}>
@@ -379,38 +380,38 @@ export default function ScannerScreen() {
                   testID="photo-button"
                 >
                   <Camera color="#FFFFFF" size={22} strokeWidth={2} />
-                  <Text style={styles.scanButtonText}>Photographier un produit</Text>
+                  <Text style={styles.scanButtonText}>{t('photo_product')}</Text>
                 </TouchableOpacity>
               </Animated.View>
 
               <Text style={styles.scanHint}>
-                Photographiez la liste d'ingrédients pour un résultat précis
+                {t('scan_hint')}
               </Text>
 
               <View style={styles.scanTypesRow}>
                 <View style={styles.scanTypeItem}>
                   <Salad color="#A0A0A0" size={14} strokeWidth={1.5} />
-                  <Text style={styles.scanTypeText}>Aliments</Text>
+                  <Text style={styles.scanTypeText}>{t('cat_food')}</Text>
                 </View>
                 <View style={styles.scanTypeDot} />
                 <View style={styles.scanTypeItem}>
                   <Droplets color="#A0A0A0" size={14} strokeWidth={1.5} />
-                  <Text style={styles.scanTypeText}>Cosmétiques</Text>
+                  <Text style={styles.scanTypeText}>{t('cat_cosmetics')}</Text>
                 </View>
                 <View style={styles.scanTypeDot} />
                 <View style={styles.scanTypeItem}>
                   <SprayCan color="#A0A0A0" size={14} strokeWidth={1.5} />
-                  <Text style={styles.scanTypeText}>Ménagers</Text>
+                  <Text style={styles.scanTypeText}>{t('cat_household')}</Text>
                 </View>
                 <View style={styles.scanTypeDot} />
                 <View style={styles.scanTypeItem}>
                   <Shirt color="#A0A0A0" size={14} strokeWidth={1.5} />
-                  <Text style={styles.scanTypeText}>Vêtements</Text>
+                  <Text style={styles.scanTypeText}>{t('cat_clothing')}</Text>
                 </View>
                 <View style={styles.scanTypeDot} />
                 <View style={styles.scanTypeItem}>
                   <UtensilsCrossed color="#A0A0A0" size={14} strokeWidth={1.5} />
-                  <Text style={styles.scanTypeText}>Ustensiles</Text>
+                  <Text style={styles.scanTypeText}>{t('cat_utensils')}</Text>
                 </View>
               </View>
             </View>

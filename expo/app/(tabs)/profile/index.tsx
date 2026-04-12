@@ -23,6 +23,7 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
+import { t, tf } from '@/utils/i18n';
 
 export default function ProfileScreen() {
   const { stats } = useScanHistory();
@@ -41,16 +42,16 @@ export default function ProfileScreen() {
         await Linking.openURL(url);
       } else {
         Alert.alert(
-          'Nous contacter',
-          'Envoyez-nous un courriel à :\ncontact@toxiscan.com',
-          [{ text: 'OK' }]
+          t('contact_email_title'),
+          t('contact_email_body'),
+          [{ text: t('ok') }]
         );
       }
     } catch {
       Alert.alert(
-        'Nous contacter',
-        'Envoyez-nous un courriel à :\ncontact@toxiscan.com',
-        [{ text: 'OK' }]
+        t('contact_email_title'),
+        t('contact_email_body'),
+        [{ text: t('ok') }]
       );
     }
   }, []);
@@ -78,16 +79,16 @@ export default function ProfileScreen() {
         }
       }
       Alert.alert(
-        'Merci !',
-        'La notation sera disponible une fois l\'app publiée sur l\'App Store. Merci pour votre soutien !',
-        [{ text: 'OK' }]
+        t('rate_thanks'),
+        t('rate_unavailable'),
+        [{ text: t('ok') }]
       );
     } catch (error) {
       console.log('[Profile] StoreReview error:', error);
       Alert.alert(
-        'Merci !',
-        'La notation sera disponible une fois l\'app publiée sur l\'App Store. Merci pour votre soutien !',
-        [{ text: 'OK' }]
+        t('rate_thanks'),
+        t('rate_unavailable'),
+        [{ text: t('ok') }]
       );
     }
   }, []);
@@ -95,7 +96,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Profil</Text>
+        <Text style={styles.title}>{t('profile_title')}</Text>
 
         <TouchableOpacity
           style={[styles.card, isPro ? styles.proCard : styles.freeCard]}
@@ -116,14 +117,14 @@ export default function ProfileScreen() {
             )}
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionLabel}>
-                {isPro ? 'Dr.Toxi Pro' : 'Dr.Toxi Gratuit'}
+                {isPro ? t('drtoxi_pro') : t('drtoxi_free')}
               </Text>
               <Text style={[styles.subscriptionStatus, !isPro && styles.subscriptionStatusFree]}>
-                {isPro ? 'Actif — Dr. Toxi illimité, historique complet' : 'Dr. Toxi illimité, historique illimité, favoris'}
+                {isPro ? t('pro_active_desc') : t('free_desc')}
               </Text>
             </View>
             {isPro ? (
-              <Text style={styles.proActiveBadge}>Actif</Text>
+              <Text style={styles.proActiveBadge}>{t('active')}</Text>
             ) : (
               <View style={styles.upgradeButton}>
                 <Crown color={Colors.white} size={14} />
@@ -144,8 +145,8 @@ export default function ProfileScreen() {
               <Trophy color="#FFD700" size={22} strokeWidth={1.8} />
             </View>
             <View style={styles.badgesCardInfo}>
-              <Text style={styles.badgesCardTitle}>Mes badges</Text>
-              <Text style={styles.badgesCardCount}>{unlockedCount}/{totalCount} débloqués</Text>
+              <Text style={styles.badgesCardTitle}>{t('my_badges')}</Text>
+              <Text style={styles.badgesCardCount}>{unlockedCount}/{totalCount} {t('unlocked')}</Text>
             </View>
           </View>
           <View style={styles.badgesCardRight}>
@@ -158,14 +159,14 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Statistiques</Text>
-          <Text style={styles.statsTotal}>{stats.total} produit{stats.total !== 1 ? 's' : ''} analysé{stats.total !== 1 ? 's' : ''}</Text>
+          <Text style={styles.cardTitle}>{t('statistics')}</Text>
+          <Text style={styles.statsTotal}>{tf('products_analyzed', stats.total)}</Text>
 
           {stats.total > 0 && (
             <View style={styles.statsBreakdown}>
-              <StatBar label="Danger" count={stats.danger} max={maxStat} color={Colors.danger} />
-              <StatBar label="Probable" count={stats.probable} max={maxStat} color={Colors.warning} />
-              <StatBar label="Possible" count={stats.possible} max={maxStat} color={Colors.caution} />
+              <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color={Colors.danger} />
+              <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color={Colors.warning} />
+              <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color={Colors.caution} />
               <StatBar label="OK" count={stats.safe} max={maxStat} color={Colors.safe} />
             </View>
           )}
@@ -187,11 +188,11 @@ export default function ProfileScreen() {
               <Brain color={Colors.primary} size={20} strokeWidth={2} />
             </View>
             <View style={styles.quizCardContent}>
-              <Text style={styles.quizCardTitle}>Quiz Santé</Text>
+              <Text style={styles.quizCardTitle}>{t('health_quiz')}</Text>
               <Text style={styles.quizCardSubtitle}>
                 {totalAnswered > 0
-                  ? `${totalCorrect}/${totalAnswered} bonnes réponses (${Math.round((totalCorrect / totalAnswered) * 100)}%)`
-                  : '10 questions pour tester vos connaissances'}
+                  ? tf('quiz_score', totalCorrect, totalAnswered, Math.round((totalCorrect / totalAnswered) * 100))
+                  : t('quiz_invite')}
               </Text>
             </View>
           </View>
@@ -199,59 +200,59 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Dr.Toxi détecte les risques dans :</Text>
+          <Text style={styles.cardTitle}>{t('detects_risks_in')}</Text>
           <View style={styles.categoriesGrid}>
-            <CategoryItem icon={<Apple color={Colors.primary} size={16} />} label="Aliments et boissons" />
-            <CategoryItem icon={<Droplets color={Colors.primary} size={16} />} label="Cosmétiques et soins" />
-            <CategoryItem icon={<SprayCan color={Colors.primary} size={16} />} label="Produits ménagers" />
-            <CategoryItem icon={<UtensilsCrossed color={Colors.primary} size={16} />} label="Ustensiles de cuisine" />
-            <CategoryItem icon={<Shirt color={Colors.primary} size={16} />} label="Vêtements et textiles" />
-            <CategoryItem icon={<Package color={Colors.primary} size={16} />} label="Contenants et emballages" />
+            <CategoryItem icon={<Apple color={Colors.primary} size={16} />} label={t('cat_food_drinks')} />
+            <CategoryItem icon={<Droplets color={Colors.primary} size={16} />} label={t('cat_cosmetics_care')} />
+            <CategoryItem icon={<SprayCan color={Colors.primary} size={16} />} label={t('cat_household_products')} />
+            <CategoryItem icon={<UtensilsCrossed color={Colors.primary} size={16} />} label={t('cat_kitchen_utensils')} />
+            <CategoryItem icon={<Shirt color={Colors.primary} size={16} />} label={t('cat_clothing_textiles')} />
+            <CategoryItem icon={<Package color={Colors.primary} size={16} />} label={t('cat_containers')} />
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Informations</Text>
+          <Text style={styles.cardTitle}>{t('info_title')}</Text>
 
           <MenuItem
             icon={<FileText color={Colors.textSecondary} size={18} />}
-            label="Politique de confidentialité"
+            label={t('privacy_policy')}
             onPress={() => handleMenuPress('/privacy')}
             testID="privacy-link"
           />
           <MenuItem
             icon={<ScrollText color={Colors.textSecondary} size={18} />}
-            label="Conditions d'utilisation"
+            label={t('terms_of_use')}
             onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Conditions-d-utilisation-33586d85fa4b801fa0a6d69dfbdf9d1e')}
             testID="terms-link"
           />
           <MenuItem
             icon={<HelpCircle color={Colors.textSecondary} size={18} />}
-            label="FAQ"
+            label={t('faq_label')}
             onPress={() => handleMenuPress('/faq')}
             testID="faq-link"
           />
           <MenuItem
             icon={<Eye color={Colors.textSecondary} size={18} />}
-            label="Transparence IA"
+            label={t('ai_transparency')}
             onPress={() => handleMenuPress('/transparency')}
             testID="transparency-link"
           />
           <MenuItem
             icon={<Mail color={Colors.textSecondary} size={18} />}
-            label="Nous contacter"
+            label={t('contact_us')}
             onPress={handleContact}
             testID="contact-link"
           />
           <MenuItem
             icon={<Info color={Colors.textSecondary} size={18} />}
-            label="À propos"
+            label={t('about_label')}
             onPress={() => handleMenuPress('/about')}
             testID="about-link"
           />
           <MenuItem
             icon={<Star color={Colors.textSecondary} size={18} />}
-            label="Noter l'app"
+            label={t('rate_app')}
             onPress={handleRateApp}
             testID="rate-link"
           />

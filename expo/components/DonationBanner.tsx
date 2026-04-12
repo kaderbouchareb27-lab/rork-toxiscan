@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { HeartHandshake } from 'lucide-react-native';
 import Colors from '@/constants/colors';
+import { t } from '@/utils/i18n';
 
 export default function DonationBanner() {
   return (
@@ -14,7 +15,7 @@ export default function DonationBanner() {
         <HeartHandshake color="#2E9E34" size={16} strokeWidth={2} />
       </View>
       <Text style={styles.text}>
-        Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.
+        {t('donation_text')}
       </Text>
     </View>
   );

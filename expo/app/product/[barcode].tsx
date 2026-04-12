@@ -31,6 +31,7 @@ import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
+import { t, isEnglish } from '@/utils/i18n';
 
 function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
@@ -44,11 +45,11 @@ function getLevelBadgeColor(level: SubstanceLevel): string {
 
 function getLevelBadgeLabel(level: SubstanceLevel): string {
   switch (level) {
-    case 'group1': return 'CANCÉRIGÈNE CONFIRMÉ';
-    case 'group2a': return 'PROBABLEMENT CANCÉRIGÈNE';
-    case 'group2b': return 'POSSIBLEMENT CANCÉRIGÈNE';
-    case 'controversial': return 'SUBSTANCE CONTROVERSÉE';
-    case 'safe': return 'FAIBLE RISQUE';
+    case 'group1': return t('level_confirmed_carcinogen');
+    case 'group2a': return t('level_probable_carcinogen');
+    case 'group2b': return t('level_possible_carcinogen');
+    case 'controversial': return t('level_controversial');
+    case 'safe': return t('level_low_risk');
   }
 }
 
@@ -76,11 +77,11 @@ function getNovaColor(group: number): string {
 function getBannerConfig(level: VerdictLevel): { color: string; label: string; icon: React.ReactNode } {
   switch (level) {
     case 'danger':
-      return { color: '#FF3B30', label: 'DANGER', icon: <AlertOctagon color="#FFFFFF" size={28} /> };
+      return { color: '#FF3B30', label: t('badge_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
     case 'prudence':
-      return { color: '#FF9500', label: 'PRUDENCE', icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#FF9500', label: t('badge_caution'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'approuve':
-      return { color: '#2E9E34', label: 'APPROUVE', icon: <CheckCircle color="#FFFFFF" size={28} /> };
+      return { color: '#2E9E34', label: t('badge_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
   }
 }
 
@@ -151,9 +152,9 @@ export default function ProductScreen() {
         </View>
         <View style={styles.emptyState}>
           <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
-          <Text style={styles.emptyText}>Produit non trouvé</Text>
+          <Text style={styles.emptyText}>{t('product_not_found')}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleBack} testID="retry-button">
-            <Text style={styles.retryButtonText}>Retour</Text>
+            <Text style={styles.retryButtonText}>{t('back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -226,14 +227,14 @@ export default function ProductScreen() {
   };
 
   const fallbackTextShare = async () => {
-    const badgeLabel = verdictLevel === 'approuve' ? '[APPROUVE]' : verdictLevel === 'prudence' ? '[PRUDENCE]' : '[DANGER]';
+    const badgeLabel = verdictLevel === 'approuve' ? `[${t('badge_approved')}]` : verdictLevel === 'prudence' ? `[${t('badge_caution')}]` : `[${t('badge_danger')}]`;
     const substancesText = product.detectedAdditives.length > 0
-      ? `\n\nSubstances détectées :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
+      ? `\n\n${t('substances_detected')} :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
       : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
-      ? `\n\nSubstances détectées :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
+      ? `\n\n${t('substances_detected')} :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
       : '';
     const result = await Share.share({
-      message: `${badgeLabel} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\nScannez vos produits gratuitement avec Dr.Toxi — disponible sur l'App Store`,
+      message: `${badgeLabel} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\n${t('share_suffix')}`,
     });
     if (result.action === Share.sharedAction) {
       recordShare();
@@ -261,7 +262,7 @@ export default function ProductScreen() {
         if (isAvailable) {
           await Sharing.shareAsync(uri, {
             mimeType: 'image/png',
-            dialogTitle: 'Partager le résultat Dr.Toxi',
+            dialogTitle: t('share_dialog_title'),
             UTI: 'public.png',
           });
           recordShare();
@@ -342,7 +343,7 @@ export default function ProductScreen() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="back-button">
           <ChevronLeft color={Colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{product?.name ?? 'Résultat'}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{product?.name ?? t('result')}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={handleFavorite} style={styles.favoriteButton} testID="favorite-button">
             <Heart
@@ -387,20 +388,20 @@ export default function ProductScreen() {
           )}
 
           {product.materialDetected ? (
-            <Text style={styles.materialText}>Matériau : {product.materialDetected}</Text>
+            <Text style={styles.materialText}>{t('material_label')} : {product.materialDetected}</Text>
           ) : null}
 
           {isPhotoScan && !isUniversalScan && (
             <View style={styles.photoTag}>
               <Camera color={Colors.textSecondary} size={12} />
-              <Text style={styles.photoTagText}>Analysé par photo</Text>
+              <Text style={styles.photoTagText}>{t('analyzed_by_photo')}</Text>
             </View>
           )}
 
           {product.offSource ? (
             <View style={styles.offSourceTag}>
               <Database color="#2D8A4E" size={11} />
-              <Text style={styles.offSourceTagText}>Enrichi par Open Food Facts</Text>
+              <Text style={styles.offSourceTagText}>{t('enriched_off')}</Text>
             </View>
           ) : null}
 
@@ -426,7 +427,7 @@ export default function ProductScreen() {
           <View style={styles.frontPhotoTip}>
             <Camera color="#FF9500" size={16} />
             <Text style={styles.frontPhotoTipText}>
-              Pour un résultat plus précis, photographiez la liste d'ingrédients au dos du produit
+              {t('photo_tip')}
             </Text>
           </View>
         )}
@@ -450,7 +451,7 @@ export default function ProductScreen() {
 
         {!isGreen && isUniversalScan && dangerousSubstances.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Substances détectées</Text>
+            <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
             {dangerousSubstances.map((substance: SubstanceDetected, index: number) => {
               const level = classifySubstanceLevel(substance);
               if (level === 'safe') return null;
@@ -468,7 +469,7 @@ export default function ProductScreen() {
                     <Text style={styles.additiveDescription}>{shortenText(substance.explication, 2)}</Text>
                   ) : null}
                   <Text style={styles.additiveSource}>
-                    {isIARCClassified(level) ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
+                    {isIARCClassified(level) ? t('classification_iarc') : t('not_classified_iarc')}
                   </Text>
                 </View>
               );
@@ -476,7 +477,7 @@ export default function ProductScreen() {
           </View>
         ) : !isGreen && isPhotoScan && dangerousIngredients.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Substances détectées</Text>
+            <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
             {dangerousIngredients.map((ingredient: DetectedIngredient, index: number) => {
               const level = classifySubstanceLevel({
                 classification_circ: ingredient.classification_circ,
@@ -499,7 +500,7 @@ export default function ProductScreen() {
                     <Text style={styles.additiveDescription}>{shortenText(ingredient.explication, 2)}</Text>
                   ) : null}
                   <Text style={styles.additiveSource}>
-                    {isIARCClassified(level) ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
+                    {isIARCClassified(level) ? t('classification_iarc') : t('not_classified_iarc')}
                   </Text>
                 </View>
               );
@@ -507,7 +508,7 @@ export default function ProductScreen() {
           </View>
         ) : !isGreen && product.detectedAdditives.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Substances détectées</Text>
+            <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
             {product.detectedAdditives.map((additive, index) => {
               const level = classifyAdditiveLevel(additive);
               if (level === 'safe') return null;
@@ -523,7 +524,7 @@ export default function ProductScreen() {
                   </View>
                   <Text style={styles.additiveDescription}>{shortenText(additive.description, 2)}</Text>
                   <Text style={styles.additiveSource}>
-                    {isIARCClassified(level) ? 'Classification : CIRC/OMS' : 'Non classé cancérogène par le CIRC'}
+                    {isIARCClassified(level) ? t('classification_iarc') : t('not_classified_iarc')}
                   </Text>
                 </View>
               );
@@ -535,7 +536,7 @@ export default function ProductScreen() {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <Lightbulb color={Colors.primary} size={18} />
-              <Text style={styles.sectionTitle}>Recommandations</Text>
+              <Text style={styles.sectionTitle}>{t('recommendations')}</Text>
             </View>
             <View style={styles.recommendationsCard}>
               {product.recommendations.map((rec, index) => (
@@ -552,7 +553,7 @@ export default function ProductScreen() {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <Leaf color="#2D8A4E" size={18} />
-              <Text style={styles.sectionTitle}>Alternatives plus saines</Text>
+              <Text style={styles.sectionTitle}>{t('healthier_alternatives')}</Text>
             </View>
             <View style={styles.healthyAlternativesCard}>
               {healthyAlternatives.map((alt, index) => (
@@ -574,7 +575,7 @@ export default function ProductScreen() {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <RefreshCw color={Colors.safe} size={18} />
-              <Text style={styles.sectionTitle}>Alternatives plus sûres</Text>
+              <Text style={styles.sectionTitle}>{t('safer_alternatives')}</Text>
             </View>
             <View style={styles.alternativesCard}>
               {product.saferAlternatives.map((alt, index) => (
@@ -591,16 +592,16 @@ export default function ProductScreen() {
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <MapPin color="#2D8A4E" size={18} />
-              <Text style={styles.sectionTitle}>Où trouver des alternatives saines ?</Text>
+              <Text style={styles.sectionTitle}>{t('where_find_alternatives')}</Text>
             </View>
             <View style={styles.bioStoresCard}>
               <Text style={styles.bioStoresIntro}>
-                Privilégiez les produits biologiques certifiés sans additifs ni substances controversées.
+                {t('bio_stores_intro')}
               </Text>
 
               <>
                 <Text style={styles.bioStoresSubtitle}>
-                  {regionInfo.language === 'en' ? 'Specialty stores' : 'Magasins spécialisés'}
+                  {t('specialty_stores')}
                 </Text>
                 {getRegionSpecialtyStores(userCountry).map((store, i) => (
                   <View key={`store-spec-${i}`} style={styles.bioStoreItem}>
@@ -610,23 +611,21 @@ export default function ProductScreen() {
                 ))}
 
                 <Text style={styles.bioStoresSubtitle}>
-                  {regionInfo.language === 'en' ? 'Organic sections in grocery stores' : 'Sections bio en épicerie'}
+                  {t('organic_sections')}
                 </Text>
                 <Text style={styles.bioStoresNote}>{getRegionGroceryStores(userCountry).join(', ')}</Text>
 
                 {getRegionLocalMarkets(userCountry).length > 0 && (
                   <>
                     <Text style={styles.bioStoresSubtitle}>
-                      {regionInfo.language === 'en' ? 'Local markets' : 'Marchés locaux'}
+                      {t('local_markets')}
                     </Text>
                     <Text style={styles.bioStoresNote}>{getRegionLocalMarkets(userCountry).join(', ')}</Text>
                   </>
                 )}
 
                 <Text style={styles.bioStoresSubtitle}>
-                  {regionInfo.language === 'en'
-                    ? (isHouseholdOrCosmetic ? 'Recommended clean brands' : 'Recommended organic brands')
-                    : (isHouseholdOrCosmetic ? 'Marques propres recommandées' : 'Marques bio recommandées')}
+                  {isHouseholdOrCosmetic ? t('clean_brands') : t('organic_brands')}
                 </Text>
                 <Text style={styles.bioStoresNote}>{getRegionCleanBrands(userCountry, isHouseholdOrCosmetic).join(', ')}</Text>
               </>
@@ -647,13 +646,13 @@ export default function ProductScreen() {
             <Share2 color={Colors.white} size={22} />
           )}
           <Text style={styles.bigShareButtonText}>
-            {isShareLoading ? 'Préparation...' : 'Partager ce résultat'}
+            {isShareLoading ? t('preparing') : t('share_result')}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.drToxiButton} onPress={handleAskDrToxi} activeOpacity={0.8} testID="ask-dr-toxi">
           <MessageCircle color={Colors.primary} size={20} />
-          <Text style={styles.drToxiButtonText}>Demander à Dr. Toxi</Text>
+          <Text style={styles.drToxiButtonText}>{t('ask_dr_toxi')}</Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />

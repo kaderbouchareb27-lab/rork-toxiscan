@@ -1,4 +1,5 @@
 import { AdditiveInfo, RiskGroup } from '@/types';
+import { t } from '@/utils/i18n';
 
 export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // GROUPE 1 — Cancérogènes avérés
@@ -154,14 +155,14 @@ export function analyzeAdditives(additiveTags: string[]): { riskGroup: RiskGroup
 export function getRiskBadgeInfo(group: RiskGroup): { label: string; sublabel: string; color: string } {
   switch (group) {
     case 'group1':
-      return { label: 'DANGER', sublabel: 'Cancérigène confirmé (Groupe 1 CIRC)', color: '#FF3B30' };
+      return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#FF3B30' };
     case 'group2a':
-      return { label: 'DANGER', sublabel: 'Probablement cancérigène (Groupe 2A CIRC)', color: '#FF3B30' };
+      return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g2a'), color: '#FF3B30' };
     case 'group2b':
-      return { label: 'PRUDENCE', sublabel: 'Possiblement cancérigène (Groupe 2B CIRC)', color: '#FF9500' };
+      return { label: t('risk_caution_label'), sublabel: t('risk_caution_sub'), color: '#FF9500' };
     case 'none':
     default:
-      return { label: 'APPROUVÉ', sublabel: 'Aucune substance cancérigène détectée', color: '#2E9E34' };
+      return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
   }
 }
 

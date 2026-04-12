@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react-native';
+import { t } from '@/utils/i18n';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
@@ -11,7 +12,7 @@ interface DrToxiVerdictProps {
   level: VerdictLevel;
 }
 
-const VERDICT_CONFIG: Record<VerdictLevel, {
+function getVerdictConfig(): Record<VerdictLevel, {
   bgColor: string;
   borderColor: string;
   titleColor: string;
@@ -19,38 +20,40 @@ const VERDICT_CONFIG: Record<VerdictLevel, {
   title: string;
   message: string;
   icon: React.ReactNode;
-}> = {
-  danger: {
-    bgColor: '#FFEBEE',
-    borderColor: '#FFCDD2',
-    titleColor: '#C62828',
-    textColor: '#B71C1C',
-    title: 'Dr. Toxi déconseille ce produit',
-    message: 'Ce produit contient au moins une substance classée cancérigène. Je vous déconseille de le consommer.',
-    icon: <ShieldX color="#FF3B30" size={24} />,
-  },
-  prudence: {
-    bgColor: '#FFF3E0',
-    borderColor: '#FFE0B2',
-    titleColor: '#E65100',
-    textColor: '#BF360C',
-    title: 'Dr. Toxi ne recommande pas ce produit',
-    message: 'Ce produit ne contient pas de cancérigène classé par le CIRC, mais contient des substances controversées qui favorisent le cancer indirectement selon de nombreuses études scientifiques.',
-    icon: <ShieldAlert color="#FF9500" size={24} />,
-  },
-  approuve: {
-    bgColor: '#E8F9ED',
-    borderColor: '#C4EDC9',
-    titleColor: '#2D6A3E',
-    textColor: '#3A6B4A',
-    title: 'Dr. Toxi approuve ce produit',
-    message: 'Bravo! Ce produit ne contient aucune substance cancérigène ni controversée. C\'est un excellent choix. Partagez-le avec vos proches!',
-    icon: <ShieldCheck color="#2E9E34" size={24} />,
-  },
-};
+}> {
+  return {
+    danger: {
+      bgColor: '#FFEBEE',
+      borderColor: '#FFCDD2',
+      titleColor: '#C62828',
+      textColor: '#B71C1C',
+      title: t('verdict_danger_title'),
+      message: t('verdict_danger_msg'),
+      icon: <ShieldX color="#FF3B30" size={24} />,
+    },
+    prudence: {
+      bgColor: '#FFF3E0',
+      borderColor: '#FFE0B2',
+      titleColor: '#E65100',
+      textColor: '#BF360C',
+      title: t('verdict_caution_title'),
+      message: t('verdict_caution_msg'),
+      icon: <ShieldAlert color="#FF9500" size={24} />,
+    },
+    approuve: {
+      bgColor: '#E8F9ED',
+      borderColor: '#C4EDC9',
+      titleColor: '#2D6A3E',
+      textColor: '#3A6B4A',
+      title: t('verdict_approved_title'),
+      message: t('verdict_approved_msg'),
+      icon: <ShieldCheck color="#2E9E34" size={24} />,
+    },
+  };
+}
 
 export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
-  const config = VERDICT_CONFIG[level];
+  const config = getVerdictConfig()[level];
 
   return (
     <View style={[styles.container, { backgroundColor: config.bgColor, borderColor: config.borderColor }]} testID="dr-toxi-verdict">

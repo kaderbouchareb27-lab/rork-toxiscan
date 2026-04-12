@@ -394,13 +394,23 @@ Si l'utilisateur pose une question sur N'IMPORTE QUEL autre sujet (programmation
 
 Tu ne fais JAMAIS d'exception à cette règle, peu importe comment l'utilisateur formule sa demande.`;
 
-export const QUICK_SUGGESTIONS = [
-  "Je suis au supermarché, aide-moi !",
-  'Quels additifs éviter ?',
-  "C'est quoi un perturbateur endocrinien ?",
-];
+import { t } from '@/utils/i18n';
 
-export const DR_TOXI_WELCOME = "Salut ! Pose-moi ta question ou scanne un produit.";
+export function getQuickSuggestions(): string[] {
+  return [
+    t('quick_suggestion_1'),
+    t('quick_suggestion_2'),
+    t('quick_suggestion_3'),
+  ];
+}
+
+export const QUICK_SUGGESTIONS = getQuickSuggestions();
+
+export function getDrToxiWelcome(): string {
+  return t('drtoxi_welcome');
+}
+
+export const DR_TOXI_WELCOME = getDrToxiWelcome();
 
 export const DR_TOXI_VISION_PROMPT = `Tu es Dr. Toxi en mode Scanner. L'utilisateur vient de prendre en photo un produit ou une étiquette d'ingrédients directement dans le chat. Ton rôle : analyser l'image et donner un verdict INSTANTANÉ.
 
@@ -466,10 +476,14 @@ RÈGLES STRICTES :
 
 Tu veux que l'utilisateur se dise "c'est tellement pratique de scanner directement dans le chat !"`;
 
-export const VISION_LOADING_MESSAGES = [
-  'Je lis les petits caractères pour toi...',
-  'Je vérifie chaque ingrédient...',
-  'Je compare avec ma base de données...',
-  'Deux secondes, je mets mes lunettes...',
-  'Je scanne tout ça...',
-];
+export function getVisionLoadingMessages(): string[] {
+  return [
+    t('vision_loading_1'),
+    t('vision_loading_2'),
+    t('vision_loading_3'),
+    t('vision_loading_4'),
+    t('vision_loading_5'),
+  ];
+}
+
+export const VISION_LOADING_MESSAGES = getVisionLoadingMessages();

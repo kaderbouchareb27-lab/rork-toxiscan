@@ -15,6 +15,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useOnboarding } from '@/providers/OnboardingProvider';
+import { t } from '@/utils/i18n';
 
 const { width } = Dimensions.get('window');
 
@@ -28,8 +29,8 @@ interface OnboardingSlide {
 const slides: OnboardingSlide[] = [
   {
     id: '1',
-    title: 'Photographiez n\'importe quoi',
-    subtitle: 'Aliment, cosmétique, ustensile de cuisine, vêtement, produit ménager…',
+    title: t('onboarding_title_1'),
+    subtitle: t('onboarding_sub_1'),
     renderIllustration: () => (
       <View style={illustrationStyles.container}>
         <View style={illustrationStyles.phoneFrame}>
@@ -45,8 +46,8 @@ const slides: OnboardingSlide[] = [
   },
   {
     id: '2',
-    title: 'Comprenez le risque en 1 seconde',
-    subtitle: 'Basé sur les classifications officielles de l\'OMS',
+    title: t('onboarding_title_2'),
+    subtitle: t('onboarding_sub_2'),
     renderIllustration: () => (
       <View style={illustrationStyles.container}>
         <View style={illustrationStyles.badgesGrid}>
@@ -56,11 +57,11 @@ const slides: OnboardingSlide[] = [
           </View>
           <View style={[illustrationStyles.badge, { backgroundColor: '#FF9500' }]}>
             <AlertCircle color={Colors.white} size={22} />
-            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]}>Détecté</Text>
+            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]}>{t('onboarding_detected')}</Text>
           </View>
           <View style={[illustrationStyles.badge, { backgroundColor: '#FFCC00' }]}>
             <AlertCircle color={Colors.black} size={22} />
-            <Text style={[illustrationStyles.badgeText, { color: Colors.black }]}>Détecté</Text>
+            <Text style={[illustrationStyles.badgeText, { color: Colors.black }]}>{t('onboarding_detected')}</Text>
           </View>
           <View style={[illustrationStyles.badge, { backgroundColor: '#2E9E34' }]}>
             <CheckCircle color={Colors.white} size={22} />
@@ -72,8 +73,8 @@ const slides: OnboardingSlide[] = [
   },
   {
     id: '3',
-    title: 'Protégez votre famille',
-    subtitle: 'Faites les bons choix au quotidien pour ceux que vous aimez',
+    title: t('onboarding_title_3'),
+    subtitle: t('onboarding_sub_3'),
     renderIllustration: () => (
       <View style={illustrationStyles.container}>
         <View style={illustrationStyles.familyContainer}>
@@ -177,7 +178,7 @@ export default function OnboardingScreen() {
             testID="onboarding-next"
           >
             <Text style={slideStyles.buttonText}>
-              {currentIndex === slides.length - 1 ? 'Commencer' : 'Suivant'}
+              {currentIndex === slides.length - 1 ? t('start') : t('next')}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -188,7 +189,7 @@ export default function OnboardingScreen() {
             style={slideStyles.skipButton}
             testID="onboarding-skip"
           >
-            <Text style={slideStyles.skipText}>Passer</Text>
+            <Text style={slideStyles.skipText}>{t('skip')}</Text>
           </TouchableOpacity>
         )}
       </View>

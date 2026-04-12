@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { QUIZ_QUESTIONS } from '@/mocks/scannerContent';
 import { useQuiz } from '@/providers/QuizProvider';
+import { t } from '@/utils/i18n';
 
 function shuffleArray<T>(arr: T[]): T[] {
   const shuffled = [...arr];
@@ -165,11 +166,11 @@ export default function QuizScreen() {
 
   const getScoreMessage = (): string => {
     const pct = score / questions.length;
-    if (pct === 1) return 'Parfait ! Vous êtes un expert en santé !';
-    if (pct >= 0.8) return 'Excellent ! Vous en savez beaucoup !';
-    if (pct >= 0.6) return 'Bien joué ! Continuez à apprendre.';
-    if (pct >= 0.4) return 'Pas mal ! Il y a encore à découvrir.';
-    return 'Continuez à vous informer avec Dr.Toxi !';
+    if (pct === 1) return t('quiz_perfect');
+    if (pct >= 0.8) return t('quiz_excellent');
+    if (pct >= 0.6) return t('quiz_good');
+    if (pct >= 0.4) return t('quiz_ok');
+    return t('quiz_improve');
   };
 
   const progressWidth = progressAnim.interpolate({
@@ -229,7 +230,7 @@ export default function QuizScreen() {
               testID="quiz-restart"
             >
               <RotateCcw color={Colors.primary} size={18} />
-              <Text style={styles.restartButtonText}>Rejouer</Text>
+              <Text style={styles.restartButtonText}>{t('replay')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.backButton}
@@ -237,7 +238,7 @@ export default function QuizScreen() {
               activeOpacity={0.8}
               testID="quiz-back"
             >
-              <Text style={styles.backButtonText}>Retour</Text>
+              <Text style={styles.backButtonText}>{t('back')}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -258,7 +259,7 @@ export default function QuizScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Brain color={Colors.primary} size={18} />
-          <Text style={styles.headerTitle}>Quiz Santé</Text>
+          <Text style={styles.headerTitle}>{t('health_quiz')}</Text>
         </View>
         <Text style={styles.questionCounter}>{currentIndex + 1}/{questions.length}</Text>
       </View>
@@ -304,12 +305,12 @@ export default function QuizScreen() {
                 {selectedIndex === currentQuestion.correctIndex ? (
                   <View style={styles.explanationBadgeCorrect}>
                     <CheckCircle color="#fff" size={14} />
-                    <Text style={styles.explanationBadgeText}>Bonne réponse</Text>
+                    <Text style={styles.explanationBadgeText}>{t('correct_answer')}</Text>
                   </View>
                 ) : (
                   <View style={styles.explanationBadgeWrong}>
                     <XCircle color="#fff" size={14} />
-                    <Text style={styles.explanationBadgeText}>Mauvaise réponse</Text>
+                    <Text style={styles.explanationBadgeText}>{t('wrong_answer')}</Text>
                   </View>
                 )}
               </View>
@@ -328,7 +329,7 @@ export default function QuizScreen() {
             testID="quiz-next"
           >
             <Text style={styles.nextButtonText}>
-              {currentIndex >= questions.length - 1 ? 'Voir le résultat' : 'Question suivante'}
+              {currentIndex >= questions.length - 1 ? t('see_result') : t('next_question')}
             </Text>
             <ChevronRight color="#fff" size={18} />
           </TouchableOpacity>

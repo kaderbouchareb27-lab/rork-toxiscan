@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, Component, ErrorInfo, ReactNode } from "react";
+import { t } from '@/utils/i18n';
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
@@ -45,12 +46,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       return (
         <View style={ebStyles.container}>
-          <Text style={ebStyles.title}>Une erreur est survenue</Text>
+          <Text style={ebStyles.title}>{t('error_occurred')}</Text>
           <Text style={ebStyles.message}>
-            {this.state.error?.message ?? 'Erreur inconnue'}
+            {this.state.error?.message ?? t('unknown_error')}
           </Text>
           <TouchableOpacity style={ebStyles.button} onPress={this.handleReset}>
-            <Text style={ebStyles.buttonText}>Réessayer</Text>
+            <Text style={ebStyles.buttonText}>{t('retry')}</Text>
           </TouchableOpacity>
         </View>
       );
@@ -95,20 +96,20 @@ const ebStyles = StyleSheet.create({
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerBackTitle: "Retour" }}>
+    <Stack screenOptions={{ headerBackTitle: t('back') }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="about" options={{ title: "À propos" }} />
+      <Stack.Screen name="about" options={{ title: t('nav_about') }} />
       <Stack.Screen name="ai-consent" options={{ headerShown: false }} />
       <Stack.Screen name="badges" options={{ headerShown: false }} />
-      <Stack.Screen name="faq" options={{ title: "FAQ" }} />
+      <Stack.Screen name="faq" options={{ title: t('nav_faq') }} />
       <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="privacy" options={{ title: "Confidentialité" }} />
+      <Stack.Screen name="privacy" options={{ title: t('nav_privacy') }} />
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
       <Stack.Screen name="quiz" options={{ headerShown: false }} />
-      <Stack.Screen name="terms" options={{ title: "Conditions" }} />
-      <Stack.Screen name="transparency" options={{ title: "Transparence IA" }} />
+      <Stack.Screen name="terms" options={{ title: t('nav_terms') }} />
+      <Stack.Screen name="transparency" options={{ title: t('nav_transparency') }} />
     </Stack>
   );
 }

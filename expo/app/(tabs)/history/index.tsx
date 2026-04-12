@@ -19,17 +19,20 @@ import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvi
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, ScannedProduct } from '@/types';
+import { t, getDateLocale } from '@/utils/i18n';
 
 type FilterType = 'all' | 'favorites' | RiskGroup;
 
-const FILTERS: { key: FilterType; label: string; color?: string }[] = [
-  { key: 'all', label: 'Tous' },
-  { key: 'favorites', label: 'Favoris', color: '#FF2D55' },
-  { key: 'group1', label: 'Danger', color: '#FF3B30' },
-  { key: 'group2a', label: 'Prudence', color: '#FF9500' },
-  { key: 'group2b', label: 'Prudence', color: '#FF9500' },
-  { key: 'none', label: 'Approuvé', color: '#2E9E34' },
-];
+function getFilters(): { key: FilterType; label: string; color?: string }[] {
+  return [
+    { key: 'all', label: t('filter_all') },
+    { key: 'favorites', label: t('filter_favorites'), color: '#FF2D55' },
+    { key: 'group1', label: t('filter_danger'), color: '#FF3B30' },
+    { key: 'group2a', label: t('filter_caution'), color: '#FF9500' },
+    { key: 'group2b', label: t('filter_caution'), color: '#FF9500' },
+    { key: 'none', label: t('filter_approved'), color: '#2E9E34' },
+  ];
+}
 
 function SkeletonRow() {
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -100,11 +103,11 @@ export default function HistoryScreen() {
   const handleClearHistory = useCallback(() => {
     console.log('[History] Clear history requested');
     Alert.alert(
-      'Effacer l\'historique',
-      'Voulez-vous vraiment supprimer tout l\'historique de vos scans ?',
+      t('clear_history_title'),
+      t('clear_history_msg'),
       [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Effacer', style: 'destructive', onPress: () => {
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('clear'), style: 'destructive', onPress: () => {
           console.log('[History] Clearing history confirmed');
           clearHistory();
         }},
@@ -115,7 +118,7 @@ export default function HistoryScreen() {
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
     const badge = getRiskBadgeInfo(item.riskGroup);
     const date = new Date(item.scannedAt);
-    const formattedDate = date.toLocaleDateString('fr-FR', {
+    const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',
       month: 'short',
     });
@@ -165,9 +168,9 @@ export default function HistoryScreen() {
         <View style={styles.premiumUpsellIcon}>
           <Lock color="#2E9E34" size={22} />
         </View>
-        <Text style={styles.premiumUpsellTitle}>Historique complet</Text>
+        <Text style={styles.premiumUpsellTitle}>{t('full_history')}</Text>
         <Text style={styles.premiumUpsellText}>
-          Retrouvez tous vos produits scannés avec Dr.Toxi Pro
+          {t('full_history_desc')}
         </Text>
         <TouchableOpacity
           style={styles.premiumUpsellButton}
@@ -175,7 +178,7 @@ export default function HistoryScreen() {
           activeOpacity={0.85}
           testID="history-unlock"
         >
-          <Text style={styles.premiumUpsellButtonText}>Voir les offres</Text>
+          <Text style={styles.premiumUpsellButtonText}>{t('see_offers')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -184,7 +187,7 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Historique</Text>
+        <Text style={styles.title}>{t('history_title')}</Text>
         {filteredHistory.length > 0 && (
           <TouchableOpacity onPress={handleClearHistory} style={styles.clearButton} testID="clear-history">
             <Trash2 color={Colors.textSecondary} size={18} />
@@ -195,7 +198,7 @@ export default function HistoryScreen() {
       <View style={styles.filtersContainer}>
         <FlatList
           horizontal
-          data={FILTERS}
+          data={getFilters()}
           keyExtractor={(item) => item.key}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filtersList}
@@ -234,7 +237,7 @@ export default function HistoryScreen() {
       {!isPro && activeFilter === 'all' && (
         <View style={styles.historyInfoBanner}>
           <Text style={styles.historyInfoText}>
-            3 derniers produits visibles — Illimité avec Pro
+            {t('history_limit_banner')}
           </Text>
         </View>
       )}
@@ -245,12 +248,12 @@ export default function HistoryScreen() {
         <View style={styles.emptyState}>
           <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
           <Text style={styles.emptyTitle}>
-            {activeFilter === 'favorites' ? 'Aucun favori' : 'Aucun produit analysé'}
+            {activeFilter === 'favorites' ? t('no_favorites') : t('no_products')}
           </Text>
           <Text style={styles.emptySubtitle}>
             {activeFilter === 'favorites'
-              ? 'Ajoutez des produits en favoris depuis la fiche résultat'
-              : 'Photographiez un produit pour le voir ici'}
+              ? t('add_favorites_hint')
+              : t('photo_product_hint')}
           </Text>
         </View>
       ) : (

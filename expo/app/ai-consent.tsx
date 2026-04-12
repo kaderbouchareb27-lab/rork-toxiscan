@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useOnboarding } from '@/providers/OnboardingProvider';
+import { t } from '@/utils/i18n';
 
 export default function AIConsentScreen() {
   const { acceptAIConsent } = useOnboarding();
@@ -37,24 +38,24 @@ export default function AIConsentScreen() {
           <Brain color={Colors.primary} size={36} strokeWidth={1.5} />
         </View>
 
-        <Text style={styles.title}>Dr.Toxi utilise l'intelligence artificielle</Text>
+        <Text style={styles.title}>{t('ai_consent_title')}</Text>
 
         <Text style={styles.description}>
-          Dr. Toxi, ton expert en ingrédients, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.
+          {t('ai_consent_desc')}
         </Text>
 
         <View style={styles.techCard}>
-          <Text style={styles.techLabel}>Technologies utilisées :</Text>
+          <Text style={styles.techLabel}>{t('tech_used')}</Text>
           <Text style={styles.techValue}>OpenAI GPT-4o mini (texte et vision)</Text>
           <Text style={styles.techValue}>Open Food Facts (données produits)</Text>
         </View>
 
         <Text style={styles.disclaimerText}>
-          Les analyses sont basées sur des données publiques et des classifications d'organismes reconnus (OMS, EFSA, Santé Canada), mais ne remplacent pas un avis médical.
+          {t('ai_disclaimer_1')}
         </Text>
 
         <Text style={styles.disclaimerText}>
-          Dr.Toxi fournit des informations à titre informatif uniquement.
+          {t('ai_disclaimer_2')}
         </Text>
 
         <TouchableOpacity
@@ -63,13 +64,13 @@ export default function AIConsentScreen() {
           activeOpacity={0.8}
           testID="accept-ai-consent"
         >
-          <Text style={styles.acceptButtonText}>Compris</Text>
+          <Text style={styles.acceptButtonText}>{t('understood')}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.privacyText}>Vos photos et messages sont traités de manière sécurisée. Aucune donnée personnelle n'est conservée.</Text>
+        <Text style={styles.privacyText}>{t('ai_privacy_note')}</Text>
 
         <TouchableOpacity onPress={handlePrivacy} style={styles.privacyLink} testID="privacy-link">
-          <Text style={styles.privacyLinkText}>Politique de confidentialité</Text>
+          <Text style={styles.privacyLinkText}>{t('privacy_policy')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

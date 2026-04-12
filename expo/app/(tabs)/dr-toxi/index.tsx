@@ -31,6 +31,7 @@ import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISI
 import { LOADING_TIPS } from '@/constants/loadingTips';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { getChatRegionPrompt } from '@/utils/regionDetection';
+import { t, tf, getDateLocale, isEnglish } from '@/utils/i18n';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
@@ -52,7 +53,7 @@ function generateId(): string {
 function createNewConversation(productContext?: Conversation['productContext']): Conversation {
   return {
     id: generateId(),
-    title: productContext ? productContext.name : 'Nouvelle discussion',
+    title: productContext ? productContext.name : t('conv_new'),
     messages: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -70,7 +71,7 @@ async function loadConversations(): Promise<Conversation[]> {
         if (oldMessages.length > 0) {
           const migrated: Conversation = {
             id: generateId(),
-            title: 'Discussion précédente',
+            title: t('conv_previous'),
             messages: oldMessages,
             createdAt: oldMessages[0]?.timestamp ?? new Date().toISOString(),
             updatedAt: oldMessages[oldMessages.length - 1]?.timestamp ?? new Date().toISOString(),
@@ -110,7 +111,7 @@ function getConversationPreview(conv: Conversation): string {
   if (lastUserMsg) {
     return lastUserMsg.content.length > 60 ? lastUserMsg.content.substring(0, 60) + '...' : lastUserMsg.content;
   }
-  return 'Nouvelle discussion';
+  return t('conv_new');
 }
 
 function formatTimestamp(ts: string): string {
@@ -121,11 +122,11 @@ function formatTimestamp(ts: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "A l'instant";
-  if (diffMins < 60) return `Il y a ${diffMins}min`;
-  if (diffHours < 24) return `Il y a ${diffHours}h`;
-  if (diffDays < 7) return `Il y a ${diffDays}j`;
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  if (diffMins < 1) return t('just_now');
+  if (diffMins < 60) return tf('minutes_ago', diffMins);
+  if (diffHours < 24) return tf('hours_ago', diffHours);
+  if (diffDays < 7) return tf('days_ago', diffDays);
+  return date.toLocaleDateString(getDateLocale(), { day: 'numeric', month: 'short' });
 }
 
 export default function DrToxiScreen() {
@@ -191,15 +192,15 @@ export default function DrToxiScreen() {
     const newConv = createNewConversation(productCtx);
 
     const verdictLabel = productCtx.verdictLevel === 'danger'
-      ? 'dangereux'
+      ? t('verdict_label_danger')
       : productCtx.verdictLevel === 'prudence'
-      ? 'a surveiller'
-      : 'approuve';
+      ? t('verdict_label_caution')
+      : t('verdict_label_approved');
 
     const welcomeMsg: ChatMessage = {
       id: generateId() + '_assistant',
       role: 'assistant',
-      content: `Tu as scanne ${productCtx.name}${productCtx.brand ? ` de ${productCtx.brand}` : ''}. Ce produit est classe "${verdictLabel}".${productCtx.analysisSummary ? ` ${productCtx.analysisSummary}` : ''}\n\nQu'est-ce que tu veux savoir sur ce produit ?`,
+      content: tf('conv_scanned', productCtx.name, productCtx.brand ?? '', verdictLabel) + (productCtx.analysisSummary ? ` ${productCtx.analysisSummary}` : ''),
       timestamp: new Date().toISOString(),
     };
 
@@ -228,7 +229,7 @@ export default function DrToxiScreen() {
         const newMessages = updater(c.messages).slice(-MAX_MESSAGES_PER_CONVERSATION);
         const firstUserMsg = newMessages.find(m => m.role === 'user');
         let title = c.title;
-        if (c.title === 'Nouvelle discussion' && firstUserMsg) {
+        if ((c.title === 'Nouvelle discussion' || c.title === 'New conversation') && firstUserMsg) {
           title = firstUserMsg.content.length > 40 ? firstUserMsg.content.substring(0, 40) + '...' : firstUserMsg.content;
         }
         return { ...c, messages: newMessages, updatedAt: new Date().toISOString(), title };
@@ -251,7 +252,7 @@ export default function DrToxiScreen() {
       let productContextPrompt = '';
       if (activeConversation?.productContext) {
         const ctx = activeConversation.productContext;
-        productContextPrompt = `\n\n--- CONTEXTE PRODUIT ---\nL'utilisateur a scanne le produit "${ctx.name}" (marque: ${ctx.brand || 'inconnue'}, code-barres: ${ctx.barcode}). Le verdict est: ${ctx.verdictLevel}.${ctx.analysisSummary ? ` Resume: ${ctx.analysisSummary}` : ''}\nReponds en tenant compte de ce produit specifique.\n`;
+        productContextPrompt = tf('product_context_prompt', ctx.name, ctx.brand || '', ctx.barcode, ctx.verdictLevel, ctx.analysisSummary || '');
       }
 
       const systemPrompt = payload.imageBase64
@@ -260,7 +261,7 @@ export default function DrToxiScreen() {
 
       const userContent: string | Array<{ type: 'text'; text: string } | { type: 'image'; image: string }> = payload.imageBase64
         ? [
-            { type: 'text' as const, text: payload.text || 'Analyse ce produit pour moi.' },
+            { type: 'text' as const, text: payload.text || t('analyze_for_me') },
             { type: 'image' as const, image: payload.imageBase64 },
           ]
         : payload.text;
@@ -268,7 +269,7 @@ export default function DrToxiScreen() {
       const response = await generateText({
         messages: [
           { role: 'user' as const, content: systemPrompt },
-          { role: 'assistant' as const, content: 'Compris ! Je suis Dr. Toxi, ton expert en ingredients du quotidien. Je suis pret a t\'aider.' },
+          { role: 'assistant' as const, content: t('drtoxi_ack') },
           ...conversationHistory.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
           { role: 'user' as const, content: userContent },
         ],
@@ -306,7 +307,7 @@ export default function DrToxiScreen() {
       const errorMessage: ChatMessage = {
         id: generateId() + '_error',
         role: 'assistant',
-        content: 'Oups, j\'ai pas reussi a analyser cette image. Reessaie en prenant la photo un peu plus pres, avec une bonne lumiere. Vise bien la liste d\'ingredients !',
+        content: t('error_image_analysis'),
         timestamp: new Date().toISOString(),
       };
       updateActiveConversationMessages(prev => [...prev, errorMessage]);
@@ -387,7 +388,7 @@ export default function DrToxiScreen() {
     const userMessage: ChatMessage = {
       id: generateId() + '_user',
       role: 'user',
-      content: 'Photo envoyee pour analyse',
+      content: t('photo_sent'),
       timestamp: new Date().toISOString(),
       imageUri: uri,
     };
@@ -399,14 +400,14 @@ export default function DrToxiScreen() {
       console.log('[DrToxi] Compressing image for vision analysis...');
       const base64 = await getBase64FromUri(uri);
       console.log('[DrToxi] Image compressed, base64 length:', base64.length);
-      sendMutation.mutate({ text: 'Analyse cette photo de produit ou d\'etiquette d\'ingredients.', imageBase64: base64 });
+      sendMutation.mutate({ text: t('analyze_photo_prompt'), imageBase64: base64 });
     } catch (error) {
       console.error('[DrToxi] Image compression error:', error);
       setIsAnalyzingImage(false);
       const errorMsg: ChatMessage = {
         id: generateId() + '_error',
         role: 'assistant',
-        content: 'Oups, j\'ai pas reussi a traiter cette image. Reessaie avec une autre photo !',
+        content: t('error_image_process'),
         timestamp: new Date().toISOString(),
       };
       updateActiveConversationMessages(prev => [...prev, errorMsg]);
@@ -424,10 +425,10 @@ export default function DrToxiScreen() {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Acces a la camera desactive',
-          'Pour photographier vos produits, activez la camera dans les reglages de votre appareil.',
+          t('camera_disabled_title'),
+          t('camera_disabled_msg'),
           [
-            { text: 'Ouvrir les reglages', onPress: () => {
+            { text: t('open_settings'), onPress: () => {
               if (Platform.OS !== 'web') {
                 void import('expo-linking').then(LinkingModule => {
                   void LinkingModule.openSettings();
@@ -451,7 +452,7 @@ export default function DrToxiScreen() {
       }
     } catch (error) {
       console.error('[DrToxi] Camera error:', error);
-      Alert.alert('Erreur', 'Impossible d\'ouvrir la camera. Essaie de choisir une photo depuis ta galerie.');
+      Alert.alert(t('error_generic'), t('error_camera_chat'));
     }
   }, [sendMutation.isPending, isAnalyzingImage, handleImagePicked]);
 
@@ -484,12 +485,12 @@ export default function DrToxiScreen() {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     Alert.alert(
-      'Scanne un produit',
-      'Assure-toi que le texte est net et bien eclaire',
+      t('scan_product_alert_title'),
+      t('scan_product_alert_msg'),
       [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Galerie', onPress: () => void handleGalleryPress() },
-        { text: 'Camera', onPress: () => void handleCameraPress() },
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('gallery'), onPress: () => void handleGalleryPress() },
+        { text: t('camera'), onPress: () => void handleCameraPress() },
       ]
     );
   }, [sendMutation.isPending, isAnalyzingImage, handleGalleryPress, handleCameraPress]);
@@ -509,7 +510,7 @@ export default function DrToxiScreen() {
     }
     try {
       const result = await Share.share({
-        message: `Dr.Toxi :\n\n${content}\n\nScannez vos produits avec Dr.Toxi — gratuit sur l'App Store`,
+        message: `Dr.Toxi :\n\n${content}\n\n${t('share_drtoxi_suffix')}`,
       });
       if (result.action === Share.sharedAction) {
         recordShare();
@@ -570,7 +571,7 @@ export default function DrToxiScreen() {
             <View style={[styles.messageBubble, styles.userBubble, styles.imageBubble]}>
               <Image source={{ uri: item.imageUri }} style={styles.chatImage} resizeMode="cover" />
               <Text style={[styles.messageText, styles.userMessageText, styles.imageCaption]}>
-                Photo envoyee pour analyse
+                {t('photo_sent')}
               </Text>
             </View>
           ) : (
@@ -587,7 +588,7 @@ export default function DrToxiScreen() {
               activeOpacity={0.7}
             >
               <Share2 color={Colors.textSecondary} size={14} />
-              <Text style={styles.shareResponseText}>Partager</Text>
+              <Text style={styles.shareResponseText}>{t('share')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -621,7 +622,7 @@ export default function DrToxiScreen() {
           <Text style={styles.headerSubtitle} numberOfLines={1}>
             {activeConversation?.productContext
               ? activeConversation.productContext.name
-              : 'Ton expert en ingredients'}
+              : t('your_ingredient_expert')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -635,13 +636,13 @@ export default function DrToxiScreen() {
       </View>
 
       <Text style={styles.disclaimerText}>
-        Informatif uniquement — ne remplace pas un avis medical.
+        {t('disclaimer')}
       </Text>
 
       {!isPro && (
         <View style={styles.counterBanner}>
           <Text style={styles.counterText}>
-            {drToxiRemaining}/{drToxiLimit} messages gratuits aujourd'hui — Illimite avec Pro
+            {tf('free_messages_counter', drToxiRemaining, drToxiLimit)}
           </Text>
         </View>
       )}
@@ -668,8 +669,8 @@ export default function DrToxiScreen() {
                 <Camera color={Colors.white} size={20} strokeWidth={2} />
               </View>
               <View style={styles.scanInChatContent}>
-                <Text style={styles.scanInChatTitle}>Scanne un produit</Text>
-                <Text style={styles.scanInChatSubtitle}>Prends en photo une etiquette pour un verdict instantane</Text>
+                <Text style={styles.scanInChatTitle}>{t('scan_product_chat')}</Text>
+                <Text style={styles.scanInChatSubtitle}>{t('scan_product_chat_desc')}</Text>
               </View>
               <ChevronRight color={Colors.primary} size={18} />
             </TouchableOpacity>
@@ -682,7 +683,7 @@ export default function DrToxiScreen() {
               >
                 <MessageSquare color={Colors.textSecondary} size={16} />
                 <Text style={styles.historyQuickLinkText}>
-                  {conversations.length} discussion{conversations.length > 1 ? 's' : ''} precedente{conversations.length > 1 ? 's' : ''}
+                  {tf('previous_discussions', conversations.length)}
                 </Text>
                 <ChevronRight color={Colors.textTertiary} size={16} />
               </TouchableOpacity>
@@ -721,12 +722,12 @@ export default function DrToxiScreen() {
               <Text style={styles.typingText}>
                 {isAnalyzingImage
                   ? VISION_LOADING_MESSAGES[visionTipIndex]
-                  : 'Dr. Toxi reflechit...'}
+                  : t('drtoxi_thinking')}
               </Text>
             </View>
             {!isAnalyzingImage && (
               <View style={styles.tipBanner}>
-                <Text style={styles.tipLabel}>Le saviez-vous ?</Text>
+                <Text style={styles.tipLabel}>{t('did_you_know')}</Text>
                 <Text style={styles.tipText}>{LOADING_TIPS[tipIndex]}</Text>
               </View>
             )}
@@ -745,7 +746,7 @@ export default function DrToxiScreen() {
           </TouchableOpacity>
           <TextInput
             style={styles.textInput}
-            placeholder="Posez votre question..."
+            placeholder={t('ask_question_placeholder')}
             placeholderTextColor={Colors.textTertiary}
             value={input}
             onChangeText={setInput}
@@ -774,7 +775,7 @@ export default function DrToxiScreen() {
       >
         <SafeAreaView style={styles.historyContainer} edges={['top']}>
           <View style={styles.historyHeader}>
-            <Text style={styles.historyTitle}>Discussions</Text>
+            <Text style={styles.historyTitle}>{t('discussions_title')}</Text>
             <TouchableOpacity
               style={styles.historyCloseButton}
               onPress={() => setShowHistory(false)}
@@ -792,14 +793,14 @@ export default function DrToxiScreen() {
             <View style={styles.newConvIcon}>
               <Plus color={Colors.white} size={18} strokeWidth={2.5} />
             </View>
-            <Text style={styles.newConvText}>Nouvelle discussion</Text>
+            <Text style={styles.newConvText}>{t('new_discussion')}</Text>
           </TouchableOpacity>
 
           <ScrollView style={styles.historyList} showsVerticalScrollIndicator={false}>
             {conversations.length === 0 ? (
               <View style={styles.emptyHistory}>
                 <MessageSquare color={Colors.textTertiary} size={36} />
-                <Text style={styles.emptyHistoryText}>Aucune discussion</Text>
+                <Text style={styles.emptyHistoryText}>{t('no_discussions')}</Text>
               </View>
             ) : (
               conversations.map((conv) => {
@@ -812,11 +813,11 @@ export default function DrToxiScreen() {
                     onPress={() => handleSelectConversation(conv.id)}
                     onLongPress={() => {
                       Alert.alert(
-                        'Supprimer cette discussion ?',
-                        'Cette action est irreversible.',
+                        t('delete_discussion_title'),
+                        t('delete_discussion_msg'),
                         [
-                          { text: 'Annuler', style: 'cancel' },
-                          { text: 'Supprimer', style: 'destructive', onPress: () => handleDeleteConversation(conv.id) },
+                          { text: t('cancel'), style: 'cancel' },
+                          { text: t('delete'), style: 'destructive', onPress: () => handleDeleteConversation(conv.id) },
                         ]
                       );
                     }}

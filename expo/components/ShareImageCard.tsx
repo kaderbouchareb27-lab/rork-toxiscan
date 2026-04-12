@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
 import { calculateRiskScore, classifySubstanceLevel, classifyAdditiveLevel, isDangerLevel } from '@/utils/riskScore';
+import { t } from '@/utils/i18n';
 
 interface ShareImageCardProps {
   productName: string;
@@ -16,9 +17,9 @@ interface ShareImageCardProps {
 }
 
 function getScoreBadge(score: number): { label: string; sublabel: string; color: string; textColor: string; explanation: string } {
-  if (score <= 40) return { label: 'APPROUVE', sublabel: 'Aucune substance cancerigene', color: '#2E9E34', textColor: '#FFFFFF', explanation: 'Dr.Toxi confirme : ce produit ne contient aucune substance cancérigène connue. Vous pouvez le consommer en toute tranquillité.' };
-  if (score <= 70) return { label: 'PRUDENCE', sublabel: 'Substance controversee detectee', color: '#FF9500', textColor: '#FFFFFF', explanation: 'Dr.Toxi alerte : ce produit contient des substances controversées dont les effets sur la santé font débat. Consommation à limiter.' };
-  return { label: 'DANGER', sublabel: 'Cancerigene classe par le CIRC', color: '#FF3B30', textColor: '#FFFFFF', explanation: 'Dr.Toxi déconseille ce produit : il contient des substances classées cancérigènes par le CIRC. Évitez sa consommation régulière.' };
+  if (score <= 40) return { label: t('share_approved_label'), sublabel: t('share_approved_sub'), color: '#2E9E34', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
+  if (score <= 70) return { label: t('share_caution_label'), sublabel: t('share_caution_sub'), color: '#FF9500', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
+  return { label: t('share_danger_label'), sublabel: t('share_danger_sub'), color: '#FF3B30', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
 }
 
 function getTopSubstances(props: ShareImageCardProps): string[] {
@@ -105,7 +106,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
 
       {substances.length > 0 ? (
         <View style={styles.substancesSection}>
-          <Text style={styles.substancesTitle}>Substances détectées</Text>
+          <Text style={styles.substancesTitle}>{t('substances_detected')}</Text>
           {substances.map((s, i) => (
             <View key={`sub-${i}`} style={styles.substanceRow}>
               <View style={[styles.substanceDot, { backgroundColor: badgeColor }]} />
@@ -115,14 +116,14 @@ export default function ShareImageCard(props: ShareImageCardProps) {
         </View>
       ) : riskGroup === 'none' ? (
         <View style={styles.substancesSection}>
-          <Text style={styles.safeText}>Aucune substance dangereuse détectée</Text>
+          <Text style={styles.safeText}>{t('no_dangerous_substance')}</Text>
         </View>
       ) : null}
 
       <View style={styles.bottomSection}>
         <View style={styles.divider} />
         <Text style={styles.ctaTitle}>ToxiScan Anti-Cancer</Text>
-        <Text style={styles.storeText}>Disponible sur l'App Store</Text>
+        <Text style={styles.storeText}>{t('available_app_store')}</Text>
         <Image source={{ uri: TOXISCAN_LOGO }} style={styles.bottomLogo} />
       </View>
     </View>

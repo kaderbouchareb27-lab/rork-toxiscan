@@ -372,28 +372,28 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
 
       return {
         categorie_produit: 'other',
-        objet_identifie: 'Objet non identifié',
+        objet_identifie: 'Unknown object',
         materiau_detecte: '',
         substances_detectees: [],
         badge_global: 'aucun',
         resume: '',
         recommandations: [],
         alternatives_sures: [],
-        erreur: 'L\'analyse a échoué après plusieurs tentatives. Veuillez reprendre la photo avec un meilleur éclairage et réessayer.',
+        erreur: t('error_analyze_product'),
       };
     }
   }
 
   return {
     categorie_produit: 'other',
-    objet_identifie: 'Objet non identifié',
+    objet_identifie: 'Unknown object',
     materiau_detecte: '',
     substances_detectees: [],
     badge_global: 'aucun',
     resume: '',
     recommandations: [],
     alternatives_sures: [],
-    erreur: 'L\'analyse a échoué. Veuillez réessayer.',
+    erreur: t('error_process_photo'),
   };
 }
 

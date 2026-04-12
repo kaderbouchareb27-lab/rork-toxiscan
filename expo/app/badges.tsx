@@ -36,6 +36,7 @@ import {
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useBadges, BADGE_DEFINITIONS, BadgeDefinition } from '@/providers/BadgesProvider';
+import { t, tf } from '@/utils/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BADGE_CARD_WIDTH = (SCREEN_WIDTH - 60) / 2;
@@ -209,7 +210,7 @@ function BadgeCard({
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Share2 color={Colors.textSecondary} size={13} />
-            <Text style={styles.badgeShareText}>Partager</Text>
+            <Text style={styles.badgeShareText}>{t('share')}</Text>
           </TouchableOpacity>
         )}
       </TouchableOpacity>
@@ -247,7 +248,7 @@ export default function BadgesScreen() {
     }
     try {
       await Share.share({
-        message: `J'ai débloqué le badge "${badge.name}" sur Dr.Toxi ! ${badge.description}\n\nScannez vos produits gratuitement avec Dr.Toxi — disponible sur l'App Store`,
+        message: tf('share_badge_msg', badge.name, badge.description),
       });
     } catch (error) {
       console.log('[Badges] Share error:', error);
@@ -299,7 +300,7 @@ export default function BadgesScreen() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="back-button">
           <ChevronLeft color={Colors.text} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mes badges</Text>
+        <Text style={styles.headerTitle}>{t('my_badges')}</Text>
         <View style={styles.headerRight} />
       </View>
 
@@ -311,7 +312,7 @@ export default function BadgesScreen() {
             </View>
             <View style={styles.summaryInfo}>
               <Text style={styles.summaryCount}>{unlockedCount}/{totalCount}</Text>
-              <Text style={styles.summaryLabel}>badges débloqués</Text>
+              <Text style={styles.summaryLabel}>{t('badges_unlocked')}</Text>
             </View>
           </View>
           <View style={styles.progressBarBg}>
@@ -319,13 +320,13 @@ export default function BadgesScreen() {
           </View>
           <View style={styles.shareCountRow}>
             <Share2 color={Colors.primary} size={14} />
-            <Text style={styles.shareCountText}>{shareCount} partage{shareCount !== 1 ? 's' : ''}</Text>
+            <Text style={styles.shareCountText}>{tf('shares_count', shareCount)}</Text>
           </View>
         </View>
 
-        {renderSection('Badges de scan', scanBadges)}
-        {renderSection('Produits verts', greenBadges)}
-        {renderSection('Partage', shareBadges)}
+        {renderSection(t('scan_badges'), scanBadges)}
+        {renderSection(t('green_products'), greenBadges)}
+        {renderSection(t('sharing'), shareBadges)}
         {renderSection('Dr. Toxi', drToxiBadges)}
 
         <View style={styles.bottomSpacer} />
@@ -341,13 +342,13 @@ export default function BadgesScreen() {
               <View style={[styles.celebrationIcon, { backgroundColor: `${newlyUnlocked.color}15` }]}>
                 {getBadgeIcon(newlyUnlocked.icon, 48, newlyUnlocked.color)}
               </View>
-              <Text style={styles.celebrationTitle}>Badge débloqué !</Text>
+              <Text style={styles.celebrationTitle}>{t('badge_unlocked')}</Text>
               <Text style={[styles.celebrationBadgeName, newlyUnlocked.isGolden && { color: '#B8860B' }]}>
                 {newlyUnlocked.name}
               </Text>
               <Text style={styles.celebrationDescription}>{newlyUnlocked.description}</Text>
               <TouchableOpacity style={styles.celebrationButton} onPress={handleDismissNewBadge} activeOpacity={0.85}>
-                <Text style={styles.celebrationButtonText}>Super !</Text>
+                <Text style={styles.celebrationButtonText}>{t('great')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -364,10 +365,10 @@ export default function BadgesScreen() {
               <View style={[styles.celebrationIcon, { backgroundColor: 'rgba(255, 215, 0, 0.15)' }]}>
                 <Crown color="#FFD700" size={48} strokeWidth={1.8} />
               </View>
-              <Text style={styles.celebrationTitle}>Récompense débloquée !</Text>
+              <Text style={styles.celebrationTitle}>{t('reward_unlocked')}</Text>
               <Text style={styles.rewardMessage}>{shareRewardMessage}</Text>
               <TouchableOpacity style={styles.celebrationButton} onPress={handleDismissReward} activeOpacity={0.85}>
-                <Text style={styles.celebrationButtonText}>Merci !</Text>
+                <Text style={styles.celebrationButtonText}>{t('thanks')}</Text>
               </TouchableOpacity>
             </View>
           )}

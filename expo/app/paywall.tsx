@@ -18,6 +18,7 @@ import { useQueryClient as __useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useSubscription } from '@/providers/SubscriptionProvider';
+import { t, tf } from '@/utils/i18n';
 
 let Purchases: any = null;
 if (Platform.OS !== 'web') {
@@ -75,7 +76,7 @@ export default function PaywallScreen() {
 
     if (!pkg) {
       console.log('[Paywall] No package available for plan:', selectedPlan);
-      Alert.alert('Erreur', 'Impossible de charger les offres. Veuillez réessayer.');
+      Alert.alert(t('purchase_error'), t('purchase_load_error'));
       return;
     }
 
@@ -100,9 +101,9 @@ export default function PaywallScreen() {
         }
       }
       Alert.alert(
-        'Tout est prêt',
-        'Votre achat a été effectué avec succès.',
-        [{ text: 'OK', onPress: () => router.replace('/') }]
+        t('purchase_ready'),
+        t('purchase_success'),
+        [{ text: t('ok'), onPress: () => router.replace('/') }]
       );
     } catch (error: unknown) {
       const err = error as { userCancelled?: boolean; code?: number; message?: string };
@@ -135,7 +136,7 @@ export default function PaywallScreen() {
         }
       }
 
-      Alert.alert('Erreur', "L'achat n'a pas pu être complété. Si vous avez été débité, appuyez sur 'Restaurer les achats'.");
+      Alert.alert(t('purchase_error'), t('purchase_failed'));
     }
   }, [annualPackage, monthlyPackage, purchasePackage, selectedPlan, queryClient]);
 
@@ -159,46 +160,36 @@ export default function PaywallScreen() {
           }
         }
         Alert.alert(
-          'Abonnement restauré !',
-          'Vos fonctionnalités premium sont de nouveau actives.',
-          [{ text: 'Super !', onPress: () => router.replace('/') }]
+          t('subscription_restored'),
+          t('subscription_restored_desc'),
+          [{ text: t('great'), onPress: () => router.replace('/') }]
         );
       } else {
-        Alert.alert('Aucun abonnement trouvé.', 'Aucun abonnement actif n\'a été trouvé pour ce compte.');
+        Alert.alert(t('no_subscription'), t('no_subscription_desc'));
       }
     } catch (error: unknown) {
       console.log('[Paywall] Restore error:', error);
-      Alert.alert('Erreur', 'Impossible de restaurer les achats. Veuillez réessayer.');
+      Alert.alert(t('purchase_error'), t('restore_error'));
     }
   }, [restorePurchase, queryClient]);
 
   const getContextTitle = (): string => {
     switch (source) {
-      case 'drtoxi':
-        return 'Discutez avec Dr. Toxi en illimité';
-      case 'history':
-        return 'Sauvegardez tout votre historique';
-      case 'favorite':
-        return 'Sauvegardez vos produits favoris';
-      case 'alerts':
-        return 'Alertes en temps réel';
-      default:
-        return 'Passez à Dr.Toxi Pro';
+      case 'drtoxi': return t('paywall_drtoxi');
+      case 'history': return t('paywall_history');
+      case 'favorite': return t('paywall_favorite');
+      case 'alerts': return t('paywall_alerts');
+      default: return t('paywall_default');
     }
   };
 
   const getContextSubtitle = (): string => {
     switch (source) {
-      case 'drtoxi':
-        return 'Vous avez utilisé vos 3 messages gratuits du jour';
-      case 'history':
-        return 'Sans abonnement, seuls les 3 derniers produits sont visibles';
-      case 'favorite':
-        return 'Les favoris sont une fonctionnalité exclusive Dr.Toxi Pro';
-      case 'alerts':
-        return 'Soyez alerté des nouveaux produits interdits, toxiques ou cancérigènes';
-      default:
-        return 'Débloquez toutes les fonctionnalités premium';
+      case 'drtoxi': return t('paywall_sub_drtoxi');
+      case 'history': return t('paywall_sub_history');
+      case 'favorite': return t('paywall_sub_favorite');
+      case 'alerts': return t('paywall_sub_alerts');
+      default: return t('paywall_sub_default');
     }
   };
 
@@ -226,10 +217,10 @@ export default function PaywallScreen() {
         <Text style={styles.subtitle}>{getContextSubtitle()}</Text>
 
         <View style={styles.benefitsContainer}>
-          <BenefitRow text="Dr. Toxi illimité" />
-          <BenefitRow text="Historique illimité" />
-          <BenefitRow text="Favoris produits" />
-          <BenefitRow text="Notifications rappel produits" />
+          <BenefitRow text={t('benefit_unlimited_drtoxi')} />
+          <BenefitRow text={t('benefit_unlimited_history')} />
+          <BenefitRow text={t('benefit_favorites')} />
+          <BenefitRow text={t('benefit_notifications')} />
         </View>
 
         <View style={styles.plansContainer}>
@@ -241,7 +232,7 @@ export default function PaywallScreen() {
             disabled={isLoading}
           >
             <View style={styles.planBadge}>
-              <Text style={styles.planBadgeText}>Économisez 45%</Text>
+              <Text style={styles.planBadgeText}>{t('save_45')}</Text>
             </View>
             <View style={styles.planRadio}>
               <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
@@ -249,8 +240,8 @@ export default function PaywallScreen() {
               </View>
             </View>
             <View style={styles.planInfo}>
-              <Text style={styles.planTitle}>Annuel — {annualPrice}/an</Text>
-              <Text style={styles.planSubtext}>soit {annualMonthly}/mois</Text>
+              <Text style={styles.planTitle}>{tf('annual_plan', annualPrice)}</Text>
+              <Text style={styles.planSubtext}>{tf('monthly_equivalent', annualMonthly)}</Text>
             </View>
           </TouchableOpacity>
 
@@ -267,7 +258,7 @@ export default function PaywallScreen() {
               </View>
             </View>
             <View style={styles.planInfo}>
-              <Text style={styles.planTitle}>Mensuel — {monthlyPrice}/mois</Text>
+              <Text style={styles.planTitle}>{tf('monthly_plan', monthlyPrice)}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -284,7 +275,7 @@ export default function PaywallScreen() {
           ) : (
             <>
               <Crown color={Colors.white} size={20} />
-              <Text style={styles.ctaButtonText}>Passer à Dr.Toxi Pro</Text>
+              <Text style={styles.ctaButtonText}>{t('upgrade_pro')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -292,30 +283,29 @@ export default function PaywallScreen() {
         <View style={styles.donationRow}>
           <Heart color={Colors.primary} size={16} fill={Colors.primary} />
           <Text style={styles.donationText}>
-            Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.
+            {t('donation_text')}
           </Text>
         </View>
 
         <Text style={styles.legalText}>
-          Le paiement sera débité de votre compte iTunes à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf annulation au moins 24h avant la fin de la période en cours.{"\n"}
-          Annulez à tout moment dans les réglages de votre appareil.
+          {t('legal_text')}
         </Text>
 
         <TouchableOpacity onPress={handleRestore} style={styles.restoreButton} testID="paywall-restore" disabled={isLoading}>
           {restoreInProgress ? (
             <ActivityIndicator color={Colors.textSecondary} size="small" />
           ) : (
-            <Text style={styles.restoreText}>Restaurer les achats</Text>
+            <Text style={styles.restoreText}>{t('restore_purchases')}</Text>
           )}
         </TouchableOpacity>
 
         <View style={styles.legalLinksRow}>
           <TouchableOpacity onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Conditions-d-utilisation-33586d85fa4b801fa0a6d69dfbdf9d1e')}>
-            <Text style={styles.legalLinkText}>Conditions d'utilisation</Text>
+            <Text style={styles.legalLinkText}>{t('terms_of_use')}</Text>
           </TouchableOpacity>
           <Text style={styles.legalLinkSeparator}>|</Text>
           <TouchableOpacity onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Politique-de-confidentialit-ToxiScan-33286d85fa4b808f9170ea136941f2cc')}>
-            <Text style={styles.legalLinkText}>Politique de confidentialité</Text>
+            <Text style={styles.legalLinkText}>{t('privacy_policy')}</Text>
           </TouchableOpacity>
         </View>
 

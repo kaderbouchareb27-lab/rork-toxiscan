@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import Colors from '@/constants/colors';
+import { isEnglish, t } from '@/utils/i18n';
 
 export default function AboutScreen() {
   console.log('[About] Rendering about screen');
@@ -13,36 +14,42 @@ export default function AboutScreen() {
           resizeMode="contain"
         />
         <Text style={styles.appName}>ToxiScan</Text>
-        <Text style={styles.tagline}>Scannez. Comprenez. Protégez.</Text>
+        <Text style={styles.tagline}>{isEnglish() ? 'Scan. Understand. Protect.' : 'Scannez. Comprenez. Protégez.'}</Text>
       </View>
 
-      <Text style={styles.heading}>Notre mission</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Our mission' : 'Notre mission'}</Text>
 
       <Text style={styles.paragraph}>
-        J'ai vu trop de gens autour de moi se battre contre le cancer. Des proches, des amis, des collègues. Des gens bien qui ne savaient pas que ce qu'ils mangeaient, ce qu'ils utilisaient ou ce qu'ils respiraient au quotidien pouvait augmenter leur risque.
+        {isEnglish()
+          ? "I've seen too many people around me fight cancer. Family, friends, colleagues. Good people who didn't know that what they ate, used, or breathed every day could increase their risk."
+          : "J'ai vu trop de gens autour de moi se battre contre le cancer. Des proches, des amis, des collègues. Des gens bien qui ne savaient pas que ce qu'ils mangeaient, ce qu'ils utilisaient ou ce qu'ils respiraient au quotidien pouvait augmenter leur risque."}
       </Text>
 
       <Text style={styles.paragraph}>
-        Dr.Toxi est né de cette réalité. Mon objectif est simple : vous donner le pouvoir de savoir. Savoir ce qu'il y a vraiment dans vos produits. Savoir quels ingrédients éviter. Savoir comment protéger votre famille.
+        {isEnglish()
+          ? "Dr.Toxi was born from this reality. My goal is simple: give you the power to know. Know what's really in your products. Know which ingredients to avoid. Know how to protect your family."
+          : "Dr.Toxi est né de cette réalité. Mon objectif est simple : vous donner le pouvoir de savoir. Savoir ce qu'il y a vraiment dans vos produits. Savoir quels ingrédients éviter. Savoir comment protéger votre famille."}
       </Text>
 
       <Text style={styles.paragraph}>
-        On ne peut pas tout contrôler. Mais on peut faire de meilleurs choix quand on a la bonne information. C'est exactement ce que Dr.Toxi vous offre : l'information, simplement, clairement, honnêtement.
+        {isEnglish()
+          ? "We can't control everything. But we can make better choices when we have the right information. That's exactly what Dr.Toxi offers: information, simply, clearly, honestly."
+          : "On ne peut pas tout contrôler. Mais on peut faire de meilleurs choix quand on a la bonne information. C'est exactement ce que Dr.Toxi vous offre : l'information, simplement, clairement, honnêtement."}
       </Text>
 
       <View style={styles.donationCard}>
         <Text style={styles.donationText}>
-          Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.
+          {t('donation_text')}
         </Text>
       </View>
 
       <Text style={styles.paragraph}>
-        Prenez soin de vous et de ceux que vous aimez.
+        {isEnglish() ? 'Take care of yourself and those you love.' : 'Prenez soin de vous et de ceux que vous aimez.'}
       </Text>
 
       <View style={styles.signatureBlock}>
         <Text style={styles.signature}>Abdelkader Bouchareb</Text>
-        <Text style={styles.role}>Fondateur & Développeur de Dr.Toxi</Text>
+        <Text style={styles.role}>{isEnglish() ? 'Founder & Developer of Dr.Toxi' : 'Fondateur & Développeur de Dr.Toxi'}</Text>
       </View>
 
       <View style={styles.addressBlock}>

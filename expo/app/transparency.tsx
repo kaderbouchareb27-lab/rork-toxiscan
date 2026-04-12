@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Brain, Shield, Eye } from 'lucide-react-native';
 import Colors from '@/constants/colors';
+import { isEnglish } from '@/utils/i18n';
 
 export default function TransparencyScreen() {
   console.log('[Transparency] Rendering transparency screen');
@@ -11,23 +12,23 @@ export default function TransparencyScreen() {
         <View style={styles.iconCircle}>
           <Eye color={Colors.primary} size={28} strokeWidth={1.5} />
         </View>
-        <Text style={styles.title}>Comment Dr.Toxi utilise l'intelligence artificielle</Text>
+        <Text style={styles.title}>{isEnglish() ? "How Dr.Toxi uses artificial intelligence" : "Comment Dr.Toxi utilise l'intelligence artificielle"}</Text>
       </View>
 
       <View style={styles.highlightCard}>
-        <Text style={styles.highlightText}>Dr.Toxi croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.</Text>
+        <Text style={styles.highlightText}>{isEnglish() ? 'Dr.Toxi believes in total transparency. You deserve to know how each feature works.' : 'Dr.Toxi croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.'}</Text>
       </View>
 
-      <Text style={styles.heading}>Dr.Toxi utilise l'IA à deux endroits :</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Dr.Toxi uses AI in two areas:' : "Dr.Toxi utilise l'IA à deux endroits :"}</Text>
 
       <View style={styles.featureCard}>
         <View style={styles.featureIcon}>
           <Brain color={Colors.primary} size={20} strokeWidth={1.5} />
         </View>
         <View style={styles.featureContent}>
-          <Text style={styles.featureTitle}>1. Analyse photo universelle</Text>
+          <Text style={styles.featureTitle}>{isEnglish() ? '1. Universal photo analysis' : '1. Analyse photo universelle'}</Text>
           <Text style={styles.featureDescription}>
-            Quand vous photographiez un produit ou objet du quotidien, notre IA analyse la photo pour identifier l'objet, ses matériaux et évaluer les substances potentiellement cancérigènes.
+            {isEnglish() ? 'When you photograph an everyday product or object, our AI analyzes the photo to identify the object, its materials, and evaluate potentially carcinogenic substances.' : "Quand vous photographiez un produit ou objet du quotidien, notre IA analyse la photo pour identifier l'objet, ses matériaux et évaluer les substances potentiellement cancérigènes."}
           </Text>
         </View>
       </View>
@@ -37,32 +38,32 @@ export default function TransparencyScreen() {
           <Shield color={Colors.primary} size={20} strokeWidth={1.5} />
         </View>
         <View style={styles.featureContent}>
-          <Text style={styles.featureTitle}>2. Dr. Toxi (chatbot expert)</Text>
+          <Text style={styles.featureTitle}>{isEnglish() ? '2. Dr. Toxi (expert chatbot)' : '2. Dr. Toxi (chatbot expert)'}</Text>
           <Text style={styles.featureDescription}>
-            Répond à vos questions sur les substances toxiques du quotidien : additifs alimentaires, plastiques, cosmétiques, ustensiles de cuisine et plus encore.
+            {isEnglish() ? 'Answers your questions about everyday toxic substances: food additives, plastics, cosmetics, kitchen utensils, and more.' : 'Répond à vos questions sur les substances toxiques du quotidien : additifs alimentaires, plastiques, cosmétiques, ustensiles de cuisine et plus encore.'}
           </Text>
         </View>
       </View>
 
-      <Text style={styles.heading}>Ce que l'IA ne fait PAS</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'What AI does NOT do' : "Ce que l'IA ne fait PAS"}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Les badges de risque des scans code-barres sont basés sur les classifications CIRC/OMS, pas sur l'IA" />
-        <BulletItem text="L'IA ne pose aucun diagnostic médical" />
-        <BulletItem text="L'IA ne remplace pas un professionnel de santé" />
-        <BulletItem text="L'IA ne crée pas de fausses alertes sur les produits naturels et sains" />
+        <BulletItem text={isEnglish() ? 'Barcode scan risk badges are based on IARC/WHO classifications, not AI' : "Les badges de risque des scans code-barres sont basés sur les classifications CIRC/OMS, pas sur l'IA"} />
+        <BulletItem text={isEnglish() ? 'AI does not make any medical diagnosis' : "L'IA ne pose aucun diagnostic médical"} />
+        <BulletItem text={isEnglish() ? 'AI does not replace a healthcare professional' : "L'IA ne remplace pas un professionnel de santé"} />
+        <BulletItem text={isEnglish() ? 'AI does not create false alerts on natural and healthy products' : "L'IA ne crée pas de fausses alertes sur les produits naturels et sains"} />
       </View>
 
-      <Text style={styles.heading}>Vos données et l'IA</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Your data and AI' : "Vos données et l'IA"}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text="Photos et messages sont traités par notre IA de manière sécurisée" />
-        <BulletItem text="Rien n'est conservé après le traitement par notre IA" />
-        <BulletItem text="Aucune donnée n'est utilisée pour entraîner des modèles IA" />
-        <BulletItem text="Vos scans restent stockés localement sur votre appareil" />
+        <BulletItem text={isEnglish() ? 'Photos and messages are processed securely by our AI' : 'Photos et messages sont traités par notre IA de manière sécurisée'} />
+        <BulletItem text={isEnglish() ? 'Nothing is retained after processing by our AI' : "Rien n'est conservé après le traitement par notre IA"} />
+        <BulletItem text={isEnglish() ? 'No data is used to train AI models' : "Aucune donnée n'est utilisée pour entraîner des modèles IA"} />
+        <BulletItem text={isEnglish() ? 'Your scans remain stored locally on your device' : 'Vos scans restent stockés localement sur votre appareil'} />
       </View>
 
-      <Text style={styles.heading}>Pourquoi cette transparence ?</Text>
+      <Text style={styles.heading}>{isEnglish() ? 'Why this transparency?' : 'Pourquoi cette transparence ?'}</Text>
       <Text style={styles.body}>
-        Parce que vous avez le droit de savoir exactement comment fonctionne un outil que vous utilisez pour votre santé. Pas de boîte noire, pas de mystère. Chaque résultat est basé sur des classifications scientifiques officielles et vérifiables.
+        {isEnglish() ? 'Because you have the right to know exactly how a tool you use for your health works. No black box, no mystery. Every result is based on official and verifiable scientific classifications.' : 'Parce que vous avez le droit de savoir exactement comment fonctionne un outil que vous utilisez pour votre santé. Pas de boîte noire, pas de mystère. Chaque résultat est basé sur des classifications scientifiques officielles et vérifiables.'}
       </Text>
 
       <View style={styles.spacer} />

@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Animated as RNAnimated } from 'react-native';
 import { Activity } from 'lucide-react-native';
+import { t } from '@/utils/i18n';
 
 interface RiskLevel {
   color: string;
@@ -9,11 +10,11 @@ interface RiskLevel {
 }
 
 export function getRiskLevel(score: number): RiskLevel {
-  if (score <= 20) return { color: '#4CD964', label: 'Risque faible — Bon choix' };
-  if (score <= 40) return { color: '#2E9E34', label: 'Risque limité — Acceptable' };
-  if (score <= 60) return { color: '#FF9500', label: 'Risque modéré — À limiter' };
-  if (score <= 80) return { color: '#FF6B35', label: 'Risque élevé — À éviter si possible' };
-  return { color: '#FF3B30', label: 'Risque très élevé — Déconseillé' };
+  if (score <= 20) return { color: '#4CD964', label: t('risk_low') };
+  if (score <= 40) return { color: '#2E9E34', label: t('risk_limited') };
+  if (score <= 60) return { color: '#FF9500', label: t('risk_moderate') };
+  if (score <= 80) return { color: '#FF6B35', label: t('risk_high') };
+  return { color: '#FF3B30', label: t('risk_very_high') };
 }
 
 export default function RiskScoreBar({ score }: { score: number }) {
@@ -38,7 +39,7 @@ export default function RiskScoreBar({ score }: { score: number }) {
     <View style={styles.container} testID="risk-score-block">
       <View style={styles.titleRow}>
         <Activity color={level.color} size={18} />
-        <Text style={styles.title}>Score de risque Dr.Toxi</Text>
+        <Text style={styles.title}>{t('risk_score_title')}</Text>
       </View>
       <View style={styles.scoreRow}>
         <View style={styles.barContainer}>
