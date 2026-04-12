@@ -43,6 +43,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
 1. ALIMENTS ET BOISSONS (categorie: "food" ou "beverage") :
    - Listes d'ingrédients, produits alimentaires, boissons
    - Analyser : additifs, conservateurs, édulcorants, colorants, exhausteurs de gout, huiles
+   - Cadmium : métal lourd cancérigène avéré Groupe 1 CIRC. Présent dans : cacao/chocolat, céréales complètes, crustacés, mollusques, abats (foie, rein), graines de tournesol, épinards, pommes de terre. Exposition régulière = risque accru de cancer du rein et des poumons. Si le produit contient majoritairement du cacao, des crustacés ou des céréales complètes, SIGNALER le risque de cadmium.
    - IGNORER le type d'emballage (plastique, verre, carton, métal) dans l'analyse des risques
 
 2. USTENSILES DE CUISINE (categorie: "kitchen_utensil") :
@@ -198,7 +199,7 @@ ATTENTION CUMUL : sucre + sel + huile dans un même produit ≠ 3 substances pro
 
 RÈGLE CRITIQUE — BADGE DANGER ROUGE :
 Le badge DANGER rouge ("danger") est EXCLUSIVEMENT réservé aux substances RÉELLEMENT classées Groupe 1 ou Groupe 2A par le CIRC :
-- Groupe 1 : Nitrites (E249, E250, E251, E252), Formaldéhyde (E240), Benzène, Amiante, Goudron de houille, Chrome hexavalent, Plomb, PFAS
+- Groupe 1 : Nitrites (E249, E250, E251, E252), Formaldéhyde (E240), Benzène, Amiante, Goudron de houille, Chrome hexavalent, Plomb, PFAS, Cadmium
 - Groupe 2A : substances classées probablement cancérogènes par le CIRC
 Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, arôme naturel, huiles de graines, MSG, maltodextrine, ou toute substance qui n'est PAS classée Groupe 1 ou 2A par le CIRC.
 

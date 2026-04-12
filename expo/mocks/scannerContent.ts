@@ -95,6 +95,7 @@ const DAILY_FACTS_FR: DailyFact[] = [
   { id: 'fact-33', text: 'La vaisselle en mélamine peut libérer du formaldéhyde quand elle est chauffée. Ne l\'utilisez jamais au micro-ondes.' },
   { id: 'fact-34', text: 'Les isothiazolinones (MIT, CMIT) dans les produits ménagers sont des allergènes puissants.' },
   { id: 'fact-35', text: 'Le plomb dans certaines teintures pour cheveux est un cancérogène avéré et neurotoxique.' },
+  { id: 'fact-36', text: 'Le cadmium est un métal lourd cancérigène (Groupe 1 CIRC) présent dans certains aliments comme le cacao, les céréales complètes et les crustacés. Une exposition régulière augmente le risque de cancer du rein et des poumons.' },
 ];
 
 const DAILY_FACTS_EN: DailyFact[] = [
@@ -133,6 +134,7 @@ const DAILY_FACTS_EN: DailyFact[] = [
   { id: 'fact-33', text: 'Melamine dishes can release formaldehyde when heated. Never use them in the microwave.' },
   { id: 'fact-34', text: 'Isothiazolinones (MIT, CMIT) in household products are powerful allergens.' },
   { id: 'fact-35', text: 'Lead in some hair dyes is a proven carcinogen and neurotoxicant.' },
+  { id: 'fact-36', text: 'Cadmium is a heavy metal classified as a Group 1 carcinogen by the IARC, found in foods like cocoa, whole grains, and shellfish. Regular exposure increases the risk of kidney and lung cancer.' },
 ];
 
 export const DAILY_FACTS: DailyFact[] = isEnglish() ? DAILY_FACTS_EN : DAILY_FACTS_FR;
