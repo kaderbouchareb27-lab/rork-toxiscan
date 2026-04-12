@@ -102,3 +102,18 @@ export interface ChatMessage {
   imageUri?: string;
 }
 
+export interface Conversation {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: string;
+  updatedAt: string;
+  productContext?: {
+    name: string;
+    brand: string;
+    barcode: string;
+    verdictLevel: 'danger' | 'prudence' | 'approuve';
+    analysisSummary?: string;
+  };
+}
+

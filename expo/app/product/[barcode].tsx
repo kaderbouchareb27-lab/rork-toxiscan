@@ -286,11 +286,20 @@ export default function ProductScreen() {
   };
 
   const handleAskDrToxi = () => {
-    console.log('[Product] Navigating to Dr. Toxi');
+    console.log('[Product] Navigating to Dr. Toxi with product context');
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    router.push('/dr-toxi');
+    router.push({
+      pathname: '/dr-toxi',
+      params: {
+        productName: product.name,
+        productBrand: product.brand,
+        productBarcode: product.barcode,
+        productVerdict: verdictLevel,
+        productSummary: shortAnalysis ?? '',
+      },
+    });
   };
 
   const dangerousIngredients = product.detectedIngredients?.filter(
