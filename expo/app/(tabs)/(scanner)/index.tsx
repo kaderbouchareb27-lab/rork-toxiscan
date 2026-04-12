@@ -20,7 +20,7 @@ import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
-import * as ImageManipulator from 'expo-image-manipulator';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { analyzeUniversalPhoto, universalResultToScannedProduct } from '@/utils/api';
 import { LOADING_TIPS } from '@/constants/loadingTips';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
@@ -82,10 +82,10 @@ export default function ScannerScreen() {
         } else {
           base64 = await compressImageNative(imageUri, 800, 0.7);
           try {
-            const thumbResult = await ImageManipulator.manipulateAsync(
+            const thumbResult = await manipulateAsync(
               imageUri,
               [{ resize: { width: 120 } }],
-              { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+              { compress: 0.5, format: SaveFormat.JPEG, base64: true }
             );
             thumbnailBase64 = thumbResult.base64 ?? undefined;
           } catch (e) {
