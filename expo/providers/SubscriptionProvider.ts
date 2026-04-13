@@ -83,18 +83,30 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     queryFn: async () => {
       if (!isNative) return null;
       console.log('[RevenueCat] Fetching offerings...');
-      const offerings = await Purchases.getOfferings();
-      console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
-      if (offerings.current?.availablePackages) {
-        console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map((p: any) => p.identifier));
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Offerings fetch timeout after 15s')), 15000)
+      );
+      try {
+        const offerings = await Promise.race([
+          Purchases.getOfferings(),
+          timeoutPromise,
+        ]);
+        console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
+        if (offerings.current?.availablePackages) {
+          console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map((p: any) => p.identifier));
+        }
+        if (!offerings.current) {
+          console.log('[RevenueCat] No current offering found');
+        }
+        return offerings.current ?? null;
+      } catch (e) {
+        console.log('[RevenueCat] Offerings fetch failed:', e);
+        throw e;
       }
-      if (!offerings.current) {
-        console.log('[RevenueCat] No current offering found');
-      }
-      return offerings.current ?? null;
     },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 1000 * 60 * 5,
   });
 
   const usageQuery = useQuery({
@@ -246,7 +258,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     drToxiLimit: FREE_DRTOXI_LIMIT,
     freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
-    offeringsLoading: offeringsQuery.isLoading || offeringsQuery.isFetching,
+    offeringsLoading: offeringsQuery.isLoading,
     offeringsError: offeringsQuery.isError,
     refetchOfferings,
   }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isFetching, offeringsQuery.isError, refetchOfferings]);
