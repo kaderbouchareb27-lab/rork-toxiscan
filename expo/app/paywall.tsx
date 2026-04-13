@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { Check, Heart, X, Crown } from 'lucide-react-native';
+import { Check, Heart, X, Crown, RefreshCw } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQueryClient as __useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
@@ -49,10 +49,31 @@ function formatAnnualMonthly(price: number | null | undefined, currencyCode: str
 export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
-  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress } = useSubscription();
+  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress, offeringsLoading, offeringsError, refetchOfferings } = useSubscription();
   const queryClient = __useQueryClient();
 
-  console.log('[Paywall] Rendering paywall, source:', source);
+  console.log('[Paywall] Rendering paywall, source:', source, 'offering:', currentOffering?.identifier, 'loading:', offeringsLoading, 'error:', offeringsError);
+
+  useEffect(() => {
+    if (!currentOffering && !offeringsLoading) {
+      console.log('[Paywall] No offering available, triggering refetch');
+      refetchOfferings();
+    }
+  }, [currentOffering, offeringsLoading, refetchOfferings]);
+
+  const [retrying, setRetrying] = useState<boolean>(false);
+
+  const handleRetryOfferings = useCallback(async () => {
+    console.log('[Paywall] User tapped retry offerings');
+    setRetrying(true);
+    try {
+      await refetchOfferings();
+    } catch (e) {
+      console.log('[Paywall] Retry failed:', e);
+    } finally {
+      setRetrying(false);
+    }
+  }, [refetchOfferings]);
 
   const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find((p: { identifier: string }) => p.identifier === '$rc_monthly') ?? null;
   const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find((p: { identifier: string }) => p.identifier === '$rc_annual') ?? null;
@@ -223,45 +244,60 @@ export default function PaywallScreen() {
           <BenefitRow text={t('benefit_notifications')} />
         </View>
 
-        <View style={styles.plansContainer}>
-          <TouchableOpacity
-            style={[styles.planCard, selectedPlan === 'annual' && styles.planCardSelected]}
-            onPress={() => handlePlanSelect('annual')}
-            activeOpacity={0.8}
-            testID="plan-annual"
-            disabled={isLoading}
-          >
-            <View style={styles.planBadge}>
-              <Text style={styles.planBadgeText}>{t('save_45')}</Text>
-            </View>
-            <View style={styles.planRadio}>
-              <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
-                {selectedPlan === 'annual' && <View style={styles.radioInner} />}
+        {(offeringsLoading || retrying) && !currentOffering ? (
+          <View style={styles.loadingOfferings}>
+            <ActivityIndicator color="#2E9E34" size="large" />
+            <Text style={styles.loadingOfferingsText}>{t('loading_offers')}</Text>
+          </View>
+        ) : offeringsError && !currentOffering ? (
+          <View style={styles.errorOfferings}>
+            <Text style={styles.errorOfferingsText}>{t('purchase_load_error')}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={handleRetryOfferings} activeOpacity={0.7}>
+              <RefreshCw color={Colors.white} size={16} />
+              <Text style={styles.retryButtonText}>{t('retry')}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.plansContainer}>
+            <TouchableOpacity
+              style={[styles.planCard, selectedPlan === 'annual' && styles.planCardSelected]}
+              onPress={() => handlePlanSelect('annual')}
+              activeOpacity={0.8}
+              testID="plan-annual"
+              disabled={isLoading}
+            >
+              <View style={styles.planBadge}>
+                <Text style={styles.planBadgeText}>{t('save_45')}</Text>
               </View>
-            </View>
-            <View style={styles.planInfo}>
-              <Text style={styles.planTitle}>{tf('annual_plan', annualPrice)}</Text>
-              <Text style={styles.planSubtext}>{tf('monthly_equivalent', annualMonthly)}</Text>
-            </View>
-          </TouchableOpacity>
+              <View style={styles.planRadio}>
+                <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
+                  {selectedPlan === 'annual' && <View style={styles.radioInner} />}
+                </View>
+              </View>
+              <View style={styles.planInfo}>
+                <Text style={styles.planTitle}>{tf('annual_plan', annualPrice)}</Text>
+                <Text style={styles.planSubtext}>{tf('monthly_equivalent', annualMonthly)}</Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.planCard, selectedPlan === 'monthly' && styles.planCardSelected]}
-            onPress={() => handlePlanSelect('monthly')}
-            activeOpacity={0.8}
-            testID="plan-monthly"
-            disabled={isLoading}
-          >
-            <View style={styles.planRadio}>
-              <View style={[styles.radioOuter, selectedPlan === 'monthly' && styles.radioOuterSelected]}>
-                {selectedPlan === 'monthly' && <View style={styles.radioInner} />}
+            <TouchableOpacity
+              style={[styles.planCard, selectedPlan === 'monthly' && styles.planCardSelected]}
+              onPress={() => handlePlanSelect('monthly')}
+              activeOpacity={0.8}
+              testID="plan-monthly"
+              disabled={isLoading}
+            >
+              <View style={styles.planRadio}>
+                <View style={[styles.radioOuter, selectedPlan === 'monthly' && styles.radioOuterSelected]}>
+                  {selectedPlan === 'monthly' && <View style={styles.radioInner} />}
+                </View>
               </View>
-            </View>
-            <View style={styles.planInfo}>
-              <Text style={styles.planTitle}>{tf('monthly_plan', monthlyPrice)}</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+              <View style={styles.planInfo}>
+                <Text style={styles.planTitle}>{tf('monthly_plan', monthlyPrice)}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <TouchableOpacity
           style={[styles.ctaButton, isLoading && styles.ctaButtonDisabled]}
@@ -583,5 +619,49 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 20,
+  },
+  loadingOfferings: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    gap: 12,
+    marginBottom: 24,
+  },
+  loadingOfferingsText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    fontWeight: '500' as const,
+  },
+  errorOfferings: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 28,
+    gap: 16,
+    marginBottom: 24,
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    padding: 20,
+  },
+  errorOfferingsText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#2E9E34',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 14,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '700' as const,
   },
 });

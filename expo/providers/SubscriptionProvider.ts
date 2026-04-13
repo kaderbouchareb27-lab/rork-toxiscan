@@ -82,18 +82,19 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     queryKey: ['offerings'],
     queryFn: async () => {
       if (!isNative) return null;
-      try {
-        const offerings = await Purchases.getOfferings();
-        console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
-        if (offerings.current?.availablePackages) {
-          console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map((p: any) => p.identifier));
-        }
-        return offerings.current ?? null;
-      } catch (e) {
-        console.log('[RevenueCat] Error fetching offerings:', e);
-        return null;
+      console.log('[RevenueCat] Fetching offerings...');
+      const offerings = await Purchases.getOfferings();
+      console.log('[RevenueCat] Offerings fetched:', offerings.current?.identifier);
+      if (offerings.current?.availablePackages) {
+        console.log('[RevenueCat] Available packages:', offerings.current.availablePackages.map((p: any) => p.identifier));
       }
+      if (!offerings.current) {
+        console.log('[RevenueCat] No current offering found');
+      }
+      return offerings.current ?? null;
     },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   const usageQuery = useQuery({
@@ -227,6 +228,11 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const currentOffering = offeringsQuery.data ?? null;
 
+  const refetchOfferings = useCallback(() => {
+    console.log('[RevenueCat] Manual refetch of offerings triggered');
+    return offeringsQuery.refetch();
+  }, [offeringsQuery]);
+
   return useMemo(() => ({
     isPro,
     drToxiRemaining,
@@ -240,5 +246,8 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     drToxiLimit: FREE_DRTOXI_LIMIT,
     freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
-  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading]);
+    offeringsLoading: offeringsQuery.isLoading || offeringsQuery.isFetching,
+    offeringsError: offeringsQuery.isError,
+    refetchOfferings,
+  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isFetching, offeringsQuery.isError, refetchOfferings]);
 });

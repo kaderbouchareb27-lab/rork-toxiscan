@@ -268,6 +268,7 @@ const translations = {
   purchase_success: { fr: 'Votre achat a été effectué avec succès.', en: 'Your purchase was completed successfully.' },
   purchase_error: { fr: 'Erreur', en: 'Error' },
   purchase_load_error: { fr: 'Impossible de charger les offres. Veuillez réessayer.', en: 'Unable to load offers. Please try again.' },
+  loading_offers: { fr: 'Chargement des offres...', en: 'Loading offers...' },
   purchase_failed: { fr: "L'achat n'a pas pu être complété. Si vous avez été débité, appuyez sur 'Restaurer les achats'.", en: "The purchase could not be completed. If you were charged, tap 'Restore purchases'." },
   subscription_restored: { fr: 'Abonnement restauré !', en: 'Subscription restored!' },
   subscription_restored_desc: { fr: 'Vos fonctionnalités premium sont de nouveau actives.', en: 'Your premium features are active again.' },
