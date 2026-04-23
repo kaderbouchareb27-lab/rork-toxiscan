@@ -28,7 +28,8 @@ const RISK_ALIASES: Record<string, typeof RISK_VALUES[number]> = {
   danger: 'danger', dangereux: 'danger', rouge: 'danger', red: 'danger', high: 'danger', eleve: 'danger', cancerigene: 'danger',
   probable: 'probable', probablement: 'probable', orange: 'probable', medium: 'probable', moyen: 'probable',
   possible: 'possible', possiblement: 'possible', jaune: 'possible', yellow: 'possible', low: 'possible', faible: 'possible',
-  aucun: 'aucun', none: 'aucun', vert: 'aucun', green: 'aucun', safe: 'aucun', sur: 'aucun',
+  moderation: 'possible', avec_moderation: 'possible', moderer: 'possible', moderate: 'possible', caution: 'possible', warning: 'possible', attention: 'possible', mise_en_garde: 'possible', prudence: 'possible', controverse: 'possible', controversial: 'possible',
+  aucun: 'aucun', none: 'aucun', vert: 'aucun', green: 'aucun', safe: 'aucun', sur: 'aucun', approuve: 'aucun', approved: 'aucun', ok: 'aucun',
 };
 
 function normalizeKey(v: unknown): string {
@@ -42,7 +43,12 @@ const categoryEnum = z.preprocess((v) => {
 
 const riskEnum = z.preprocess((v) => {
   const k = normalizeKey(v);
-  return RISK_ALIASES[k] ?? ((RISK_VALUES as readonly string[]).includes(k) ? k : 'aucun');
+  const mapped = RISK_ALIASES[k] ?? ((RISK_VALUES as readonly string[]).includes(k) ? k : null);
+  if (mapped === null) {
+    console.warn('[API] Unknown risk value from Claude:', JSON.stringify(v), '-> defaulting to possible (not aucun) for safety');
+    return 'possible';
+  }
+  return mapped;
 }, z.enum(RISK_VALUES));
 
 const safeString = (fallback: string = '') =>
@@ -246,7 +252,7 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
         throw new Error('Résultat invalide reçu');
       }
 
-      console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length);
+      console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);
       return { ...result, openFactsData: offResult };
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -409,7 +415,9 @@ export function universalResultToScannedProduct(
   result: UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null },
   photoUri: string,
 ): ScannedProduct {
+  console.log('[API] Mapping badge_global to riskGroup. Claude badge_global:', result.badge_global);
   let riskGroup = niveauRisqueToGroup(result.badge_global);
+  console.log('[API] Initial riskGroup from badge_global:', riskGroup);
 
   const detectedAdditives = result.substances_detectees
     .filter((s: SubstanceDetected) => s.niveau_risque !== 'aucun')
@@ -423,7 +431,18 @@ export function universalResultToScannedProduct(
   const controversialCount = result.substances_detectees.filter(
     (s: SubstanceDetected) => s.niveau_risque !== 'aucun'
   ).length;
+
+  if (riskGroup === 'none' && detectedAdditives.length > 0) {
+    const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
+    const highestSubstance = detectedAdditives.reduce<RiskGroup>((max, a) => {
+      return groupPriority[a.group] > groupPriority[max] ? a.group : max;
+    }, 'none');
+    console.warn('[API] badge_global said none but substances detected. Upgrading riskGroup to:', highestSubstance);
+    riskGroup = highestSubstance;
+  }
+
   riskGroup = applyCumulativeRule(riskGroup, controversialCount);
+  console.log('[API] Final riskGroup after cumulative rule:', riskGroup, 'controversial:', controversialCount);
 
   const detectedIngredients: DetectedIngredient[] = result.substances_detectees.map((s: SubstanceDetected) => ({
     nom: s.nom,
