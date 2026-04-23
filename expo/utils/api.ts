@@ -8,19 +8,56 @@ import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t } from '@/utils/i18n';
 
+const CATEGORY_VALUES = ['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other'] as const;
+const RISK_VALUES = ['danger', 'probable', 'possible', 'aucun'] as const;
+
+const CATEGORY_ALIASES: Record<string, typeof CATEGORY_VALUES[number]> = {
+  aliment: 'food', aliments: 'food', alimentaire: 'food', nourriture: 'food', food: 'food',
+  boisson: 'beverage', boissons: 'beverage', drink: 'beverage', beverage: 'beverage',
+  ustensile: 'kitchen_utensil', ustensile_cuisine: 'kitchen_utensil', kitchen: 'kitchen_utensil', cuisine: 'kitchen_utensil', kitchen_utensil: 'kitchen_utensil',
+  vetement: 'clothing', vetements: 'clothing', textile: 'clothing', clothing: 'clothing',
+  cosmetique: 'cosmetic', cosmetiques: 'cosmetic', cosmetic: 'cosmetic', hygiene: 'cosmetic',
+  menager: 'household', menagers: 'household', nettoyage: 'household', household: 'household',
+  electronique: 'electronics', electroniques: 'electronics', electronics: 'electronics',
+  meuble: 'furniture', meubles: 'furniture', mobilier: 'furniture', furniture: 'furniture',
+  jouet: 'toy', jouets: 'toy', toy: 'toy',
+  autre: 'other', other: 'other', divers: 'other', inconnu: 'other',
+};
+
+const RISK_ALIASES: Record<string, typeof RISK_VALUES[number]> = {
+  danger: 'danger', dangereux: 'danger', rouge: 'danger', red: 'danger', high: 'danger', eleve: 'danger', cancerigene: 'danger',
+  probable: 'probable', probablement: 'probable', orange: 'probable', medium: 'probable', moyen: 'probable',
+  possible: 'possible', possiblement: 'possible', jaune: 'possible', yellow: 'possible', low: 'possible', faible: 'possible',
+  aucun: 'aucun', none: 'aucun', vert: 'aucun', green: 'aucun', safe: 'aucun', sur: 'aucun',
+};
+
+function normalizeKey(v: unknown): string {
+  return String(v ?? '').toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z_]/g, '');
+}
+
+const categoryEnum = z.preprocess((v) => {
+  const k = normalizeKey(v);
+  return CATEGORY_ALIASES[k] ?? (CATEGORY_VALUES as readonly string[]).includes(k) ? (CATEGORY_ALIASES[k] ?? k) : 'other';
+}, z.enum(CATEGORY_VALUES));
+
+const riskEnum = z.preprocess((v) => {
+  const k = normalizeKey(v);
+  return RISK_ALIASES[k] ?? ((RISK_VALUES as readonly string[]).includes(k) ? k : 'aucun');
+}, z.enum(RISK_VALUES));
+
 const universalAnalysisSchema = z.object({
-  categorie_produit: z.enum(['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other']),
+  categorie_produit: categoryEnum,
   objet_identifie: z.string(),
   materiau_detecte: z.string(),
   substances_detectees: z.array(z.object({
     nom: z.string(),
     code: z.string().nullable(),
     classification_circ: z.string(),
-    niveau_risque: z.enum(['danger', 'probable', 'possible', 'aucun']),
+    niveau_risque: riskEnum,
     explication: z.string().nullable(),
     source_exposition: z.string().nullable(),
   })),
-  badge_global: z.enum(['danger', 'probable', 'possible', 'aucun']),
+  badge_global: riskEnum,
   resume: z.string(),
   recommandations: z.array(z.string()),
   alternatives_sures: z.array(z.string()),
