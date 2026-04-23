@@ -1,7 +1,7 @@
 import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup } from '@/types';
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
-import { claudeGenerateObject } from '@/utils/claudeApi';
+import { aiGenerateObject } from '@/utils/aiApi';
 import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t } from '@/utils/i18n';
@@ -213,7 +213,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     systemParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
   }
 
-  const result = await claudeGenerateObject({
+  const result = await aiGenerateObject({
     system: systemParts.join(''),
     messages: [
       {
@@ -243,7 +243,7 @@ async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: st
       barcode_type: z.enum(['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'other', 'none']),
     });
 
-    const barcodeResult = await claudeGenerateObject({
+    const barcodeResult = await aiGenerateObject({
       messages: [
         {
           role: 'user',

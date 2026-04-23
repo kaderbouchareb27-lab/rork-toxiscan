@@ -20,7 +20,7 @@ function getProxyConfig(): { url: string; apiKey: string } {
 type TextPart = { type: 'text'; text: string };
 type ImagePart = { type: 'image'; image: string };
 
-export type ClaudeMessage = {
+export type AIMessage = {
   role: 'user' | 'assistant';
   content: string | Array<TextPart | ImagePart>;
 };
@@ -35,7 +35,7 @@ function toDataUrl(raw: string): string {
 }
 
 function normalizeContent(
-  content: ClaudeMessage['content']
+  content: AIMessage['content']
 ): string | OpenAIContentBlock[] {
   if (typeof content === 'string') return content;
   return content.map<OpenAIContentBlock>((part) => {
@@ -65,7 +65,7 @@ async function callChatCompletions(body: Record<string, unknown>): Promise<any> 
 
 function buildMessages(
   system: string | undefined,
-  messages: ClaudeMessage[]
+  messages: AIMessage[]
 ): Array<{ role: string; content: string | OpenAIContentBlock[] }> {
   const out: Array<{ role: string; content: string | OpenAIContentBlock[] }> = [];
   if (system) out.push({ role: 'system', content: system });
@@ -75,9 +75,9 @@ function buildMessages(
   return out;
 }
 
-export async function claudeGenerateText(params: {
+export async function aiGenerateText(params: {
   system?: string;
-  messages: ClaudeMessage[];
+  messages: AIMessage[];
   maxTokens?: number;
 }): Promise<string> {
   const body: Record<string, unknown> = {
@@ -99,9 +99,9 @@ export async function claudeGenerateText(params: {
   return '';
 }
 
-export async function claudeGenerateObject<T>(params: {
+export async function aiGenerateObject<T>(params: {
   system?: string;
-  messages: ClaudeMessage[];
+  messages: AIMessage[];
   schema: z.ZodType<T>;
   toolName?: string;
   toolDescription?: string;

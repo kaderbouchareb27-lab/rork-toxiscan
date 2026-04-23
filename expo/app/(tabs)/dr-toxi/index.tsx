@@ -26,7 +26,7 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/colors';
 import { ChatMessage, Conversation } from '@/types';
-import { claudeGenerateText } from '@/utils/claudeApi';
+import { aiGenerateText } from '@/utils/aiApi';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -281,7 +281,7 @@ export default function DrToxiScreen() {
           ]
         : payload.text;
 
-      const response = await claudeGenerateText({
+      const response = await aiGenerateText({
         system: systemPrompt,
         messages: [
           ...conversationHistory.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
