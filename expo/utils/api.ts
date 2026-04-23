@@ -82,7 +82,28 @@ const universalAnalysisSchema = z.object({
   erreur: safeString('').optional(),
 });
 
-const UNIVERSAL_ANALYSIS_PROMPT = `Détecteur de substances cancérigènes/nocives. Juste et intelligent : strict sur vrais dangers, rassurant sur produits naturels. Identifie l'objet ET analyse ses risques.
+const UNIVERSAL_ANALYSIS_PROMPT = `Expert en analyse d'ingrédients alimentaires, cosmétiques et ménagers. Identifie l'objet ET analyse ses risques. Juste et intelligent : strict sur vrais dangers, rassurant sur produits naturels.
+
+IDENTIFICATION OBLIGATOIRE (objet_identifie) :
+- Lis TOUJOURS le nom de la marque et du produit visible sur l'emballage (ex: "Baguettes Grissol Original", "Nutella", "Coca-Cola Zero").
+- Format : "[Marque] [Nom du produit]" si les deux sont visibles, sinon le plus précis possible.
+- Ne JAMAIS retourner "Objet inconnu", "Unknown" ou chaîne vide si du texte est lisible sur l'emballage. Lis même si c'est partiel.
+- Si aucun texte lisible, décris l'objet (ex: "Paquet de biscuits", "Boîte de conserve").
+
+CATÉGORIE OBLIGATOIRE (categorie_produit) :
+- food : TOUT aliment solide (biscuits, baguettes, pain, céréales, chips, chocolat, jambon, fromage, pâtes, bonbons, barres, yaourts...).
+- beverage : TOUTE boisson (soda, jus, eau, lait, café, thé, alcool).
+- cosmetic : produits corporels (crème, shampoing, dentifrice, déodorant, maquillage).
+- household : produits ménagers (nettoyants, lessives).
+- other UNIQUEMENT en dernier recours si aucune catégorie ne correspond. Un paquet avec liste d'ingrédients alimentaires = TOUJOURS food/beverage, JAMAIS other.
+
+ANALYSE INGRÉDIENTS OBLIGATOIRE :
+- Si une étiquette/liste d'ingrédients est visible, lis ET analyse TOUS les ingrédients un par un.
+- Huiles végétales raffinées (tournesol, colza, soja, palme, canola) = "possible" JAUNE minimum.
+- Dextrose, sirop de glucose, sirop de maïs = "possible" JAUNE (sucres raffinés).
+- Silice/silica (E551) = "possible" JAUNE (anti-agglomérant controversé, études sur nanoparticules).
+- Arômes artificiels, colorants FD&C, conservateurs synthétiques (BHA/BHT/TBHQ) = JAUNE minimum.
+- Ne JAMAIS retourner badge "aucun"/APPROUVÉ si le produit contient huiles raffinées + sucres ajoutés + additifs. Minimum "possible" JAUNE.
 
 IGNORE L'EMBALLAGE (plastique, verre, carton, métal). Analyse UNIQUEMENT les ingrédients/substances. L'emballage n'influence JAMAIS badge_global.
 
@@ -144,7 +165,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Analyse cette photo et retourne le résultat structuré.' },
+          { type: 'text', text: 'Analyse cette photo. 1) Lis la marque et le nom du produit visible sur l\'emballage et mets-le dans objet_identifie (jamais vide). 2) Détermine la catégorie correcte (food pour tout aliment solide, beverage pour boisson, etc.). 3) Lis TOUS les ingrédients visibles sur l\'étiquette et analyse chacun. 4) Retourne le résultat structuré.' },
           { type: 'image', image: imageBase64 },
         ],
       },
