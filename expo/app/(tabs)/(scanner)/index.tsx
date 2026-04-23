@@ -22,7 +22,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { analyzeUniversalPhoto, universalResultToScannedProduct } from '@/utils/api';
-import { LOADING_TIPS } from '@/constants/loadingTips';
+import { getScanFacts, pickRandomFactIndex } from '@/constants/scanFacts';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -247,6 +247,7 @@ export default function ScannerScreen() {
 
   const isLoading = photoMutation.isPending;
 
+  const scanFacts = getScanFacts();
   const [tipIndex, setTipIndex] = useState<number>(0);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -259,14 +260,14 @@ export default function ScannerScreen() {
       progressAnim.setValue(0);
       return;
     }
-    setTipIndex(Math.floor(Math.random() * LOADING_TIPS.length));
+    setTipIndex(Math.floor(Math.random() * scanFacts.length));
 
     const tipInterval = setInterval(() => {
-      Animated.timing(tipFadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
-        setTipIndex(prev => (prev + 1) % LOADING_TIPS.length);
-        Animated.timing(tipFadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+      Animated.timing(tipFadeAnim, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => {
+        setTipIndex(prev => pickRandomFactIndex(prev, scanFacts.length));
+        Animated.timing(tipFadeAnim, { toValue: 1, duration: 320, useNativeDriver: true }).start();
       });
-    }, 3000);
+    }, 5000);
 
     const stages = [
       { target: 15, delay: 300 },
@@ -307,7 +308,7 @@ export default function ScannerScreen() {
       spinLoop.stop();
       spinnerRotation.setValue(0);
     };
-  }, [isLoading, progressAnim, spinnerRotation, tipFadeAnim]);
+  }, [isLoading, progressAnim, spinnerRotation, tipFadeAnim, scanFacts.length]);
 
   const spinDeg = spinnerRotation.interpolate({
     inputRange: [0, 1],
@@ -350,8 +351,12 @@ export default function ScannerScreen() {
               </View>
 
               <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}>
-                <Sparkles color="#2E9E34" size={14} />
-                <Text style={styles.tipText}>{LOADING_TIPS[tipIndex]}</Text>
+                <View style={styles.tipHeaderRow}>
+                  <Sparkles color="#2E9E34" size={14} />
+                  <Text style={styles.tipTitle}>{t('daily_fact_title')} 💡</Text>
+                </View>
+                <Text style={styles.tipText}>{scanFacts[tipIndex]?.text}</Text>
+                <Text style={styles.tipSource} numberOfLines={1}>{scanFacts[tipIndex]?.source}</Text>
               </Animated.View>
             </View>
           </View>
@@ -611,9 +616,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
     maxWidth: 340,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -622,11 +624,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(46, 158, 52, 0.1)',
   },
+  tipHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  tipTitle: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: '#2E9E34',
+    letterSpacing: 0.2,
+    textTransform: 'uppercase' as const,
+  },
   tipText: {
-    fontSize: 13,
+    fontSize: 13.5,
     color: '#1A1C1E',
-    lineHeight: 19,
-    flex: 1,
+    lineHeight: 20,
+  },
+  tipSource: {
+    marginTop: 10,
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontStyle: 'italic' as const,
   },
 
 });
