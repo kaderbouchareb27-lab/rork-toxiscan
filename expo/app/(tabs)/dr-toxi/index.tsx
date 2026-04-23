@@ -252,13 +252,15 @@ export default function DrToxiScreen() {
 
   const sendMutation = useMutation({
     mutationFn: async (payload: { text: string; imageBase64?: string }) => {
-      console.log('[DrToxi] Sending message:', payload.text.substring(0, 50));
+      console.log('[DrToxi] Sending message:', payload.text.substring(0, 50), 'hasImage:', !!payload.imageBase64);
 
       const currentMessages = activeConversation?.messages ?? [];
-      const conversationHistory = currentMessages.map(m => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      }));
+      const conversationHistory = currentMessages
+        .filter(m => !m.id.includes('_error'))
+        .map(m => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        }));
 
       const regionPrompt = getChatRegionPrompt();
 
@@ -314,13 +316,14 @@ export default function DrToxiScreen() {
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     },
-    onError: (error) => {
+    onError: (error, variables) => {
       console.error('[DrToxi] Error:', error);
+      const hadImage = !!variables?.imageBase64;
       setIsAnalyzingImage(false);
       const errorMessage: ChatMessage = {
         id: generateId() + '_error',
         role: 'assistant',
-        content: t('error_image_analysis'),
+        content: hadImage ? t('error_image_analysis') : t('error_chat_generic'),
         timestamp: new Date().toISOString(),
       };
       updateActiveConversationMessages(prev => [...prev, errorMessage]);
