@@ -4,10 +4,10 @@ const MODEL_ID = 'gpt-4o';
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 
 function getOpenAIConfig(): { url: string; apiKey: string } {
-  const apiKey = process.env.OPEN_AI;
+  const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
   if (!apiKey) {
     throw new Error(
-      "Configuration IA manquante. La variable d'environnement OPEN_AI doit être définie."
+      "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie."
     );
   }
   return {

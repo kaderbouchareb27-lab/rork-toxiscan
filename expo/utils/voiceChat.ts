@@ -4,7 +4,7 @@ import { getDeviceLanguage } from '@/utils/i18n';
 
 const TOOLKIT_URL = process.env.EXPO_PUBLIC_TOOLKIT_URL ?? 'https://toolkit.rork.com';
 const TOOLKIT_SECRET = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY ?? '';
-const OPENAI_KEY = process.env.OPEN_AI ?? '';
+const OPENAI_KEY = process.env.EXPO_PUBLIC_OPEN_AI ?? '';
 const OPENAI_TRANSCRIPTIONS_URL = 'https://api.openai.com/v1/audio/transcriptions';
 
 export type RecorderHandle = {
