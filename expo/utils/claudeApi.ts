@@ -1,21 +1,20 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-const CLAUDE_MODEL = 'claude-sonnet-4-5';
-const CLAUDE_ENDPOINT = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_VERSION = '2023-06-01';
+const MODEL_ID = 'anthropic/claude-sonnet-4.5';
 
-function getApiKey(): string {
-  const key =
-    process.env.EXPO_PUBLIC_CLAUDE_API ??
-    process.env.CLAUDE_API ??
-    process.env.Claude_API;
-  if (!key) {
+function getProxyConfig(): { url: string; apiKey: string } {
+  const toolkitUrl = process.env.EXPO_PUBLIC_TOOLKIT_URL;
+  const apiKey = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY;
+  if (!toolkitUrl || !apiKey) {
     throw new Error(
-      'Clé API Claude manquante. Ajoutez EXPO_PUBLIC_CLAUDE_API dans les variables d\'environnement.'
+      "Configuration IA manquante. Les variables EXPO_PUBLIC_TOOLKIT_URL et EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY doivent être définies."
     );
   }
-  return key;
+  return {
+    url: `${toolkitUrl}/v2/vercel/v1/chat/completions`,
+    apiKey,
+  };
 }
 
 type TextPart = { type: 'text'; text: string };
@@ -26,51 +25,54 @@ export type ClaudeMessage = {
   content: string | Array<TextPart | ImagePart>;
 };
 
-type AnthropicContentBlock =
+type OpenAIContentBlock =
   | { type: 'text'; text: string }
-  | { type: 'image'; source: { type: 'base64'; media_type: string; data: string } };
+  | { type: 'image_url'; image_url: { url: string } };
 
-function normalizeImage(raw: string): { media_type: string; data: string } {
-  const dataUrlMatch = raw.match(/^data:([^;]+);base64,(.+)$/);
-  if (dataUrlMatch) {
-    return { media_type: dataUrlMatch[1], data: dataUrlMatch[2] };
-  }
-  return { media_type: 'image/jpeg', data: raw };
+function toDataUrl(raw: string): string {
+  if (raw.startsWith('data:')) return raw;
+  return `data:image/jpeg;base64,${raw}`;
 }
 
 function normalizeContent(
   content: ClaudeMessage['content']
-): string | AnthropicContentBlock[] {
+): string | OpenAIContentBlock[] {
   if (typeof content === 'string') return content;
-  return content.map<AnthropicContentBlock>((part) => {
+  return content.map<OpenAIContentBlock>((part) => {
     if (part.type === 'text') return { type: 'text', text: part.text };
-    const img = normalizeImage(part.image);
-    return {
-      type: 'image',
-      source: { type: 'base64', media_type: img.media_type, data: img.data },
-    };
+    return { type: 'image_url', image_url: { url: toDataUrl(part.image) } };
   });
 }
 
-async function callClaude(body: Record<string, unknown>): Promise<any> {
-  const apiKey = getApiKey();
-  console.log('[Claude] Calling', CLAUDE_MODEL);
-  const res = await fetch(CLAUDE_ENDPOINT, {
+async function callChatCompletions(body: Record<string, unknown>): Promise<any> {
+  const { url, apiKey } = getProxyConfig();
+  console.log('[AI] Calling', MODEL_ID, 'via Rork proxy');
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': CLAUDE_VERSION,
-      'anthropic-dangerous-direct-browser-access': 'true',
+      authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
     const errText = await res.text();
-    console.error('[Claude] API error', res.status, errText.substring(0, 500));
-    throw new Error(`Claude API error ${res.status}: ${errText.substring(0, 300)}`);
+    console.error('[AI] API error', res.status, errText.substring(0, 500));
+    throw new Error(`AI API error ${res.status}: ${errText.substring(0, 300)}`);
   }
   return res.json();
+}
+
+function buildMessages(
+  system: string | undefined,
+  messages: ClaudeMessage[]
+): Array<{ role: string; content: string | OpenAIContentBlock[] }> {
+  const out: Array<{ role: string; content: string | OpenAIContentBlock[] }> = [];
+  if (system) out.push({ role: 'system', content: system });
+  for (const m of messages) {
+    out.push({ role: m.role, content: normalizeContent(m.content) });
+  }
+  return out;
 }
 
 export async function claudeGenerateText(params: {
@@ -79,19 +81,22 @@ export async function claudeGenerateText(params: {
   maxTokens?: number;
 }): Promise<string> {
   const body: Record<string, unknown> = {
-    model: CLAUDE_MODEL,
+    model: MODEL_ID,
     max_tokens: params.maxTokens ?? 2048,
-    messages: params.messages.map((m) => ({
-      role: m.role,
-      content: normalizeContent(m.content),
-    })),
+    messages: buildMessages(params.system, params.messages),
   };
-  if (params.system) body.system = params.system;
 
-  const data = await callClaude(body);
-  const blocks: Array<{ type: string; text?: string }> = data.content ?? [];
-  const textBlock = blocks.find((b) => b.type === 'text');
-  return textBlock?.text ?? '';
+  const data = await callChatCompletions(body);
+  const choice = data?.choices?.[0];
+  const content = choice?.message?.content;
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .filter((b: { type: string }) => b.type === 'text')
+      .map((b: { text?: string }) => b.text ?? '')
+      .join('');
+  }
+  return '';
 }
 
 export async function claudeGenerateObject<T>(params: {
@@ -109,31 +114,40 @@ export async function claudeGenerateObject<T>(params: {
   }) as Record<string, unknown>;
 
   const body: Record<string, unknown> = {
-    model: CLAUDE_MODEL,
+    model: MODEL_ID,
     max_tokens: params.maxTokens ?? 4096,
+    messages: buildMessages(params.system, params.messages),
     tools: [
       {
-        name: toolName,
-        description:
-          params.toolDescription ??
-          'Enregistre le résultat structuré de l\'analyse.',
-        input_schema: jsonSchema,
+        type: 'function',
+        function: {
+          name: toolName,
+          description:
+            params.toolDescription ??
+            "Enregistre le résultat structuré de l'analyse.",
+          parameters: jsonSchema,
+        },
       },
     ],
-    tool_choice: { type: 'tool', name: toolName },
-    messages: params.messages.map((m) => ({
-      role: m.role,
-      content: normalizeContent(m.content),
-    })),
+    tool_choice: { type: 'function', function: { name: toolName } },
   };
-  if (params.system) body.system = params.system;
 
-  const data = await callClaude(body);
-  const blocks: Array<{ type: string; name?: string; input?: unknown }> =
-    data.content ?? [];
-  const toolUse = blocks.find((b) => b.type === 'tool_use');
-  if (!toolUse || toolUse.input === undefined) {
-    throw new Error('Claude n\'a pas retourné de résultat structuré.');
+  const data = await callChatCompletions(body);
+  const choice = data?.choices?.[0];
+  const toolCalls = choice?.message?.tool_calls as
+    | Array<{ function?: { name?: string; arguments?: string } }>
+    | undefined;
+  const call = toolCalls?.find((c) => c.function?.name === toolName) ?? toolCalls?.[0];
+  const argsStr = call?.function?.arguments;
+  if (!argsStr) {
+    throw new Error("L'IA n'a pas retourné de résultat structuré.");
   }
-  return params.schema.parse(toolUse.input);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(argsStr);
+  } catch (e) {
+    console.error('[AI] Failed to parse tool arguments:', argsStr.substring(0, 300));
+    throw new Error("Réponse IA illisible.");
+  }
+  return params.schema.parse(parsed);
 }
