@@ -1,7 +1,5 @@
 import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup } from '@/types';
 import { niveauRisqueToGroup } from '@/constants/additives';
-import { COSMETICS_REFERENCE_PROMPT } from '@/constants/cosmeticsDatabase';
-import { FOOD_INGREDIENTS_REFERENCE_V4 } from '@/constants/foodIngredientsDatabase';
 import { z } from 'zod';
 import { claudeGenerateObject } from '@/utils/claudeApi';
 import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
@@ -159,7 +157,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
   }
 
   const regionPrompt = getAnalysisRegionPrompt();
-  const systemParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, '\n\n', FOOD_INGREDIENTS_REFERENCE_V4, '\n\n', COSMETICS_REFERENCE_PROMPT, regionPrompt];
+  const systemParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
   if (openFactsContext) {
     systemParts.push('\n\n' + openFactsContext);
     systemParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
