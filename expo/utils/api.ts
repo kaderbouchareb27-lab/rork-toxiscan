@@ -45,27 +45,41 @@ const riskEnum = z.preprocess((v) => {
   return RISK_ALIASES[k] ?? ((RISK_VALUES as readonly string[]).includes(k) ? k : 'aucun');
 }, z.enum(RISK_VALUES));
 
+const safeString = (fallback: string = '') =>
+  z.preprocess((v) => (v === undefined || v === null ? fallback : typeof v === 'string' ? v : String(v)), z.string());
+
+const safeNullableString = z.preprocess(
+  (v) => (v === undefined ? null : typeof v === 'string' || v === null ? v : String(v)),
+  z.string().nullable(),
+);
+
 const universalAnalysisSchema = z.object({
   categorie_produit: categoryEnum,
-  objet_identifie: z.string(),
-  materiau_detecte: z.string(),
-  substances_detectees: z.array(z.object({
-    nom: z.string(),
-    code: z.string().nullable(),
-    classification_circ: z.string(),
-    niveau_risque: riskEnum,
-    explication: z.string().nullable(),
-    source_exposition: z.string().nullable(),
-  })),
+  objet_identifie: safeString('Objet inconnu'),
+  materiau_detecte: safeString(''),
+  substances_detectees: z.preprocess(
+    (v) => (Array.isArray(v) ? v : []),
+    z.array(z.object({
+      nom: safeString(''),
+      code: safeNullableString,
+      classification_circ: safeString(''),
+      niveau_risque: riskEnum,
+      explication: safeNullableString,
+      source_exposition: safeNullableString,
+    })),
+  ),
   badge_global: riskEnum,
-  resume: z.string(),
-  recommandations: z.array(z.string()),
-  alternatives_sures: z.array(z.string()),
-  alternatives_saines: z.array(z.object({
-    nom: z.string(),
-    raison: z.string(),
-  })).optional(),
-  erreur: z.string().optional(),
+  resume: safeString(''),
+  recommandations: z.preprocess((v) => (Array.isArray(v) ? v : []), z.array(safeString(''))),
+  alternatives_sures: z.preprocess((v) => (Array.isArray(v) ? v : []), z.array(safeString(''))),
+  alternatives_saines: z.preprocess(
+    (v) => (Array.isArray(v) ? v : []),
+    z.array(z.object({
+      nom: safeString(''),
+      raison: safeString(''),
+    })),
+  ).optional(),
+  erreur: safeString('').optional(),
 });
 
 const UNIVERSAL_ANALYSIS_PROMPT = `Tu es un détecteur universel de substances cancérigènes et nocives pour l'application Dr.Toxi. Tu dois être JUSTE et INTELLIGENT dans ton analyse : strict sur les vrais dangers, rassurant sur les produits naturels.
