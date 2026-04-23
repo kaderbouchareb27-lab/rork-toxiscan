@@ -46,7 +46,7 @@ export default function AIConsentScreen() {
 
         <View style={styles.techCard}>
           <Text style={styles.techLabel}>{t('tech_used')}</Text>
-          <Text style={styles.techValue}>OpenAI GPT-4o mini (texte et vision)</Text>
+          <Text style={styles.techValue}>Anthropic Claude Sonnet 4.5 (texte et vision)</Text>
           <Text style={styles.techValue}>Open Food Facts (données produits)</Text>
         </View>
 
