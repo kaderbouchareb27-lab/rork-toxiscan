@@ -108,10 +108,17 @@ export async function claudeGenerateObject<T>(params: {
   maxTokens?: number;
 }): Promise<T> {
   const toolName = params.toolName ?? 'record_result';
-  const jsonSchema = zodToJsonSchema(params.schema, {
-    target: 'openApi3',
+  const rawSchema = zodToJsonSchema(params.schema, {
     $refStrategy: 'none',
   }) as Record<string, unknown>;
+  const { $schema: _s, definitions: _d, ...cleanSchema } = rawSchema as Record<string, unknown> & { $schema?: unknown; definitions?: unknown };
+  const jsonSchema: Record<string, unknown> = {
+    type: 'object',
+    ...cleanSchema,
+  };
+  if (jsonSchema.type !== 'object') {
+    jsonSchema.type = 'object';
+  }
 
   const body: Record<string, unknown> = {
     model: MODEL_ID,
