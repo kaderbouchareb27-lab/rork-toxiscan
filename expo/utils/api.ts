@@ -1,7 +1,7 @@
 import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup } from '@/types';
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
-import { generateObject } from '@rork-ai/toolkit-sdk';
+import { claudeGenerateObject } from '@/utils/claudeApi';
 import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 
@@ -266,31 +266,35 @@ France :
 - Coslys : cosmétiques bio français, formules douces et naturelles`;
 
 async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
-  console.log('[API] Calling generateObject (toolkit SDK) for universal analysis...');
+  console.log('[API] Calling Claude (sonnet-4-5) for universal analysis...');
   if (openFactsContext) {
     console.log('[API] Including Open Food Facts data in analysis prompt');
   }
 
   const regionPrompt = getAnalysisRegionPrompt();
-  const promptParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
+  const systemParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
   if (openFactsContext) {
-    promptParts.push('\n\n' + openFactsContext);
-    promptParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
+    systemParts.push('\n\n' + openFactsContext);
+    systemParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
   }
 
-  const result = await generateObject({
+  const result = await claudeGenerateObject({
+    system: systemParts.join(''),
     messages: [
       {
         role: 'user',
         content: [
-          { type: 'text', text: promptParts.join('') },
+          { type: 'text', text: 'Analyse cette photo et retourne le résultat structuré.' },
           { type: 'image', image: imageBase64 },
         ],
       },
     ],
     schema: universalAnalysisSchema,
+    toolName: 'record_analysis',
+    toolDescription: 'Enregistre l\'analyse structurée du produit scanné.',
+    maxTokens: 4096,
   });
-  console.log('[API] generateObject returned successfully');
+  console.log('[API] Claude analysis returned successfully');
   return result;
 }
 
@@ -304,7 +308,7 @@ async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: st
       barcode_type: z.enum(['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'other', 'none']),
     });
 
-    const barcodeResult = await generateObject({
+    const barcodeResult = await claudeGenerateObject({
       messages: [
         {
           role: 'user',
@@ -315,6 +319,9 @@ async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: st
         },
       ],
       schema: barcodeDetectionSchema,
+      toolName: 'record_barcode',
+      toolDescription: 'Enregistre le code-barres détecté sur la photo.',
+      maxTokens: 512,
     });
 
     console.log('[API] Barcode detection result:', JSON.stringify(barcodeResult));
