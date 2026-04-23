@@ -77,7 +77,20 @@ const universalAnalysisSchema = z.object({
   recommandations: z.preprocess((v) => (Array.isArray(v) ? v : []), z.array(safeString(''))),
   alternatives_sures: z.preprocess((v) => (Array.isArray(v) ? v : []), z.array(safeString(''))),
   alternatives_saines: z.preprocess(
-    (v) => (Array.isArray(v) ? v : []),
+    (v) => {
+      if (!Array.isArray(v)) return [];
+      return v.map((item) => {
+        if (typeof item === 'string') return { nom: item, raison: '' };
+        if (item && typeof item === 'object') {
+          const obj = item as Record<string, unknown>;
+          return {
+            nom: typeof obj.nom === 'string' ? obj.nom : '',
+            raison: typeof obj.raison === 'string' ? obj.raison : '',
+          };
+        }
+        return { nom: '', raison: '' };
+      });
+    },
     z.array(z.object({
       nom: safeString(''),
       raison: safeString(''),
