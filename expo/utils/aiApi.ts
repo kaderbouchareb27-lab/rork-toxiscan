@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 const MODEL_ID = 'openai/gpt-4o';
 
@@ -99,6 +98,18 @@ export async function aiGenerateText(params: {
   return '';
 }
 
+function extractJsonBlock(text: string): string {
+  const trimmed = text.trim();
+  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch && fenceMatch[1]) return fenceMatch[1].trim();
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    return trimmed.substring(firstBrace, lastBrace + 1);
+  }
+  return trimmed;
+}
+
 export async function aiGenerateObject<T>(params: {
   system?: string;
   messages: AIMessage[];
@@ -107,53 +118,37 @@ export async function aiGenerateObject<T>(params: {
   toolDescription?: string;
   maxTokens?: number;
 }): Promise<T> {
-  const toolName = params.toolName ?? 'record_result';
-  const rawSchema = zodToJsonSchema(params.schema, {
-    $refStrategy: 'none',
-  }) as Record<string, unknown>;
-  const { $schema: _s, definitions: _d, ...cleanSchema } = rawSchema as Record<string, unknown> & { $schema?: unknown; definitions?: unknown };
-  const jsonSchema: Record<string, unknown> = {
-    type: 'object',
-    ...cleanSchema,
-  };
-  if (jsonSchema.type !== 'object') {
-    jsonSchema.type = 'object';
-  }
+  const jsonInstruction = "\n\nIMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide (pas de texte avant ni après, pas de backticks). L'objet JSON doit contenir tous les champs décrits ci-dessus.";
+  const systemWithJson = (params.system ?? '') + jsonInstruction;
 
   const body: Record<string, unknown> = {
     model: MODEL_ID,
     max_tokens: params.maxTokens ?? 4096,
-    messages: buildMessages(params.system, params.messages),
-    tools: [
-      {
-        type: 'function',
-        function: {
-          name: toolName,
-          description:
-            params.toolDescription ??
-            "Enregistre le résultat structuré de l'analyse.",
-          parameters: jsonSchema,
-        },
-      },
-    ],
-    tool_choice: { type: 'function', function: { name: toolName } },
+    messages: buildMessages(systemWithJson, params.messages),
+    response_format: { type: 'json_object' },
   };
 
   const data = await callChatCompletions(body);
   const choice = data?.choices?.[0];
-  const toolCalls = choice?.message?.tool_calls as
-    | Array<{ function?: { name?: string; arguments?: string } }>
-    | undefined;
-  const call = toolCalls?.find((c) => c.function?.name === toolName) ?? toolCalls?.[0];
-  const argsStr = call?.function?.arguments;
-  if (!argsStr) {
+  const rawContent = choice?.message?.content;
+  let contentStr = '';
+  if (typeof rawContent === 'string') {
+    contentStr = rawContent;
+  } else if (Array.isArray(rawContent)) {
+    contentStr = rawContent
+      .filter((b: { type: string }) => b.type === 'text')
+      .map((b: { text?: string }) => b.text ?? '')
+      .join('');
+  }
+  if (!contentStr) {
     throw new Error("L'IA n'a pas retourné de résultat structuré.");
   }
+  const jsonStr = extractJsonBlock(contentStr);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(argsStr);
+    parsed = JSON.parse(jsonStr);
   } catch (e) {
-    console.error('[AI] Failed to parse tool arguments:', argsStr.substring(0, 300));
+    console.error('[AI] Failed to parse JSON response:', contentStr.substring(0, 500));
     throw new Error("Réponse IA illisible.");
   }
   return params.schema.parse(parsed);
