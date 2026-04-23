@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-const MODEL_ID = 'anthropic/claude-sonnet-4.5';
+const MODEL_ID = 'openai/gpt-4o';
 
 function getProxyConfig(): { url: string; apiKey: string } {
   const toolkitUrl = process.env.EXPO_PUBLIC_TOOLKIT_URL;

@@ -43,7 +43,7 @@ const riskEnum = z.preprocess((v) => {
   const k = normalizeKey(v);
   const mapped = RISK_ALIASES[k] ?? ((RISK_VALUES as readonly string[]).includes(k) ? k : null);
   if (mapped === null) {
-    console.warn('[API] Unknown risk value from Claude:', JSON.stringify(v), '-> defaulting to possible (not aucun) for safety');
+    console.warn('[API] Unknown risk value from AI:', JSON.stringify(v), '-> defaulting to possible (not aucun) for safety');
     return 'possible';
   }
   return mapped;
@@ -201,7 +201,7 @@ LANGUE ET TON :
 - Jamais de diagnostic médical. Factuel.`;
 
 async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
-  console.log('[API] Calling Claude (sonnet-4-5) for universal analysis...');
+  console.log('[API] Calling OpenAI (gpt-4o) for universal analysis...');
   if (openFactsContext) {
     console.log('[API] Including Open Food Facts data in analysis prompt');
   }
@@ -229,7 +229,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     toolDescription: 'Enregistre l\'analyse structurée du produit scanné.',
     maxTokens: 800,
   });
-  console.log('[API] Claude analysis returned successfully');
+  console.log('[API] OpenAI analysis returned successfully');
   return result;
 }
 
@@ -463,7 +463,7 @@ export function universalResultToScannedProduct(
   result: UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null },
   photoUri: string,
 ): ScannedProduct {
-  console.log('[API] Mapping badge_global to riskGroup. Claude badge_global:', result.badge_global);
+  console.log('[API] Mapping badge_global to riskGroup. AI badge_global:', result.badge_global);
   let riskGroup = niveauRisqueToGroup(result.badge_global);
   console.log('[API] Initial riskGroup from badge_global:', riskGroup);
 
