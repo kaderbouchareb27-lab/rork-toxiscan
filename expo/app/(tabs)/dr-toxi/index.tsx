@@ -572,6 +572,26 @@ export default function DrToxiScreen() {
     });
   }, [activeConversationId]);
 
+  const handleSpeakMessage = useCallback(async (messageId: string, content: string) => {
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    if (speakingMessageId === messageId) {
+      await stopSpeech();
+      setSpeakingMessageId(null);
+      return;
+    }
+    try {
+      await stopSpeech();
+      setSpeakingMessageId(messageId);
+      await speakText(content);
+    } catch (error) {
+      console.error('[DrToxi] Speak error:', error);
+      setSpeakingMessageId(null);
+      Alert.alert(t('mic_error_title'), t('tts_error'));
+    }
+  }, [speakingMessageId]);
+
   const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
     const isUser = item.role === 'user';
     return (
@@ -716,26 +736,6 @@ export default function DrToxiScreen() {
       Alert.alert(t('mic_error_title'), t('mic_transcription_error'));
     }
   }, [isRecording, handleSend]);
-
-  const handleSpeakMessage = useCallback(async (messageId: string, content: string) => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    if (speakingMessageId === messageId) {
-      await stopSpeech();
-      setSpeakingMessageId(null);
-      return;
-    }
-    try {
-      await stopSpeech();
-      setSpeakingMessageId(messageId);
-      await speakText(content);
-    } catch (error) {
-      console.error('[DrToxi] Speak error:', error);
-      setSpeakingMessageId(null);
-      Alert.alert(t('mic_error_title'), t('tts_error'));
-    }
-  }, [speakingMessageId]);
 
   useEffect(() => {
     return () => {
