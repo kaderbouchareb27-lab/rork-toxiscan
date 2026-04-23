@@ -4,6 +4,8 @@ import { getDeviceLanguage } from '@/utils/i18n';
 
 const TOOLKIT_URL = process.env.EXPO_PUBLIC_TOOLKIT_URL ?? 'https://toolkit.rork.com';
 const TOOLKIT_SECRET = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY ?? '';
+const OPENAI_KEY = process.env.OPEN_AI ?? '';
+const OPENAI_TRANSCRIPTIONS_URL = 'https://api.openai.com/v1/audio/transcriptions';
 
 export type RecorderHandle = {
   stop: () => Promise<{ uri: string; mimeType: string } | null>;
@@ -88,10 +90,10 @@ async function startWebRecording(): Promise<RecorderHandle> {
 }
 
 export async function transcribeAudio(uri: string, mimeType: string): Promise<string> {
-  if (!TOOLKIT_SECRET) {
-    throw new Error('toolkit_secret_missing');
+  if (!OPENAI_KEY) {
+    throw new Error('openai_key_missing');
   }
-  console.log('[Voice] Transcribing:', uri.substring(0, 60));
+  console.log('[Voice] Transcribing directly via OpenAI API:', uri.substring(0, 60));
 
   const form = new FormData();
 
@@ -113,10 +115,10 @@ export async function transcribeAudio(uri: string, mimeType: string): Promise<st
   const lang = getDeviceLanguage();
   form.append('language', lang);
 
-  const res = await fetch(`${TOOLKIT_URL}/v2/openai/v1/audio/transcriptions`, {
+  const res = await fetch(OPENAI_TRANSCRIPTIONS_URL, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${TOOLKIT_SECRET}`,
+      Authorization: `Bearer ${OPENAI_KEY}`,
     },
     body: form,
   });
