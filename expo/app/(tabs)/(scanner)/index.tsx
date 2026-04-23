@@ -74,14 +74,14 @@ export default function ScannerScreen() {
       let thumbnailBase64: string | undefined;
       try {
         if (Platform.OS === 'web') {
-          base64 = await compressImageWeb(imageUri, 800);
+          base64 = await compressImageWeb(imageUri, 1280);
           try {
             thumbnailBase64 = await compressImageWeb(imageUri, 120);
           } catch (e) {
             console.warn('[Scanner] Thumbnail generation failed on web:', e);
           }
         } else {
-          base64 = await compressImageNative(imageUri, 800, 0.7);
+          base64 = await compressImageNative(imageUri, 1280, 0.85);
           try {
             const thumbResult = await manipulateAsync(
               imageUri,
