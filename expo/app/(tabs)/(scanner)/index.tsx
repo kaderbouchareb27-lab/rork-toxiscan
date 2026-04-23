@@ -112,13 +112,15 @@ export default function ScannerScreen() {
       try {
         result = await analyzeUniversalPhoto(base64);
       } catch (apiError) {
-        console.error('[Scanner] API call failed:', apiError);
-        throw new Error(t('error_analysis_failed'));
+        const realMsg = apiError instanceof Error ? apiError.message : String(apiError);
+        console.error('[Scanner] API call failed with real error:', realMsg);
+        console.error('[Scanner] Full error object:', apiError);
+        throw new Error(realMsg || t('error_analysis_failed'));
       }
 
       if (result.erreur) {
         console.error('[Scanner] API returned error:', result.erreur);
-        throw new Error(t('error_analyze_product'));
+        throw new Error(result.erreur);
       }
 
       const product = universalResultToScannedProduct(result, imageUri);
