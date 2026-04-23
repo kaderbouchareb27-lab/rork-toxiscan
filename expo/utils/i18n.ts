@@ -367,6 +367,19 @@ const translations = {
   // ===== PRODUCT CONTEXT PROMPT =====
   product_context_prompt: { fr: (name: string, brand: string, barcode: string, verdict: string, summary: string) => `\n\n--- CONTEXTE PRODUIT ---\nL'utilisateur a scanné le produit "${name}" (marque: ${brand || 'inconnue'}, code-barres: ${barcode}). Le verdict est: ${verdict}.${summary ? ` Résumé: ${summary}` : ''}\nRéponds en tenant compte de ce produit spécifique.\n`, en: (name: string, brand: string, barcode: string, verdict: string, summary: string) => `\n\n--- PRODUCT CONTEXT ---\nThe user scanned the product "${name}" (brand: ${brand || 'unknown'}, barcode: ${barcode}). The verdict is: ${verdict}.${summary ? ` Summary: ${summary}` : ''}\nRespond considering this specific product.\n` },
 
+  // ===== VOICE CHAT =====
+  speak_now: { fr: 'Parlez maintenant…', en: 'Speak now…' },
+  release_to_send: { fr: 'Relâchez pour envoyer', en: 'Release to send' },
+  transcribing: { fr: 'Transcription en cours…', en: 'Transcribing…' },
+  listen: { fr: 'Écouter', en: 'Listen' },
+  listening: { fr: 'Lecture…', en: 'Playing…' },
+  mic_error_title: { fr: 'Message vocal', en: 'Voice message' },
+  mic_permission_msg: { fr: "Active l'accès au micro dans les réglages pour utiliser les messages vocaux.", en: 'Enable microphone access in settings to use voice messages.' },
+  mic_start_error: { fr: "Impossible de démarrer l'enregistrement. Réessaie.", en: 'Unable to start recording. Try again.' },
+  mic_empty_transcription: { fr: "Je n'ai rien entendu. Maintiens le bouton plus longtemps et parle clairement.", en: "I didn't hear anything. Hold the button longer and speak clearly." },
+  mic_transcription_error: { fr: "Impossible de transcrire l'audio. Vérifie ta connexion et réessaie.", en: 'Unable to transcribe the audio. Check your connection and try again.' },
+  tts_error: { fr: "Impossible de lire la réponse à voix haute pour le moment.", en: 'Unable to read the response aloud right now.' },
+
   // ===== DR TOXI SYSTEM PROMPT ACKNOWLEDGMENT =====
   drtoxi_ack: { fr: "Compris ! Je suis Dr. Toxi, ton expert en ingrédients du quotidien. Je suis prêt à t'aider.", en: "Got it! I'm Dr. Toxi, your everyday ingredient expert. I'm ready to help you." },
 } as const;

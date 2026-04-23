@@ -14,9 +14,12 @@ import {
   Alert,
   Modal,
   ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, ChevronRight, Share2, Camera, ChevronLeft, Plus, MessageSquare, X } from 'lucide-react-native';
+import { Send, ChevronRight, Share2, Camera, ChevronLeft, Plus, MessageSquare, X, Mic, Volume2, Square } from 'lucide-react-native';
+import { startRecording, transcribeAudio, speakText, stopSpeech, type RecorderHandle } from '@/utils/voiceChat';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
@@ -147,6 +150,14 @@ export default function DrToxiScreen() {
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [productContextHandled, setProductContextHandled] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const recorderRef = useRef<RecorderHandle | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const waveAnim1 = useRef(new Animated.Value(0)).current;
+  const waveAnim2 = useRef(new Animated.Value(0)).current;
+  const waveAnim3 = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
   const { canUseDrToxi, drToxiRemaining, drToxiLimit, isPro, consumeDrToxi } = useSubscription();
   const { recordDrToxiQuestion, recordShare } = useBadges();
@@ -584,21 +595,156 @@ export default function DrToxiScreen() {
             </View>
           )}
           {!isUser && !item.id.includes('_error') && (
-            <TouchableOpacity
-              style={styles.shareResponseButton}
-              onPress={() => handleShareResponse(item.content)}
-              activeOpacity={0.7}
-            >
-              <Share2 color={Colors.textSecondary} size={14} />
-              <Text style={styles.shareResponseText}>{t('share')}</Text>
-            </TouchableOpacity>
+            <View style={styles.messageActionsRow}>
+              <TouchableOpacity
+                style={styles.shareResponseButton}
+                onPress={() => handleShareResponse(item.content)}
+                activeOpacity={0.7}
+              >
+                <Share2 color={Colors.textSecondary} size={14} />
+                <Text style={styles.shareResponseText}>{t('share')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.shareResponseButton, speakingMessageId === item.id && styles.shareResponseButtonActive]}
+                onPress={() => handleSpeakMessage(item.id, item.content)}
+                activeOpacity={0.7}
+                testID={`speak-${item.id}`}
+              >
+                {speakingMessageId === item.id ? (
+                  <Square color={Colors.primary} size={14} fill={Colors.primary} />
+                ) : (
+                  <Volume2 color={Colors.textSecondary} size={14} />
+                )}
+                <Text style={[styles.shareResponseText, speakingMessageId === item.id && styles.shareResponseTextActive]}>
+                  {speakingMessageId === item.id ? t('listening') : t('listen')}
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       </View>
     );
-  }, [handleShareResponse]);
+  }, [handleShareResponse, handleSpeakMessage, speakingMessageId]);
 
   const isLoading = sendMutation.isPending || isAnalyzingImage;
+
+  useEffect(() => {
+    if (!isRecording) {
+      pulseAnim.setValue(1);
+      waveAnim1.setValue(0);
+      waveAnim2.setValue(0);
+      waveAnim3.setValue(0);
+      return;
+    }
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.25, duration: 600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    );
+    const makeWave = (anim: Animated.Value, delay: number) => Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(anim, { toValue: 1, duration: 500, easing: Easing.out(Easing.ease), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(anim, { toValue: 0, duration: 500, easing: Easing.in(Easing.ease), useNativeDriver: Platform.OS !== 'web' }),
+      ])
+    );
+    pulse.start();
+    const w1 = makeWave(waveAnim1, 0);
+    const w2 = makeWave(waveAnim2, 150);
+    const w3 = makeWave(waveAnim3, 300);
+    w1.start();
+    w2.start();
+    w3.start();
+    return () => {
+      pulse.stop();
+      w1.stop();
+      w2.stop();
+      w3.stop();
+    };
+  }, [isRecording, pulseAnim, waveAnim1, waveAnim2, waveAnim3]);
+
+  const handleMicPressIn = useCallback(async () => {
+    if (isLoading || isRecording || isTranscribing) return;
+    if (!canUseDrToxi) {
+      router.push('/paywall?source=drtoxi');
+      return;
+    }
+    try {
+      if (Platform.OS !== 'web') {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+      const handle = await startRecording();
+      recorderRef.current = handle;
+      setIsRecording(true);
+      console.log('[DrToxi] Voice recording started');
+    } catch (error) {
+      console.error('[DrToxi] Recording start error:', error);
+      const msg = error instanceof Error && error.message === 'microphone_permission_denied'
+        ? t('mic_permission_msg')
+        : t('mic_start_error');
+      Alert.alert(t('mic_error_title'), msg);
+    }
+  }, [isLoading, isRecording, isTranscribing, canUseDrToxi]);
+
+  const handleMicPressOut = useCallback(async () => {
+    if (!isRecording) return;
+    const handle = recorderRef.current;
+    recorderRef.current = null;
+    setIsRecording(false);
+    if (!handle) return;
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    try {
+      const result = await handle.stop();
+      if (!result) {
+        console.log('[DrToxi] No audio captured');
+        return;
+      }
+      setIsTranscribing(true);
+      const text = await transcribeAudio(result.uri, result.mimeType);
+      setIsTranscribing(false);
+      if (!text || text.length < 2) {
+        Alert.alert(t('mic_error_title'), t('mic_empty_transcription'));
+        return;
+      }
+      handleSend(text);
+    } catch (error) {
+      setIsTranscribing(false);
+      console.error('[DrToxi] Transcription error:', error);
+      Alert.alert(t('mic_error_title'), t('mic_transcription_error'));
+    }
+  }, [isRecording, handleSend]);
+
+  const handleSpeakMessage = useCallback(async (messageId: string, content: string) => {
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    if (speakingMessageId === messageId) {
+      await stopSpeech();
+      setSpeakingMessageId(null);
+      return;
+    }
+    try {
+      await stopSpeech();
+      setSpeakingMessageId(messageId);
+      await speakText(content);
+    } catch (error) {
+      console.error('[DrToxi] Speak error:', error);
+      setSpeakingMessageId(null);
+      Alert.alert(t('mic_error_title'), t('tts_error'));
+    }
+  }, [speakingMessageId]);
+
+  useEffect(() => {
+    return () => {
+      void stopSpeech();
+      if (recorderRef.current) {
+        void recorderRef.current.cancel();
+      }
+    };
+  }, []);
 
   const getVerdictDot = (level?: string) => {
     if (level === 'danger') return '#FF3B30';
@@ -737,11 +883,32 @@ export default function DrToxiScreen() {
           </View>
         )}
 
+        {isRecording && (
+          <View style={styles.recordingOverlay} testID="recording-overlay">
+            <View style={styles.recordingWaves}>
+              <Animated.View style={[styles.waveBar, { transform: [{ scaleY: waveAnim1.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1.6] }) }] }]} />
+              <Animated.View style={[styles.waveBar, { transform: [{ scaleY: waveAnim2.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.8] }) }] }]} />
+              <Animated.View style={[styles.waveBar, { transform: [{ scaleY: waveAnim3.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1.4] }) }] }]} />
+              <Animated.View style={[styles.waveBar, { transform: [{ scaleY: waveAnim2.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1.9] }) }] }]} />
+              <Animated.View style={[styles.waveBar, { transform: [{ scaleY: waveAnim1.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1.5] }) }] }]} />
+            </View>
+            <Text style={styles.recordingText}>{t('speak_now')}</Text>
+            <Text style={styles.recordingHint}>{t('release_to_send')}</Text>
+          </View>
+        )}
+
+        {isTranscribing && (
+          <View style={styles.recordingOverlay}>
+            <ActivityIndicator size="small" color={Colors.primary} />
+            <Text style={styles.recordingText}>{t('transcribing')}</Text>
+          </View>
+        )}
+
         <View style={styles.inputContainer}>
           <TouchableOpacity
             style={[styles.cameraButton, isLoading && styles.cameraButtonDisabled]}
             onPress={handlePhotoAction}
-            disabled={isLoading}
+            disabled={isLoading || isRecording}
             activeOpacity={0.7}
             testID="camera-button"
           >
@@ -749,7 +916,7 @@ export default function DrToxiScreen() {
           </TouchableOpacity>
           <TextInput
             style={styles.textInput}
-            placeholder={t('ask_question_placeholder')}
+            placeholder={isRecording ? t('speak_now') : t('ask_question_placeholder')}
             placeholderTextColor={Colors.textTertiary}
             value={input}
             onChangeText={setInput}
@@ -757,16 +924,32 @@ export default function DrToxiScreen() {
             maxLength={500}
             returnKeyType="send"
             onSubmitEditing={() => handleSend()}
+            editable={!isRecording && !isTranscribing}
             testID="chat-input"
           />
-          <TouchableOpacity
-            style={[styles.sendButton, (!input.trim() || isLoading) && styles.sendButtonDisabled]}
-            onPress={() => handleSend()}
-            disabled={!input.trim() || isLoading}
-            testID="send-button"
-          >
-            <Send color={Colors.white} size={18} />
-          </TouchableOpacity>
+          {input.trim().length > 0 ? (
+            <TouchableOpacity
+              style={[styles.sendButton, isLoading && styles.sendButtonDisabled]}
+              onPress={() => handleSend()}
+              disabled={isLoading}
+              testID="send-button"
+            >
+              <Send color={Colors.white} size={18} />
+            </TouchableOpacity>
+          ) : (
+            <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+              <TouchableOpacity
+                style={[styles.micButton, isRecording && styles.micButtonRecording, (isLoading || isTranscribing) && styles.sendButtonDisabled]}
+                onPressIn={handleMicPressIn}
+                onPressOut={handleMicPressOut}
+                disabled={isLoading || isTranscribing}
+                activeOpacity={0.8}
+                testID="mic-button"
+              >
+                <Mic color={Colors.white} size={18} />
+              </TouchableOpacity>
+            </Animated.View>
+          )}
         </View>
       </KeyboardAvoidingView>
 
@@ -1126,6 +1309,70 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondary,
     fontWeight: '500' as const,
+  },
+  messageActionsRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 2,
+    flexWrap: 'wrap',
+  },
+  shareResponseButtonActive: {
+    backgroundColor: 'rgba(46, 125, 50, 0.12)',
+  },
+  shareResponseTextActive: {
+    color: '#2E7D32',
+    fontWeight: '600' as const,
+  },
+  micButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#2E7D32',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#1B5E20',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  micButtonRecording: {
+    backgroundColor: '#FF3B30',
+    shadowColor: '#C62828',
+  },
+  recordingOverlay: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(46, 125, 50, 0.08)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(46, 125, 50, 0.25)',
+    alignItems: 'center',
+    gap: 6,
+  },
+  recordingWaves: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    height: 28,
+    marginBottom: 2,
+  },
+  waveBar: {
+    width: 4,
+    height: 20,
+    borderRadius: 2,
+    backgroundColor: '#2E7D32',
+  },
+  recordingText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: '#2E7D32',
+  },
+  recordingHint: {
+    fontSize: 11,
+    color: Colors.textSecondary,
   },
   typingContainer: {
     paddingHorizontal: 16,
