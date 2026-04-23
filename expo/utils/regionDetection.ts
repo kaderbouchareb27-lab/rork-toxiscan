@@ -172,15 +172,15 @@ export function getRegionLocalMarkets(region: UserRegion): string[] {
 export function getLanguageInstruction(language: UserLanguage): string {
   switch (language) {
     case 'fr_quebec':
-      return `LANGUE : Tu DOIS répondre en français québécois. Tutoiement obligatoire. Utilise des expressions naturelles québécoises : "check ça", "c'est correct", "t'sais", "let's go", "pas de stress", "pour vrai". Prix en CAD $. Références aux épiceries et marques québécoises (IGA, Metro, Maxi, Provigo, Costco, Jean Coutu, Pharmaprix). Ne JAMAIS utiliser des expressions européennes comme "du coup", "en gros".`;
+      return `LANGUE : Tu DOIS répondre en français standard international (PAS en québécois). Tutoiement. Vocabulaire et syntaxe d'un médecin ou nutritionniste français. JAMAIS de québécismes : interdits "t'sais", "genre", "faque", "pantoute", "tantôt" (au sens québécois), "pogner", "magasiner", "char", "présentement", "chum", "blonde", "dépanneur". Toujours négations complètes ("je n'ai pas", jamais "j'ai pas"). Prix en CAD $. L'utilisateur est au Québec/Canada francophone : recommande UNIQUEMENT des produits disponibles chez IGA, Metro, Maxi, Provigo, Costco Canada, Jean Coutu, Pharmaprix, Avril, Rachelle Béry. Exemples : "Tu peux trouver du jambon sans nitrites chez IGA en section bio", "Le chocolat noir Lindt est disponible chez Metro".`;
     case 'fr_france':
-      return `LANGUE : Tu DOIS répondre en français standard (France). Tutoiement. Expressions naturelles : "regarde", "en gros", "concrètement", "du coup", "pas de panique". Prix en EUR. Références aux magasins français (Carrefour, Monoprix, Leclerc, Intermarché, Biocoop, Naturalia). Ne JAMAIS utiliser des québécismes.`;
+      return `LANGUE : Tu DOIS répondre en français standard (France). Tutoiement. Expressions naturelles : "regarde", "en gros", "concrètement", "du coup", "pas de panique". Prix en EUR. L'utilisateur est en France : recommande UNIQUEMENT des produits disponibles chez Carrefour, Monoprix, Leclerc, Intermarché, Auchan, Biocoop, Naturalia, La Vie Claire. Exemples : "Tu trouveras ça chez Biocoop ou en rayon bio de Carrefour". Ne JAMAIS utiliser des québécismes.`;
     case 'fr_belgium':
-      return `LANGUE : Tu DOIS répondre en français. Tutoiement. Style naturel et courant. Prix en EUR. Références aux magasins belges (Delhaize, Colruyt, Carrefour Belgique, Bio-Planet).`;
+      return `LANGUE : Tu DOIS répondre en français de France (pas en québécois). Tutoiement. Style naturel et courant. Prix en EUR. L'utilisateur est en Belgique : recommande UNIQUEMENT des produits disponibles chez Delhaize, Colruyt, Carrefour Belgique, Bio-Planet. Exemples : "Tu trouveras ça chez Delhaize en section bio".`;
     case 'fr_switzerland':
-      return `LANGUE : Tu DOIS répondre en français. Tutoiement. Style naturel et courant. Prix en CHF. Références aux magasins suisses (Migros, Coop, Denner).`;
+      return `LANGUE : Tu DOIS répondre en français de France (pas en québécois). Tutoiement. Style naturel et courant. Prix en CHF. L'utilisateur est en Suisse : recommande UNIQUEMENT des produits disponibles chez Migros, Coop, Denner, Manor. Exemples : "Tu trouveras ça chez Migros ou Coop Naturaplan".`;
     case 'en':
-      return `LANGUAGE: You MUST respond in English. Be friendly and use "you". Prices in USD $. Reference stores available in the user's region (Whole Foods, Walmart, Target, CVS, Trader Joe's, Costco, Sprouts). Never respond in French. All product names, store names, and recommendations must be relevant to the North American market.`;
+      return `LANGUAGE: You MUST respond in English. Be friendly, use "you", warm and professional tone. Prices in USD $ (or CAD $ if user is in Canada). The user is in the United States or English Canada: ONLY recommend products available at Whole Foods, Trader Joe's, Walmart, Target, Costco USA, Sprouts, CVS (or Loblaws, Real Canadian Superstore, Walmart Canada if Canada). Examples: "You can find this at Whole Foods or Trader Joe's". Never respond in French. All product names, store names, and recommendations must be relevant to the North American market.`;
   }
 }
 
@@ -216,9 +216,15 @@ export function getAnalysisRegionPrompt(): string {
 }
 
 export function getChatRegionPrompt(): string {
-  const { region, language } = detectRegion();
+  const { region, language, regionCode } = detectRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
 
-  return `\n\n--- DÉTECTION AUTOMATIQUE DE RÉGION ET LANGUE ---\nLa région et la langue de l'utilisateur ont été détectées automatiquement par l'appareil. Tu n'as PAS besoin de demander.\n${storeContext}\n${langInstruction}`;
+  const hasLocation = regionCode && regionCode.length > 0;
+
+  const geoRules = hasLocation
+    ? `\n\n--- RÈGLES STRICTES DE GÉOLOCALISATION ---\n1. La localisation de l'utilisateur a été détectée par l'appareil. NE JAMAIS demander "où te trouves-tu ?".\n2. Toutes les recommandations de produits alternatifs DOIVENT correspondre au pays détecté ci-dessus.\n3. Ne JAMAIS recommander un magasin ou une marque qui n'existe pas dans le pays de l'utilisateur — c'est inutile et frustrant pour lui.\n4. Ne JAMAIS mélanger les enseignes entre pays (ex : ne pas citer Carrefour à un utilisateur québécois, ne pas citer IGA à un utilisateur français).\n5. Adapte la langue de réponse à la région détectée selon la règle LANGUE ci-dessus.`
+    : `\n\n--- RÈGLES STRICTES DE GÉOLOCALISATION ---\n1. La localisation de l'utilisateur n'a PAS pu être détectée automatiquement.\n2. Avant de recommander un produit alternatif ou une enseigne, demande poliment à l'utilisateur dans quel pays il se trouve (France, Belgique, Suisse, Québec/Canada, États-Unis, autre).\n3. Une fois le pays connu, adapte TOUTES tes recommandations aux enseignes de ce pays uniquement.\n4. Ne JAMAIS inventer des enseignes, ne jamais mélanger les pays.`;
+
+  return `\n\n--- DÉTECTION AUTOMATIQUE DE RÉGION ET LANGUE ---\nLa région et la langue de l'utilisateur ont été détectées automatiquement par l'appareil.\n${storeContext}\n${langInstruction}${geoRules}`;
 }
