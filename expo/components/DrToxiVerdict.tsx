@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react-native';
+import { ShieldCheck, ShieldAlert, ShieldX, ThumbsUp, AlertTriangle } from 'lucide-react-native';
 import { t } from '@/utils/i18n';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
-export type VerdictLevel = 'danger' | 'prudence' | 'approuve';
+export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
 
 interface DrToxiVerdictProps {
   level: VerdictLevel;
@@ -31,7 +31,7 @@ function getVerdictConfig(): Record<VerdictLevel, {
       message: t('verdict_danger_msg'),
       icon: <ShieldX color="#FF3B30" size={24} />,
     },
-    prudence: {
+    warning: {
       bgColor: '#FFF3E0',
       borderColor: '#FFE0B2',
       titleColor: '#E65100',
@@ -40,6 +40,15 @@ function getVerdictConfig(): Record<VerdictLevel, {
       message: t('verdict_caution_msg'),
       icon: <ShieldAlert color="#FF9500" size={24} />,
     },
+    moderation: {
+      bgColor: '#FFF9E5',
+      borderColor: '#FFE380',
+      titleColor: '#8A6A00',
+      textColor: '#6E5200',
+      title: t('verdict_moderation_title'),
+      message: t('verdict_moderation_msg'),
+      icon: <AlertTriangle color="#E0B400" size={24} />,
+    },
     approuve: {
       bgColor: '#E8F9ED',
       borderColor: '#C4EDC9',
@@ -47,7 +56,7 @@ function getVerdictConfig(): Record<VerdictLevel, {
       textColor: '#3A6B4A',
       title: t('verdict_approved_title'),
       message: t('verdict_approved_msg'),
-      icon: <ShieldCheck color="#2E9E34" size={24} />,
+      icon: <ThumbsUp color="#2E9E34" size={24} />,
     },
   };
 }

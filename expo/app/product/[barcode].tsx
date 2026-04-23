@@ -8,6 +8,9 @@ import {
   Share,
   Platform,
   ActivityIndicator,
+  Animated,
+  Easing,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -78,11 +81,111 @@ function getBannerConfig(level: VerdictLevel): { color: string; label: string; i
   switch (level) {
     case 'danger':
       return { color: '#FF3B30', label: t('badge_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
-    case 'prudence':
+    case 'warning':
       return { color: '#FF9500', label: t('badge_caution'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+    case 'moderation':
+      return { color: '#E0B400', label: t('badge_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'approuve':
       return { color: '#2E9E34', label: t('badge_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
   }
+}
+
+const CONFETTI_COLORS = ['#2E9E34', '#34C759', '#7ED957', '#A8E6A1', '#C4EDC9'];
+const CONFETTI_COUNT = 24;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+function ConfettiBurst() {
+  const pieces = useRef(
+    Array.from({ length: CONFETTI_COUNT }).map(() => ({
+      translateY: new Animated.Value(0),
+      translateX: new Animated.Value(0),
+      rotate: new Animated.Value(0),
+      opacity: new Animated.Value(1),
+    }))
+  ).current;
+  const meta = useMemo(
+    () =>
+      pieces.map((_, i) => ({
+        startX: (Math.random() - 0.5) * SCREEN_WIDTH * 0.9,
+        endY: 180 + Math.random() * 220,
+        endX: (Math.random() - 0.5) * SCREEN_WIDTH * 1.1,
+        size: 6 + Math.random() * 8,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        rotateTo: (Math.random() - 0.5) * 720,
+        delay: Math.random() * 150,
+      })),
+    [pieces]
+  );
+
+  useEffect(() => {
+    const animations = pieces.map((p, i) =>
+      Animated.parallel([
+        Animated.timing(p.translateY, {
+          toValue: meta[i].endY,
+          duration: 1400 + Math.random() * 600,
+          delay: meta[i].delay,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+        Animated.timing(p.translateX, {
+          toValue: meta[i].endX,
+          duration: 1400 + Math.random() * 600,
+          delay: meta[i].delay,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+        Animated.timing(p.rotate, {
+          toValue: meta[i].rotateTo,
+          duration: 1400,
+          delay: meta[i].delay,
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+        Animated.timing(p.opacity, {
+          toValue: 0,
+          duration: 1600,
+          delay: meta[i].delay + 600,
+          useNativeDriver: Platform.OS !== 'web',
+        }),
+      ])
+    );
+    Animated.stagger(20, animations).start();
+  }, [pieces, meta]);
+
+  return (
+    <View pointerEvents="none" style={styles.confettiLayer} testID="confetti-burst">
+      {pieces.map((p, i) => (
+        <Animated.View
+          key={`confetti-${i}`}
+          style={[
+            styles.confettiPiece,
+            {
+              left: SCREEN_WIDTH / 2 + meta[i].startX,
+              width: meta[i].size,
+              height: meta[i].size * 0.4,
+              backgroundColor: meta[i].color,
+              opacity: p.opacity,
+              transform: [
+                { translateY: p.translateY },
+                { translateX: p.translateX },
+                {
+                  rotate: p.rotate.interpolate({
+                    inputRange: [-720, 720],
+                    outputRange: ['-720deg', '720deg'],
+                  }),
+                },
+              ],
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
+}
+
+function truncateName(name: string, max: number = 60): string {
+  if (!name) return name;
+  if (name.length <= max) return name;
+  return name.slice(0, max - 1).trimEnd() + '\u2026';
 }
 
 function shortenText(text: string, maxSentences: number): string {
@@ -168,46 +271,54 @@ export default function ProductScreen() {
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
   const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
-    let _hasDanger = false;
+    let _hasGroup1 = false;
+    let _hasGroup2A = false;
     let _hasGroup2B = false;
-    let _hasControversial = false;
+    let _controversialCount = 0;
+
+    const tally = (level: SubstanceLevel) => {
+      if (level === 'group1') _hasGroup1 = true;
+      else if (level === 'group2a') _hasGroup2A = true;
+      else if (level === 'group2b') _hasGroup2B = true;
+      else if (level === 'controversial') _controversialCount += 1;
+    };
 
     for (const additive of product.detectedAdditives) {
-      const level = classifyAdditiveLevel(additive);
-      if (isDangerLevel(level)) _hasDanger = true;
-      else if (level === 'group2b') _hasGroup2B = true;
-      else if (level === 'controversial') _hasControversial = true;
+      tally(classifyAdditiveLevel(additive));
     }
 
     if (product.substances) {
       for (const s of product.substances) {
-        const level = classifySubstanceLevel(s);
-        if (isDangerLevel(level)) _hasDanger = true;
-        else if (level === 'group2b') _hasGroup2B = true;
-        else if (level === 'controversial') _hasControversial = true;
+        tally(classifySubstanceLevel(s));
       }
     }
 
     if (product.detectedIngredients) {
       for (const i of product.detectedIngredients) {
-        const level = classifySubstanceLevel({
+        tally(classifySubstanceLevel({
           classification_circ: i.classification_circ,
           niveau_risque: i.niveau_risque,
           explication: i.explication,
           nom: i.nom,
-        });
-        if (isDangerLevel(level)) _hasDanger = true;
-        else if (level === 'group2b') _hasGroup2B = true;
-        else if (level === 'controversial') _hasControversial = true;
+        }));
       }
     }
 
     let _verdictLevel: VerdictLevel = 'approuve';
-    if (_hasDanger) _verdictLevel = 'danger';
-    else if (_hasGroup2B || _hasControversial) _verdictLevel = 'prudence';
+    if (_hasGroup1) {
+      _verdictLevel = 'danger';
+    } else if (_hasGroup2A || _controversialCount >= 2) {
+      _verdictLevel = 'warning';
+    } else if (_controversialCount === 1 || _hasGroup2B) {
+      _verdictLevel = 'moderation';
+    }
 
-    console.log('[Product] Verdict:', _verdictLevel, 'danger(1/2A):', _hasDanger, 'group2B:', _hasGroup2B, 'controversial:', _hasControversial);
-    return { verdictLevel: _verdictLevel, hasCarcinogen: _hasDanger, hasControversial: _hasGroup2B || _hasControversial };
+    console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'G2B:', _hasGroup2B, 'controversial:', _controversialCount);
+    return {
+      verdictLevel: _verdictLevel,
+      hasCarcinogen: _hasGroup1 || _hasGroup2A,
+      hasControversial: _hasGroup2B || _controversialCount > 0,
+    };
   }, [product]);
 
   const isGreen = verdictLevel === 'approuve';
@@ -227,7 +338,13 @@ export default function ProductScreen() {
   };
 
   const fallbackTextShare = async () => {
-    const badgeLabel = verdictLevel === 'approuve' ? `[${t('badge_approved')}]` : verdictLevel === 'prudence' ? `[${t('badge_caution')}]` : `[${t('badge_danger')}]`;
+    const badgeLabel = verdictLevel === 'approuve'
+      ? `[${t('badge_approved')}]`
+      : verdictLevel === 'warning'
+        ? `[${t('badge_caution')}]`
+        : verdictLevel === 'moderation'
+          ? `[${t('badge_moderation')}]`
+          : `[${t('badge_danger')}]`;
     const substancesText = product.detectedAdditives.length > 0
       ? `\n\n${t('substances_detected')} :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
       : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
@@ -377,8 +494,10 @@ export default function ProductScreen() {
               </View>
             )
           )}
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productBrand}>{product.brand}</Text>
+          <Text style={styles.productName}>{truncateName(product.name, 60)}</Text>
+          {product.brand && product.brand !== getCategoryLabel(product.productCategory ?? 'other') ? (
+            <Text style={styles.productBrand}>{product.brand}</Text>
+          ) : null}
 
           {isUniversalScan && product.productCategory && (
             <View style={styles.categoryTag}>
@@ -386,6 +505,8 @@ export default function ProductScreen() {
               <Text style={styles.categoryTagText}>{getCategoryLabel(product.productCategory)}</Text>
             </View>
           )}
+
+          {isGreen && <ConfettiBurst />}
 
           {product.materialDetected ? (
             <Text style={styles.materialText}>{t('material_label')} : {product.materialDetected}</Text>
@@ -1136,6 +1257,19 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 32,
+  },
+  confettiLayer: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 400,
+    pointerEvents: 'none' as const,
+  },
+  confettiPiece: {
+    position: 'absolute' as const,
+    top: 0,
+    borderRadius: 2,
   },
   offscreenContainer: {
     position: 'absolute' as const,

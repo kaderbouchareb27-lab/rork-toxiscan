@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { claudeGenerateObject } from '@/utils/claudeApi';
 import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
+import { t } from '@/utils/i18n';
 
 const universalAnalysisSchema = z.object({
   categorie_produit: z.enum(['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other']),
@@ -43,7 +44,7 @@ CATÉGORIES D'OBJETS À RECONNAÎTRE :
 1. ALIMENTS ET BOISSONS (categorie: "food" ou "beverage") :
    - Listes d'ingrédients, produits alimentaires, boissons
    - Analyser : additifs, conservateurs, édulcorants, colorants, exhausteurs de gout, huiles
-   - Cadmium : métal lourd cancérigène avéré Groupe 1 CIRC. Présent dans : cacao/chocolat, céréales complètes, crustacés, mollusques, abats (foie, rein), graines de tournesol, épinards, pommes de terre. Exposition régulière = risque accru de cancer du rein et des poumons. Si le produit contient majoritairement du cacao, des crustacés ou des céréales complètes, SIGNALER le risque de cadmium.
+   - RÈGLE ABSOLUE CACAO / CHOCOLAT : Le cacao, le chocolat, la poudre de cacao, le beurre de cacao, la liqueur de cacao et TOUS les dérivés du cacao sont des INGRÉDIENTS ALIMENTAIRES NORMAUX, PAS des substances cancérigènes. Ne JAMAIS afficher de badge « cadmium », « cancérigène » ou « Groupe 1 » sur un ingrédient cacao. Le cadmium est un contaminant environnemental possible dans le cacao, mais ce n'est PAS un ingrédient listé. Le badge cadmium ne s'affiche QUE si le mot « cadmium » apparaît littéralement dans la liste d'ingrédients (ce qui n'arrive jamais en pratique). Un produit au cacao (chocolat noir, poudre de cacao, etc.) sans autres additifs problématiques = badge_global: "aucun" (VERT).
    - IGNORER le type d'emballage (plastique, verre, carton, métal) dans l'analyse des risques
 
 2. USTENSILES DE CUISINE (categorie: "kitchen_utensil") :
@@ -181,13 +182,20 @@ Ces substances sont controversées mais NE SONT PAS classées cancérogènes par
 - Arôme naturel : terme trompeur, manque de transparence, mais pas de classification cancérogène directe. JAUNE maximum.
 - Arôme artificiel : terme trompeur, composition inconnue. JAUNE maximum.
 - Aspartame / E951, Sucralose / E955 : édulcorants controversés
-- BHA / E320, BHT / E321 : conservateurs controversés
+- BHA / E320 : conservateur controversé. classification_circ: "Non classé par le CIRC".
+- BHT / E321 (Butylhydroxytoluène) : CLASSÉ GROUPE 3 PAR L'IARC = NON CLASSIFIABLE, preuves insuffisantes. Ce n'est PAS un cancérigène. BHT seul = NEUTRE, aucun badge. Si combiné à d'autres substances problématiques, peut être signalé comme « substance controversée » niveau_risque: "possible" (JAUNE) MAXIMUM. Ne JAMAIS afficher de badge cancérigène sur le BHT. classification_circ: "Groupe 3 CIRC — non classifiable".
 - E150c, E150d : caramel avec 4-MEI potentiellement cancérigène
-- Dioxyde de titane / E171
-- Colorants azoïques (E102, E110, E129, E127)
+- Dioxyde de titane / E171 : Groupe 2B CIRC
 - Carraghénine / E407, Polysorbate 80 / E433
 - Extrait de levure : forme cachée de glutamate
 - Annatto / E160b : colorant naturel mais réactions allergiques possibles
+
+COLORANTS ARTIFICIELS FD&C — RÈGLE SPÉCIALE :
+Les colorants FD&C (Red 40 / E129, Yellow 5 / E102, Yellow 6 / E110, Blue 1 / E133, Blue 2 / E132, Green 3 / E143) NE SONT PAS classés par le CIRC / IARC. Aucun groupe officiel.
+- niveau_risque: "possible" (SUBSTANCE CONTROVERSÉE, badge JAUNE)
+- classification_circ: "Non classé par le CIRC"
+- Utiliser EXACTEMENT ce texte pour l'explication (adapter le nom du colorant) : "Ce colorant artificiel n'est pas classé cancérogène par le CIRC. Cependant, des études scientifiques ont détecté des contaminants comme la benzidine (cancérigène Groupe 1) dans sa composition. Des liens avec l'hyperactivité chez l'enfant ont été documentés (étude Lancet 2007). La FDA américaine a annoncé son retrait progressif des aliments en 2025."
+- INTERDIT : ne JAMAIS mentionner « Groupe 2B », « classés comme possibles cancérogènes par le CIRC », « probablement cancérigène » ou « cancérigène probable » pour ces colorants. Le badge reste SUBSTANCE CONTROVERSÉE.
 
 EXEMPLE CONCRET : Un biscuit industriel contenant huile de palme + huile de canola + arôme naturel = badge_global: "probable" MAXIMUM (accumulation de substances controversées). JAMAIS "danger" rouge. Ces substances ne sont PAS classées Groupe 1 CIRC.
 
@@ -197,11 +205,21 @@ RÈGLE DU CUMUL (substances VÉRITABLEMENT problématiques uniquement, PAS les i
 ATTENTION : Le sucre, le sel, le vinaigre, les épices, l'eau, les légumes, les arômes naturels seuls NE COMPTENT PAS dans le cumul. Seuls les additifs chimiques, exhausteurs de goût (MSG, E631, E627), colorants artificiels, huiles industrielles pro-inflammatoires ET conservateurs synthétiques comptent.
 ATTENTION CUMUL : sucre + sel + huile dans un même produit ≠ 3 substances problématiques. Ce sont des ingrédients de base. Le cumul ne s'applique qu'aux VRAIS additifs/contaminants.
 
-RÈGLE CRITIQUE — BADGE DANGER ROUGE :
-Le badge DANGER rouge ("danger") est EXCLUSIVEMENT réservé aux substances RÉELLEMENT classées Groupe 1 ou Groupe 2A par le CIRC :
-- Groupe 1 : Nitrites (E249, E250, E251, E252), Formaldéhyde (E240), Benzène, Amiante, Goudron de houille, Chrome hexavalent, Plomb, PFAS, Cadmium
-- Groupe 2A : substances classées probablement cancérogènes par le CIRC
-Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, arôme naturel, huiles de graines, MSG, maltodextrine, ou toute substance qui n'est PAS classée Groupe 1 ou 2A par le CIRC.
+LOGIQUE STRICTE DES VERDICTS — RÈGLE ABSOLUE SANS EXCEPTION :
+Le badge_global DOIT suivre EXACTEMENT cette logique :
+- badge_global: "danger" (ROUGE — PRODUIT CANCÉRIGÈNE) → UNIQUEMENT si au moins un ingrédient Groupe 1 IARC confirmé est présent (nitrites E249-E252, formaldéhyde E240, benzène, amiante, goudron de houille, chrome hexavalent, plomb, PFAS, cadmium LITTÉRALEMENT listé comme ingrédient).
+- badge_global: "probable" (ORANGE — ATTENTION) → Groupe 2A IARC présent, OU 2 substances controversées ou plus cumulées dans le même produit.
+- badge_global: "possible" (JAUNE — AVEC MODÉRATION / IN MODERATION) → 1 seule substance controversée isolée, OU Groupe 2B seul.
+- badge_global: "aucun" (VERT — APPROUVÉ / APPROVED) → aucun ingrédient problématique détecté.
+
+INTERDIT ABSOLU : Ne JAMAIS afficher badge_global: "danger" (PRODUIT CANCÉRIGÈNE rouge) si le produit contient uniquement des substances controversées ou Groupe 2B. Ces cas doivent recevoir "probable" (orange ATTENTION) si 2+ substances cumulées, sinon "possible" (jaune AVEC MODÉRATION).
+Ne JAMAIS mettre badge_global: "danger" pour : huile de palme, huile de canola, arôme naturel, huiles de graines, MSG, maltodextrine, BHT, BHA, colorants FD&C, ou toute substance qui n'est PAS classée Groupe 1 IARC.
+
+RÈGLE MOT « PROBABLE » :
+Le mot « probable » ou « probablement cancérigène » est RÉSERVÉ EXCLUSIVEMENT aux substances Groupe 2A de l'IARC.
+- Groupe 2B → utiliser « possible » ou « possiblement cancérigène »
+- Substances controversées NON classées CIRC → utiliser « controversé » ou « favorise le cancer indirectement »
+Ne JAMAIS écrire « probable » pour Groupe 2B ni pour les substances controversées.
 
 RÈGLE CRITIQUE — COHÉRENCE CLASSIFICATION/BADGE :
 Si classification_circ contient "Non classé" ou "Non classé par le CIRC", alors :
@@ -211,16 +229,16 @@ Si classification_circ contient "Non classé" ou "Non classé par le CIRC", alor
 Il est STRICTEMENT INTERDIT d'afficher un badge DANGER ou de dire qu'une substance est cancérogène si elle est "Non classée par le CIRC".
 Chaque substance doit avoir une classification_circ EXACTE et HONNÊTE. Si elle n'est pas classée par le CIRC, écrire "Non classé par le CIRC" — JAMAIS un groupe CIRC inventé.
 
-LOGIQUE DE BADGE (dans cet ordre, du plus grave au moins grave) :
-1. Au moins un VRAI Groupe 1 CIRC → badge_global: "danger"
-2. Au moins un Groupe 2A CIRC → badge_global: "danger"
-3. Au moins un Groupe 2B CIRC → badge_global: "probable"
-4. 3 ou 4 substances controversées NON classées CIRC ensemble → badge_global: "probable" MAXIMUM (JAMAIS danger)
-5. 1-2 substances controversées NON classées CIRC → badge_global: "possible"
+LOGIQUE DE BADGE (dans cet ordre, du plus grave au moins grave) — APPLIQUER STRICTEMENT :
+1. Au moins un VRAI Groupe 1 CIRC (nitrites, formaldéhyde, cadmium LITTÉRAL, etc.) → badge_global: "danger" (ROUGE — PRODUIT CANCÉRIGÈNE)
+2. Au moins un Groupe 2A CIRC → badge_global: "probable" (ORANGE — ATTENTION)
+3. 2 substances controversées ou plus dans le même produit → badge_global: "probable" (ORANGE — ATTENTION)
+4. Au moins un Groupe 2B CIRC seul → badge_global: "possible" (JAUNE — AVEC MODÉRATION)
+5. 1 seule substance controversée isolée → badge_global: "possible" (JAUNE — AVEC MODÉRATION)
 6. Sucre en grande quantité comme ingrédient principal → badge_global: "possible" (JAUNE)
-7. Produit naturel avec ingrédients simples, pas d'additifs chimiques → badge_global: "aucun"
+7. Produit naturel avec ingrédients simples, pas d'additifs chimiques → badge_global: "aucun" (VERT — APPROUVÉ)
 
-IMPORTANT : Les substances NON classées par le CIRC (MSG, maltodextrine, huile de tournesol, huile de canola, arôme naturel, etc.) ne peuvent JAMAIS à elles seules déclencher un badge "danger". Même 10 substances controversées non-CIRC = "probable" MAXIMUM.
+IMPORTANT : Les substances NON classées par le CIRC (MSG, maltodextrine, huile de tournesol, huile de canola, arôme naturel, BHT, colorants FD&C, etc.) ne peuvent JAMAIS à elles seules déclencher un badge "danger". Même 10 substances controversées non-CIRC = "probable" MAXIMUM (orange ATTENTION).
 
 OBJECTIF DE TOXISCAN : Informer intelligemment. Rassurer quand un produit est bon. Alerter quand un produit est vraiment dangereux. Ne PAS créer de l'angoisse inutile sur des produits naturels et sains.
 
@@ -414,21 +432,22 @@ function applyCumulativeRule(riskGroup: RiskGroup, controversialCount: number): 
   return riskGroup;
 }
 
-const CATEGORY_LABELS: Record<ProductCategory, string> = {
-  food: 'Aliment',
-  beverage: 'Boisson',
-  kitchen_utensil: 'Ustensile de cuisine',
-  clothing: 'Vêtement / Textile',
-  cosmetic: 'Cosmétique / Hygiène',
-  household: 'Produit ménager',
-  electronics: 'Électronique',
-  furniture: 'Meuble',
-  toy: 'Jouet',
-  other: 'Autre',
+const CATEGORY_LABEL_KEYS: Record<ProductCategory, 'cat_label_food' | 'cat_label_beverage' | 'cat_label_kitchen' | 'cat_label_clothing' | 'cat_label_cosmetic' | 'cat_label_household' | 'cat_label_electronics' | 'cat_label_furniture' | 'cat_label_toy' | 'cat_label_other'> = {
+  food: 'cat_label_food',
+  beverage: 'cat_label_beverage',
+  kitchen_utensil: 'cat_label_kitchen',
+  clothing: 'cat_label_clothing',
+  cosmetic: 'cat_label_cosmetic',
+  household: 'cat_label_household',
+  electronics: 'cat_label_electronics',
+  furniture: 'cat_label_furniture',
+  toy: 'cat_label_toy',
+  other: 'cat_label_other',
 };
 
 export function getCategoryLabel(category: ProductCategory): string {
-  return CATEGORY_LABELS[category] ?? 'Autre';
+  const key = CATEGORY_LABEL_KEYS[category] ?? 'cat_label_other';
+  return t(key);
 }
 
 const ADDITIVE_ALTERNATIVES: Record<string, { nom: string; raison: string }[]> = {
@@ -561,7 +580,7 @@ export function universalResultToScannedProduct(
 
   const productBrand = hasOffData && offProduct?.brands
     ? offProduct.brands
-    : getCategoryLabel(result.categorie_produit);
+    : '';
 
   const imageUrl = hasOffData && offProduct?.image_url
     ? offProduct.image_url

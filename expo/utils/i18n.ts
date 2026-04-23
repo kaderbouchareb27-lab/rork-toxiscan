@@ -64,8 +64,9 @@ const translations = {
   history_title: { fr: 'Historique', en: 'History' },
   filter_all: { fr: 'Tous', en: 'All' },
   filter_favorites: { fr: 'Favoris', en: 'Favorites' },
-  filter_danger: { fr: 'Danger', en: 'Danger' },
-  filter_caution: { fr: 'Prudence', en: 'Caution' },
+  filter_danger: { fr: 'Cancérigène', en: 'Carcinogenic' },
+  filter_caution: { fr: 'Attention', en: 'Warning' },
+  filter_moderation: { fr: 'Modération', en: 'Moderation' },
   filter_approved: { fr: 'Approuvé', en: 'Approved' },
   clear_history_title: { fr: "Effacer l'historique", en: 'Clear history' },
   clear_history_msg: { fr: "Voulez-vous vraiment supprimer tout l'historique de vos scans ?", en: 'Do you really want to delete all your scan history?' },
@@ -147,8 +148,9 @@ const translations = {
   analyzed_by_photo: { fr: 'Analysé par photo', en: 'Analyzed by photo' },
   enriched_off: { fr: 'Enrichi par Open Food Facts', en: 'Enriched by Open Food Facts' },
   photo_tip: { fr: "Pour un résultat plus précis, photographiez la liste d'ingrédients au dos du produit", en: 'For a more accurate result, photograph the ingredient list on the back of the product' },
-  badge_danger: { fr: 'DANGER', en: 'DANGER' },
-  badge_caution: { fr: 'PRUDENCE', en: 'CAUTION' },
+  badge_danger: { fr: 'PRODUIT CANCÉRIGÈNE', en: 'CARCINOGENIC PRODUCT' },
+  badge_caution: { fr: 'ATTENTION', en: 'WARNING' },
+  badge_moderation: { fr: 'AVEC MODÉRATION', en: 'IN MODERATION' },
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED' },
   substances_detected: { fr: 'Substances détectées', en: 'Substances detected' },
   level_confirmed_carcinogen: { fr: 'CANCÉRIGÈNE CONFIRMÉ', en: 'CONFIRMED CARCINOGEN' },
@@ -175,11 +177,13 @@ const translations = {
   share_suffix: { fr: "Scannez vos produits gratuitement avec Dr.Toxi — disponible sur l'App Store", en: "Scan your products for free with Dr.Toxi — available on the App Store" },
 
   // ===== RISK BADGE INFO (additives.ts) =====
-  risk_danger_label: { fr: 'DANGER', en: 'DANGER' },
+  risk_danger_label: { fr: 'PRODUIT CANCÉRIGÈNE', en: 'CARCINOGENIC PRODUCT' },
   risk_danger_sub_g1: { fr: 'Cancérigène confirmé (Groupe 1 CIRC)', en: 'Confirmed carcinogen (IARC Group 1)' },
   risk_danger_sub_g2a: { fr: 'Probablement cancérigène (Groupe 2A CIRC)', en: 'Probably carcinogenic (IARC Group 2A)' },
-  risk_caution_label: { fr: 'PRUDENCE', en: 'CAUTION' },
-  risk_caution_sub: { fr: 'Possiblement cancérigène (Groupe 2B CIRC)', en: 'Possibly carcinogenic (IARC Group 2B)' },
+  risk_caution_label: { fr: 'ATTENTION', en: 'WARNING' },
+  risk_caution_sub: { fr: 'Substance controversée ou possiblement cancérigène', en: 'Controversial or possibly carcinogenic substance' },
+  risk_moderation_label: { fr: 'AVEC MODÉRATION', en: 'IN MODERATION' },
+  risk_moderation_sub: { fr: 'Substance controversée isolée ou Groupe 2B', en: 'Isolated controversial substance or Group 2B' },
   risk_approved_label: { fr: 'APPROUVÉ', en: 'APPROVED' },
   risk_approved_sub: { fr: 'Aucune substance cancérigène détectée', en: 'No carcinogenic substances detected' },
 
@@ -223,6 +227,9 @@ const translations = {
   // ===== ONBOARDING =====
   onboarding_title_1: { fr: "Photographiez n'importe quoi", en: 'Photograph anything' },
   onboarding_sub_1: { fr: 'Aliment, cosmétique, ustensile de cuisine, vêtement, produit ménager…', en: 'Food, cosmetics, kitchen utensils, clothing, household products...' },
+  onboarding_photo_tip_1: { fr: "Photographie uniquement la liste d'ingrédients, pas le produit entier", en: 'Only photograph the ingredient list, not the whole product' },
+  onboarding_photo_tip_2: { fr: 'Assure-toi que le texte est bien lisible et bien éclairé', en: 'Make sure the text is clearly readable and well lit' },
+  onboarding_photo_tip_3: { fr: 'Plus la photo est nette, plus l\'analyse est précise', en: 'The sharper the photo, the more accurate the analysis' },
   onboarding_title_2: { fr: 'Comprenez le risque en 1 seconde', en: 'Understand the risk in 1 second' },
   onboarding_sub_2: { fr: "Basé sur les classifications officielles de l'OMS", en: 'Based on official WHO classifications' },
   onboarding_detected: { fr: 'Détecté', en: 'Detected' },
@@ -304,11 +311,13 @@ const translations = {
 
   // ===== DR TOXI VERDICT =====
   verdict_danger_title: { fr: 'Dr. Toxi déconseille ce produit', en: 'Dr. Toxi does not recommend this product' },
-  verdict_danger_msg: { fr: 'Ce produit contient au moins une substance classée cancérigène. Je vous déconseille de le consommer.', en: 'This product contains at least one substance classified as carcinogenic. I advise against consuming it.' },
-  verdict_caution_title: { fr: 'Dr. Toxi ne recommande pas ce produit', en: 'Dr. Toxi does not recommend this product' },
-  verdict_caution_msg: { fr: "Ce produit ne contient pas de cancérigène classé par le CIRC, mais contient des substances controversées qui favorisent le cancer indirectement selon de nombreuses études scientifiques.", en: 'This product does not contain a carcinogen classified by the IARC, but contains controversial substances that indirectly promote cancer according to numerous scientific studies.' },
+  verdict_danger_msg: { fr: 'Ce produit contient au moins un ingrédient classé cancérigène (Groupe 1 CIRC). Je te le déconseille — privilégie des alternatives sans cette substance.', en: 'This product contains at least one ingredient classified as carcinogenic (IARC Group 1). I advise against it — choose alternatives without this substance.' },
+  verdict_caution_title: { fr: 'Dr. Toxi te recommande la prudence', en: 'Dr. Toxi recommends caution' },
+  verdict_caution_msg: { fr: "Ce produit contient des substances probablement cancérigènes (Groupe 2A) ou plusieurs substances controversées. À éviter si possible — voici des alternatives plus saines ci-dessous.", en: 'This product contains probably carcinogenic substances (Group 2A) or several controversial substances. Avoid if possible — here are healthier alternatives below.' },
+  verdict_moderation_title: { fr: 'Dr. Toxi conseille la modération', en: 'Dr. Toxi recommends moderation' },
+  verdict_moderation_msg: { fr: "Ce produit contient une substance controversée isolée ou classée Groupe 2B. Consomme avec modération — ce n'est pas dangereux ponctuellement, mais privilégie mieux au quotidien.", en: 'This product contains an isolated controversial substance or a Group 2B classification. Consume in moderation — not dangerous occasionally, but choose better for daily use.' },
   verdict_approved_title: { fr: 'Dr. Toxi approuve ce produit', en: 'Dr. Toxi approves this product' },
-  verdict_approved_msg: { fr: "Bravo! Ce produit ne contient aucune substance cancérigène ni controversée. C'est un excellent choix. Partagez-le avec vos proches!", en: "Great! This product contains no carcinogenic or controversial substances. It's an excellent choice. Share it with your loved ones!" },
+  verdict_approved_msg: { fr: "Bonne nouvelle ! Ce produit ne contient aucun ingrédient cancérigène ni controversé. C'est un excellent choix pour toi et ta famille !", en: "Great news! This product contains no carcinogenic or controversial ingredients. It's an excellent choice for you and your family!" },
 
   // ===== SHARE IMAGE CARD =====
   share_approved_label: { fr: 'APPROUVE', en: 'APPROVED' },
@@ -350,8 +359,9 @@ const translations = {
   conv_new: { fr: 'Nouvelle discussion', en: 'New conversation' },
   conv_previous: { fr: 'Discussion précédente', en: 'Previous conversation' },
   conv_scanned: { fr: (name: string, brand: string, verdict: string) => `Tu as scanné ${name}${brand ? ` de ${brand}` : ''}. Ce produit est classé "${verdict}".\n\nQu'est-ce que tu veux savoir sur ce produit ?`, en: (name: string, brand: string, verdict: string) => `You scanned ${name}${brand ? ` by ${brand}` : ''}. This product is classified as "${verdict}".\n\nWhat would you like to know about this product?` },
-  verdict_label_danger: { fr: 'dangereux', en: 'dangerous' },
-  verdict_label_caution: { fr: 'à surveiller', en: 'to watch' },
+  verdict_label_danger: { fr: 'cancérigène', en: 'carcinogenic' },
+  verdict_label_caution: { fr: 'à éviter', en: 'to avoid' },
+  verdict_label_moderation: { fr: 'à consommer avec modération', en: 'to consume in moderation' },
   verdict_label_approved: { fr: 'approuvé', en: 'approved' },
 
   // ===== PRODUCT CONTEXT PROMPT =====

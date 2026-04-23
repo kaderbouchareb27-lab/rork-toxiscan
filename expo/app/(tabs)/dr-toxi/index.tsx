@@ -185,7 +185,7 @@ export default function DrToxiScreen() {
       name: params.productName!,
       brand: params.productBrand ?? '',
       barcode: params.productBarcode!,
-      verdictLevel: (params.productVerdict as 'danger' | 'prudence' | 'approuve') ?? 'approuve',
+      verdictLevel: (params.productVerdict as 'danger' | 'warning' | 'moderation' | 'approuve') ?? 'approuve',
       analysisSummary: params.productSummary,
     };
 
@@ -193,8 +193,10 @@ export default function DrToxiScreen() {
 
     const verdictLabel = productCtx.verdictLevel === 'danger'
       ? t('verdict_label_danger')
-      : productCtx.verdictLevel === 'prudence'
+      : productCtx.verdictLevel === 'warning'
       ? t('verdict_label_caution')
+      : productCtx.verdictLevel === 'moderation'
+      ? t('verdict_label_moderation')
       : t('verdict_label_approved');
 
     const welcomeMsg: ChatMessage = {
@@ -600,7 +602,8 @@ export default function DrToxiScreen() {
 
   const getVerdictDot = (level?: string) => {
     if (level === 'danger') return '#FF3B30';
-    if (level === 'prudence') return '#FF9500';
+    if (level === 'warning') return '#FF9500';
+    if (level === 'moderation') return '#E0B400';
     if (level === 'approuve') return '#2E9E34';
     return null;
   };

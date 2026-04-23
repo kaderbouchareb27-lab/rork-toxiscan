@@ -51,21 +51,21 @@ const slides: OnboardingSlide[] = [
     renderIllustration: () => (
       <View style={illustrationStyles.container}>
         <View style={illustrationStyles.badgesGrid}>
-          <View style={[illustrationStyles.badge, { backgroundColor: '#FF3B30' }]}>
-            <AlertTriangle color={Colors.white} size={22} />
-            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]}>Danger</Text>
+          <View style={[illustrationStyles.badgeWide, { backgroundColor: '#FF3B30' }]}>
+            <AlertTriangle color={Colors.white} size={18} />
+            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]} numberOfLines={1}>{t('badge_danger')}</Text>
           </View>
-          <View style={[illustrationStyles.badge, { backgroundColor: '#FF9500' }]}>
-            <AlertCircle color={Colors.white} size={22} />
-            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]}>{t('onboarding_detected')}</Text>
+          <View style={[illustrationStyles.badgeWide, { backgroundColor: '#FF9500' }]}>
+            <AlertCircle color={Colors.white} size={18} />
+            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]} numberOfLines={1}>{t('badge_caution')}</Text>
           </View>
-          <View style={[illustrationStyles.badge, { backgroundColor: '#FFCC00' }]}>
-            <AlertCircle color={Colors.black} size={22} />
-            <Text style={[illustrationStyles.badgeText, { color: Colors.black }]}>{t('onboarding_detected')}</Text>
+          <View style={[illustrationStyles.badgeWide, { backgroundColor: '#FFCC00' }]}>
+            <AlertCircle color={Colors.black} size={18} />
+            <Text style={[illustrationStyles.badgeText, { color: Colors.black }]} numberOfLines={1}>{t('badge_moderation')}</Text>
           </View>
-          <View style={[illustrationStyles.badge, { backgroundColor: '#2E9E34' }]}>
-            <CheckCircle color={Colors.white} size={22} />
-            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]}>OK</Text>
+          <View style={[illustrationStyles.badgeWide, { backgroundColor: '#2E9E34' }]}>
+            <CheckCircle color={Colors.white} size={18} />
+            <Text style={[illustrationStyles.badgeText, { color: Colors.white }]} numberOfLines={1}>{t('badge_approved')}</Text>
           </View>
         </View>
       </View>
@@ -142,6 +142,16 @@ export default function OnboardingScreen() {
       {item.renderIllustration()}
       <Text style={slideStyles.title}>{item.title}</Text>
       <Text style={slideStyles.subtitle}>{item.subtitle}</Text>
+      {item.id === '1' ? (
+        <View style={slideStyles.tipsList} testID="onboarding-photo-tips">
+          {[t('onboarding_photo_tip_1'), t('onboarding_photo_tip_2'), t('onboarding_photo_tip_3')].map((tip, idx) => (
+            <View key={`tip-${idx}`} style={slideStyles.tipRow}>
+              <View style={slideStyles.tipBullet} />
+              <Text style={slideStyles.tipText}>{tip}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   ), []);
 
@@ -225,11 +235,9 @@ const illustrationStyles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   badgesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    justifyContent: 'center',
-    maxWidth: 240,
+    flexDirection: 'column' as const,
+    gap: 10,
+    alignItems: 'center' as const,
   },
   badge: {
     width: 108,
@@ -238,6 +246,16 @@ const illustrationStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 4,
+  },
+  badgeWide: {
+    width: 220,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'flex-start' as const,
+    gap: 10,
   },
   badgeText: {
     fontSize: 13,
@@ -279,6 +297,29 @@ const slideStyles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
+  },
+  tipsList: {
+    marginTop: 24,
+    width: '100%',
+    gap: 12,
+  },
+  tipRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    gap: 10,
+  },
+  tipBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.primary,
+    marginTop: 8,
+  },
+  tipText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
   },
   footer: {
     paddingHorizontal: 32,
