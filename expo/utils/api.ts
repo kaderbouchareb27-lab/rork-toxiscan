@@ -36,11 +36,7 @@ function normalizeKey(v: unknown): string {
 
 const categoryEnum = z.preprocess((v) => {
   const k = normalizeKey(v);
-  const aliased = CATEGORY_ALIASES[k];
-  if (aliased) return aliased;
-  if ((CATEGORY_VALUES as readonly string[]).includes(k)) return k;
-  console.warn('[API] Unknown category value from AI:', JSON.stringify(v), '-> defaulting to other');
-  return 'other';
+  return CATEGORY_ALIASES[k] ?? (CATEGORY_VALUES as readonly string[]).includes(k) ? (CATEGORY_ALIASES[k] ?? k) : 'other';
 }, z.enum(CATEGORY_VALUES));
 
 const riskEnum = z.preprocess((v) => {
@@ -231,7 +227,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     schema: universalAnalysisSchema,
     toolName: 'record_analysis',
     toolDescription: 'Enregistre l\'analyse structurée du produit scanné.',
-    maxTokens: 2500,
+    maxTokens: 800,
   });
   console.log('[API] OpenAI analysis returned successfully');
   return result;
@@ -298,8 +294,6 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       console.log('[API] Universal analysis attempt', attempt, '/', MAX_RETRIES);
 
       const result = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
-
-      console.log('[API] Raw badge_global from AI (before Zod preprocess):', JSON.stringify((result as unknown as { badge_global?: unknown }).badge_global));
 
       if (!result || !result.categorie_produit) {
         console.error('[API] Invalid result structure, retrying...');
