@@ -146,9 +146,9 @@ export default function PaywallScreen() {
           
           if (hasEntitlement) {
             Alert.alert(
-              'Tout est prêt',
-              'Votre achat a été effectué avec succès.',
-              [{ text: 'OK', onPress: () => router.replace('/') }]
+              t('purchase_ready'),
+              t('purchase_success'),
+              [{ text: t('ok'), onPress: () => router.replace('/') }]
             );
             return;
           }
