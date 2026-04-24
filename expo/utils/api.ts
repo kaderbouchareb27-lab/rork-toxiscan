@@ -143,7 +143,20 @@ categorie_produit : food | beverage | cosmetic | household | other.
 4. Si la liste a N virgules → substances_detectees doit avoir ≥ N+1 entrées
 5. Ne fusionne JAMAIS 2 ingrédients. Ne saute AUCUN ingrédient banal.
 
-Chaque entrée : { nom, code (E-xxx ou null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication (1 phrase simple), source_exposition }.
+Chaque entrée : { nom, code (E-xxx ou null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication (OBLIGATOIRE 3 à 5 phrases détaillées), source_exposition }.
+
+RÈGLE CRITIQUE — CHAMP 'explication' : CHAQUE ingrédient (même sain) doit avoir une explication PÉDAGOGIQUE de 3 à 5 phrases en français clair, tutoiement, non-alarmiste. Structure obligatoire :
+  1) Phrase 1 : ce qu'est l'ingrédient / son rôle dans le produit (1 phrase simple).
+  2) Phrase 2-3 : pourquoi il est controversé OU pourquoi il est sain — cite les effets santé concrets (obésité, diabète, inflammation, cancer du sein/côlon/foie, palpitations, perturbateur endocrinien, allergies, effets cardiovasculaires, etc.).
+  3) Phrase 4 : précision sur le classement cancérigène (ex: "Ce n'est pas un cancérogène direct mais la consommation régulière excessive nuit à la santé." / "Classé Groupe 2B par le CIRC (possiblement cancérigène)." / "Non classé cancérogène par le CIRC.").
+  4) Ne JAMAIS écrire une explication générique du type "additif controversé, à vérifier". Toujours DÉTAILLER les risques réels.
+
+EXEMPLES de bonnes explications (reproduis ce style) :
+• Sucrose : "Le sucre en grande quantité favorise l'obésité, le diabète et l'inflammation chronique, des facteurs de risque reconnus pour plusieurs types de cancers (sein, côlon, foie, pancréas). Ce n'est pas un cancérogène direct mais la consommation régulière excessive nuit à la santé."
+• Arômes naturels et artificiels : "Les arômes artificiels sont controversés car leur composition est peu transparente — ils peuvent contenir des dizaines de molécules non listées. Ils ne sont pas classés cancérigènes mais la consommation régulière d'additifs chimiques est à limiter."
+• Colorants (non spécifiés) : "Certaines variétés de colorants peuvent être controversées, surtout les colorants azoïques ou artificiels (E102, E110, E124). Le fabricant ne précise pas ici lesquels, donc principe de précaution. Non classés cancérogènes par le CIRC dans leur ensemble."
+• Taurine : "La taurine est un acide aminé synthétique ajouté comme stimulant dans les boissons énergisantes. À haute dose elle peut provoquer des effets cardiovasculaires (palpitations, hypertension), surtout combinée à la caféine. Non classée cancérogène mais sa consommation régulière reste controversée."
+• Eau : "Ingrédient de base, sans risque pour la santé. Essentiel à la composition du produit."
 
 CAS SPÉCIAL BOISSONS ÉNERGISANTES (Red Bull, Monster, Rockstar, Bang) : Taurine, Caféine ajoutée, Inositol, Glucuronolactone, Natural/Artificial Flavors, Niacinamide, Pyridoxine HCl, Calcium Pantothenate, Cyanocobalamin = ORANGE (dans un aliment normal ces vitamines B = VERT).
 
