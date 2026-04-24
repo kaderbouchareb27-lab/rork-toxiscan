@@ -164,7 +164,32 @@ Non classées IARC mais documentées dangereuses par EWG/ANSES/EFSA/études peer
 - Édulcorants artificiels : Acésulfame K (E950), Saccharine (E954), Sucralose (E955), Cyclamate (E952)
 - Cosmétiques : Parabènes (Methyl/Ethyl/Propyl/Butyl/Isobutyl/Isopropylparaben), Phtalates (DBP, DEHP, DEP), Cyclosiloxanes D4/D5, Triclosan/Irgasan, Phénoxyéthanol, Sels d'aluminium, Oxybenzone/Benzophénone-3, Hydroquinone, PEG et composés éthoxylés (-eth, SLES)
 - Autres : Silice/Silica (E551) — controversé faible risque
-- NON controversés (ne pas signaler) : Acide citrique (E330) naturel, Pectine (E440), Lécithine de tournesol (E322), Vitamine C/Acide ascorbique (E300)
+- NON controversés (ne pas signaler) : Pectine (E440), Lécithine de tournesol (E322), Vitamine C/Acide ascorbique (E300)
+
+🟡 INGRÉDIENTS À CONSOMMER AVEC MODÉRATION → badge_global="possible" JAUNE (jamais orange ni rouge)
+Pour CHACUN de ces ingrédients détectés, le message Dr. Toxi doit être : "Cet ingrédient peut favoriser l'inflammation ou causer des inconforts digestifs chez certaines personnes. À consommer avec modération."
+
+Huiles raffinées et graines (riches en oméga-6, inflammation possible) :
+- Huile de tournesol raffinée → riche en oméga-6, favorise l'inflammation chronique à haute consommation
+- Huile de colza raffinée → oméga-6 en excès, inflammation possible
+- Huile de pépin de raisin → très riche en oméga-6 pro-inflammatoire
+- Huile de sésame raffinée → oméga-6 élevé
+- Huile végétale non spécifiée → inconnue, peut être huile de palme ou huile raffinée
+
+Épaississants et gommes (troubles digestifs possibles) :
+- Gomme xanthane (E415) → peut causer ballonnements et problèmes digestifs chez certaines personnes
+- Gomme de guar (E412) → peut causer troubles digestifs à haute dose
+- Gomme arabique (E414) → généralement toléré mais peut causer réactions chez certains
+- Gomme de caroube (E410) → troubles digestifs possibles
+
+Arômes (composition non divulguée) :
+- Arômes artificiels → substances synthétiques, composition non divulguée, certaines préoccupantes
+- Arômes naturels / natural flavours → composition non divulguée, peut contenir des allergènes cachés
+
+Acides :
+- Acide citrique industriel (E330) → produit par fermentation Aspergillus niger, résidus possibles, peut causer inflammation chez personnes sensibles. NOTE : seul l'acide citrique INDUSTRIEL (E330 ajouté) = JAUNE. L'acide citrique naturel présent dans les fruits = SAIN (ne pas signaler).
+
+RÈGLE IMPORTANTE : Ces ingrédients reçoivent badge JAUNE uniquement — JAMAIS orange ni rouge, même si plusieurs sont détectés ensemble. Ils ne comptent PAS comme "substances controversées cumulées" pour passer en orange. Classification_circ = "Non classé par le CIRC".
 
 🟢 INGRÉDIENTS NATURELS SAINS — NE JAMAIS SIGNALER
 Eau, Farine de blé/complète, Avoine, Riz, Sucre (quantité normale), Sel, Vinaigre, Huile d'olive extra vierge, Huile de coco non hydrogénée, Beurre, Crème, Lait, Œufs, Levure, Bicarbonate, Légumes frais/séchés, Fruits frais/séchés, Épices naturelles, Cacao pur (PAS cadmium), Chocolat noir >70%, Miel, Sirop d'érable, Noix, Amandes, Graines (chia, lin, tournesol), Protéines de lactosérum/Whey, Acide citrique naturel, Pectine, Lécithine tournesol, Vitamine C.
