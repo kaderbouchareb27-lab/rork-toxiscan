@@ -123,6 +123,21 @@ ${INGREDIENTS_DB_TEXT}
 
 Règle de classification : pour chaque ingrédient détecté, cherche une correspondance par mot-clé dans la base ci-dessus (insensible à la casse, accents, pluriels). Si trouvé → utilise EXACTEMENT son niveau_risque et sa classification_circ. Si non trouvé → niveau_risque="aucun" avec classification_circ="Non classé par le CIRC".
 
+═══ RÈGLE ANTI-ALARMISME (PRIORITÉ ABSOLUE) ═══
+
+Ne classe JAMAIS un ingrédient en "Groupe 2A" (probablement cancérigène) ou "Groupe 1" (cancérigène avéré) si ce classement n'est pas EXPLICITEMENT listé dans la base de données ci-dessus pour cet ingrédient précis. La classification CIRC est une décision officielle de l'OMS — tu ne peux pas l'inventer.
+
+Liste fermée des ingrédients que tu peux classer "Groupe 2A" : UNIQUEMENT ceux qui apparaissent littéralement avec "Groupe 2A" dans la base ci-dessus (ex: viandes rouges cuites à haute température, acrylamide, nitrates/nitrites transformés en nitrosamines, glyphosate). Même chose pour "Groupe 1" et "Groupe 2B".
+
+Pour tout autre ingrédient non classé par le CIRC :
+• Si c'est un additif industriel controversé (sirop, édulcorant, exhausteur, colorant artificiel) → classification_circ="Controversé" ou "Ultra-transformé", niveau_risque="probable" ou "possible" — JAMAIS "danger".
+• Si c'est un ingrédient sain ou neutre (eau, sel, farine, légumes, fruits, viandes fraîches, œufs, lait, huile d'olive, épices) → classification_circ="Naturel" ou "Non classé par le CIRC", niveau_risque="aucun".
+• Le simple fait qu'un ingrédient soit transformé ne suffit PAS à le rendre cancérigène. Reste factuel.
+
+Règle des 2 ingrédients : si le produit ne contient QUE 1 ou 2 ingrédients au total (ex: "Lait, Ferments" ou "Eau, Sucre"), sois EXTRA prudent avec les classements ORANGE/ROUGE. Un yaourt nature, un fromage blanc, un jus pur, une viande fraîche ne doivent JAMAIS être classés "probable" ou "danger" sans raison CIRC explicite.
+
+Interdit : écrire "substance cancérigène Groupe 2A" dans une explication si la base ne liste PAS cet ingrédient comme Groupe 2A. Utilise plutôt : "ingrédient controversé", "transformation industrielle", "à consommer avec modération", "non classé cancérigène par le CIRC".
+
 Règles par mot-clé (toujours ORANGE, priorité sur la base) : "modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
 
 Règle sucre blanc raffiné (sucre/sugar/saccharose) selon position dans la liste : 1er-2e ingrédient → ORANGE ; milieu → JAUNE ; fin ou <5g/portion → VERT.
@@ -207,6 +222,8 @@ Réponds mentalement OUI à chaque question. Si une seule réponse est NON → r
 [3] CLASSIFICATION — Chaque entrée a-t-elle été cherchée dans la BASE DE DONNÉES ci-dessus et a-t-elle le niveau_risque EXACT issu de la base ?
 [4] COHÉRENCE VERDICT : 1+ danger → badge="danger" ; 1+ probable ou 4+ possible → "probable" ; 2-3 possible → "possible" ; sinon → "aucun".
 [5] INTERDITS ABSOLUS — badge_global="aucun" n'est pas utilisé si la liste contient HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carraghénane, édulcorants artificiels, nitrites.
+[5bis] ANTI-ALARMISME — Aucun ingrédient n'est classé "Groupe 1" ou "Groupe 2A" sans correspondance EXPLICITE dans la base de données. Si tu as mis "Groupe 2A" ou "Groupe 1" quelque part, vérifie que l'ingrédient exact est listé comme tel dans la base — sinon, rétrograde à "Controversé" + niveau_risque="possible" ou "probable".
+[5ter] PRODUIT SIMPLE — Si le produit a ≤2 ingrédients naturels (lait+ferments, eau+café, viande fraîche, fruit/légume brut), badge_global doit être "aucun" sauf preuve CIRC formelle. Ne diabolise pas les aliments basiques.
 [6] TRI — substances_detectees trié danger → probable → possible → aucun.
 [7] RESUME — Correspond au badge_global et reste non-alarmiste si verdict vert.
 [8] RELECTURE — Relis la liste de gauche à droite ; chaque ingrédient s'y trouve bien avec son badge.
