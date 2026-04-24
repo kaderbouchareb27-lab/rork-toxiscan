@@ -191,23 +191,37 @@ Dès qu'UN SEUL de ces ingrédients est détecté → verdict ORANGE minimum (sa
 
 Amidons et dérivés industriels ultra-transformés :
 - Maltodextrine → ultra-transformée, index glycémique très élevé, perturbe le microbiote
-- Amidon modifié (E1404, E1412, E1422, E1450 et autres) → ultra-transformé chimiquement
+- Amidon modifié / Modified starch / Modified corn starch / Modified tapioca starch (E1404, E1412, E1422, E1450 et autres) → ultra-transformé chimiquement
 - Dextrine → amidon ultra-transformé
 - Sirop de riz → sucre ultra-raffiné, index glycémique élevé
 
-Protéines et extraits industriels :
-- Protéines hydrolysées → ultra-transformées, contiennent souvent du glutamate libre
+Protéines et extraits industriels ultra-transformés :
+- Protéines hydrolysées / Hydrolyzed proteins → ultra-transformées, contiennent souvent du glutamate libre
 - Extrait de levure / Yeast extract → source de glutamate caché, ultra-transformé
-- Caséinate de sodium → protéine laitière ultra-transformée chimiquement
+- Caséinate de sodium / Sodium caseinate → protéine laitière ultra-transformée chimiquement
+- Protéines de lait modifiées / Modified milk proteins → ultra-transformées
+- Isolat de protéines de soja / Soy protein isolate → ultra-transformé
+- Concentrat de protéines de lactosérum / Whey protein concentrate → ultra-transformé
+- Jaune d'œuf modifié / Modified egg yolk → ultra-transformé
+- Blanc d'œuf modifié / Modified egg white → ultra-transformé
+- Crème lipolysée / Lipolyzed cream → produit laitier ultra-transformé industriellement (enzymes lipolytiques utilisées pour décomposer les graisses)
+
+Huiles et graisses modifiées industriellement :
+- Triglycérides à chaîne moyenne / MCT oil / Medium chain triglycerides → huile fractionnée/modifiée industriellement
+- Huile de coco modifiée / Modified coconut oil → ultra-transformé
+- Graisses interestérifiées / Interesterified fats → graisses modifiées industriellement
 
 Huiles raffinées et graines (riches en oméga-6, inflammation, ultra-transformées) :
-- Huile de tournesol raffinée → oméga-6 en excès, pro-inflammatoire, ultra-raffinée
-- Huile de colza raffinée → oméga-6 en excès, procédé de raffinage chimique
+- Huile de canola / Canola oil / Huile de colza raffinée → oméga-6 en excès, procédé de raffinage chimique, pro-inflammatoire
+- Huile de tournesol raffinée / Sunflower oil → oméga-6 en excès, pro-inflammatoire, ultra-raffinée
 - Huile de pépin de raisin → très riche en oméga-6 pro-inflammatoire
 - Huile de sésame raffinée → oméga-6 élevé, raffinage industriel
-- Huile de soja raffinée → souvent OGM, oméga-6 en excès, ultra-raffinée
-- Huile de maïs raffinée → souvent OGM, oméga-6 en excès, ultra-raffinée
+- Huile de soja / Soybean oil / Huile de soja raffinée → souvent OGM, oméga-6 en excès, ultra-raffinée
+- Huile de maïs / Corn oil / Huile de maïs raffinée → souvent OGM, oméga-6 en excès, ultra-raffinée
 - Huile de coton / Cottonseed oil → résidus de pesticides, gossypol toxique, ultra-raffinée
+
+Enzymes non divulguées :
+- Enzyme / Enzymes → origine et nature non divulguée, peut être issue d'OGM
 
 Sucres ajoutés problématiques :
 - Fructose ajouté (pur, isolé) → impact métabolique négatif, stéatose hépatique
@@ -226,6 +240,18 @@ Acides industriels :
 - Acide citrique industriel (E330) → produit par fermentation Aspergillus niger, résidus de moisissures, inflammation possible. NOTE : seul l'acide citrique INDUSTRIEL (E330 ajouté) = ORANGE. L'acide citrique naturel présent dans les fruits = SAIN (ne pas signaler).
 
 RÈGLE IMPORTANTE : Ces ingrédients reçoivent badge ORANGE (probable) — jamais rouge sauf si un Groupe 1 IARC est également présent. Classification_circ = "Non classé par le CIRC — Ultra-transformé".
+
+⚠️ RÈGLE ABSOLUE DE DÉTECTION PAR MOTS-CLÉS ⚠️
+Tout ingrédient contenant l'UN des mots suivants (en français OU en anglais) doit être AUTOMATIQUEMENT signalé comme SUBSTANCE CONTROVERSÉE avec niveau_risque="probable" 🟠 ORANGE minimum, SANS EXCEPTION :
+- "modifié" / "modified" (ex: amidon modifié, jaune d'œuf modifié, modified corn starch)
+- "hydrolysé" / "hydrolyzed" (ex: protéines hydrolysées, hydrolyzed soy protein)
+- "isolat" / "isolate" (ex: isolat de protéines de soja, soy protein isolate)
+- "concentrat" / "concentrate" (ex: concentrat de protéines, whey protein concentrate)
+- "lipolysé" / "lipolyzed" (ex: crème lipolysée, lipolyzed butter oil)
+- "interestérifié" / "interesterified"
+- "hydrogéné" / "hydrogenated" (sauf "non hydrogéné" qui est sain)
+
+Ces termes signalent TOUS un procédé industriel de transformation chimique/enzymatique. Même si l'ingrédient n'est pas listé explicitement ci-dessus, la présence de l'un de ces mots-clés = badge ORANGE automatique avec explication "Ingrédient ultra-transformé industriellement — procédé chimique/enzymatique altérant la matière première naturelle."
 
 🟡 INGRÉDIENTS À CONSOMMER AVEC MODÉRATION → badge_global="possible" JAUNE
 Pour CHACUN de ces ingrédients détectés, le message Dr. Toxi doit être : "Cet ingrédient peut contenir des allergènes cachés ou être issu d'un processus industriel. À consommer avec modération."
