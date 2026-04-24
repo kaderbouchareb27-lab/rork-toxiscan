@@ -180,9 +180,9 @@ COSMÉTIQUES : règle "perturbateurs endocriniens cumulés" — 3+ dans le même
 ═══ ÉTAPE 3 — VERDICT FINAL (badge_global) ═══
 
 Règle stricte — le plus élevé l'emporte :
-• danger → ≥1 ingrédient Groupe 1. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS. Je te déconseille fortement d'en consommer régulièrement."
-• probable → ≥1 ingrédient ORANGE OU ≥4 jaunes. Resume : "Ce produit contient plusieurs substances controversées. Consomme-le très occasionnellement et cherche une alternative plus naturelle."
-• possible → 2-3 jaunes, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien."
+• danger → ≥1 ingrédient Groupe 1 EXPLICITEMENT listé comme tel dans la base. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS (Groupe 1 CIRC). Je te déconseille fortement d'en consommer régulièrement."
+• probable → ≥1 ingrédient ORANGE OU ≥4 jaunes. Resume : "Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle." INTERDIT d'écrire "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" dans le resume si aucun ingrédient n'est réellement listé comme tel dans la base.
+• possible → 2-3 jaunes, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien." INTERDIT d'écrire "cancérigène" dans ce resume.
 • aucun → 0-1 jaune isolé parmi des naturels sains. Resume : "Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains."
 
 Interdits absolus pour "aucun" : HFCS, dextrose, sirop de glucose, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame, acésulfame K, sucralose, nitrites/nitrates.
@@ -222,7 +222,7 @@ Réponds mentalement OUI à chaque question. Si une seule réponse est NON → r
 [3] CLASSIFICATION — Chaque entrée a-t-elle été cherchée dans la BASE DE DONNÉES ci-dessus et a-t-elle le niveau_risque EXACT issu de la base ?
 [4] COHÉRENCE VERDICT : 1+ danger → badge="danger" ; 1+ probable ou 4+ possible → "probable" ; 2-3 possible → "possible" ; sinon → "aucun".
 [5] INTERDITS ABSOLUS — badge_global="aucun" n'est pas utilisé si la liste contient HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carraghénane, édulcorants artificiels, nitrites.
-[5bis] ANTI-ALARMISME — Aucun ingrédient n'est classé "Groupe 1" ou "Groupe 2A" sans correspondance EXPLICITE dans la base de données. Si tu as mis "Groupe 2A" ou "Groupe 1" quelque part, vérifie que l'ingrédient exact est listé comme tel dans la base — sinon, rétrograde à "Controversé" + niveau_risque="possible" ou "probable".
+[5bis] ANTI-ALARMISME — Aucun ingrédient n'est classé "Groupe 1" ou "Groupe 2A" sans correspondance EXPLICITE dans la base de données. Si tu as mis "Groupe 2A" ou "Groupe 1" quelque part, vérifie que l'ingrédient exact est listé comme tel dans la base — sinon, rétrograde à "Controversé" + niveau_risque="possible" ou "probable". Le champ 'resume' ne doit JAMAIS contenir "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" si aucune substance_detectee n'a réellement cette classification_circ. Utilise plutôt "substances controversées", "ultra-transformé", "additifs industriels".
 [5ter] PRODUIT SIMPLE — Si le produit a ≤2 ingrédients naturels (lait+ferments, eau+café, viande fraîche, fruit/légume brut), badge_global doit être "aucun" sauf preuve CIRC formelle. Ne diabolise pas les aliments basiques.
 [6] TRI — substances_detectees trié danger → probable → possible → aucun.
 [7] RESUME — Correspond au badge_global et reste non-alarmiste si verdict vert.
