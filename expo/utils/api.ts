@@ -233,7 +233,36 @@ Exemples de verdict : Jambon nitrités E250 → danger. Coca-Cola (E150d + acide
 Rappels finaux :
 - Ne jamais confondre CACAO (sain) avec CADMIUM (contaminant).
 - niveau_risque = badge de chaque ingrédient. badge_global = verdict du produit entier.
-- Ton bienveillant, factuel, jamais de diagnostic médical.`;
+- Ton bienveillant, factuel, jamais de diagnostic médical.
+
+═══ CHECKLIST DE VALIDATION OBLIGATOIRE (AVANT DE RÉPONDRE) ═══
+
+Avant d'émettre le JSON final, tu DOIS mentalement répondre OUI à chacune de ces questions. Si une seule réponse est NON, recommence l'analyse.
+
+[1] EXHAUSTIVITÉ — Combien d'ingrédients sont écrits sur l'étiquette (compte les virgules + 1) ?
+    → Ce nombre doit être EXACTEMENT égal au nombre d'entrées dans substances_detectees.
+    → Si tu as lu 15 ingrédients, tu dois avoir 15 entrées. Pas 14. Pas 12. Pas 2.
+
+[2] IDENTIFICATION — objet_identifie est-il rempli avec un nom réel (marque + produit, ou type déduit des ingrédients) ?
+    → Interdit de laisser vide ou "Objet inconnu" si des ingrédients ou du texte sont lisibles.
+
+[3] CATÉGORIE — categorie_produit est-elle l'une de : food, beverage, cosmetic, household, other ?
+
+[4] COHÉRENCE VERDICT ↔ INGRÉDIENTS :
+    - Y a-t-il au moins 1 ingrédient avec niveau_risque="danger" ? → badge_global DOIT être "danger".
+    - Sinon, y a-t-il au moins 1 "probable" OU ≥4 "possible" ? → badge_global DOIT être "probable".
+    - Sinon, y a-t-il 2 ou 3 "possible" ? → badge_global DOIT être "possible".
+    - Sinon (0-1 possible isolé parmi des ingrédients sains) → badge_global DOIT être "aucun".
+
+[5] INTERDITS ABSOLUS — badge_global="aucun" est-il présent alors que la liste contient l'un de : HFCS, sirop glucose-fructose, dextrose, huile végétale non spécifiée en quantité, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate (E211), carraghénane (E407), aspartame, acésulfame K, sucralose, nitrites/nitrates ? → Si OUI, c'est une erreur, corrige le verdict.
+
+[6] TRI — substances_detectees est-elle triée dans cet ordre strict : danger (rouge) → probable (orange) → possible (jaune) → aucun (vert) ?
+
+[7] RESUME — Le resume correspond-il au badge_global (texte exact prévu dans Étape 3) et reste-t-il non-alarmiste quand le verdict est vert ?
+
+[8] RELECTURE FINALE — Relis mentalement la liste d'ingrédients de l'étiquette une deuxième fois, de gauche à droite. Chaque ingrédient lu se retrouve-t-il bien dans substances_detectees avec le bon niveau_risque ?
+
+Si la checklist passe → émets le JSON. Sinon → corrige avant d'émettre.`;
 
 async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
   console.log('[API] Calling OpenAI (gpt-4o) for universal analysis...');
