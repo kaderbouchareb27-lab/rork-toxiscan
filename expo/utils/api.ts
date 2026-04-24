@@ -2,7 +2,7 @@ import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCat
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
-import { lookupBarcode, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
+import { lookupBarcode, searchByName, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t } from '@/utils/i18n';
 
@@ -400,46 +400,63 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
 
 async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: string; offResult: OpenFactsResult | null }> {
   try {
-    console.log('[API] Attempting barcode detection from image for Open Food Facts lookup...');
+    console.log('[API] Attempting barcode + product name detection from image for Open Food Facts lookup...');
 
-    const barcodeDetectionSchema = z.object({
+    const preDetectionSchema = z.object({
       barcode_detected: z.boolean(),
       barcode_value: z.string().nullable(),
       barcode_type: z.enum(['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'other', 'none']),
+      product_name_visible: z.string().nullable(),
+      brand_visible: z.string().nullable(),
     });
 
-    const barcodeResult = await aiGenerateObject({
+    const preResult = await aiGenerateObject({
       messages: [
         {
           role: 'user',
           content: [
-            { type: 'text', text: 'Regarde cette photo. Est-ce qu\'il y a un code-barres visible (EAN-13, EAN-8, UPC-A, UPC-E) ? Si oui, lis le numéro du code-barres. Si tu ne vois pas de code-barres ou si tu ne peux pas le lire clairement, mets barcode_detected: false et barcode_value: null.' },
+            { type: 'text', text: 'Regarde cette photo d\'un produit. Retourne : 1) le code-barres (EAN-13, EAN-8, UPC-A, UPC-E) si visible et lisible — sinon null. 2) le NOM DU PRODUIT tel qu\'il est imprimé sur l\'emballage (ex: "Fils Extra", "Nutella", "Coca-Cola Zero") dans product_name_visible. 3) la MARQUE si visible (ex: "LU", "Ferrero", "Coca-Cola") dans brand_visible. Lis ce qui est écrit sur l\'emballage, même sans code-barres. Si rien n\'est lisible, mets null.' },
             { type: 'image', image: imageBase64 },
           ],
         },
       ],
-      schema: barcodeDetectionSchema,
-      toolName: 'record_barcode',
-      toolDescription: 'Enregistre le code-barres détecté sur la photo.',
+      schema: preDetectionSchema,
+      toolName: 'record_pre_detection',
+      toolDescription: 'Enregistre le code-barres et le nom du produit détectés sur la photo.',
       maxTokens: 512,
     });
 
-    console.log('[API] Barcode detection result:', JSON.stringify(barcodeResult));
+    console.log('[API] Pre-detection result:', JSON.stringify(preResult));
 
-    if (barcodeResult.barcode_detected && barcodeResult.barcode_value) {
-      const barcode = barcodeResult.barcode_value.replace(/\s/g, '');
-      console.log('[API] Barcode detected:', barcode, 'Type:', barcodeResult.barcode_type);
+    if (preResult.barcode_detected && preResult.barcode_value) {
+      const barcode = preResult.barcode_value.replace(/\s/g, '');
+      console.log('[API] Barcode detected:', barcode, 'Type:', preResult.barcode_type);
 
       const offResult = await lookupBarcode(barcode);
       if (offResult.found) {
         const context = formatOpenFactsContext(offResult);
-        console.log('[API] Open Food Facts data found, context length:', context.length);
+        console.log('[API] Open Food Facts data found via barcode, context length:', context.length);
         return { context, offResult };
-      } else {
-        console.log('[API] Barcode detected but product not found in Open Food Facts');
       }
+      console.log('[API] Barcode detected but product not found in Open Food Facts');
     } else {
       console.log('[API] No barcode detected in image');
+    }
+
+    const nameParts: string[] = [];
+    if (preResult.brand_visible) nameParts.push(preResult.brand_visible);
+    if (preResult.product_name_visible) nameParts.push(preResult.product_name_visible);
+    const searchQuery = nameParts.join(' ').trim();
+
+    if (searchQuery.length >= 3) {
+      console.log('[API] Trying Open Food Facts search by name:', searchQuery);
+      const offResult = await searchByName(searchQuery);
+      if (offResult.found) {
+        const context = formatOpenFactsContext(offResult);
+        console.log('[API] Open Food Facts data found via name search, context length:', context.length);
+        return { context, offResult };
+      }
+      console.log('[API] No name match in Open Food Facts');
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
