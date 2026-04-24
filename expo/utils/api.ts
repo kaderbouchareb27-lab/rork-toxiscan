@@ -166,30 +166,54 @@ Non classées IARC mais documentées dangereuses par EWG/ANSES/EFSA/études peer
 - Autres : Silice/Silica (E551) — controversé faible risque
 - NON controversés (ne pas signaler) : Pectine (E440), Lécithine de tournesol (E322), Vitamine C/Acide ascorbique (E300)
 
-🟡 INGRÉDIENTS À CONSOMMER AVEC MODÉRATION → badge_global="possible" JAUNE (jamais orange ni rouge)
-Pour CHACUN de ces ingrédients détectés, le message Dr. Toxi doit être : "Cet ingrédient peut favoriser l'inflammation ou causer des inconforts digestifs chez certaines personnes. À consommer avec modération."
+🟠 INGRÉDIENTS ULTRA-TRANSFORMÉS À ÉVITER → badge_global="probable" ORANGE — ATTENTION
+Pour CHACUN de ces ingrédients détectés, le message Dr. Toxi doit être : "Ingrédient artificiel ou ultra-transformé, possiblement lié au cancer selon certaines études. À éviter autant que possible."
 
-Huiles raffinées et graines (riches en oméga-6, inflammation possible) :
-- Huile de tournesol raffinée → riche en oméga-6, favorise l'inflammation chronique à haute consommation
-- Huile de colza raffinée → oméga-6 en excès, inflammation possible
+Dès qu'UN SEUL de ces ingrédients est détecté → verdict ORANGE minimum (sauf si un Groupe 1 est présent → ROUGE prioritaire).
+
+Amidons et dérivés industriels ultra-transformés :
+- Maltodextrine → ultra-transformée, index glycémique très élevé, perturbe le microbiote
+- Amidon modifié (E1404, E1412, E1422, E1450 et autres) → ultra-transformé chimiquement
+- Dextrine → amidon ultra-transformé
+- Sirop de riz → sucre ultra-raffiné, index glycémique élevé
+
+Protéines et extraits industriels :
+- Protéines hydrolysées → ultra-transformées, contiennent souvent du glutamate libre
+- Extrait de levure / Yeast extract → source de glutamate caché, ultra-transformé
+- Caséinate de sodium → protéine laitière ultra-transformée chimiquement
+
+Huiles raffinées et graines (riches en oméga-6, inflammation, ultra-transformées) :
+- Huile de tournesol raffinée → oméga-6 en excès, pro-inflammatoire, ultra-raffinée
+- Huile de colza raffinée → oméga-6 en excès, procédé de raffinage chimique
 - Huile de pépin de raisin → très riche en oméga-6 pro-inflammatoire
-- Huile de sésame raffinée → oméga-6 élevé
-- Huile végétale non spécifiée → inconnue, peut être huile de palme ou huile raffinée
+- Huile de sésame raffinée → oméga-6 élevé, raffinage industriel
+- Huile de soja raffinée → souvent OGM, oméga-6 en excès, ultra-raffinée
+- Huile de maïs raffinée → souvent OGM, oméga-6 en excès, ultra-raffinée
+- Huile de coton / Cottonseed oil → résidus de pesticides, gossypol toxique, ultra-raffinée
 
-Épaississants et gommes (troubles digestifs possibles) :
-- Gomme xanthane (E415) → peut causer ballonnements et problèmes digestifs chez certaines personnes
-- Gomme de guar (E412) → peut causer troubles digestifs à haute dose
-- Gomme arabique (E414) → généralement toléré mais peut causer réactions chez certains
-- Gomme de caroube (E410) → troubles digestifs possibles
+Sucres ajoutés problématiques :
+- Fructose ajouté (pur, isolé) → impact métabolique négatif, stéatose hépatique
+- Sirop d'agave → très riche en fructose isolé, impact métabolique similaire au HFCS
 
-Arômes (composition non divulguée) :
-- Arômes artificiels → substances synthétiques, composition non divulguée, certaines préoccupantes
+Épaississants et gommes (troubles digestifs, perturbation du microbiote) :
+- Gomme xanthane (E415) → perturbation du microbiote, ballonnements, études liées à l'inflammation intestinale
+- Gomme de guar (E412) → troubles digestifs, perturbation du microbiote
+- Gomme arabique (E414) → peut perturber la flore intestinale
+- Gomme de caroube (E410) → troubles digestifs possibles, ultra-transformé
+
+Arômes artificiels :
+- Arômes artificiels → substances synthétiques, composition non divulguée, certaines potentiellement cancérigènes
+
+Acides industriels :
+- Acide citrique industriel (E330) → produit par fermentation Aspergillus niger, résidus de moisissures, inflammation possible. NOTE : seul l'acide citrique INDUSTRIEL (E330 ajouté) = ORANGE. L'acide citrique naturel présent dans les fruits = SAIN (ne pas signaler).
+
+RÈGLE IMPORTANTE : Ces ingrédients reçoivent badge ORANGE (probable) — jamais rouge sauf si un Groupe 1 IARC est également présent. Classification_circ = "Non classé par le CIRC — Ultra-transformé".
+
+🟡 INGRÉDIENTS À CONSOMMER AVEC MODÉRATION → badge_global="possible" JAUNE
+Pour CHACUN de ces ingrédients détectés, le message Dr. Toxi doit être : "Cet ingrédient peut contenir des allergènes cachés ou être issu d'un processus industriel. À consommer avec modération."
+
 - Arômes naturels / natural flavours → composition non divulguée, peut contenir des allergènes cachés
-
-Acides :
-- Acide citrique industriel (E330) → produit par fermentation Aspergillus niger, résidus possibles, peut causer inflammation chez personnes sensibles. NOTE : seul l'acide citrique INDUSTRIEL (E330 ajouté) = JAUNE. L'acide citrique naturel présent dans les fruits = SAIN (ne pas signaler).
-
-RÈGLE IMPORTANTE : Ces ingrédients reçoivent badge JAUNE uniquement — JAMAIS orange ni rouge, même si plusieurs sont détectés ensemble. Ils ne comptent PAS comme "substances controversées cumulées" pour passer en orange. Classification_circ = "Non classé par le CIRC".
+- Huile végétale non spécifiée → inconnue, peut être huile de palme ou huile raffinée (passe en ORANGE si combinée à d'autres ingrédients ultra-transformés)
 
 🟢 INGRÉDIENTS NATURELS SAINS — NE JAMAIS SIGNALER
 Eau, Farine de blé/complète, Avoine, Riz, Sucre (quantité normale), Sel, Vinaigre, Huile d'olive extra vierge, Huile de coco non hydrogénée, Beurre, Crème, Lait, Œufs, Levure, Bicarbonate, Légumes frais/séchés, Fruits frais/séchés, Épices naturelles, Cacao pur (PAS cadmium), Chocolat noir >70%, Miel, Sirop d'érable, Noix, Amandes, Graines (chia, lin, tournesol), Protéines de lactosérum/Whey, Acide citrique naturel, Pectine, Lécithine tournesol, Vitamine C.
