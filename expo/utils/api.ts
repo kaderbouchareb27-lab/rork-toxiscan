@@ -5,6 +5,7 @@ import { aiGenerateObject } from '@/utils/aiApi';
 import { lookupBarcode, searchByName, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t } from '@/utils/i18n';
+import { renderIngredientsDatabaseForPrompt } from '@/constants/ingredientsDatabase';
 
 const CATEGORY_VALUES = ['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other'] as const;
 const RISK_VALUES = ['danger', 'probable', 'possible', 'aucun'] as const;
@@ -99,170 +100,76 @@ const universalAnalysisSchema = z.object({
   erreur: safeString('').optional(),
 });
 
-const UNIVERSAL_ANALYSIS_PROMPT = `Tu es ToxiScan, une app qui détecte les ingrédients controversés et cancérigènes sur les emballages. Analyse chaque photo en 4 étapes et retourne un JSON structuré.
+const INGREDIENTS_DB_TEXT = renderIngredientsDatabaseForPrompt();
+
+const UNIVERSAL_ANALYSIS_PROMPT = `Tu es ToxiScan. Analyse chaque photo et retourne UN JSON structuré.
+
+═══ BASE DE DONNÉES INGRÉDIENTS (source unique — applique-la strictement) ═══
+
+${INGREDIENTS_DB_TEXT}
+
+Règle de classification : pour chaque ingrédient détecté, cherche une correspondance par mot-clé dans la base ci-dessus (insensible à la casse, accents, pluriels). Si trouvé → utilise EXACTEMENT son niveau_risque et sa classification_circ. Si non trouvé → niveau_risque="aucun" avec classification_circ="Non classé par le CIRC".
+
+Règles par mot-clé (toujours ORANGE, priorité sur la base) : "modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
+
+Règle sucre blanc raffiné (sucre/sugar/saccharose) selon position dans la liste : 1er-2e ingrédient → ORANGE ; milieu → JAUNE ; fin ou <5g/portion → VERT.
 
 ═══ ÉTAPE 1 — IDENTIFIER LE PRODUIT ═══
 
-Lis l'emballage avec effort maximal, même photo de côté/en angle/partielle.
-- objet_identifie = nom marque + produit (ex: "LU Fils Extra", "Coca-Cola Zero", "Nutella")
-- categorie_produit = food | beverage | cosmetic | household | other
+objet_identifie = marque + produit (ex: "LU Prince", "Coca-Cola Zero", "Nutella").
+Priorité : 1) nom Open Food Facts si fourni ; 2) texte lisible sur l'emballage ; 3) marques connues reconnaissables ; 4) déduction par combinaison d'ingrédients (lait+ferments→Fromage ; farine+sucre+beurre+œufs→Biscuit ; eau+houblon+malt→Bière ; aqua+glycerin+parfum→Cosmétique ; tensioactifs+parfum→Shampoing).
+INTERDICTION : ne JAMAIS retourner "Objet inconnu" si un nom OFF existe, du texte est lisible, une marque est reconnaissable, ou une liste d'ingrédients est lisible.
 
-Priorité des sources (ordre strict) :
-1. Nom Open Food Facts (si fourni via code-barres/recherche) → PRIORITÉ ABSOLUE
-2. Texte lisible sur l'emballage
-3. Déduction par combinaison d'ingrédients si seule la liste est visible :
-   - Lait + ferments + présure → "Fromage" ; Farine + sucre + beurre + œufs → "Biscuit/Gâteau"
-   - Eau + houblon + malt → "Bière" ; Tomates + huile olive + basilic → "Sauce tomate"
-   - Eau + sucre + arôme + CO2 → "Boisson gazeuse" ; Aqua + glycerin + parfum → "Cosmétique"
-   - Tensioactifs + parfum → "Shampoing/Gel douche" ; Pommes de terre + huile + sel → "Chips"
+categorie_produit : food | beverage | cosmetic | household | other.
 
-Marques à reconnaître visuellement même sans code-barres : LU, Nutella, Oreo, Coca-Cola, Pepsi, Haribo, Kellogg's, Nestlé, Danone, Ferrero, Lay's, Pringles, Kraft, Heinz, Prince, Petit Écolier, BN, Bonne Maman, Activia, Yoplait, Milka, Kinder, Ritz, Mikado, Pim's, Barilla, Panzani, Président, Kiri, Babybel, Mars, Snickers, Twix, M&M's, Cadbury, Lindt, Toblerone, Lipton, Nescafé, Evian, Volvic, Perrier, Red Bull, Fanta, Sprite, Orangina.
+═══ ÉTAPE 2 — LIRE CHAQUE INGRÉDIENT (EXHAUSTIVITÉ CRITIQUE) ═══
 
-INTERDICTION : ne JAMAIS retourner "Objet inconnu"/"Produit inconnu" si (a) un nom Open Food Facts existe, (b) du texte est lisible, (c) une marque connue est reconnaissable, ou (d) la liste d'ingrédients est lisible. Utilise l'erreur uniquement si la photo est vraiment illisible.
-
-═══ ÉTAPE 2 — LIRE ET CLASSER CHAQUE INGRÉDIENT ═══
-
-RÈGLE D'EXHAUSTIVITÉ (CRITIQUE) :
-1. Identifie le bloc "Ingrédients :" / "INGREDIENTS:"
+1. Trouve le bloc "Ingrédients :" / "INGREDIENTS:"
 2. Découpe à chaque virgule/point-virgule/saut de ligne → chaque segment = 1 token
-3. Pour CHAQUE token, crée UNE entrée dans substances_detectees (y compris eau, sel, farine, vitamines, minéraux, additifs techniques)
-4. Si la liste contient N virgules, substances_detectees doit contenir ≥ N+1 entrées
-5. Ne fusionne JAMAIS 2 ingrédients. Ne saute JAMAIS un ingrédient "banal"
-6. Exemple Red Bull (15 tokens) → 15 entrées obligatoires, pas moins
+3. Pour CHAQUE token, crée UNE entrée dans substances_detectees (y compris eau, sel, farine, vitamines)
+4. Si la liste a N virgules → substances_detectees doit avoir ≥ N+1 entrées
+5. Ne fusionne JAMAIS 2 ingrédients. Ne saute AUCUN ingrédient banal.
 
-Chaque entrée contient : nom, code (E-xxx ou null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication, source_exposition.
+Chaque entrée : { nom, code (E-xxx ou null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication (1 phrase simple), source_exposition }.
 
-── Classification des ingrédients ──
+CAS SPÉCIAL BOISSONS ÉNERGISANTES (Red Bull, Monster, Rockstar, Bang) : Taurine, Caféine ajoutée, Inositol, Glucuronolactone, Natural/Artificial Flavors, Niacinamide, Pyridoxine HCl, Calcium Pantothenate, Cyanocobalamin = ORANGE (dans un aliment normal ces vitamines B = VERT).
 
-🔴 niveau_risque="danger" — CANCÉRIGÈNES GROUPE 1 IARC (un seul = verdict ROUGE)
-- Nitrites/nitrates de sodium et potassium (E249, E250, E251, E252) — charcuteries
-- Formaldéhyde (E240) et libérateurs : DMDM Hydantoin, Quaternium-15, Diazolidinyl Urea, Imidazolidinyl Urea, Sodium Hydroxymethylglycinate, Bronopol
-- Métaux lourds : Plomb/Lead, Cadmium, Arsenic inorganique, Mercure/Mercury/Thimerosal
-- Alcool éthylique (boissons alcoolisées), Benzène, Benzo[a]pyrène, Aflatoxines
-- Para-phénylènediamine (PPD), Amiante, Talc contaminé, Coal tar, Chrome hexavalent
-- PFAS : PTFE, tout "perfluoro-" ou "polyfluoro-"
-
-🟠 niveau_risque="probable" — GROUPE 2A IARC OU ULTRA-TRANSFORMÉ
-Groupe 2A : Acrylamide, Glyphosate, Viande rouge, Nitrosamines, Méthylène chlorure, IQ/PhIP/MeIQ/MeIQx.
-
-Ultra-transformés (liste complète — tous badge ORANGE) :
-- Amidons industriels : Maltodextrine, Amidon modifié / Modified starch (E1404, E1412, E1422, E1450), Dextrine, Sirop de riz
-- Protéines industrielles : Protéines hydrolysées, Extrait de levure, Caséinate de sodium, Isolat/Concentrat de protéines (soja, lactosérum), Jaune/Blanc d'œuf modifié, Crème lipolysée
-- Graisses modifiées : MCT oil, Huile de coco modifiée, Graisses interestérifiées
-- Huiles raffinées riches oméga-6 : Canola/colza raffinée, Tournesol raffinée, Pépin de raisin, Sésame raffinée, Soja, Maïs, Coton
-- Enzymes non spécifiées
-- Sucres : Fructose ajouté isolé, Sirop d'agave
-- Sucres ultra-raffinés (toujours ORANGE peu importe position) : Sirop de glucose-fructose/HFCS, Sirop de glucose, Dextrose, Sirop de maïs
-- Gommes : Xanthane (E415), Guar (E412), Arabique (E414), Caroube (E410)
-- Arômes artificiels
-- Acide citrique industriel E330 (l'acide citrique naturel des fruits = SAIN)
-- Phosphates ajoutés (vieillissement, vasculaire) : Diphosphates E450, E450a, E450b, E450c ; Tripolyphosphate E451 ; Polyphosphates E452 ; Phosphates E339, E340, E341, E343
-- Huile de palme (3-MCPD, glycidol), Huile végétale non spécifiée, Gras trans / huiles partiellement hydrogénées
-- Conservateurs : Sodium benzoate (E211), TBHQ (E319), BHT (E321), Azodicarbonamide (E927a), Sulfites (E220-E228)
-- Épaississants/émulsifiants : Carraghénane (E407), CMC (E466), Polysorbate 80 (E433)
-
-Boissons énergisantes (Red Bull, Monster, Rockstar, Bang…) — les ingrédients suivants passent en ORANGE car ajoutés massivement :
-Taurine, Caféine ajoutée, Inositol, Glucuronolactone, Glucose isolé, Natural and Artificial Flavors, Colors non spécifiés, Niacinamide, Pyridoxine HCl, Calcium Pantothenate, Cyanocobalamin. (Les mêmes vitamines B en quantité normale dans un aliment = JAUNE.)
-
-Détection par mot-clé (toujours ORANGE, sans exception) :
-"modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
-
-🟡 niveau_risque="possible" — GROUPE 2B IARC OU CONTROVERSÉ
-- Édulcorants : Aspartame (E951), Acésulfame K (E950), Saccharine (E954), Sucralose (E955), Cyclamate (E952)
-- Conservateurs/antioxydants : BHA (E320), Potassium bromate (E924), 4-MEI (E150c, E150d)
-- Colorants FD&C (lien hyperactivité Lancet 2007) : Red 3/Érythrosine (E127), Red 40 (E129), Yellow 5/Tartrazine (E102), Yellow 6 (E110), Blue 1 (E133), Blue 2 (E132), Green 3 (E143)
-- Dioxyde de titane (E171), Carbon Black (CI 77266)
-- Contaminants : Mercure méthylé, Ochratoxine A, Fumonisines, 1,4-Dioxane
-- Silice (E551) — faible risque
-- Arômes naturels / natural flavours (composition non divulguée)
-
-🟢 niveau_risque="aucun" — NATURELS SAINS (à inclure avec explication courte)
-Eau, Farine de blé/complète, Avoine, Riz, Sel, Vinaigre, Huile d'olive extra vierge, Huile de coco non hydrogénée, Beurre, Crème, Lait, Œufs, Levure, Bicarbonate, Légumes et fruits frais/séchés, Épices naturelles, Cacao pur (≠ cadmium), Chocolat noir >70%, Noix, Amandes, Graines, Whey/protéines de lactosérum naturelles, Acide citrique naturel des fruits, Pectine (E440), Lécithine de tournesol (E322), Vitamine C / Acide ascorbique (E300).
-Sucres naturels (toujours OK peu importe la quantité) : Sucre de coco, Rapadura, Muscovado, Panela, Miel, Sirop d'érable, Sirop/sucre de datte, Fruits.
-
-── Règle spéciale SUCRE BLANC RAFFINÉ (sucre, sugar, saccharose, sucre de canne raffiné, sucre inverti) ──
-Position dans la liste (décroissante = quantité) :
-- 1er ou 2e ingrédient → ORANGE "Très grande quantité de sucre raffiné. Favorise inflammation, obésité, risque de cancer."
-- Milieu de liste → JAUNE "Sucre raffiné en quantité modérée. À consommer occasionnellement."
-- Fin de liste OU <5g/portion → VERT
+COSMÉTIQUES : règle "perturbateurs endocriniens cumulés" — 3+ dans le même produit = ORANGE minimum. DANGER GROSSESSE : si l'un de ces ingrédients est présent, préfixer resume par "⚠️ DANGER GROSSESSE : " et ajouter en 1re recommandation "Ce produit contient des substances déconseillées pendant la grossesse. Consulte un professionnel de santé."
 
 ═══ ÉTAPE 3 — VERDICT FINAL (badge_global) ═══
 
-Appliquer dans l'ordre — le plus élevé l'emporte :
-🔴 "danger" — dès 1 ingrédient Groupe 1 IARC. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS. Je te déconseille fortement de le consommer régulièrement."
-🟠 "probable" — ≥1 ingrédient ORANGE (Groupe 2A ou ultra-transformé) OU ≥4 jaunes cumulés. Resume : "Ce produit contient plusieurs substances controversées. Consomme-le très occasionnellement et cherche une alternative plus naturelle."
-🟡 "possible" — 2 ou 3 jaunes cumulés, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien."
-🟢 "aucun" — aucun ingrédient problématique, OU 1 seul jaune isolé avec majorité d'ingrédients naturels sains. Resume : "Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains. C'est un excellent choix !"
+Règle stricte — le plus élevé l'emporte :
+• danger → ≥1 ingrédient Groupe 1. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS. Je te déconseille fortement d'en consommer régulièrement."
+• probable → ≥1 ingrédient ORANGE OU ≥4 jaunes. Resume : "Ce produit contient plusieurs substances controversées. Consomme-le très occasionnellement et cherche une alternative plus naturelle."
+• possible → 2-3 jaunes, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien."
+• aucun → 0-1 jaune isolé parmi des naturels sains. Resume : "Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains."
 
-Règle anti-alarmisme : 1 jaune isolé noyé dans des ingrédients naturels = VERT. Ne jamais monter en ATTENTION/MODÉRATION pour alarmer sans raison.
+Interdits absolus pour "aucun" : HFCS, dextrose, sirop de glucose, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame, acésulfame K, sucralose, nitrites/nitrates.
 
-Interdits explicites : JAMAIS "aucun" si dextrose, HFCS, sirop glucose, huile végétale non spécifiée significative, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame ou édulcorants artificiels sont présents.
-
-── Tri obligatoire de substances_detectees ──
-1. danger (rouge), 2. probable (orange), 3. possible (jaune), 4. aucun (vert). Tous les ingrédients doivent apparaître quel que soit le verdict global.
-
-═══ ÉTAPE 4 — COSMÉTIQUES (si categorie_produit="cosmetic") ═══
-
-🔴 Groupe 1 : Formaldéhyde/Formalin/Methylene glycol et libérateurs (DMDM Hydantoin, Quaternium-15, Diazolidinyl/Imidazolidinyl Urea, Bronopol), Benzène (recalls FDA 2022-23), Talc contaminé amiante (asbestos-free = SAIN), PPD/Resorcinol, Mercure/Thimerosal.
-🟠 Groupe 2A : Nitrosamines (DEA/TEA/MEA), Huiles minérales raffinées (Paraffinum Liquidum, Petrolatum, Mineral Oil, Cera Microcristallina).
-🟡 Groupe 2B : Titanium Dioxide [nano], 1,4-Dioxane (contaminant PEG/SLES), BHA, Carbon Black/CI 77266.
-🟠 Perturbateurs endocriniens (ORANGE si 2+, JAUNE si isolé) :
-Parabènes (Methyl/Ethyl/Propyl/Butyl/Isobutyl/Isopropyl), Phtalates (DBP, DEHP, DEP — souvent cachés dans "Fragrance"), Cyclosiloxanes (D4, D5, Cyclomethicone), Triclosan/Irgasan, Phénoxyéthanol (interdit bébé <3 ans en France), PFAS, Sels d'aluminium (Chlorohydrate, Zirconium…), Filtres UV chimiques (Oxybenzone/Benzophenone-3, Octinoxate, Homosalate, Octisalate), Fragrance/Parfum synthétique, Hydroquinone (interdite UE), PEG et composés éthoxylés (-eth, SLES), Acide salicylique >0.5%.
-
-🩷 Danger grossesse — si l'un de ces ingrédients est présent, préfixer resume avec "⚠️ DANGER GROSSESSE : " et ajouter en 1re recommandation : "Ce produit contient des substances déconseillées ou interdites pendant la grossesse et l'allaitement. Consulte un professionnel de santé avant utilisation."
-Liste : Phtalates (DBP, DEHP, DEP), Cyclosiloxanes D4/D5, Acide salicylique >0.5%, PFAS, Mercure/Thimerosal, Formaldéhyde et libérateurs, Parabènes Isobutyl/Isopropyl, Hydroquinone, Oxybenzone, Retinol/Rétinyl palmitate.
-
-Spécificités cosmétiques : Fragrance/Parfum seul = JAUNE min ; Talc asbestos-free = SAIN ; BHT seul = Groupe 3, pas cancérigène ; PEG seuls = contamination 1,4-dioxane à mentionner ; 3+ perturbateurs endocriniens cumulés = ORANGE minimum.
-Alternatives clean : ATTITUDE, Druide, Oneka (Québec) ; Cattier, Coslys, Weleda, Logona (France) ; certifications EcoCert/Cosmos/EWG Verified.
+Tri obligatoire de substances_detectees : danger → probable → possible → aucun.
 
 ═══ SORTIE JSON ═══
 
-Remplis tous les champs :
-- objet_identifie (jamais vide si info disponible)
-- categorie_produit : food | beverage | cosmetic | household | other
-- badge_global : danger | probable | possible | aucun
-- resume : 3-4 phrases max en français standard (pas québécois), bienveillant, factuel, non-alarmiste
-- substances_detectees : TOUS les ingrédients triés par risque décroissant (nom, code E ou null, classification_circ = "Groupe 1" | "Groupe 2A" | "Groupe 2B" | "Controversé" | "Non classé par le CIRC" | "Non classé par le CIRC — Ultra-transformé", explication simple, source_exposition)
-- recommandations : conseils concrets
-- alternatives_saines : 2-3 alternatives selon pays (Québec = ATTITUDE/Druide/Oneka ; France = Ecover/L'Arbre Vert/Cattier/Coslys)
-- materiau_detecte : ""
-- erreur : null (ou "Photo illisible. Veuillez reprendre." uniquement si floue)
+Champs : objet_identifie, categorie_produit, badge_global, resume (3-4 phrases français standard, bienveillant, non-alarmiste), substances_detectees (TOUS les ingrédients), recommandations, alternatives_saines (2-3 selon pays : Québec=ATTITUDE/Druide/Oneka ; France=Cattier/Coslys/Ecover), materiau_detecte="", erreur=null (ou "Photo illisible" si floue).
 
-Exemples de verdict : Jambon nitrités E250 → danger. Coca-Cola (E150d + acide phosphorique) → possible min. Nutella (palme + sucre excès) → possible min. Eau minérale → aucun. Baguettes Grissol (huile végétale + dextrose + silice) → possible.
+classification_circ accepté : "Groupe 1" | "Groupe 2A" | "Groupe 2B" | "Controversé" | "Ultra-transformé" | "Perturbateur endocrinien" | "Naturel" | "Non classé par le CIRC".
 
-Rappels finaux :
-- Ne jamais confondre CACAO (sain) avec CADMIUM (contaminant).
-- niveau_risque = badge de chaque ingrédient. badge_global = verdict du produit entier.
-- Ton bienveillant, factuel, jamais de diagnostic médical.
+Ne confonds JAMAIS CACAO (sain) avec CADMIUM (contaminant).
 
-═══ CHECKLIST DE VALIDATION OBLIGATOIRE (AVANT DE RÉPONDRE) ═══
+═══ CHECKLIST DE VALIDATION OBLIGATOIRE (avant de répondre) ═══
 
-Avant d'émettre le JSON final, tu DOIS mentalement répondre OUI à chacune de ces questions. Si une seule réponse est NON, recommence l'analyse.
+Réponds mentalement OUI à chaque question. Si une seule réponse est NON → recommence.
 
-[1] EXHAUSTIVITÉ — Combien d'ingrédients sont écrits sur l'étiquette (compte les virgules + 1) ?
-    → Ce nombre doit être EXACTEMENT égal au nombre d'entrées dans substances_detectees.
-    → Si tu as lu 15 ingrédients, tu dois avoir 15 entrées. Pas 14. Pas 12. Pas 2.
+[1] EXHAUSTIVITÉ — Combien d'ingrédients sur l'étiquette (virgules + 1) ? Ce nombre DOIT égaler le nombre d'entrées dans substances_detectees. 15 ingrédients lus = 15 entrées, pas 14.
+[2] IDENTIFICATION — objet_identifie est-il rempli avec un nom réel ? Jamais "Objet inconnu" si texte/ingrédients lisibles.
+[3] CLASSIFICATION — Chaque entrée a-t-elle été cherchée dans la BASE DE DONNÉES ci-dessus et a-t-elle le niveau_risque EXACT issu de la base ?
+[4] COHÉRENCE VERDICT : 1+ danger → badge="danger" ; 1+ probable ou 4+ possible → "probable" ; 2-3 possible → "possible" ; sinon → "aucun".
+[5] INTERDITS ABSOLUS — badge_global="aucun" n'est pas utilisé si la liste contient HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carraghénane, édulcorants artificiels, nitrites.
+[6] TRI — substances_detectees trié danger → probable → possible → aucun.
+[7] RESUME — Correspond au badge_global et reste non-alarmiste si verdict vert.
+[8] RELECTURE — Relis la liste de gauche à droite ; chaque ingrédient s'y trouve bien avec son badge.
 
-[2] IDENTIFICATION — objet_identifie est-il rempli avec un nom réel (marque + produit, ou type déduit des ingrédients) ?
-    → Interdit de laisser vide ou "Objet inconnu" si des ingrédients ou du texte sont lisibles.
-
-[3] CATÉGORIE — categorie_produit est-elle l'une de : food, beverage, cosmetic, household, other ?
-
-[4] COHÉRENCE VERDICT ↔ INGRÉDIENTS :
-    - Y a-t-il au moins 1 ingrédient avec niveau_risque="danger" ? → badge_global DOIT être "danger".
-    - Sinon, y a-t-il au moins 1 "probable" OU ≥4 "possible" ? → badge_global DOIT être "probable".
-    - Sinon, y a-t-il 2 ou 3 "possible" ? → badge_global DOIT être "possible".
-    - Sinon (0-1 possible isolé parmi des ingrédients sains) → badge_global DOIT être "aucun".
-
-[5] INTERDITS ABSOLUS — badge_global="aucun" est-il présent alors que la liste contient l'un de : HFCS, sirop glucose-fructose, dextrose, huile végétale non spécifiée en quantité, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate (E211), carraghénane (E407), aspartame, acésulfame K, sucralose, nitrites/nitrates ? → Si OUI, c'est une erreur, corrige le verdict.
-
-[6] TRI — substances_detectees est-elle triée dans cet ordre strict : danger (rouge) → probable (orange) → possible (jaune) → aucun (vert) ?
-
-[7] RESUME — Le resume correspond-il au badge_global (texte exact prévu dans Étape 3) et reste-t-il non-alarmiste quand le verdict est vert ?
-
-[8] RELECTURE FINALE — Relis mentalement la liste d'ingrédients de l'étiquette une deuxième fois, de gauche à droite. Chaque ingrédient lu se retrouve-t-il bien dans substances_detectees avec le bon niveau_risque ?
-
-Si la checklist passe → émets le JSON. Sinon → corrige avant d'émettre.`;
+Si la checklist passe → émets le JSON. Sinon → corrige.`;
 
 async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
   console.log('[API] Calling OpenAI (gpt-4o) for universal analysis...');

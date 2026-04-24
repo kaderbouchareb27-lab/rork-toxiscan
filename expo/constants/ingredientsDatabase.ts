@@ -1,0 +1,187 @@
+export type RiskLevel = 'danger' | 'probable' | 'possible' | 'aucun';
+
+export interface IngredientEntry {
+  readonly keywords: readonly string[];
+  readonly code: string | null;
+  readonly risk: RiskLevel;
+  readonly circ: string;
+  readonly note?: string;
+}
+
+export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
+  { keywords: ['nitrite de sodium', 'sodium nitrite'], code: 'E250', risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['nitrite de potassium', 'potassium nitrite'], code: 'E249', risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['nitrate de sodium', 'sodium nitrate'], code: 'E251', risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['nitrate de potassium', 'potassium nitrate'], code: 'E252', risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['formaldehyde', 'formaldehyde', 'formalin', 'methylene glycol'], code: 'E240', risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['dmdm hydantoin'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Libérateur de formaldéhyde' },
+  { keywords: ['quaternium-15', 'quaternium 15'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Libérateur de formaldéhyde' },
+  { keywords: ['diazolidinyl urea'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Libérateur de formaldéhyde' },
+  { keywords: ['imidazolidinyl urea'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Libérateur de formaldéhyde' },
+  { keywords: ['bronopol'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['plomb', 'lead'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['cadmium'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['arsenic'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['mercure', 'mercury', 'thimerosal'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['benzene'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['aflatoxine', 'aflatoxin'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['ppd', 'para-phenylenediamine'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['coal tar', 'goudron de houille'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['ptfe', 'perfluoro', 'polyfluoro', 'pfas'], code: null, risk: 'danger', circ: 'Groupe 1' },
+  { keywords: ['alcool ethylique', 'ethanol (boisson)'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Uniquement dans boissons alcoolisées' },
+
+  { keywords: ['acrylamide'], code: null, risk: 'probable', circ: 'Groupe 2A' },
+  { keywords: ['glyphosate'], code: null, risk: 'probable', circ: 'Groupe 2A' },
+  { keywords: ['viande rouge'], code: null, risk: 'probable', circ: 'Groupe 2A' },
+  { keywords: ['nitrosamine'], code: null, risk: 'probable', circ: 'Groupe 2A' },
+  { keywords: ['maltodextrine', 'maltodextrin'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['amidon modifie', 'modified starch'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['dextrine'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sirop de riz'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['proteines hydrolysees', 'hydrolyzed protein', 'hydrolyse', 'hydrolyzed'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['extrait de levure', 'yeast extract'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['caseinate', 'caseinate de sodium'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['isolat', 'isolate', 'concentrat', 'concentrate'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['mct oil', 'huile mct'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['graisse interesterifiee', 'interesterified'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de colza raffinee', 'canola raffinee'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de tournesol raffinee', 'sunflower oil refined'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de pepin de raisin', 'grapeseed oil'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de soja', 'soybean oil'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de mais', 'corn oil'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de coton', 'cottonseed oil'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['huile de palme', 'palm oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: '3-MCPD, glycidol' },
+  { keywords: ['huile vegetale', 'vegetable oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Non spécifiée' },
+  { keywords: ['hydrogenated', 'hydrogene', 'partiellement hydrogene'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Sauf mention non hydrogéné' },
+  { keywords: ['fructose ajoute', 'fructose isole'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sirop d\'agave', 'agave syrup'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sirop de glucose-fructose', 'hfcs', 'high fructose corn syrup'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sirop de glucose', 'glucose syrup'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['dextrose'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sirop de mais', 'corn syrup'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['gomme xanthane', 'xanthan'], code: 'E415', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['gomme guar', 'guar gum'], code: 'E412', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['gomme arabique', 'arabic gum'], code: 'E414', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['gomme de caroube', 'carob gum'], code: 'E410', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['arome artificiel', 'artificial flavor', 'artificial flavour'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['acide citrique industriel'], code: 'E330', risk: 'probable', circ: 'Ultra-transformé', note: 'L\'acide citrique naturel des fruits = SAIN' },
+  { keywords: ['diphosphate'], code: 'E450', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['tripolyphosphate'], code: 'E451', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['polyphosphate'], code: 'E452', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['phosphate de sodium', 'phosphate de potassium', 'phosphate de calcium'], code: 'E339/E340/E341/E343', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['gras trans', 'trans fat'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sodium benzoate', 'benzoate de sodium'], code: 'E211', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['tbhq'], code: 'E319', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['bht'], code: 'E321', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['azodicarbonamide'], code: 'E927a', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['sulfite', 'sulphite', 'dioxyde de soufre'], code: 'E220-E228', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['carraghenane', 'carrageenan'], code: 'E407', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['cmc', 'carboxymethylcellulose'], code: 'E466', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['polysorbate 80', 'polysorbate'], code: 'E433', risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['taurine'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Dans boissons énergisantes' },
+  { keywords: ['cafeine ajoutee', 'caffeine'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Dans boissons énergisantes' },
+  { keywords: ['inositol'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Dans boissons énergisantes' },
+  { keywords: ['glucuronolactone'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['natural and artificial flavors'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['niacinamide', 'pyridoxine hcl', 'calcium pantothenate', 'cyanocobalamin'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Uniquement en boisson énergisante (sinon jaune)' },
+
+  { keywords: ['aspartame'], code: 'E951', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['acesulfame'], code: 'E950', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['saccharine'], code: 'E954', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['sucralose'], code: 'E955', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['cyclamate'], code: 'E952', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['bha'], code: 'E320', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['potassium bromate'], code: 'E924', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['caramel ammoniacal', 'caramel au sulfite'], code: 'E150c/E150d', risk: 'possible', circ: 'Groupe 2B', note: '4-MEI' },
+  { keywords: ['rouge 3', 'red 3', 'erythrosine'], code: 'E127', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['rouge 40', 'red 40', 'allura red'], code: 'E129', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['jaune 5', 'yellow 5', 'tartrazine'], code: 'E102', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['jaune 6', 'yellow 6', 'sunset yellow'], code: 'E110', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['bleu 1', 'blue 1'], code: 'E133', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['bleu 2', 'blue 2'], code: 'E132', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['vert 3', 'green 3'], code: 'E143', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['dioxyde de titane', 'titanium dioxide'], code: 'E171', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['carbon black'], code: 'CI 77266', risk: 'possible', circ: 'Groupe 2B' },
+  { keywords: ['silice', 'silicon dioxide'], code: 'E551', risk: 'possible', circ: 'Controversé' },
+  { keywords: ['arome naturel', 'natural flavor', 'natural flavour'], code: null, risk: 'possible', circ: 'Controversé' },
+  { keywords: ['sucre', 'sugar', 'saccharose', 'sucre de canne raffine'], code: null, risk: 'possible', circ: 'Controversé', note: 'ORANGE si 1er/2e ingrédient, JAUNE si milieu, VERT si fin' },
+
+  { keywords: ['parabene', 'paraben', 'methylparaben', 'ethylparaben', 'propylparaben', 'butylparaben'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['phtalate', 'phthalate', 'dbp', 'dehp', 'dep'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['cyclosiloxane', 'cyclomethicone', 'd4', 'd5'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['triclosan', 'irgasan'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['phenoxyethanol'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Interdit bébé <3 ans en France' },
+  { keywords: ['oxybenzone', 'benzophenone-3'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['octinoxate', 'homosalate', 'octisalate'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['aluminum chlorohydrate', 'aluminium zirconium'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
+  { keywords: ['hydroquinone'], code: null, risk: 'probable', circ: 'Interdit UE' },
+  { keywords: ['fragrance', 'parfum'], code: null, risk: 'possible', circ: 'Controversé', note: 'Composition non divulguée' },
+  { keywords: ['peg-', 'sles', 'sodium laureth sulfate'], code: null, risk: 'possible', circ: 'Controversé', note: 'Contamination 1,4-dioxane' },
+  { keywords: ['paraffinum liquidum', 'petrolatum', 'mineral oil'], code: null, risk: 'probable', circ: 'Groupe 2A', note: 'Huiles minérales raffinées' },
+
+  { keywords: ['eau', 'water', 'aqua'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['sel', 'salt', 'sel marin'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['farine de ble', 'farine complete', 'wheat flour', 'whole flour'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['avoine', 'oat'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['riz', 'rice'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['vinaigre', 'vinegar'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['huile d\'olive extra vierge', 'extra virgin olive oil'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['huile de coco vierge', 'coconut oil virgin'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Non hydrogénée uniquement' },
+  { keywords: ['beurre', 'butter'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['creme', 'cream'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['lait', 'milk'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['oeuf', 'egg'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['levure', 'yeast'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Pas extrait de levure' },
+  { keywords: ['bicarbonate'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['cacao', 'cocoa'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Ne pas confondre avec cadmium' },
+  { keywords: ['chocolat noir 70', 'dark chocolate 70'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['noix', 'amande', 'almond', 'nuts'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['whey', 'proteines de lactoserum'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Sauf isolat/concentrat' },
+  { keywords: ['pectine', 'pectin'], code: 'E440', risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['lecithine de tournesol', 'sunflower lecithin'], code: 'E322', risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['vitamine c', 'acide ascorbique', 'ascorbic acid'], code: 'E300', risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['sucre de coco', 'coconut sugar'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['rapadura', 'muscovado', 'panela'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['miel', 'honey'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['sirop d\'erable', 'maple syrup'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['sirop de datte', 'date syrup'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['fruit', 'legume', 'vegetable'], code: null, risk: 'aucun', circ: 'Naturel' },
+] as const;
+
+export const DANGER_PREGNANCY: readonly string[] = [
+  'phtalate', 'dbp', 'dehp', 'dep',
+  'cyclosiloxane', 'd4', 'd5',
+  'acide salicylique',
+  'pfas', 'perfluoro',
+  'mercure', 'mercury', 'thimerosal',
+  'formaldehyde', 'dmdm hydantoin', 'quaternium-15',
+  'isobutylparaben', 'isopropylparaben',
+  'hydroquinone',
+  'oxybenzone',
+  'retinol', 'retinyl palmitate',
+] as const;
+
+export function renderIngredientsDatabaseForPrompt(): string {
+  const byRisk: Record<RiskLevel, IngredientEntry[]> = {
+    danger: [], probable: [], possible: [], aucun: [],
+  };
+  for (const e of INGREDIENTS_DATABASE) byRisk[e.risk].push(e);
+
+  const renderGroup = (label: string, entries: IngredientEntry[]): string => {
+    const lines = entries.map((e) => {
+      const kw = e.keywords.join(' | ');
+      const code = e.code ? ` [${e.code}]` : '';
+      const note = e.note ? ` — ${e.note}` : '';
+      return `  • ${kw}${code} → ${e.circ}${note}`;
+    });
+    return `${label}\n${lines.join('\n')}`;
+  };
+
+  return [
+    renderGroup('ROUGE (danger — Groupe 1 IARC) :', byRisk.danger),
+    renderGroup('ORANGE (probable — Groupe 2A IARC ou Ultra-transformé) :', byRisk.probable),
+    renderGroup('JAUNE (possible — Groupe 2B IARC ou Controversé) :', byRisk.possible),
+    renderGroup('VERT (aucun — Naturel sain) :', byRisk.aucun),
+    `DANGER GROSSESSE (préfixer resume par "⚠️ DANGER GROSSESSE : ") : ${DANGER_PREGNANCY.join(', ')}`,
+  ].join('\n\n');
+}
