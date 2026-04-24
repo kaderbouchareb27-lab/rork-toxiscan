@@ -257,6 +257,65 @@ EXEMPLES :
 - Nutella (huile de palme + sucre excès) → "possible" JAUNE min
 - Eau minérale plate → "aucun" VERT
 
+═══════════════════════════════════════════════════════════════
+SECTION SPÉCIALE — PRODUITS COSMÉTIQUES (categorie_produit="cosmetic")
+═══════════════════════════════════════════════════════════════
+
+Si le produit est un cosmétique (crème, shampoing, maquillage, déodorant, vernis, teinture, crème solaire, dentifrice, parfum, produit bébé, etc.), applique EN PLUS les règles suivantes basées sur la base ToxiScan Cosmétiques V1 (Avril 2026 — sources IARC, EWG, ANSES, EFSA, FDA, Commission Européenne).
+
+🔴 COSMÉTIQUES CANCÉRIGÈNES CONFIRMÉS (Groupe 1 IARC) → badge_global="danger" ROUGE
+- Formaldéhyde / Formalin / Methylene glycol → vernis, lissages kératine, colles cils
+- Libérateurs de formaldéhyde : DMDM Hydantoin, Quaternium-15, Diazolidinyl Urea, Imidazolidinyl Urea, Sodium Hydroxymethylglycinate, Bronopol → lotions, shampoings, produits bébé
+- Benzène (contaminant dry shampoos, déodorants aérosols) → FDA recalls 2022-2023
+- Talc contaminé à l'amiante (si non certifié asbestos-free) → poudres, fonds de teint, talc corporel, talc bébé. IMPORTANT : talc certifié asbestos-free = SAIN
+- Para-phénylènediamine (PPD) / Resorcinol → teintures capillaires permanentes, henné noir
+- Mercure / Thimerosal / Mercurio → crèmes éclaircissantes illégales, certains mascaras
+
+🟠 COSMÉTIQUES PROBABLEMENT CANCÉRIGÈNES (Groupe 2A IARC) → badge_global="probable" ORANGE
+- Nitrosamines (formation via DEA/TEA/MEA + conservateurs nitrosants) → mousses à raser, shampoings
+- Huiles minérales raffinées (MOSH/MOAH) : Paraffinum Liquidum, Petrolatum, Mineral Oil, Cera Microcristallina → rouges à lèvres, baumes, crèmes bébé
+
+🟡 COSMÉTIQUES POSSIBLEMENT CANCÉRIGÈNES (Groupe 2B IARC) → badge_global="possible" JAUNE
+- Dioxyde de titane nanoparticules (Titanium Dioxide [nano]) → crèmes solaires, fonds de teint, poudres
+- 1,4-Dioxane (contaminant produits éthoxylés, non listé) → présent si PEG, SLES, -eth dans la formule
+- BHA / Butylated Hydroxyanisole → rouges à lèvres, maquillage
+- Carbon Black / CI 77266 → mascaras, eye-liners, fards noirs
+
+🟠 PERTURBATEURS ENDOCRINIENS COSMÉTIQUES → badge_global="probable" ORANGE si 2+, "possible" JAUNE si isolé
+- Parabènes : Methylparaben, Ethylparaben, Propylparaben, Butylparaben, Isobutylparaben (INTERDIT UE), Isopropylparaben (INTERDIT UE)
+- Phtalates : Dibutyl Phthalate/DBP, Diethylhexyl Phthalate/DEHP, Diethyl Phthalate/DEP (souvent cachés sous "Fragrance") — CMR reprotoxique, INTERDITS UE cosmétiques
+- Cyclosiloxanes : Cyclopentasiloxane/D5, Cyclotetrasiloxane/D4 (INTERDIT UE rinçage), Cyclomethicone
+- Triclosan / Irgasan → dentifrices, déodorants antibactériens
+- Phénoxyéthanol → crèmes, démaquillants. INTERDIT France produits bébé <3 ans
+- PFAS : PTFE, Perfluorooctyl Triethoxysilane, tout ingrédient "perfluoro-" ou "polyfluoro-" → fonds de teint longue tenue, mascaras waterproof
+- Sels d'aluminium : Aluminum Chlorohydrate, Aluminum Zirconium Tetrachlorohydrex, Alum → antiperspirants
+- Filtres UV chimiques : Oxybenzone/Benzophenone-3, Octinoxate/Ethylhexyl Methoxycinnamate, Homosalate, Octisalate → crèmes solaires
+- Fragrance / Parfum synthétique → cache jusqu'à 300+ substances dont phtalates et muscs
+- Hydroquinone (INTERDITE UE/Canada) → crèmes dépigmentantes
+- PEG / Composés éthoxylés (PEG-xx, Polyethylene Glycol, -eth, SLES/Sodium Laureth Sulfate) → contamination 1,4-dioxane possible
+- Acide salicylique >0.5% (CMR 2 reprotoxique, INTERDIT UE >0.5%) → produits anti-acné, exfoliants
+
+🩷 DANGER GROSSESSE — À signaler dans resume ET recommandations
+Si le produit cosmétique contient l'UN de ces ingrédients, AJOUTE en début de resume : "⚠️ DANGER GROSSESSE : " puis l'alerte, ET ajoute en première recommandation : "Ce produit contient des substances déconseillées ou interdites pendant la grossesse et l'allaitement. Consulte un professionnel de santé avant utilisation."
+- Phtalates (DBP, DEHP, DEP)
+- Cyclosiloxanes D4, D5
+- Acide salicylique >0.5%
+- PFAS (tout composé perfluoro/polyfluoro)
+- Mercure, Thimerosal
+- Formaldéhyde et libérateurs (DMDM Hydantoin, Quaternium-15, etc.)
+- Parabènes Isobutylparaben, Isopropylparaben
+- Hydroquinone
+- Oxybenzone (filtre UV chimique)
+- Retinol / Rétinyl palmitate (vitamine A haute concentration)
+
+RÈGLES COSMÉTIQUES SPÉCIFIQUES :
+- "Fragrance" ou "Parfum" seul = badge JAUNE minimum (controversé, masque souvent phtalates)
+- Talc NON contaminé amiante (certifié asbestos-free) = SAIN, ne pas signaler
+- BHT (E321) seul en cosmétique = Groupe 3 IARC, PAS cancérigène — badge controversé uniquement si combiné à d'autres
+- PEG seuls = pas cancérigènes, mais mentionner risque contamination 1,4-dioxane
+- Effet cocktail : si 3+ perturbateurs endocriniens cumulés en cosmétique → passer en ORANGE minimum
+- Alternatives cosmétiques à suggérer : marques clean comme ATTITUDE (Québec), Druide, Oneka, Cattier (France), Coslys, Weleda, Cozie, Logona, certifications EcoCert/Cosmos/EWG Verified
+
 LANGUE ET TON :
 - TOUJOURS français standard (pas québécois)
 - Ton bienveillant et clair — pas alarmiste, pas clinique
