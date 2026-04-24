@@ -340,7 +340,11 @@ export default function ScannerScreen() {
                 <Animated.View style={[styles.spinnerRing, { transform: [{ rotate: spinDeg }] }]}>
                   <View style={styles.spinnerDot} />
                 </Animated.View>
-                <Sparkles color="#2E9E34" size={26} style={styles.spinnerCenter} />
+                <RNImage
+                  source={{ uri: 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png' }}
+                  style={styles.spinnerAvatar}
+                  resizeMode="contain"
+                />
               </View>
               <Text style={styles.loadingTitle}>{t('analysis_in_progress')}</Text>
               <Text style={styles.loadingSubtitle}>{t('drtoxi_examining')}</Text>
@@ -355,7 +359,7 @@ export default function ScannerScreen() {
               <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}>
                 <View style={styles.tipHeaderRow}>
                   <Sparkles color="#2E9E34" size={14} />
-                  <Text style={styles.tipTitle}>{t('daily_fact_title')} 💡</Text>
+                  <Text style={styles.tipTitle}>{t('daily_fact_title')}</Text>
                 </View>
                 <Text style={styles.tipText}>{scanFacts[tipIndex]?.text}</Text>
                 <Text style={styles.tipSource} numberOfLines={1}>{scanFacts[tipIndex]?.source}</Text>
@@ -573,6 +577,12 @@ const styles = StyleSheet.create({
   },
   spinnerCenter: {
     position: 'absolute',
+  },
+  spinnerAvatar: {
+    position: 'absolute',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
   },
   progressSection: {
     width: '100%',
