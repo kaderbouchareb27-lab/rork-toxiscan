@@ -125,7 +125,25 @@ Catégories possibles :
 ÉTAPE 2 — ANALYSE CHAQUE INGRÉDIENT UN PAR UN
 ═══════════════════════════════════════════════════════════════
 
-Pour CHAQUE ingrédient que tu lis sur l'étiquette, tu dois vérifier s'il appartient à l'une des catégories suivantes. Prends le temps d'analyser CHAQUE ingrédient individuellement — ne saute aucun.
+⚠️ RÈGLE ABSOLUE — EXHAUSTIVITÉ OBLIGATOIRE ⚠️
+
+Le champ substances_detectees DOIT CONTENIR UNE ENTRÉE POUR CHAQUE INGRÉDIENT visible sur l'étiquette, SANS EXCEPTION — qu'il soit problématique ou non.
+
+Pour CHAQUE ingrédient lu sur l'emballage (ou fourni par Open Food Facts) :
+- S'il est cancérigène confirmé (Groupe 1) → entrée avec niveau_risque="danger" 🔴 + explication
+- S'il est probablement cancérigène (Groupe 2A) ou ultra-transformé → entrée avec niveau_risque="probable" 🟠 + explication
+- S'il est controversé ou à consommer avec modération (Groupe 2B) → entrée avec niveau_risque="possible" 🟡 + explication
+- S'il est naturel et sain (eau, farine, sel, légumes, fruits, épices, huile d'olive, etc.) → entrée avec niveau_risque="aucun" 🟢 + explication courte du type "Ingrédient naturel sans risque identifié" ou "Ingrédient alimentaire courant sans danger"
+
+INTERDICTION FORMELLE :
+- NE JAMAIS omettre un ingrédient, même banal (eau, sel, sucre, farine, etc.)
+- NE JAMAIS lister seulement les ingrédients problématiques
+- NE JAMAIS regrouper plusieurs ingrédients en une seule entrée
+- Si l'étiquette contient 15 ingrédients, substances_detectees doit contenir 15 entrées
+
+L'utilisateur DOIT voir TOUS les ingrédients analysés un par un avec leur statut (vert/jaune/orange/rouge) — c'est le cœur de l'app ToxiScan. Un ingrédient absent de substances_detectees est un bug critique.
+
+Pour CHAQUE ingrédient, vérifie ensuite s'il appartient à l'une des catégories suivantes. Prends le temps d'analyser CHAQUE ingrédient individuellement — ne saute aucun.
 
 🔴 GROUPE 1 — CANCÉRIGÈNES CONFIRMÉS (IARC/OMS) → badge_global="danger" ROUGE
 Dès qu'UN SEUL de ces ingrédients est détecté → verdict ROUGE immédiat.
@@ -340,7 +358,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Analyse cette photo. 1) Lis la marque et le nom du produit visible sur l\'emballage et mets-le dans objet_identifie (jamais vide). 2) Détermine la catégorie correcte (food pour tout aliment solide, beverage pour boisson, etc.). 3) Lis TOUS les ingrédients visibles sur l\'étiquette et analyse chacun. 4) Retourne le résultat structuré.' },
+          { type: 'text', text: 'Analyse cette photo. 1) Lis la marque et le nom du produit visible sur l\'emballage et mets-le dans objet_identifie (jamais vide). 2) Détermine la catégorie correcte (food pour tout aliment solide, beverage pour boisson, etc.). 3) Lis TOUS les ingrédients visibles sur l\'étiquette et ajoute UNE ENTRÉE POUR CHACUN dans substances_detectees — y compris les ingrédients sains (eau, sel, farine, légumes, etc.) avec niveau_risque="aucun". N\'omets AUCUN ingrédient. Si tu vois 12 ingrédients, tu dois retourner 12 entrées. 4) Retourne le résultat structuré complet.' },
           { type: 'image', image: imageBase64 },
         ],
       },
@@ -348,7 +366,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     schema: universalAnalysisSchema,
     toolName: 'record_analysis',
     toolDescription: 'Enregistre l\'analyse structurée du produit scanné.',
-    maxTokens: 800,
+    maxTokens: 3000,
   });
   console.log('[API] OpenAI analysis returned successfully');
   return result;
