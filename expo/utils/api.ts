@@ -196,6 +196,23 @@ L'utilisateur DOIT voir TOUS les ingrédients analysés un par un avec leur stat
 
 Pour CHAQUE ingrédient, vérifie ensuite s'il appartient à l'une des catégories suivantes. Prends le temps d'analyser CHAQUE ingrédient individuellement — ne saute aucun.
 
+⚠️ RÈGLE ABSOLUE — LECTURE MOT PAR MOT DE LA LISTE D'INGRÉDIENTS ⚠️
+Lis la liste d'ingrédients MOT PAR MOT, en découpant strictement à chaque virgule, point-virgule ou saut de ligne. Chaque segment séparé par une virgule = UN ingrédient distinct qui DOIT apparaître dans substances_detectees.
+
+Procédure OBLIGATOIRE :
+1. Identifie le bloc "INGREDIENTS:" ou "Ingrédients :" sur l'étiquette
+2. Lis TOUT le texte jusqu'au point final de la liste
+3. Découpe ce texte à chaque virgule → tu obtiens une liste de tokens
+4. Pour CHAQUE token (même court, même technique, même vitamine, même minéral), crée UNE entrée dans substances_detectees
+5. NE JAMAIS fusionner deux ingrédients en une seule entrée (ex: "Natural and Artificial Flavors" = 1 entrée, mais "Caffeine, Inositol" = 2 entrées distinctes)
+6. NE JAMAIS sauter un ingrédient sous prétexte qu'il est court, banal ou inconnu — chaque mot de la liste compte
+
+Exemple concret — Red Bull :
+"Carbonated Water, Sucrose, Glucose, Citric Acid, Taurine, Sodium Citrate, Magnesium Carbonate, Caffeine, Inositol, Niacinamide, Calcium Pantothenate, Pyridoxine HCl, Vitamin B12, Natural and Artificial Flavors, Colors"
+→ 15 tokens = 15 entrées OBLIGATOIRES dans substances_detectees. Pas 2, pas 5, pas 10 — QUINZE.
+
+Si tu retournes moins d'entrées qu'il n'y a de virgules+1 dans la liste lisible, c'est un BUG CRITIQUE.
+
 🔴 GROUPE 1 — CANCÉRIGÈNES CONFIRMÉS (IARC/OMS) → badge_global="danger" ROUGE
 Dès qu'UN SEUL de ces ingrédients est détecté → verdict ROUGE immédiat.
 - Conservateurs viandes : Nitrite de sodium (E250), Nitrate de sodium (E251), Nitrite de potassium (E249), Nitrate de potassium (E252) → charcuteries, bacon, jambon
@@ -241,6 +258,22 @@ Non classées IARC mais documentées dangereuses par EWG/ANSES/EFSA/études peer
   Ces phosphates ajoutés doivent être signalés badge ORANGE (probable) — ne pas confondre avec les phosphates naturellement présents dans les aliments.
 - Autres : Silice/Silica (E551) — controversé faible risque
 - NON controversés (ne pas signaler) : Pectine (E440), Lécithine de tournesol (E322), Vitamine C/Acide ascorbique (E300)
+
+🟠 BOISSONS ÉNERGISANTES — INGRÉDIENTS CONTROVERSÉS → badge_global="probable" ORANGE
+Les boissons énergisantes (Red Bull, Monster, Rockstar, Burn, Guru, Bang, Reign, etc.) contiennent des ingrédients synthétiques à signaler systématiquement :
+- Taurine → acide aminé synthétique, effets cardiovasculaires controversés à haute dose, combinée à la caféine
+- Caffeine / Caféine ajoutée → stimulant, controversé en grande quantité dans les boissons (>80mg/portion), risque cardiovasculaire, troubles du sommeil, addiction
+- Inositol → additif synthétique, effets à long terme peu étudiés
+- Glucuronolactone → composé synthétique spécifique aux boissons énergisantes, peu d'études long terme
+- Glucose ajouté (isolé en poudre/sirop) → sucre raffiné, même famille que dextrose, pic glycémique
+- Natural and Artificial Flavors → mélange arômes naturels + synthétiques, composition non divulguée, controversé
+- Colors / Colorants non spécifiés → peuvent inclure FD&C Red 40, Yellow 5, caramel E150c/d — composition inconnue à signaler
+- Niacinamide (Vitamine B3 synthétique) en grande quantité → vitamine synthétique ajoutée industriellement, dose souvent largement supérieure aux AJR
+- Pyridoxine HCl (Vitamine B6 synthétique) en grande quantité → vitamine synthétique, surdose possible, neuropathies à forte dose chronique
+- Calcium Pantothenate (Vitamine B5 synthétique) en grande quantité → vitamine synthétique ajoutée industriellement
+- Cyanocobalamin / Vitamin B12 synthétique en grande quantité → forme synthétique ajoutée industriellement, doses souvent excessives
+
+NOTE : Les vitamines B synthétiques en quantité modérée dans un aliment normal = 🟡 JAUNE. Dans une boisson énergisante où elles sont ajoutées massivement (400-8000% des AJR) = 🟠 ORANGE.
 
 🟠 INGRÉDIENTS ULTRA-TRANSFORMÉS À ÉVITER → badge_global="probable" ORANGE — ATTENTION
 Pour CHACUN de ces ingrédients détectés, le message Dr. Toxi doit être : "Ingrédient artificiel ou ultra-transformé, possiblement lié au cancer selon certaines études. À éviter autant que possible."
