@@ -114,6 +114,20 @@ Tu dois lire TOUT ce qui est écrit sur l'étiquette visible dans la photo.
 
 RÈGLE ABSOLUE : Si tu vois du texte lisible sur l'emballage, tu DOIS lire le nom du produit. Ne retourne JAMAIS "Objet inconnu" si un nom est visible sur l'emballage. Si la photo est trop floue pour lire les ingrédients → retourne une erreur claire.
 
+⚠️ RÈGLE ABSOLUE — LECTURE DU NOM DE MARQUE ET DE PRODUIT ⚠️
+Lis le nom même si la photo est prise de côté, en angle, ou partiellement visible. Effort maximal pour identifier :
+- Le NOM DE MARQUE (ex: "LU", "OREO", "PRINCE", "PETIT ÉCOLIER", "NUTELLA", "COCA-COLA", "KELLOGG'S", "DANONE", "NESTLÉ", "FERRERO", "HARIBO", "BN", "PEPITO", "BELIN", "MILKA", "KINDER", "RITZ")
+- Le NOM DU PRODUIT lui-même (ex: "Fils Extra", "Petit Écolier", "Pim's", "Prince", "Granola")
+
+Si le nom de marque est partiellement visible (ex: "LU" sur le côté de la boîte), combine-le avec le nom du produit lu ailleurs sur l'emballage pour former le nom complet (ex: "LU Fils Extra", "LU Petit Écolier", "LU Prince").
+
+Si Open Food Facts a trouvé le produit via code-barres (ou recherche par nom), UTILISE CE NOM EN PRIORITÉ ABSOLUE dans objet_identifie — c'est le nom officiel le plus fiable.
+
+Ne retourne JAMAIS "Produit inconnu" ou "Objet inconnu" si :
+- Un nom de marque est visible même partiellement
+- Open Food Facts a fourni un nom de produit
+- Du texte lisible apparaît sur l'emballage
+
 Catégories possibles :
 - food → aliment solide (pain, chips, chocolat, biscuits, etc.)
 - beverage → boisson (jus, soda, eau, lait, etc.)
@@ -181,6 +195,13 @@ Non classées IARC mais documentées dangereuses par EWG/ANSES/EFSA/études peer
 - Épaississants/émulsifiants : Carraghénane (E407), Carboxymethyl cellulose/CMC (E466), Polysorbate 80 (E433)
 - Édulcorants artificiels : Acésulfame K (E950), Saccharine (E954), Sucralose (E955), Cyclamate (E952)
 - Cosmétiques : Parabènes (Methyl/Ethyl/Propyl/Butyl/Isobutyl/Isopropylparaben), Phtalates (DBP, DEHP, DEP), Cyclosiloxanes D4/D5, Triclosan/Irgasan, Phénoxyéthanol, Sels d'aluminium, Oxybenzone/Benzophénone-3, Hydroquinone, PEG et composés éthoxylés (-eth, SLES)
+- Phosphates ajoutés industriellement (vieillissement accéléré, dommages vasculaires, santé rénale) :
+  • Diphosphates (E450) → phosphates industriels, lié au vieillissement accéléré et dommages vasculaires (même famille que E339)
+  • Polyphosphates (E452) → même problème que E450, risque cardiovasculaire
+  • Pyrophosphates (E450a, E450b, E450c) → même famille phosphates ajoutés
+  • Tripolyphosphate de sodium (E451) → phosphate industriel ajouté
+  • Phosphates de sodium/potassium/calcium (E339, E340, E341, E343) → phosphates ajoutés industriellement
+  Ces phosphates ajoutés doivent être signalés badge ORANGE (probable) — ne pas confondre avec les phosphates naturellement présents dans les aliments.
 - Autres : Silice/Silica (E551) — controversé faible risque
 - NON controversés (ne pas signaler) : Pectine (E440), Lécithine de tournesol (E322), Vitamine C/Acide ascorbique (E300)
 
