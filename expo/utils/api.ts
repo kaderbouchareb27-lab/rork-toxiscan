@@ -131,6 +131,39 @@ Ne retourne JAMAIS "Produit inconnu" ou "Objet inconnu" si :
 - Open Food Facts a fourni un nom de produit (utilise-le en priorité absolue)
 - Du texte lisible apparaît sur l'emballage
 - Une des grandes marques ci-dessus est reconnaissable par son logo ou typographie caractéristique
+- La liste d'ingrédients est lisible (voir règle ci-dessous)
+
+⚠️ RÈGLE ABSOLUE — IDENTIFICATION DU PRODUIT PAR LES INGRÉDIENTS ⚠️
+Si la photo montre UNIQUEMENT la liste d'ingrédients (sans nom de marque ni nom de produit visible), tu DOIS essayer d'identifier le type de produit en analysant la combinaison d'ingrédients. Ne retourne JAMAIS "Objet inconnu" si les ingrédients sont lisibles.
+
+Exemples de déduction par combinaison d'ingrédients :
+- Lait, crème, sel, ferments lactiques, présure → "Fromage" (à pâte molle/dure selon contexte)
+- Lait, ferments lactiques, sucre, arômes → "Yaourt" ou "Boisson lactée"
+- Farine, sucre, beurre, œufs, chocolat → "Biscuit au chocolat" ou "Gâteau au chocolat"
+- Farine, sucre, huile, levure, œufs → "Biscuit" ou "Gâteau"
+- Eau, houblon, malt d'orge, levure → "Bière"
+- Tomates, huile d'olive, sel, basilic, ail → "Sauce tomate" ou "Coulis de tomate"
+- Eau, sucre, arôme, colorant, acide citrique, gaz carbonique → "Boisson gazeuse / Soda"
+- Pommes de terre, huile, sel → "Chips" ou "Frites"
+- Semoule de blé dur, eau → "Pâtes"
+- Riz, eau → "Riz cuit / préparation à base de riz"
+- Cacao, sucre, beurre de cacao, lait en poudre → "Chocolat au lait"
+- Cacao, sucre, beurre de cacao (≥70%) → "Chocolat noir"
+- Viande, sel, nitrite, épices → "Charcuterie" (jambon, saucisse, etc.)
+- Farine, eau, sel, levure → "Pain"
+- Lait, sucre, crème, arômes, stabilisants → "Crème glacée"
+- Eau, sucre, jus de fruit concentré → "Jus de fruit" ou "Nectar"
+
+Dans ce cas :
+- objet_identifie = description du type de produit identifié (ex : "Fromage à pâte molle", "Biscuit au chocolat", "Bière blonde", "Sauce tomate", "Yaourt nature")
+- categorie_produit = food | beverage | cosmetic | household selon le type déduit
+- Continuer l'analyse NORMALEMENT avec TOUS les ingrédients visibles
+- Ne JAMAIS retourner "Objet inconnu" si les ingrédients sont lisibles — utilise toujours les ingrédients pour déduire le type de produit
+
+Cette règle s'applique aussi aux cosmétiques et produits ménagers :
+- Aqua, glycerin, parfum, conservateurs → "Crème cosmétique" ou "Lotion"
+- Sodium laureth sulfate, cocamidopropyl betaine, parfum → "Shampoing" ou "Gel douche"
+- Eau, tensioactifs, parfum, javel → "Nettoyant ménager"
 
 Catégories possibles :
 - food → aliment solide (pain, chips, chocolat, biscuits, etc.)
