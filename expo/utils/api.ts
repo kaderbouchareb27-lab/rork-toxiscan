@@ -58,7 +58,20 @@ const safeNullableString = z.preprocess(
   z.string().nullable(),
 );
 
+const raisonnementSchema = z.object({
+  ingredients_lus_bruts: z.preprocess((v) => (Array.isArray(v) ? v : []), z.array(safeString(''))),
+  nombre_ingredients_lus: z.preprocess((v) => {
+    if (typeof v === 'number') return v;
+    if (typeof v === 'string') { const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+    return 0;
+  }, z.number()),
+  deduction_produit: safeString(''),
+  verification_exhaustivite: safeString(''),
+  verification_coherence_badge: safeString(''),
+}).partial().optional();
+
 const universalAnalysisSchema = z.object({
+  raisonnement: raisonnementSchema,
   categorie_produit: categoryEnum,
   objet_identifie: safeString('Objet inconnu'),
   materiau_detecte: safeString(''),
@@ -156,6 +169,22 @@ classification_circ accepté : "Groupe 1" | "Groupe 2A" | "Groupe 2B" | "Controv
 
 Ne confonds JAMAIS CACAO (sain) avec CADMIUM (contaminant).
 
+═══ CHAIN OF THOUGHT OBLIGATOIRE — REMPLIS 'raisonnement' AVANT TOUT LE RESTE ═══
+
+AVANT de générer les autres champs, remplis OBLIGATOIREMENT l'objet "raisonnement" avec :
+
+1) ingredients_lus_bruts : tableau de CHAQUE ingrédient lu sur l'étiquette, exactement tel qu'écrit, un par un, séparés à chaque virgule. Ex: ["Eau gazéifiée", "Sucre", "Caféine", "Taurine", "Glucuronolactone", "Inositol", "Niacinamide", "Calcium Pantothenate", "Pyridoxine HCl", "Cyanocobalamin", "Arômes artificiels", "Colorants"]. N'écris JAMAIS une liste vide si la photo contient du texte d'ingrédients.
+
+2) nombre_ingredients_lus : nombre entier = ingredients_lus_bruts.length. Ce nombre servira à vérifier que substances_detectees contient le MÊME nombre d'entrées.
+
+3) deduction_produit : 1 phrase expliquant comment tu identifies le produit (nom lu / marque / code-barres / déduction par ingrédients).
+
+4) verification_exhaustivite : écris littéralement "J'ai lu X ingrédients et je vais créer X entrées dans substances_detectees" (remplace X par ton nombre). Si tu ne peux pas, recommence la lecture.
+
+5) verification_coherence_badge : 1 phrase qui liste le compte des badges (ex: "2 danger, 5 probable, 3 possible, 4 aucun → badge_global=probable") et confirme que badge_global correspond à la règle.
+
+Ce raisonnement DOIT être écrit AVANT les autres champs. substances_detectees doit ensuite contenir UNE ENTRÉE par élément de ingredients_lus_bruts (même nom, même ordre de lecture), et nombre_ingredients_lus DOIT égaler substances_detectees.length.
+
 ═══ CHECKLIST DE VALIDATION OBLIGATOIRE (avant de répondre) ═══
 
 Réponds mentalement OUI à chaque question. Si une seule réponse est NON → recommence.
@@ -190,7 +219,7 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Analyse cette photo. 1) Lis la marque et le nom du produit visible sur l\'emballage et mets-le dans objet_identifie (jamais vide). 2) Détermine la catégorie correcte (food pour tout aliment solide, beverage pour boisson, etc.). 3) Lis TOUS les ingrédients visibles sur l\'étiquette et ajoute UNE ENTRÉE POUR CHACUN dans substances_detectees — y compris les ingrédients sains (eau, sel, farine, légumes, etc.) avec niveau_risque="aucun". N\'omets AUCUN ingrédient. Si tu vois 12 ingrédients, tu dois retourner 12 entrées. 4) Retourne le résultat structuré complet.' },
+          { type: 'text', text: 'Analyse cette photo en suivant STRICTEMENT cet ordre de génération :\n\nÉTAPE 0 (raisonnement) — AVANT tout autre champ, remplis "raisonnement" :\n  • ingredients_lus_bruts : liste chaque ingrédient de l\'étiquette, un par un, séparé à chaque virgule/point-virgule. N\'en saute AUCUN.\n  • nombre_ingredients_lus : le nombre exact d\'éléments ci-dessus.\n  • deduction_produit : comment tu identifies le produit (nom, marque, ou déduction).\n  • verification_exhaustivite : phrase "J\'ai lu X ingrédients et je vais créer X entrées dans substances_detectees".\n  • verification_coherence_badge : compte des badges et verdict final.\n\nÉTAPE 1 — objet_identifie (marque + nom, jamais "Objet inconnu" si texte/ingrédients lisibles).\nÉTAPE 2 — categorie_produit.\nÉTAPE 3 — substances_detectees : pour CHAQUE élément de ingredients_lus_bruts, crée UNE entrée (même nom, même ordre). substances_detectees.length DOIT égaler nombre_ingredients_lus. Inclure les ingrédients sains (eau, sel, farine, légumes) avec niveau_risque="aucun".\nÉTAPE 4 — badge_global, resume, recommandations, alternatives_saines.\n\nSi tu t\'aperçois que substances_detectees.length ≠ nombre_ingredients_lus, CORRIGE substances_detectees avant de finir — ne tronque jamais la liste.' },
           { type: 'image', image: imageBase64 },
         ],
       },
