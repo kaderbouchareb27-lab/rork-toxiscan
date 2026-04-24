@@ -26,7 +26,7 @@ export type AIMessage = {
 
 type OpenAIContentBlock =
   | { type: 'text'; text: string }
-  | { type: 'image_url'; image_url: { url: string } };
+  | { type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' | 'auto' } };
 
 function toDataUrl(raw: string): string {
   if (raw.startsWith('data:')) return raw;
@@ -39,7 +39,7 @@ function normalizeContent(
   if (typeof content === 'string') return content;
   return content.map<OpenAIContentBlock>((part) => {
     if (part.type === 'text') return { type: 'text', text: part.text };
-    return { type: 'image_url', image_url: { url: toDataUrl(part.image) } };
+    return { type: 'image_url', image_url: { url: toDataUrl(part.image), detail: 'high' } };
   });
 }
 
