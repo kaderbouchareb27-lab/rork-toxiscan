@@ -564,12 +564,6 @@ export default function ProductScreen() {
 
         <DrToxiVerdict level={verdictLevel} />
 
-        {shortAnalysis ? (
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryText}>{shortAnalysis}</Text>
-          </View>
-        ) : null}
-
         {!isGreen && isUniversalScan && dangerousSubstances.length > 0 ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
