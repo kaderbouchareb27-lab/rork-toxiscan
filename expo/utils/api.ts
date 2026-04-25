@@ -2,7 +2,7 @@ import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCat
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
-import { lookupBarcode, searchByName, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
+import { OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t } from '@/utils/i18n';
 import { renderIngredientsDatabaseForPrompt } from '@/constants/ingredientsDatabase';
@@ -257,26 +257,19 @@ Réponds mentalement OUI à chaque question. Si une seule réponse est NON → r
 
 Si la checklist passe → émets le JSON. Sinon → corrige.`;
 
-async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
+async function tryGenerateUniversalAnalysis(imageBase64: string): Promise<UniversalAnalysisResult> {
   console.log('[API] Calling OpenAI (gpt-4o) for universal analysis...');
-  if (openFactsContext) {
-    console.log('[API] Including Open Food Facts data in analysis prompt');
-  }
 
   const regionPrompt = getAnalysisRegionPrompt();
-  const systemParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
-  if (openFactsContext) {
-    systemParts.push('\n\n' + openFactsContext);
-    systemParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
-  }
+  const system = UNIVERSAL_ANALYSIS_PROMPT + '\n\n' + regionPrompt;
 
   const result = await aiGenerateObject({
-    system: systemParts.join(''),
+    system,
     messages: [
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Analyse cette photo en suivant STRICTEMENT cet ordre de génération :\n\nÉTAPE 0 (raisonnement) — AVANT tout autre champ, remplis "raisonnement" :\n  • ingredients_lus_bruts : liste chaque ingrédient de l\'étiquette, un par un, séparé à chaque virgule/point-virgule. N\'en saute AUCUN.\n  • nombre_ingredients_lus : le nombre exact d\'éléments ci-dessus.\n  • deduction_produit : comment tu identifies le produit (nom, marque, ou déduction).\n  • verification_exhaustivite : phrase "J\'ai lu X ingrédients et je vais créer X entrées dans substances_detectees".\n  • verification_coherence_badge : compte des badges et verdict final.\n\nÉTAPE 1 — objet_identifie (marque + nom, jamais "Objet inconnu" si texte/ingrédients lisibles).\nÉTAPE 2 — categorie_produit.\nÉTAPE 3 — substances_detectees : pour CHAQUE élément de ingredients_lus_bruts, crée UNE entrée (même nom, même ordre). substances_detectees.length DOIT égaler nombre_ingredients_lus. Inclure les ingrédients sains (eau, sel, farine, légumes) avec niveau_risque="aucun".\nÉTAPE 4 — badge_global, resume, recommandations, alternatives_saines.\n\nSi tu t\'aperçois que substances_detectees.length ≠ nombre_ingredients_lus, CORRIGE substances_detectees avant de finir — ne tronque jamais la liste.' },
+          { type: 'text', text: 'Analyse cette photo. Identifie le produit (marque + nom), liste TOUS les ingrédients visibles sur l\'étiquette (un par virgule, sans en sauter), classe chacun selon la base, et donne le verdict global. Pour chaque ingrédient, fournis une explication détaillée de 3 à 5 phrases.' },
           { type: 'image', image: imageBase64 },
         ],
       },
@@ -284,93 +277,23 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     schema: universalAnalysisSchema,
     toolName: 'record_analysis',
     toolDescription: 'Enregistre l\'analyse structurée du produit scanné.',
-    maxTokens: 3000,
+    maxTokens: 4096,
   });
   console.log('[API] OpenAI analysis returned successfully');
   return result;
 }
 
-async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: string; offResult: OpenFactsResult | null }> {
-  try {
-    console.log('[API] Attempting barcode + product name detection from image for Open Food Facts lookup...');
-
-    const preDetectionSchema = z.object({
-      barcode_detected: z.boolean(),
-      barcode_value: z.string().nullable(),
-      barcode_type: z.enum(['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'other', 'none']),
-      product_name_visible: z.string().nullable(),
-      brand_visible: z.string().nullable(),
-    });
-
-    const preResult = await aiGenerateObject({
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Regarde cette photo d\'un produit. Retourne : 1) le code-barres (EAN-13, EAN-8, UPC-A, UPC-E) si visible et lisible — sinon null. 2) le NOM DU PRODUIT tel qu\'il est imprimé sur l\'emballage (ex: "Fils Extra", "Nutella", "Coca-Cola Zero") dans product_name_visible. 3) la MARQUE si visible (ex: "LU", "Ferrero", "Coca-Cola") dans brand_visible. Lis ce qui est écrit sur l\'emballage, même sans code-barres. Si rien n\'est lisible, mets null.' },
-            { type: 'image', image: imageBase64 },
-          ],
-        },
-      ],
-      schema: preDetectionSchema,
-      toolName: 'record_pre_detection',
-      toolDescription: 'Enregistre le code-barres et le nom du produit détectés sur la photo.',
-      maxTokens: 512,
-    });
-
-    console.log('[API] Pre-detection result:', JSON.stringify(preResult));
-
-    if (preResult.barcode_detected && preResult.barcode_value) {
-      const barcode = preResult.barcode_value.replace(/\s/g, '');
-      console.log('[API] Barcode detected:', barcode, 'Type:', preResult.barcode_type);
-
-      const offResult = await lookupBarcode(barcode);
-      if (offResult.found) {
-        const context = formatOpenFactsContext(offResult);
-        console.log('[API] Open Food Facts data found via barcode, context length:', context.length);
-        return { context, offResult };
-      }
-      console.log('[API] Barcode detected but product not found in Open Food Facts');
-    } else {
-      console.log('[API] No barcode detected in image');
-    }
-
-    const nameParts: string[] = [];
-    if (preResult.brand_visible) nameParts.push(preResult.brand_visible);
-    if (preResult.product_name_visible) nameParts.push(preResult.product_name_visible);
-    const searchQuery = nameParts.join(' ').trim();
-
-    if (searchQuery.length >= 3) {
-      console.log('[API] Trying Open Food Facts search by name:', searchQuery);
-      const offResult = await searchByName(searchQuery);
-      if (offResult.found) {
-        const context = formatOpenFactsContext(offResult);
-        console.log('[API] Open Food Facts data found via name search, context length:', context.length);
-        return { context, offResult };
-      }
-      console.log('[API] No name match in Open Food Facts');
-    }
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.log('[API] Open Food Facts lookup failed (non-blocking):', msg);
-  }
-
-  return { context: '', offResult: null };
-}
-
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
   const MAX_RETRIES = 3;
-
-  const { context: offContext, offResult } = await tryFetchOpenFactsData(imageBase64);
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       console.log('[API] Universal analysis attempt', attempt, '/', MAX_RETRIES);
 
-      const result = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
+      const result = await tryGenerateUniversalAnalysis(imageBase64);
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);
-      return { ...result, openFactsData: offResult };
+      return { ...result, openFactsData: null };
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('[API] Universal analysis error (attempt ' + attempt + '):', errorMsg);
