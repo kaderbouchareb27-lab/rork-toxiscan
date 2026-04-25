@@ -19,7 +19,19 @@
       "bundleIdentifier": "app.rork.toxis",
       "buildNumber": "23",
       "infoPlist": {
-        "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients."
+        "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients.",
+        "NSMicrophoneUsageDescription": "Dr. Toxi a besoin du microphone pour t'écouter quand tu lui poses des questions vocales sur tes produits.",
+        "NSSpeechRecognitionUsageDescription": "Dr. Toxi utilise la reconnaissance vocale pour transcrire tes questions vocales sur tes produits."
+      },
+      "infoPlist.fr": {
+        "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients.",
+        "NSMicrophoneUsageDescription": "Dr. Toxi a besoin du microphone pour t'écouter quand tu lui poses des questions vocales sur tes produits.",
+        "NSSpeechRecognitionUsageDescription": "Dr. Toxi utilise la reconnaissance vocale pour transcrire tes questions vocales sur tes produits."
+      },
+      "infoPlist.en": {
+        "NSCameraUsageDescription": "ToxiScan uses the camera to photograph product labels and analyze their ingredients.",
+        "NSMicrophoneUsageDescription": "Dr. Toxi needs microphone access to listen when you ask voice questions about your products.",
+        "NSSpeechRecognitionUsageDescription": "Dr. Toxi uses speech recognition to transcribe your voice questions about your products."
       }
     },
     "android": {
@@ -27,7 +39,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.toxis"
+      "package": "app.rork.toxis",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -41,7 +57,13 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Dr. Toxi a besoin du microphone pour t'écouter quand tu lui poses des questions vocales sur tes produits."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
