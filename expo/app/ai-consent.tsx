@@ -46,8 +46,8 @@ export default function AIConsentScreen() {
 
         <View style={styles.techCard}>
           <Text style={styles.techLabel}>{t('tech_used')}</Text>
-          <Text style={styles.techValue}>OpenAI GPT-4o (texte et vision)</Text>
-          <Text style={styles.techValue}>Open Food Facts (données produits)</Text>
+          <Text style={styles.techValue}>{t('ai_consent_openai_label')}</Text>
+          <Text style={styles.techValue}>{t('ai_consent_openfoodfacts_label')}</Text>
         </View>
 
         <Text style={styles.disclaimerText}>

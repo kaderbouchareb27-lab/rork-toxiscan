@@ -243,6 +243,8 @@ const translations = {
 
   // ===== AI CONSENT =====
   ai_consent_title: { fr: "Dr.Toxi utilise l'intelligence artificielle", en: 'Dr.Toxi uses artificial intelligence' },
+  ai_consent_openai_label: { fr: 'OpenAI GPT-4o (texte et vision)', en: 'OpenAI GPT-4o (text and vision)' },
+  ai_consent_openfoodfacts_label: { fr: 'Open Food Facts (données produits)', en: 'Open Food Facts (product data)' },
   ai_consent_desc: { fr: "Dr. Toxi, ton expert en ingrédients, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.", en: "Dr. Toxi, your ingredient expert, is powered by an AI specially trained to detect toxic substances in your everyday products. It analyzes labels, advises you in real time, and accompanies you with every purchase to help you make the best choices." },
   tech_used: { fr: 'Technologies utilisées :', en: 'Technologies used:' },
   ai_disclaimer_1: { fr: "Les analyses sont basées sur des données publiques et des classifications d'organismes reconnus (OMS, EFSA, Santé Canada), mais ne remplacent pas un avis médical.", en: 'Analyses are based on public data and classifications from recognized organizations (WHO, EFSA, Health Canada), but do not replace medical advice.' },
@@ -267,7 +269,7 @@ const translations = {
   benefit_notifications: { fr: 'Notifications rappel produits', en: 'Product reminder notifications' },
   save_45: { fr: 'Économisez 45%', en: 'Save 45%' },
   annual_plan: { fr: (price: string) => `Annuel — ${price}/an`, en: (price: string) => `Annual — ${price}/year` },
-  monthly_equivalent: { fr: (price: string) => `soit ${price}/mois`, en: (price: string) => `i.e. ${price}/month` },
+  monthly_equivalent: { fr: (price: string) => `soit ${price}/mois`, en: (price: string) => `≈ ${price}/month` },
   monthly_plan: { fr: (price: string) => `Mensuel — ${price}/mois`, en: (price: string) => `Monthly — ${price}/month` },
   upgrade_pro: { fr: 'Passer à Dr.Toxi Pro', en: 'Upgrade to Dr.Toxi Pro' },
   donation_text: { fr: "Une partie des revenus est destinée à aider les patients atteints de cancer à payer leurs traitements et médicaments.", en: 'A portion of the revenue is dedicated to helping cancer patients pay for their treatments and medications.' },
@@ -314,7 +316,7 @@ const translations = {
   // ===== DR TOXI VERDICT =====
   verdict_danger_title: { fr: 'Dr. Toxi déconseille ce produit', en: 'Dr. Toxi does not recommend this product' },
   verdict_danger_msg: { fr: "Ce produit contient au moins un ingrédient classé cancérigène (Groupe 1 CIRC). Je te le déconseille — tu trouveras des alternatives plus saines, naturelles et bio du même type de produit tout en bas de la page.", en: "This product contains at least one ingredient classified as carcinogenic (IARC Group 1). I advise against it — you'll find healthier, natural and organic alternatives of the same type of product at the very bottom of the page." },
-  verdict_caution_title: { fr: 'Dr. Toxi ne te recommande pas ce produit', en: 'Dr. Toxi does not recommend this product' },
+  verdict_caution_title: { fr: 'Dr. Toxi ne te recommande pas ce produit', en: 'Dr. Toxi advises caution with this product' },
   verdict_caution_msg: { fr: "Ce produit contient plusieurs substances controversées ou ultra-transformées. À éviter si possible — des alternatives plus saines, naturelles et bio du même type de produit sont proposées tout en bas de la page.", en: "This product contains several controversial or ultra-processed substances. Avoid if possible — healthier, natural and organic alternatives of the same type of product are listed at the very bottom of the page." },
   verdict_moderation_title: { fr: 'Dr. Toxi conseille la modération', en: 'Dr. Toxi recommends moderation' },
   verdict_moderation_msg: { fr: "Ce produit contient une substance controversée isolée ou classée Groupe 2B. Consomme avec modération — ce n'est pas dangereux ponctuellement, mais privilégie mieux au quotidien. Tu trouveras des alternatives plus saines, naturelles et bio du même type de produit tout en bas de la page.", en: "This product contains an isolated controversial substance or a Group 2B classification. Consume in moderation — not dangerous occasionally, but choose better for daily use. You'll find healthier, natural and organic alternatives of the same type of product at the very bottom of the page." },
@@ -325,7 +327,7 @@ const translations = {
   share_approved_label: { fr: 'APPROUVE', en: 'APPROVED' },
   share_approved_sub: { fr: 'Aucune substance cancérigène', en: 'No carcinogenic substances' },
   share_approved_explanation: { fr: 'Dr.Toxi confirme : ce produit ne contient aucune substance cancérigène connue. Vous pouvez le consommer en toute tranquillité.', en: 'Dr.Toxi confirms: this product contains no known carcinogenic substances. You can consume it safely.' },
-  share_caution_label: { fr: 'PRUDENCE', en: 'CAUTION' },
+  share_caution_label: { fr: 'PRUDENCE', en: 'WARNING' },
   share_caution_sub: { fr: 'Substance controversée détectée', en: 'Controversial substance detected' },
   share_caution_explanation: { fr: 'Dr.Toxi alerte : ce produit contient des substances controversées dont les effets sur la santé font débat. Consommation à limiter.', en: 'Dr.Toxi warns: this product contains controversial substances whose health effects are debated. Limit consumption.' },
   share_danger_label: { fr: 'DANGER', en: 'DANGER' },
