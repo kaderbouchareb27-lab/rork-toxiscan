@@ -981,22 +981,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: '#FFFFFF',
   },
-  summaryCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  summaryText: {
-    fontSize: 14,
-    color: Colors.text,
-    lineHeight: 20,
-  },
   section: {
     marginTop: 8,
   },
@@ -1101,14 +1085,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     lineHeight: 20,
     flex: 1,
-  },
-  healthyAlternativesCard: {
-    backgroundColor: '#F0FAF3',
-    borderRadius: 16,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: '#C4EDC9',
-    overflow: 'hidden' as const,
   },
   healthyAlternativesCardInner: {
     backgroundColor: '#FFFFFF',

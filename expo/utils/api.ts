@@ -37,7 +37,10 @@ function normalizeKey(v: unknown): string {
 
 const categoryEnum = z.preprocess((v) => {
   const k = normalizeKey(v);
-  return CATEGORY_ALIASES[k] ?? (CATEGORY_VALUES as readonly string[]).includes(k) ? (CATEGORY_ALIASES[k] ?? k) : 'other';
+  const aliased = CATEGORY_ALIASES[k];
+  if (aliased) return aliased;
+  if ((CATEGORY_VALUES as readonly string[]).includes(k)) return k;
+  return 'other';
 }, z.enum(CATEGORY_VALUES));
 
 const riskEnum = z.preprocess((v) => {
@@ -365,11 +368,6 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       console.log('[API] Universal analysis attempt', attempt, '/', MAX_RETRIES);
 
       const result = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
-
-      if (!result || !result.categorie_produit) {
-        console.error('[API] Invalid result structure, retrying...');
-        throw new Error('Résultat invalide reçu');
-      }
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);
       return { ...result, openFactsData: offResult };
