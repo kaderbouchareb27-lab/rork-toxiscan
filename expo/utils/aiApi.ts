@@ -1,17 +1,17 @@
 import { z } from 'zod';
 
 const MODEL_ID = 'gpt-4o';
+const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 
 function getOpenAIConfig(): { url: string; apiKey: string } {
-  const toolkitUrl = process.env.EXPO_PUBLIC_TOOLKIT_URL;
-  const apiKey = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY;
-  if (!toolkitUrl || !apiKey) {
+  const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
+  if (!apiKey) {
     throw new Error(
-      "Configuration IA manquante. Les variables d'environnement EXPO_PUBLIC_TOOLKIT_URL et EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY doivent être définies."
+      "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie."
     );
   }
   return {
-    url: `${toolkitUrl.replace(/\/$/, '')}/v2/openai/v1/chat/completions`,
+    url: OPENAI_CHAT_URL,
     apiKey,
   };
 }
@@ -45,7 +45,7 @@ function normalizeContent(
 
 async function callChatCompletions(body: Record<string, unknown>): Promise<any> {
   const { url, apiKey } = getOpenAIConfig();
-  console.log('[AI] Calling', MODEL_ID, 'via Rork toolkit proxy');
+  console.log('[AI] Calling', MODEL_ID, 'directly via OpenAI API');
   const res = await fetch(url, {
     method: 'POST',
     headers: {

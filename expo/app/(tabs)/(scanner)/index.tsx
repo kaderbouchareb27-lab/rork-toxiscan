@@ -42,15 +42,11 @@ export default function ScannerScreen() {
   const buttonScale = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  const hasRedirectedRef = useRef<boolean>(false);
-
   useEffect(() => {
-    if (hasAcceptedAIConsent === false && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
+    if (hasAcceptedAIConsent === false) {
       console.log('[Scanner] User has not accepted AI consent, redirecting...');
       router.replace('/ai-consent');
-    } else if (hasAcceptedAIConsent === true && hasSeenOnboarding === false && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
+    } else if (hasSeenOnboarding === false) {
       console.log('[Scanner] User has not seen onboarding, redirecting...');
       router.replace('/onboarding');
     } else if (hasSeenOnboarding === true) {
@@ -286,7 +282,7 @@ export default function ScannerScreen() {
     ];
     const timeouts: ReturnType<typeof setTimeout>[] = [];
     for (const stage of stages) {
-      const stageTimeout = setTimeout(() => {
+      const t = setTimeout(() => {
         setProgressPercent(stage.target);
         Animated.timing(progressAnim, {
           toValue: stage.target / 100,
@@ -295,7 +291,7 @@ export default function ScannerScreen() {
           useNativeDriver: false,
         }).start();
       }, stage.delay);
-      timeouts.push(stageTimeout);
+      timeouts.push(t);
     }
 
     const spinLoop = Animated.loop(
@@ -310,7 +306,7 @@ export default function ScannerScreen() {
 
     return () => {
       clearInterval(tipInterval);
-      timeouts.forEach(to => clearTimeout(to));
+      timeouts.forEach(t => clearTimeout(t));
       spinLoop.stop();
       spinnerRotation.setValue(0);
     };
@@ -578,6 +574,9 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#2E9E34',
+  },
+  spinnerCenter: {
+    position: 'absolute',
   },
   spinnerAvatar: {
     position: 'absolute',
