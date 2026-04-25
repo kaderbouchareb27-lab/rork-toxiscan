@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
-import { Camera, Sparkles, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan } from 'lucide-react-native';
+import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -71,32 +71,13 @@ export default function ScannerScreen() {
       console.log('[Scanner] Universal analysis starting for:', imageUri);
 
       let base64: string;
-      let thumbnailBase64: string | undefined;
       try {
         if (Platform.OS === 'web') {
-          base64 = await compressImageWeb(imageUri, 1280);
-          try {
-            thumbnailBase64 = await compressImageWeb(imageUri, 120);
-          } catch (e) {
-            console.warn('[Scanner] Thumbnail generation failed on web:', e);
-          }
+          base64 = await compressImageWeb(imageUri, 1024);
         } else {
-          base64 = await compressImageNative(imageUri, 1280, 0.85);
-          try {
-            const thumbResult = await manipulateAsync(
-              imageUri,
-              [{ resize: { width: 120 } }],
-              { compress: 0.5, format: SaveFormat.JPEG, base64: true }
-            );
-            thumbnailBase64 = thumbResult.base64 ?? undefined;
-          } catch (e) {
-            console.warn('[Scanner] Thumbnail generation failed on native:', e);
-          }
+          base64 = await compressImageNative(imageUri, 1024, 0.8);
         }
         console.log('[Scanner] Image compressed, base64 length:', base64.length);
-        if (thumbnailBase64) {
-          console.log('[Scanner] Thumbnail generated, length:', thumbnailBase64.length);
-        }
       } catch (compressionError) {
         console.error('[Scanner] Image compression failed:', compressionError);
         throw new Error(t('error_process_photo'));
@@ -107,10 +88,36 @@ export default function ScannerScreen() {
         throw new Error(t('error_invalid_photo'));
       }
 
-      console.log('[Scanner] Sending to API...');
+      const thumbnailPromise: Promise<string | undefined> = (async () => {
+        try {
+          if (Platform.OS === 'web') {
+            return await compressImageWeb(imageUri, 120);
+          }
+          const thumbResult = await manipulateAsync(
+            imageUri,
+            [{ resize: { width: 120 } }],
+            { compress: 0.5, format: SaveFormat.JPEG, base64: true }
+          );
+          return thumbResult.base64 ?? undefined;
+        } catch (e) {
+          console.warn('[Scanner] Thumbnail generation failed:', e);
+          return undefined;
+        }
+      })();
+
+      console.log('[Scanner] Sending to API (thumbnail in parallel)...');
       let result;
+      let thumbnailBase64: string | undefined;
       try {
-        result = await analyzeUniversalPhoto(base64);
+        const [apiResult, thumb] = await Promise.all([
+          analyzeUniversalPhoto(base64),
+          thumbnailPromise,
+        ]);
+        result = apiResult;
+        thumbnailBase64 = thumb;
+        if (thumbnailBase64) {
+          console.log('[Scanner] Thumbnail generated, length:', thumbnailBase64.length);
+        }
       } catch (apiError) {
         const realMsg = apiError instanceof Error ? apiError.message : String(apiError);
         console.error('[Scanner] API call failed with real error:', realMsg);
@@ -273,12 +280,11 @@ export default function ScannerScreen() {
 
     const stages = [
       { target: 15, delay: 300 },
-      { target: 30, delay: 1500 },
-      { target: 50, delay: 3500 },
-      { target: 65, delay: 6000 },
-      { target: 78, delay: 9000 },
-      { target: 88, delay: 13000 },
-      { target: 93, delay: 18000 },
+      { target: 30, delay: 1000 },
+      { target: 55, delay: 2000 },
+      { target: 75, delay: 3500 },
+      { target: 90, delay: 5000 },
+      { target: 95, delay: 7000 },
     ];
     const timeouts: ReturnType<typeof setTimeout>[] = [];
     for (const stage of stages) {
@@ -358,7 +364,11 @@ export default function ScannerScreen() {
 
               <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}>
                 <View style={styles.tipHeaderRow}>
-                  <Sparkles color="#2E9E34" size={14} />
+                  <RNImage
+                    source={{ uri: 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png' }}
+                    style={styles.tipHeaderAvatar}
+                    resizeMode="contain"
+                  />
                   <Text style={styles.tipTitle}>{t('daily_fact_title')}</Text>
                 </View>
                 <Text style={styles.tipText}>{scanFacts[tipIndex]?.text}</Text>
@@ -641,6 +651,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     marginBottom: 8,
+  },
+  tipHeaderAvatar: {
+    width: 14,
+    height: 14,
   },
   tipTitle: {
     fontSize: 12,

@@ -18,7 +18,7 @@ export function compressImageWeb(uri: string, maxSize: number): Promise<string> 
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         const base64Part = dataUrl.split(',')[1];
         if (!base64Part || base64Part.length < 100) {
           reject(new Error('Web compression produced invalid base64'));
