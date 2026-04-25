@@ -12,7 +12,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useOnboarding } from '@/providers/OnboardingProvider';
-import { t } from '@/utils/i18n';
+import { t, isEnglish } from '@/utils/i18n';
 
 export default function AIConsentScreen() {
   const { acceptAIConsent } = useOnboarding();
@@ -46,8 +46,8 @@ export default function AIConsentScreen() {
 
         <View style={styles.techCard}>
           <Text style={styles.techLabel}>{t('tech_used')}</Text>
-          <Text style={styles.techValue}>OpenAI GPT-4o (texte et vision)</Text>
-          <Text style={styles.techValue}>Open Food Facts (données produits)</Text>
+          <Text style={styles.techValue}>{isEnglish() ? 'OpenAI GPT-4o (text and vision)' : 'OpenAI GPT-4o (texte et vision)'}</Text>
+          <Text style={styles.techValue}>{isEnglish() ? 'Open Food Facts (product data)' : 'Open Food Facts (données produits)'}</Text>
         </View>
 
         <Text style={styles.disclaimerText}>
