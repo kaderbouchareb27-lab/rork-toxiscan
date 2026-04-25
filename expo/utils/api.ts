@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
 import { lookupBarcode, searchByName, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
-import { t } from '@/utils/i18n';
+import { t, isEnglish } from '@/utils/i18n';
 import { renderIngredientsDatabaseForPrompt } from '@/constants/ingredientsDatabase';
 
 const CATEGORY_VALUES = ['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other'] as const;
@@ -115,7 +115,7 @@ const universalAnalysisSchema = z.object({
 
 const INGREDIENTS_DB_TEXT = renderIngredientsDatabaseForPrompt();
 
-const UNIVERSAL_ANALYSIS_PROMPT = `Tu es ToxiScan. Analyse chaque photo et retourne UN JSON structuré.
+const UNIVERSAL_ANALYSIS_PROMPT_FR = `Tu es ToxiScan. Analyse chaque photo et retourne UN JSON structuré.
 
 ═══ BASE DE DONNÉES INGRÉDIENTS (source unique — applique-la strictement) ═══
 
@@ -254,6 +254,149 @@ Réponds mentalement OUI à chaque question. Si une seule réponse est NON → r
 
 Si la checklist passe → émets le JSON. Sinon → corrige.`;
 
+const UNIVERSAL_ANALYSIS_PROMPT_EN = `You are ToxiScan. Analyze every photo and return ONE structured JSON object.
+
+═══ INGREDIENT DATABASE (single source — apply it strictly) ═══
+
+${INGREDIENTS_DB_TEXT}
+
+Classification rule: for each detected ingredient, look for a keyword match in the database above (case-insensitive, accent-insensitive, plurals). If found → use EXACTLY its niveau_risque and classification_circ. If not found → niveau_risque="aucun" with classification_circ="Not classified by IARC".
+
+═══ ANTI-ALARMIST RULE (ABSOLUTE PRIORITY) ═══
+
+NEVER classify an ingredient as "Group 2A" (probably carcinogenic) or "Group 1" (confirmed carcinogen) if that classification is not EXPLICITLY listed in the database above for that exact ingredient. The IARC classification is an official WHO decision — you cannot make it up.
+
+Closed list of ingredients you may classify as "Group 2A": ONLY those literally listed with "Groupe 2A" in the database above (e.g., red meats cooked at high temperature, acrylamide, nitrates/nitrites turned into nitrosamines, glyphosate). Same for "Group 1" and "Group 2B".
+
+For any other ingredient not classified by IARC:
+• If it's a controversial industrial additive (syrup, sweetener, flavor enhancer, artificial color) → classification_circ="Controversial" or "Ultra-processed", niveau_risque="probable" or "possible" — NEVER "danger".
+• If it's a healthy or neutral ingredient (water, salt, flour, vegetables, fruits, fresh meats, eggs, milk, olive oil, spices) → classification_circ="Natural" or "Not classified by IARC", niveau_risque="aucun".
+• The mere fact that an ingredient is processed is NOT enough to make it carcinogenic. Stay factual.
+
+2-ingredient rule: if the product contains ONLY 1 or 2 ingredients total (e.g., "Milk, Cultures" or "Water, Sugar"), be EXTRA careful with ORANGE/RED ratings. Plain yogurt, fromage blanc, pure juice, fresh meat must NEVER be classified "probable" or "danger" without an explicit IARC reason.
+
+Forbidden: writing "Group 2A carcinogen" in an explanation if the database does NOT list that ingredient as Group 2A. Use instead: "controversial ingredient", "industrial processing", "to consume in moderation", "not classified as carcinogenic by IARC".
+
+Keyword rules (always ORANGE, takes priority over the database): "modified", "hydrolyzed", "isolate", "concentrate", "lipolyzed", "interesterified", "hydrogenated" (except "non-hydrogenated").
+
+Refined white sugar rule (sugar/sucrose) based on position in the list: 1st-2nd ingredient → ORANGE; middle → YELLOW; end or <5g/serving → GREEN.
+
+═══ STEP 1 — IDENTIFY THE PRODUCT ═══
+
+objet_identifie = brand + product (e.g., "LU Prince", "Coca-Cola Zero", "Nutella").
+Priority: 1) Open Food Facts name if provided; 2) readable text on the packaging; 3) recognizable known brands; 4) deduction from ingredient combinations (milk+cultures→Cheese; flour+sugar+butter+eggs→Cookie; water+hops+malt→Beer; aqua+glycerin+fragrance→Cosmetic; surfactants+fragrance→Shampoo).
+FORBIDDEN: NEVER return "Unknown object" if an OFF name exists, text is readable, a brand is recognizable, or an ingredient list is readable.
+
+categorie_produit: food | beverage | cosmetic | household | other.
+
+═══ STEP 2 — READ EVERY INGREDIENT (CRITICAL EXHAUSTIVENESS) ═══
+
+1. Find the "Ingredients:" / "INGREDIENTS:" block
+2. Split at every comma/semicolon/line break → each segment = 1 token
+3. For EACH token, create ONE entry in substances_detectees (including water, salt, flour, vitamins)
+4. If the list has N commas → substances_detectees must have ≥ N+1 entries
+5. NEVER merge 2 ingredients. NEVER skip a mundane ingredient.
+
+Each entry: { nom, code (E-xxx or null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication (MANDATORY 3 to 5 detailed sentences), source_exposition }.
+
+CRITICAL RULE — 'explication' FIELD: EACH ingredient (even healthy ones) must have an EDUCATIONAL explanation of 3 to 5 sentences in clear English, friendly tone, non-alarmist. Mandatory structure:
+  1) Sentence 1: what the ingredient is / its role in the product (1 simple sentence).
+  2) Sentence 2-3: why it's controversial OR why it's healthy — cite concrete health effects (obesity, diabetes, inflammation, breast/colon/liver cancer, palpitations, endocrine disruptor, allergies, cardiovascular effects, etc.).
+  3) Sentence 4: precision on cancer classification (e.g., "This is not a direct carcinogen but regular excessive consumption is harmful to health." / "Classified Group 2B by IARC (possibly carcinogenic)." / "Not classified as carcinogenic by IARC.").
+  4) NEVER write a generic explanation like "controversial additive, to verify". Always DETAIL the real risks.
+
+EXAMPLES of good explanations (reproduce this style):
+• Sucrose: "Sugar in large quantities promotes obesity, diabetes, and chronic inflammation, recognized risk factors for several types of cancer (breast, colon, liver, pancreas). It's not a direct carcinogen but regular excessive consumption is harmful to health."
+• Natural and artificial flavors: "Artificial flavors are controversial because their composition lacks transparency — they can contain dozens of unlisted molecules. They are not classified as carcinogenic but regular consumption of chemical additives should be limited."
+• Colors (unspecified): "Some color varieties can be controversial, especially azo or artificial colors (E102, E110, E124). The manufacturer doesn't specify which here, so a precautionary principle applies. Not classified as carcinogenic by IARC as a whole."
+• Taurine: "Taurine is a synthetic amino acid added as a stimulant in energy drinks. At high doses it can cause cardiovascular effects (palpitations, hypertension), especially combined with caffeine. Not classified as carcinogenic but its regular consumption remains controversial."
+• Water: "Basic ingredient, no health risk. Essential to the product's composition."
+
+SPECIAL CASE ENERGY DRINKS (Red Bull, Monster, Rockstar, Bang): Taurine, added Caffeine, Inositol, Glucuronolactone, Natural/Artificial Flavors, Niacinamide, Pyridoxine HCl, Calcium Pantothenate, Cyanocobalamin = ORANGE (in a normal food, these B vitamins = GREEN).
+
+COSMETICS: "cumulative endocrine disruptors" rule — 3+ in the same product = ORANGE minimum. PREGNANCY DANGER: if any of these ingredients is present, prefix resume with "⚠️ PREGNANCY DANGER: " and add as 1st recommendation "This product contains substances not recommended during pregnancy. Consult a healthcare professional."
+
+═══ STEP 3 — FINAL VERDICT (badge_global) ═══
+
+Strict rule — the highest wins:
+• danger → ≥1 ingredient explicitly listed as Group 1 in the database. Resume: "Warning! This product contains an ingredient classified as carcinogenic by the WHO (IARC Group 1). I strongly advise against consuming it regularly."
+• probable → ≥1 ORANGE ingredient OR ≥4 yellows. Resume: "This product contains several controversial or ultra-processed substances. Consume it only occasionally and look for a more natural alternative." FORBIDDEN to write "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" in the resume if no ingredient is actually listed as such in the database.
+• possible → 2-3 yellows, no orange/red. Resume: "This product contains a few processed ingredients. You can consume it but avoid making it an everyday food." FORBIDDEN to write "carcinogenic" in this resume.
+• aucun → 0-1 isolated yellow among healthy naturals. Resume: "This product is overall very good. The vast majority of ingredients are natural and healthy."
+
+Absolute prohibitions for "aucun": HFCS, dextrose, glucose syrup, FD&C colors, BHA, BHT, TBHQ, sodium benzoate, carrageenan, aspartame, acesulfame K, sucralose, nitrites/nitrates.
+
+Mandatory sorting of substances_detectees: danger → probable → possible → aucun.
+
+═══ JSON OUTPUT ═══
+
+Fields: objet_identifie, categorie_produit, badge_global, resume (3-4 sentences in standard English, friendly, non-alarmist), substances_detectees (ALL ingredients), recommandations, alternatives_saines, materiau_detecte="", erreur=null (or "Unreadable photo" if blurry).
+
+═══ CRITICAL RULE — alternatives_saines (REAL ALTERNATIVES OF THE SAME PRODUCT TYPE) ═══
+
+alternatives_saines MUST contain 2 to 3 real organic/natural products of the SAME TYPE as the scanned product (not store names, not generic brands without products). Each entry = { nom, raison }.
+
+• nom = BRAND + precise PRODUCT NAME of the same type as the scanned one. Concrete examples (USA market focus):
+  - Scanned product = industrial mayonnaise → nom = "Sir Kensington's Organic Mayo" / "Primal Kitchen Avocado Oil Mayo" / "Vegenaise (Follow Your Heart)".
+  - Scanned product = industrial cookies/cakes → nom = "Simple Mills Almond Flour Cookies" / "Tate's Bake Shop Organic" / "Annie's Organic Bunny Cookies".
+  - Scanned product = soda → nom = "Spindrift Sparkling Water" / "Olipop Classic Root Beer" / "LaCroix Plain Sparkling Water".
+  - Scanned product = nutella → nom = "Justin's Chocolate Hazelnut Butter" / "Nuttzo Power Fuel" / "Nocciolata Organic Hazelnut Spread".
+  - Scanned product = sugary cereals → nom = "One Degree Organic Sprouted Oats" / "Bob's Red Mill Organic Granola" / "Nature's Path Heritage Flakes".
+  - Scanned product = flavored yogurt → nom = "Stonyfield Organic Plain Yogurt" / "Siggi's Plain Skyr" / "Maple Hill Organic Whole Milk Yogurt".
+  - Scanned product = shampoo → nom = "Acure Curiously Clarifying Shampoo" / "Everyone 3-in-1 Soap" / "ATTITUDE Super Leaves Shampoo".
+• raison = 1 short sentence explaining WHY this alternative is better ("No additives or palm oil, simple organic ingredients", "Short recipe with fresh eggs and organic sunflower oil", etc.).
+• Adapt the brands to the detected region:
+  - USA / English Canada: Whole Foods 365, Annie's, Stonyfield, Simple Mills, Justin's, Spindrift, Olipop, Siete Foods, Acure, Everyone, Native, Burt's Bees, Weleda, Dr. Bronner's.
+  - UK / Ireland: Yeo Valley Organic, Pip & Nut, Meridian, Tyrrells, Pipers, Dorset Cereals, Faith In Nature, Neal's Yard, Weleda.
+  - Quebec: Bjorg, Compliments Bio, Président's Choice Organics, La Fourmi Bionique, GoGo Quinoa, Liberty Organic, Fontaine Santé, Yves Veggie, ATTITUDE, Druide, Oneka, Avril (house brand).
+  - France: Bjorg, Jardin Bio, Markal, Lima, Bonneterre, Vrai, Les 2 Vaches, Carrefour Bio, U Bio, Cattier, Coslys, Melvita, Centifolia, Lamazuna, Weleda.
+  - Belgium: Bjorg, Bio-Planet (private label), Markal, Lima, Vrai, Weleda, Kneipp.
+  - Other: suggest known international organic brands (Whole Foods 365, Alnatura, Rapunzel, Ecover, Seventh Generation).
+• PROHIBITIONS for alternatives_saines:
+  - NEVER write a plain store name (e.g., "Whole Foods", "Trader Joe's" alone) — those are stores, not products.
+  - NEVER repeat a brand without a precise product (e.g., "Bjorg" alone = FORBIDDEN, write "Bjorg Organic Mayo").
+  - NEVER suggest an alternative of a different type (e.g., for a scanned mayo, don't suggest a yogurt).
+  - If the scanned product is already healthy (badge_global=aucun), return alternatives_saines = [].
+
+classification_circ accepted: "Group 1" | "Group 2A" | "Group 2B" | "Controversial" | "Ultra-processed" | "Endocrine disruptor" | "Natural" | "Not classified by IARC".
+
+NEVER confuse CACAO (healthy) with CADMIUM (contaminant).
+
+═══ MANDATORY CHAIN OF THOUGHT — FILL 'raisonnement' BEFORE ANYTHING ELSE ═══
+
+BEFORE generating the other fields, MANDATORILY fill the "raisonnement" object with:
+
+1) ingredients_lus_bruts: array of EVERY ingredient read on the label, exactly as written, one by one, separated at every comma. Ex: ["Carbonated water", "Sugar", "Caffeine", "Taurine", "Glucuronolactone", "Inositol", "Niacinamide", "Calcium Pantothenate", "Pyridoxine HCl", "Cyanocobalamin", "Artificial flavors", "Colors"]. NEVER write an empty list if the photo contains ingredient text.
+
+2) nombre_ingredients_lus: integer = ingredients_lus_bruts.length. This number will be used to verify that substances_detectees contains the SAME number of entries.
+
+3) deduction_produit: 1 sentence explaining how you identify the product (read name / brand / barcode / deduction by ingredients).
+
+4) verification_exhaustivite: literally write "I read X ingredients and I will create X entries in substances_detectees" (replace X with your number). If you can't, restart the reading.
+
+5) verification_coherence_badge: 1 sentence listing the badge count (e.g., "2 danger, 5 probable, 3 possible, 4 aucun → badge_global=probable") and confirming that badge_global matches the rule.
+
+This raisonnement MUST be written BEFORE the other fields. substances_detectees must then contain ONE ENTRY per element of ingredients_lus_bruts (same name, same reading order), and nombre_ingredients_lus MUST equal substances_detectees.length.
+
+═══ MANDATORY VALIDATION CHECKLIST (before responding) ═══
+
+Mentally answer YES to each question. If a single answer is NO → restart.
+
+[1] EXHAUSTIVENESS — How many ingredients on the label (commas + 1)? This number MUST equal the number of entries in substances_detectees. 15 ingredients read = 15 entries, not 14.
+[2] IDENTIFICATION — Is objet_identifie filled with a real name? Never "Unknown object" if text/ingredients are readable.
+[3] CLASSIFICATION — Has each entry been searched in the DATABASE above and assigned the EXACT niveau_risque from the database?
+[4] VERDICT CONSISTENCY: 1+ danger → badge="danger"; 1+ probable or 4+ possible → "probable"; 2-3 possible → "possible"; otherwise → "aucun".
+[5] ABSOLUTE PROHIBITIONS — badge_global="aucun" is not used if the list contains HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carrageenan, artificial sweeteners, nitrites.
+[5bis] ANTI-ALARMISM — No ingredient is classified "Group 1" or "Group 2A" without an EXPLICIT match in the database. If you put "Group 2A" or "Group 1" somewhere, verify the exact ingredient is listed as such in the database — otherwise downgrade to "Controversial" + niveau_risque="possible" or "probable". The 'resume' field must NEVER contain "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" if no substance_detectee actually has that classification_circ. Use instead "controversial substances", "ultra-processed", "industrial additives".
+[5ter] SIMPLE PRODUCT — If the product has ≤2 natural ingredients (milk+cultures, water+coffee, fresh meat, raw fruit/vegetable), badge_global must be "aucun" unless formal IARC proof. Do not demonize basic foods.
+[6] SORTING — substances_detectees sorted danger → probable → possible → aucun.
+[7] RESUME — Matches badge_global and stays non-alarmist if verdict is green.
+[8] RE-READING — Re-read the list left to right; each ingredient is there with its badge.
+
+If the checklist passes → emit the JSON. Otherwise → fix.`;
+
+const UNIVERSAL_ANALYSIS_PROMPT = isEnglish() ? UNIVERSAL_ANALYSIS_PROMPT_EN : UNIVERSAL_ANALYSIS_PROMPT_FR;
+
 async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
   console.log('[API] Calling OpenAI (gpt-4o) for universal analysis...');
   if (openFactsContext) {
@@ -264,7 +407,11 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
   const systemParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
   if (openFactsContext) {
     systemParts.push('\n\n' + openFactsContext);
-    systemParts.push('\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.');
+    systemParts.push(
+      isEnglish()
+        ? '\nIMPORTANT: You received Open Food Facts data for this product. Use the FULL ingredient list provided by Open Food Facts for a more accurate analysis. Cross-reference this data with your own visual analysis of the photo. If you detect ingredients in the photo that are not in Open Food Facts, add them. If Open Food Facts lists additives you don\'t see in the photo, include them anyway because the database is reliable. Your PRIORITY remains finding carcinogenic and toxic substances from our Dr.Toxi database.'
+        : '\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.'
+    );
   }
 
   const result = await aiGenerateObject({
@@ -273,14 +420,16 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
       {
         role: 'user',
         content: [
-          { type: 'text', text: 'Analyse cette photo en suivant STRICTEMENT cet ordre de génération :\n\nÉTAPE 0 (raisonnement) — AVANT tout autre champ, remplis "raisonnement" :\n  • ingredients_lus_bruts : liste chaque ingrédient de l\'étiquette, un par un, séparé à chaque virgule/point-virgule. N\'en saute AUCUN.\n  • nombre_ingredients_lus : le nombre exact d\'éléments ci-dessus.\n  • deduction_produit : comment tu identifies le produit (nom, marque, ou déduction).\n  • verification_exhaustivite : phrase "J\'ai lu X ingrédients et je vais créer X entrées dans substances_detectees".\n  • verification_coherence_badge : compte des badges et verdict final.\n\nÉTAPE 1 — objet_identifie (marque + nom, jamais "Objet inconnu" si texte/ingrédients lisibles).\nÉTAPE 2 — categorie_produit.\nÉTAPE 3 — substances_detectees : pour CHAQUE élément de ingredients_lus_bruts, crée UNE entrée (même nom, même ordre). substances_detectees.length DOIT égaler nombre_ingredients_lus. Inclure les ingrédients sains (eau, sel, farine, légumes) avec niveau_risque="aucun".\nÉTAPE 4 — badge_global, resume, recommandations, alternatives_saines.\n\nSi tu t\'aperçois que substances_detectees.length ≠ nombre_ingredients_lus, CORRIGE substances_detectees avant de finir — ne tronque jamais la liste.' },
+          { type: 'text', text: isEnglish()
+            ? 'Analyze this photo by STRICTLY following this generation order:\n\nSTEP 0 (raisonnement) — BEFORE any other field, fill "raisonnement":\n  • ingredients_lus_bruts: list every ingredient on the label, one by one, separated at every comma/semicolon. SKIP NONE.\n  • nombre_ingredients_lus: the exact count of the elements above.\n  • deduction_produit: how you identify the product (name, brand, or deduction).\n  • verification_exhaustivite: phrase "I read X ingredients and I will create X entries in substances_detectees".\n  • verification_coherence_badge: badge count and final verdict.\n\nSTEP 1 — objet_identifie (brand + name, never "Unknown object" if text/ingredients are readable).\nSTEP 2 — categorie_produit.\nSTEP 3 — substances_detectees: for EACH element of ingredients_lus_bruts, create ONE entry (same name, same order). substances_detectees.length MUST equal nombre_ingredients_lus. Include healthy ingredients (water, salt, flour, vegetables) with niveau_risque="aucun".\nSTEP 4 — badge_global, resume, recommandations, alternatives_saines.\n\nIf you notice that substances_detectees.length ≠ nombre_ingredients_lus, FIX substances_detectees before finishing — never truncate the list.'
+            : 'Analyse cette photo en suivant STRICTEMENT cet ordre de génération :\n\nÉTAPE 0 (raisonnement) — AVANT tout autre champ, remplis "raisonnement" :\n  • ingredients_lus_bruts : liste chaque ingrédient de l\'étiquette, un par un, séparé à chaque virgule/point-virgule. N\'en saute AUCUN.\n  • nombre_ingredients_lus : le nombre exact d\'éléments ci-dessus.\n  • deduction_produit : comment tu identifies le produit (nom, marque, ou déduction).\n  • verification_exhaustivite : phrase "J\'ai lu X ingrédients et je vais créer X entrées dans substances_detectees".\n  • verification_coherence_badge : compte des badges et verdict final.\n\nÉTAPE 1 — objet_identifie (marque + nom, jamais "Objet inconnu" si texte/ingrédients lisibles).\nÉTAPE 2 — categorie_produit.\nÉTAPE 3 — substances_detectees : pour CHAQUE élément de ingredients_lus_bruts, crée UNE entrée (même nom, même ordre). substances_detectees.length DOIT égaler nombre_ingredients_lus. Inclure les ingrédients sains (eau, sel, farine, légumes) avec niveau_risque="aucun".\nÉTAPE 4 — badge_global, resume, recommandations, alternatives_saines.\n\nSi tu t\'aperçois que substances_detectees.length ≠ nombre_ingredients_lus, CORRIGE substances_detectees avant de finir — ne tronque jamais la liste.' },
           { type: 'image', image: imageBase64 },
         ],
       },
     ],
     schema: universalAnalysisSchema,
     toolName: 'record_analysis',
-    toolDescription: 'Enregistre l\'analyse structurée du produit scanné.',
+    toolDescription: isEnglish() ? 'Record the structured analysis of the scanned product.' : 'Enregistre l\'analyse structurée du produit scanné.',
     maxTokens: 3000,
   });
   console.log('[API] OpenAI analysis returned successfully');
@@ -304,14 +453,16 @@ async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: st
         {
           role: 'user',
           content: [
-            { type: 'text', text: 'Regarde cette photo d\'un produit. Retourne : 1) le code-barres (EAN-13, EAN-8, UPC-A, UPC-E) si visible et lisible — sinon null. 2) le NOM DU PRODUIT tel qu\'il est imprimé sur l\'emballage (ex: "Fils Extra", "Nutella", "Coca-Cola Zero") dans product_name_visible. 3) la MARQUE si visible (ex: "LU", "Ferrero", "Coca-Cola") dans brand_visible. Lis ce qui est écrit sur l\'emballage, même sans code-barres. Si rien n\'est lisible, mets null.' },
+            { type: 'text', text: isEnglish()
+              ? 'Look at this photo of a product. Return: 1) the barcode (EAN-13, EAN-8, UPC-A, UPC-E) if visible and readable — otherwise null. 2) the PRODUCT NAME as printed on the packaging (e.g., "Fils Extra", "Nutella", "Coca-Cola Zero") in product_name_visible. 3) the BRAND if visible (e.g., "LU", "Ferrero", "Coca-Cola") in brand_visible. Read what is written on the packaging, even without a barcode. If nothing is readable, set to null.'
+              : 'Regarde cette photo d\'un produit. Retourne : 1) le code-barres (EAN-13, EAN-8, UPC-A, UPC-E) si visible et lisible — sinon null. 2) le NOM DU PRODUIT tel qu\'il est imprimé sur l\'emballage (ex: "Fils Extra", "Nutella", "Coca-Cola Zero") dans product_name_visible. 3) la MARQUE si visible (ex: "LU", "Ferrero", "Coca-Cola") dans brand_visible. Lis ce qui est écrit sur l\'emballage, même sans code-barres. Si rien n\'est lisible, mets null.' },
             { type: 'image', image: imageBase64 },
           ],
         },
       ],
       schema: preDetectionSchema,
       toolName: 'record_pre_detection',
-      toolDescription: 'Enregistre le code-barres et le nom du produit détectés sur la photo.',
+      toolDescription: isEnglish() ? 'Record the barcode and product name detected in the photo.' : 'Enregistre le code-barres et le nom du produit détectés sur la photo.',
       maxTokens: 512,
     });
 
@@ -368,7 +519,7 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
 
       if (!result || !result.categorie_produit) {
         console.error('[API] Invalid result structure, retrying...');
-        throw new Error('Résultat invalide reçu');
+        throw new Error(isEnglish() ? 'Invalid result received' : 'Résultat invalide reçu');
       }
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isEnglish } from '@/utils/i18n';
 
 const MODEL_ID = 'gpt-4o';
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
@@ -7,7 +8,9 @@ function getOpenAIConfig(): { url: string; apiKey: string } {
   const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
   if (!apiKey) {
     throw new Error(
-      "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie."
+      isEnglish()
+        ? 'AI configuration is missing. The EXPO_PUBLIC_OPEN_AI environment variable must be set.'
+        : "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie."
     );
   }
   return {
@@ -118,7 +121,9 @@ export async function aiGenerateObject<T>(params: {
   toolDescription?: string;
   maxTokens?: number;
 }): Promise<T> {
-  const jsonInstruction = "\n\nIMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide (pas de texte avant ni après, pas de backticks). L'objet JSON doit contenir tous les champs décrits ci-dessus.";
+  const jsonInstruction = isEnglish()
+    ? '\n\nIMPORTANT: Respond ONLY with a valid JSON object (no text before or after, no backticks). The JSON object must contain all the fields described above.'
+    : "\n\nIMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide (pas de texte avant ni après, pas de backticks). L'objet JSON doit contenir tous les champs décrits ci-dessus.";
   const systemWithJson = (params.system ?? '') + jsonInstruction;
 
   const body: Record<string, unknown> = {
@@ -141,7 +146,11 @@ export async function aiGenerateObject<T>(params: {
       .join('');
   }
   if (!contentStr) {
-    throw new Error("L'IA n'a pas retourné de résultat structuré.");
+    throw new Error(
+      isEnglish()
+        ? 'The AI did not return a structured result.'
+        : "L'IA n'a pas retourné de résultat structuré."
+    );
   }
   const jsonStr = extractJsonBlock(contentStr);
   let parsed: unknown;
@@ -149,7 +158,7 @@ export async function aiGenerateObject<T>(params: {
     parsed = JSON.parse(jsonStr);
   } catch (e) {
     console.error('[AI] Failed to parse JSON response:', contentStr.substring(0, 500));
-    throw new Error("Réponse IA illisible.");
+    throw new Error(isEnglish() ? 'Unreadable AI response.' : 'Réponse IA illisible.');
   }
   return params.schema.parse(parsed);
 }
