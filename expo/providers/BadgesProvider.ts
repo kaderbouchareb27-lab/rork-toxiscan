@@ -4,6 +4,14 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
 import { t } from '@/utils/i18n';
 
+export function getBadgeName(id: string): string {
+  return t(`badge_name_${id}` as Parameters<typeof t>[0]);
+}
+
+export function getBadgeDescription(id: string): string {
+  return t(`badge_desc_${id}` as Parameters<typeof t>[0]);
+}
+
 const BADGES_STORAGE_KEY = 'toxiscan_badges';
 const REWARD_STORAGE_KEY = 'toxiscan_share_rewards';
 
@@ -155,7 +163,7 @@ export const [BadgesProvider, useBadges] = createContextHook(() => {
 
       if (currentCount >= def.threshold) {
         updatedData.badges[def.id] = { unlockedAt: now };
-        console.log('[Badges] Unlocked:', def.name);
+        console.log('[Badges] Unlocked:', def.id);
         if (!firstNewBadge) {
           firstNewBadge = def;
         }

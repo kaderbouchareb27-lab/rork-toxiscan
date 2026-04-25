@@ -35,7 +35,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { useBadges, BADGE_DEFINITIONS, BadgeDefinition } from '@/providers/BadgesProvider';
+import { useBadges, BADGE_DEFINITIONS, BadgeDefinition, getBadgeName, getBadgeDescription } from '@/providers/BadgesProvider';
 import { t, tf } from '@/utils/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -155,12 +155,12 @@ function BadgeCard({
 
   const handlePress = useCallback(() => {
     if (!isUnlocked) return;
-    console.log('[Badges] Badge pressed:', badge.name);
+    console.log('[Badges] Badge pressed:', badge.id);
     Animated.sequence([
       Animated.timing(scaleAnim, { toValue: 0.95, duration: 80, useNativeDriver: true }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 80, useNativeDriver: true }),
     ]).start();
-  }, [isUnlocked, scaleAnim, badge.name]);
+  }, [isUnlocked, scaleAnim, badge.id]);
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -198,10 +198,10 @@ function BadgeCard({
           ]}
           numberOfLines={1}
         >
-          {badge.name}
+          {getBadgeName(badge.id)}
         </Text>
         <Text style={[styles.badgeDescription, !isUnlocked && styles.badgeDescriptionLocked]} numberOfLines={2}>
-          {badge.description}
+          {getBadgeDescription(badge.id)}
         </Text>
         {isUnlocked && (
           <TouchableOpacity
@@ -242,13 +242,13 @@ export default function BadgesScreen() {
   }, []);
 
   const handleShareBadge = useCallback(async (badge: BadgeDefinition) => {
-    console.log('[Badges] Sharing badge:', badge.name);
+    console.log('[Badges] Sharing badge:', badge.id);
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     try {
       await Share.share({
-        message: tf('share_badge_msg', badge.name, badge.description),
+        message: tf('share_badge_msg', getBadgeName(badge.id), getBadgeDescription(badge.id)),
       });
     } catch (error) {
       console.log('[Badges] Share error:', error);
