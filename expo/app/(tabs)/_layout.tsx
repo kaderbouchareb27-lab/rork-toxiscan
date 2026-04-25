@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { ScanBarcode, Clock, MessageCircle, User } from "lucide-react-native";
+import { Camera, Clock, MessageCircle, User } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 import { t } from '@/utils/i18n';
@@ -33,7 +33,7 @@ export default function TabLayout() {
         name="(scanner)"
         options={{
           title: t('tab_scanner'),
-          tabBarIcon: ({ color, size }) => <ScanBarcode color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Camera color={color} size={size} />,
         }}
       />
       <Tabs.Screen
