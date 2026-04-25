@@ -47,13 +47,7 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization",
-      [
-        "expo-audio",
-        {
-          "microphonePermission": "Dr. Toxi a besoin du microphone pour t'écouter quand tu lui poses des questions vocales sur tes produits."
-        }
-      ]
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
