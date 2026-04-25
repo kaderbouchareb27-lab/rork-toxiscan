@@ -411,7 +411,7 @@ export function tf<A extends unknown[]>(key: TranslationKey, ...args: A): string
   }
   const val = entry[lang];
   if (typeof val === 'function') {
-    return (val as (...a: A) => string)(...args);
+    return (val as unknown as (...a: A) => string)(...args);
   }
   return val as string;
 }

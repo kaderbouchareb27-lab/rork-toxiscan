@@ -112,7 +112,7 @@ export interface Conversation {
     name: string;
     brand: string;
     barcode: string;
-    verdictLevel: 'danger' | 'prudence' | 'approuve';
+    verdictLevel: 'danger' | 'warning' | 'moderation' | 'approuve';
     analysisSummary?: string;
   };
 }
