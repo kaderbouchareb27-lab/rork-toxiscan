@@ -191,7 +191,31 @@ Tri obligatoire de substances_detectees : danger → probable → possible → a
 
 ═══ SORTIE JSON ═══
 
-Champs : objet_identifie, categorie_produit, badge_global, resume (3-4 phrases français standard, bienveillant, non-alarmiste), substances_detectees (TOUS les ingrédients), recommandations, alternatives_saines (2-3 selon pays : Québec=ATTITUDE/Druide/Oneka ; France=Cattier/Coslys/Ecover), materiau_detecte="", erreur=null (ou "Photo illisible" si floue).
+Champs : objet_identifie, categorie_produit, badge_global, resume (3-4 phrases français standard, bienveillant, non-alarmiste), substances_detectees (TOUS les ingrédients), recommandations, alternatives_saines, materiau_detecte="", erreur=null (ou "Photo illisible" si floue).
+
+═══ RÈGLE CRITIQUE — alternatives_saines (ALTERNATIVES RÉELLES DU MÊME TYPE DE PRODUIT) ═══
+
+alternatives_saines DOIT contenir 2 à 3 vrais produits bio/naturels du MÊME TYPE que le produit scanné (pas des noms de magasins, pas des marques génériques sans produit). Chaque entrée = { nom, raison }.
+
+• nom = MARQUE + NOM DU PRODUIT précis du même type que celui scanné. Exemples concrets :
+  - Si produit scanné = mayonnaise industrielle → nom = "Mayonnaise bio Bjorg" / "Mayonnaise Vegenaise (Follow Your Heart)" / "Mayonnaise bio Avril (marque maison)".
+  - Si produit scanné = biscuits / gâteaux industriels → nom = "Biscuits Petit Déjeuner Bio Bjorg" / "Cookies bio Generous" / "Petits gâteaux Lima Bio".
+  - Si produit scanné = soda → nom = "Lemonaid Bio" / "Whole Earth Cola Bio" / "Eau pétillante Perrier nature".
+  - Si produit scanné = nutella → nom = "Pâte à tartiner Jean Hervé Noisettes-Cacao" / "Nocciolata Bio Rigoni di Asiago" / "Pâte à tartiner Bjorg Cacao Noisettes".
+  - Si produit scanné = céréales sucrées → nom = "Muesli bio Bjorg" / "Granola Michel et Augustin Bio" / "Flocons d'avoine Markal Bio".
+  - Si produit scanné = yaourt aromatisé → nom = "Yaourt nature bio Les 2 Vaches" / "Yaourt brebis bio Vrai" / "Yaourt nature bio Sojade (végétal)".
+  - Si produit scanné = shampoing → nom = "Shampoing doux Cattier Bio" / "Shampoing solide Lamazuna" / "Shampoing ATTITUDE Super Leaves".
+• raison = 1 phrase courte expliquant POURQUOI cette alternative est meilleure ("Sans additifs ni huile de palme, ingrédients bio simples", "Recette courte avec œufs frais et huile de tournesol bio", etc.).
+• Adapte les marques à la région détectée :
+  - Québec : Bjorg, Compliments Bio, Irrésistibles Choix du Président Bio, La Fourmi Bionique, GoGo Quinoa, Liberté Bio, Fontaine Santé, Yves Veggie, ATTITUDE, Druide, Oneka, Avril (marque maison).
+  - France : Bjorg, Jardin Bio, Markal, Lima, Bonneterre, Vrai, Les 2 Vaches, Carrefour Bio, U Bio, Cattier, Coslys, Melvita, Centifolia, Lamazuna, Weleda.
+  - Belgique : Bjorg, Bio-Planet (MDD), Markal, Lima, Vrai, Weleda, Kneipp.
+  - Autres : suggère des marques bio internationales connues (Whole Foods 365, Alnatura, Rapunzel, Ecover, Seventh Generation).
+• INTERDICTIONS pour alternatives_saines :
+  - NE JAMAIS écrire un simple nom de magasin (ex: "Avril Supermarché Santé", "Rachelle Béry", "Liberté Bio" tout seul) — ce sont des magasins, pas des produits.
+  - NE JAMAIS répéter une marque sans produit précis (ex: "Bjorg" tout seul = INTERDIT, écris "Mayonnaise bio Bjorg").
+  - NE JAMAIS proposer une alternative d'un type différent (ex: pour une mayonnaise scannée, ne propose pas un yaourt).
+  - Si le produit scanné est déjà sain (badge_global=aucun), retourne alternatives_saines = [].
 
 classification_circ accepté : "Groupe 1" | "Groupe 2A" | "Groupe 2B" | "Controversé" | "Ultra-transformé" | "Perturbateur endocrinien" | "Naturel" | "Non classé par le CIRC".
 

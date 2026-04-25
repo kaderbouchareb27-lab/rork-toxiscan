@@ -171,6 +171,7 @@ const translations = {
   local_markets: { fr: 'Marchés locaux', en: 'Local markets' },
   clean_brands: { fr: 'Marques propres recommandées', en: 'Recommended clean brands' },
   organic_brands: { fr: 'Marques bio recommandées', en: 'Recommended organic brands' },
+  recommended_bio_alternatives: { fr: 'Alternatives bio recommandées pour ce produit', en: 'Recommended organic alternatives for this product' },
   preparing: { fr: 'Préparation...', en: 'Preparing...' },
   share_result: { fr: 'Partager ce résultat', en: 'Share this result' },
   ask_dr_toxi: { fr: 'Demander à Dr. Toxi', en: 'Ask Dr. Toxi' },

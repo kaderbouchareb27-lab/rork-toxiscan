@@ -442,7 +442,7 @@ export default function ProductScreen() {
   const regionInfo = useMemo(() => detectRegion(), []);
   const userCountry = regionInfo.region;
 
-  const showBioStores = !isGreen && (hasCarcinogen || hasControversial);
+  const showBioStores = !isGreen && (hasCarcinogen || hasControversial || healthyAlternatives.length > 0);
   const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
 
   const dangerousSubstances = product.substances?.filter(
@@ -664,28 +664,6 @@ export default function ProductScreen() {
           </View>
         )}
 
-        {showAlternatives && (
-          <View style={styles.section}>
-            <View style={styles.sectionTitleRow}>
-              <Leaf color="#2D8A4E" size={18} />
-              <Text style={styles.sectionTitle}>{t('healthier_alternatives')}</Text>
-            </View>
-            <View style={styles.healthyAlternativesCard}>
-              {healthyAlternatives.map((alt, index) => (
-                <View key={`healthy-alt-${index}`} style={styles.healthyAltItem}>
-                  <View style={styles.healthyAltBadge}>
-                    <CheckCircle color="#FFFFFF" size={14} />
-                  </View>
-                  <View style={styles.healthyAltContent}>
-                    <Text style={styles.healthyAltName}>{alt.nom}</Text>
-                    <Text style={styles.healthyAltReason}>{alt.raison}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
         {!isGreen && product.saferAlternatives && product.saferAlternatives.length > 0 && !showAlternatives && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
@@ -713,6 +691,29 @@ export default function ProductScreen() {
               <Text style={styles.bioStoresIntro}>
                 {t('bio_stores_intro')}
               </Text>
+
+              {showAlternatives && (
+                <>
+                  <Text style={styles.bioStoresSubtitle}>
+                    {t('recommended_bio_alternatives')}
+                  </Text>
+                  <View style={styles.healthyAlternativesCardInner}>
+                    {healthyAlternatives.map((alt, index) => (
+                      <View key={`healthy-alt-${index}`} style={styles.healthyAltItem}>
+                        <View style={styles.healthyAltBadge}>
+                          <CheckCircle color="#FFFFFF" size={14} />
+                        </View>
+                        <View style={styles.healthyAltContent}>
+                          <Text style={styles.healthyAltName}>{alt.nom}</Text>
+                          {alt.raison ? (
+                            <Text style={styles.healthyAltReason}>{alt.raison}</Text>
+                          ) : null}
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
 
               <>
                 <Text style={styles.bioStoresSubtitle}>
@@ -1108,6 +1109,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#C4EDC9',
     overflow: 'hidden' as const,
+  },
+  healthyAlternativesCardInner: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#C4EDC9',
+    overflow: 'hidden' as const,
+    marginBottom: 6,
   },
   healthyAltItem: {
     flexDirection: 'row' as const,
