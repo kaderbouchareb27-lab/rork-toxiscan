@@ -177,6 +177,11 @@ CAS SPÉCIAL BOISSONS ÉNERGISANTES (Red Bull, Monster, Rockstar, Bang) : Taurin
 
 COSMÉTIQUES : règle "perturbateurs endocriniens cumulés" — 3+ dans le même produit = ORANGE minimum. DANGER GROSSESSE : si l'un de ces ingrédients est présent, préfixer resume par "⚠️ DANGER GROSSESSE : " et ajouter en 1re recommandation "Ce produit contient des substances déconseillées pendant la grossesse. Consulte un professionnel de santé."
 
+🦷 MESSAGE DR. TOXI POUR DENTIFRICES ET PRODUITS BUCCAUX (dentifrice, bain de bouche, fil dentaire, spray haleine, gel dentaire) :
+Quel que soit le verdict, AJOUTE TOUJOURS cette précision à la fin du champ resume :
+"Bonne nouvelle : ce produit est utilisé dans la bouche puis recraché — tu ne l'avales pas. Même s'il contient des ingrédients controversés, le risque est très limité car le produit ne reste pas dans ton corps. Reste vigilant sur les ingrédients vraiment problématiques (formaldéhyde, parabènes, triclosan, métaux lourds) qui peuvent être absorbés par les muqueuses, mais pas de panique pour les conservateurs courants."
+Cette précision rassure l'utilisateur tout en restant factuel.
+
 ═══ ÉTAPE 3 — VERDICT FINAL (badge_global) ═══
 
 Règle stricte — le plus élevé l'emporte :
@@ -315,6 +320,11 @@ EXAMPLES of good explanations (reproduce this style):
 SPECIAL CASE ENERGY DRINKS (Red Bull, Monster, Rockstar, Bang): Taurine, added Caffeine, Inositol, Glucuronolactone, Natural/Artificial Flavors, Niacinamide, Pyridoxine HCl, Calcium Pantothenate, Cyanocobalamin = ORANGE (in a normal food, these B vitamins = GREEN).
 
 COSMETICS: "cumulative endocrine disruptors" rule — 3+ in the same product = ORANGE minimum. PREGNANCY DANGER: if any of these ingredients is present, prefix resume with "⚠️ PREGNANCY DANGER: " and add as 1st recommendation "This product contains substances not recommended during pregnancy. Consult a healthcare professional."
+
+🦷 DR. TOXI MESSAGE FOR TOOTHPASTE AND ORAL CARE PRODUCTS (toothpaste, mouthwash, dental floss, breath spray, dental gel):
+Regardless of the verdict, ALWAYS ADD this clarification at the end of the resume field:
+"Good news: this product is used in the mouth and spit out — you don't swallow it. Even if it contains controversial ingredients, the risk is very limited because the product doesn't stay in your body. Stay vigilant about truly problematic ingredients (formaldehyde, parabens, triclosan, heavy metals) that can be absorbed through oral mucosa, but no need to panic about common preservatives."
+This clarification reassures the user while staying factual.
 
 ═══ STEP 3 — FINAL VERDICT (badge_global) ═══
 
