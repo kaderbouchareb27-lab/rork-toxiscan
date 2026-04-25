@@ -1,8 +1,46 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
-import { calculateRiskScore, classifySubstanceLevel, classifyAdditiveLevel, isDangerLevel } from '@/utils/riskScore';
+import { classifySubstanceLevel, classifyAdditiveLevel, SubstanceLevel } from '@/utils/riskScore';
 import { t } from '@/utils/i18n';
+
+type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
+
+function computeVerdictLevel(props: ShareImageCardProps): VerdictLevel {
+  let hasGroup1 = false;
+  let hasGroup2A = false;
+  let hasGroup2B = false;
+  let controversialCount = 0;
+
+  const tally = (level: SubstanceLevel) => {
+    if (level === 'group1') hasGroup1 = true;
+    else if (level === 'group2a') hasGroup2A = true;
+    else if (level === 'group2b') hasGroup2B = true;
+    else if (level === 'controversial') controversialCount += 1;
+  };
+
+  if (props.detectedAdditives) {
+    for (const a of props.detectedAdditives) tally(classifyAdditiveLevel(a));
+  }
+  if (props.substances) {
+    for (const s of props.substances) tally(classifySubstanceLevel(s));
+  }
+  if (props.detectedIngredients) {
+    for (const i of props.detectedIngredients) {
+      tally(classifySubstanceLevel({
+        classification_circ: i.classification_circ,
+        niveau_risque: i.niveau_risque,
+        explication: i.explication,
+        nom: i.nom,
+      }));
+    }
+  }
+
+  if (hasGroup1) return 'danger';
+  if (hasGroup2A || controversialCount >= 2) return 'warning';
+  if (controversialCount === 1 || hasGroup2B) return 'moderation';
+  return 'approuve';
+}
 
 interface ShareImageCardProps {
   productName: string;
@@ -16,10 +54,14 @@ interface ShareImageCardProps {
   detectedAdditives?: AdditiveInfo[];
 }
 
-function getScoreBadge(score: number): { label: string; sublabel: string; color: string; textColor: string; explanation: string } {
-  if (score <= 40) return { label: t('share_approved_label'), sublabel: t('share_approved_sub'), color: '#2E9E34', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
-  if (score <= 70) return { label: t('share_caution_label'), sublabel: t('share_caution_sub'), color: '#FF9500', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
-  return { label: t('share_danger_label'), sublabel: t('share_danger_sub'), color: '#FF3B30', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
+function getVerdictBadge(level: VerdictLevel): { label: string; sublabel: string; color: string; textColor: string; explanation: string } {
+  if (level === 'danger') {
+    return { label: t('share_danger_label'), sublabel: t('share_danger_sub'), color: '#FF3B30', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
+  }
+  if (level === 'warning' || level === 'moderation') {
+    return { label: t('share_caution_label'), sublabel: t('share_caution_sub'), color: '#FF9500', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
+  }
+  return { label: t('share_approved_label'), sublabel: t('share_approved_sub'), color: '#2E9E34', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
 }
 
 function getTopSubstances(props: ShareImageCardProps): string[] {
@@ -59,14 +101,8 @@ const TOXISCAN_LOGO = 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr
 
 export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
-  const riskScore = calculateRiskScore({
-    detectedAdditives: props.detectedAdditives ?? [],
-    detectedIngredients: props.detectedIngredients,
-    substances: props.substances,
-    ingredientsText: '',
-    riskGroup,
-  });
-  const badge = getScoreBadge(riskScore);
+  const verdictLevel = computeVerdictLevel(props);
+  const badge = getVerdictBadge(verdictLevel);
   const badgeLabel = badge.label;
   const badgeColor = badge.color;
   const badgeText = badge.textColor;
