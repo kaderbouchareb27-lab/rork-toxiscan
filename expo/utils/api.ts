@@ -168,7 +168,7 @@ RÈGLE CRITIQUE — CHAMP 'explication' : CHAQUE ingrédient (même sain) doit a
 
 EXEMPLES de bonnes explications (reproduis ce style) :
 • Sucrose : "Le sucre en grande quantité favorise l'obésité, le diabète et l'inflammation chronique, des facteurs de risque reconnus pour plusieurs types de cancers (sein, côlon, foie, pancréas). Ce n'est pas un cancérogène direct mais la consommation régulière excessive nuit à la santé."
-• Arômes naturels et artificiels : "Les arômes artificiels sont controversés car leur composition est peu transparente — ils peuvent contenir des dizaines de molécules non listées. Ils ne sont pas classés cancérigènes mais la consommation régulière d'additifs chimiques est à limiter."
+• Arômes naturels : "Bien que nommés 'naturels', ces arômes sont souvent extraits avec des procédés chimiques industriels (solvants comme hexane, distillation moléculaire). Leur composition exacte n'est pas divulguée et peut contenir des dizaines de molécules cachées. Ils ne sont pas classés cancérigènes par le CIRC, mais leur consommation régulière reste controversée."
 • Colorants (non spécifiés) : "Certaines variétés de colorants peuvent être controversées, surtout les colorants azoïques ou artificiels (E102, E110, E124). Le fabricant ne précise pas ici lesquels, donc principe de précaution. Non classés cancérogènes par le CIRC dans leur ensemble."
 • Taurine : "La taurine est un acide aminé synthétique ajouté comme stimulant dans les boissons énergisantes. À haute dose elle peut provoquer des effets cardiovasculaires (palpitations, hypertension), surtout combinée à la caféine. Non classée cancérogène mais sa consommation régulière reste controversée."
 • Eau : "Ingrédient de base, sans risque pour la santé. Essentiel à la composition du produit."
@@ -307,7 +307,7 @@ CRITICAL RULE — 'explication' FIELD: EACH ingredient (even healthy ones) must 
 
 EXAMPLES of good explanations (reproduce this style):
 • Sucrose: "Sugar in large quantities promotes obesity, diabetes, and chronic inflammation, recognized risk factors for several types of cancer (breast, colon, liver, pancreas). It's not a direct carcinogen but regular excessive consumption is harmful to health."
-• Natural and artificial flavors: "Artificial flavors are controversial because their composition lacks transparency — they can contain dozens of unlisted molecules. They are not classified as carcinogenic but regular consumption of chemical additives should be limited."
+• Natural flavors: "Although labeled 'natural', these flavors are often extracted using industrial chemical processes (solvents like hexane, molecular distillation). Their exact composition is not disclosed and can contain dozens of undisclosed molecules. They are not classified as carcinogenic by IARC, but their regular consumption remains controversial."
 • Colors (unspecified): "Some color varieties can be controversial, especially azo or artificial colors (E102, E110, E124). The manufacturer doesn't specify which here, so a precautionary principle applies. Not classified as carcinogenic by IARC as a whole."
 • Taurine: "Taurine is a synthetic amino acid added as a stimulant in energy drinks. At high doses it can cause cardiovascular effects (palpitations, hypertension), especially combined with caffeine. Not classified as carcinogenic but its regular consumption remains controversial."
 • Water: "Basic ingredient, no health risk. Essential to the product's composition."
