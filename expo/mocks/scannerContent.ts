@@ -21,7 +21,7 @@ export interface QuizQuestion {
   explanation: string;
 }
 
-const HEALTH_ALERTS_FR: HealthAlert[] = [
+export const HEALTH_ALERTS: HealthAlert[] = [
   {
     id: 'alert-1',
     title: 'États-Unis : le Red 3 (érythrosine) officiellement interdit dans les aliments par la FDA',
@@ -58,46 +58,6 @@ const HEALTH_ALERTS_FR: HealthAlert[] = [
     date: '2025-02-20',
   },
 ];
-
-const HEALTH_ALERTS_EN: HealthAlert[] = [
-  {
-    id: 'alert-1',
-    title: 'United States: Red 3 (erythrosine) officially banned from food by the FDA',
-    summary: 'The FDA has finally banned Red 3 (E127) food coloring from ingested foods and medications. This dye, classified as a possible carcinogen, had been used in candies, cakes, and medications for decades despite evidence linking it to thyroid cancer in animals. Manufacturers have until January 2027 to reformulate their products.',
-    source: 'FDA - Federal Register, January 2025',
-    date: '2025-01-15',
-  },
-  {
-    id: 'alert-2',
-    title: 'Canada: increased monitoring of products containing titanium dioxide E171',
-    summary: 'Health Canada has stepped up surveillance of products containing titanium dioxide (E171), a white coloring used in confectionery, sauces, and cosmetics. The European EFSA considers this substance unsafe as a food additive due to genotoxicity concerns. E171 has been banned in France since 2020.',
-    source: 'Health Canada / EFSA',
-    date: '2025-02-10',
-  },
-  {
-    id: 'alert-3',
-    title: 'France: new study confirms the risks of nitrites in processed meats',
-    summary: 'A study by ANSES confirms the link between nitrite (E249, E250) consumption in processed meats and an increased risk of colorectal cancer. The agency recommends reducing exposure to added nitrites and nitrates. Nitrites have been classified as proven carcinogens (Group 1) by the IARC since 2015.',
-    source: 'ANSES - French national food safety agency',
-    date: '2025-03-01',
-  },
-  {
-    id: 'alert-4',
-    title: 'WHO: aspartame remains classified as possibly carcinogenic',
-    summary: 'The International Agency for Research on Cancer (IARC) maintains the classification of aspartame (E951) as Group 2B (possibly carcinogenic). Although the acceptable daily intake remains unchanged, experts recommend caution, especially for regular consumers of diet drinks and "sugar-free" products.',
-    source: 'WHO / IARC - Classification of carcinogenic agents',
-    date: '2025-01-28',
-  },
-  {
-    id: 'alert-5',
-    title: 'Europe: PFAS "forever chemicals" found in food packaging',
-    summary: 'A European investigation reveals the presence of PFAS (per- and polyfluoroalkyl substances) in many food packaging items, including pizza boxes, microwave popcorn bags, and fast-food wrappers. These "forever chemicals" are linked to kidney and testicular cancers.',
-    source: 'European Chemicals Agency (ECHA)',
-    date: '2025-02-20',
-  },
-];
-
-export const HEALTH_ALERTS: HealthAlert[] = isEnglish() ? HEALTH_ALERTS_EN : HEALTH_ALERTS_FR;
 
 const DAILY_FACTS_FR: DailyFact[] = [
   { id: 'fact-1', text: 'Le cancer colorectal a augmenté de 45% chez les moins de 50 ans depuis 1990.' },
