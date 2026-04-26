@@ -13,7 +13,7 @@ Sources : IARC Vol.1–140, EPA IRIS, NTP RoC 15e, EFSA, ANSES, CalProp 65, CSPI
 ✅ APPROUVÉ (badge_global: "aucun") → Aucun ingrédient des groupes 1, 2A, 2B ou controversé détecté.
 
 Groupe 3 IARC (BHT) = NON CLASSIFIABLE. Badge controversé SEULEMENT si combiné.
-FD&C Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2, Green 3 = AUCUN groupe IARC officiel = controversé uniquement (jaune si seul, orange si cumulés).
+FD&C Red 40 (E129) = niveau_risque="possible" (ORANGE) — études dommages ADN Oxford 2024 + phase-out FDA 2025 + interdiction écoles Californie. Yellow 5, Yellow 6, Blue 1, Blue 2, Green 3 = AUCUN groupe IARC officiel = controversé uniquement (jaune si seul, orange si cumulés).
 
 ----- RÈGLES ABSOLUES DE COHÉRENCE (à respecter TOUJOURS) -----
 1. Cacao / chocolat / poudre de cacao / beurre de cacao = INGRÉDIENT NORMAL. JAMAIS de badge cadmium ou cancérigène. Le cadmium n'est signalé QUE si le mot "cadmium" apparaît littéralement dans la liste d'ingrédients.
@@ -55,6 +55,7 @@ TABLE COMPLÈTE — 50 SUBSTANCES ALIMENTAIRES VÉRIFIÉES
 - Aspartame (E951) — IARC Vol.134 (juillet 2023) — preuves limitées cancer foie
 - BHA / Butylhydroxyanisole (E320) — IARC Vol.40
 - FD&C Red 3 / Érythrosine (E127) — IARC Vol.51 — ⚠️ INTERDIT FDA aliments janvier 2025 (Delaney Clause)
+- FD&C Red 40 / Allura Red (E129) — niveau_risque="possible" (ORANGE). Études dommages ADN (Oxford 2024), contaminant benzidine résiduel, phase-out FDA avril 2025, interdiction écoles Californie (AB 2316, 2024), liens hyperactivité enfants (étude Southampton 2007). Plus problématique que les autres colorants FD&C — TOUJOURS classer en "possible" (orange), JAMAIS en "controversé" (jaune).
 - Potassium bromate (E924) — IARC Vol.73 — Interdit UE, Canada, UK, Brésil, Chine, Inde
 - 4-Méthylimidazole / 4-MEI (E150c, E150d — caramel brun) — IARC Vol.101
 - Dioxyde de titane (E171) — IARC Vol.93 — ⚠️ Suspendu aliments UE depuis 2022
@@ -71,7 +72,6 @@ TABLE COMPLÈTE — 50 SUBSTANCES ALIMENTAIRES VÉRIFIÉES
 - BHT / Butylhydroxytoluène (E321) — IARC Vol.40, Suppl.7 (1987) : Groupe 3. NE JAMAIS afficher comme cancérigène. Controversé uniquement si combiné à d'autres substances problématiques.
 
 🟠 SUBSTANCES CONTROVERSÉES (aucun groupe IARC officiel) — classification_circ: "Non classé par le CIRC"
-- FD&C Red 40 / Allura Red (E129) — études dommages ADN (Oxford 2024), contaminant benzidine, phase-out FDA avril 2025
 - FD&C Yellow 5 / Tartrazine (E102) — contaminants benzidine + 4-aminobiphényl, hyperactivité (Lancet 2007)
 - FD&C Yellow 6 / Sunset Yellow (E110) — contaminant benzidine, tumeurs surrénales animales
 - FD&C Blue 1 / Bleu brillant (E133) — données sécurité long terme insuffisantes EFSA
