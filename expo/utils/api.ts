@@ -192,7 +192,19 @@ Règle stricte — le plus élevé l'emporte :
 
 Interdits absolus pour "aucun" : HFCS, dextrose, sirop de glucose, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame, acésulfame K, sucralose, nitrites/nitrates.
 
-Tri obligatoire de substances_detectees : danger → probable → possible → aucun.
+⚠️ RÈGLE ABSOLUE D'AFFICHAGE DES SUBSTANCES ⚠️
+Tu DOIS inclure dans substances_detectees ABSOLUMENT TOUS les ingrédients problématiques détectés, classés dans cet ordre strict :
+1. D'abord tous les ROUGES (danger)
+2. Ensuite tous les ORANGES (probable)
+3. Ensuite tous les JAUNES (possible)
+4. Les VERTS (aucun) UNIQUEMENT si le verdict final est APPROUVÉ
+
+INTERDIT ABSOLU :
+- Ne JAMAIS s'arrêter aux oranges et ignorer les jaunes
+- Ne JAMAIS afficher seulement les ingrédients les plus graves
+- Si un produit a 1 rouge + 3 oranges + 5 jaunes → afficher les 9 ingrédients problématiques
+- Si un produit a 2 oranges + 4 jaunes → afficher les 6 ingrédients
+- Si verdict = APPROUVÉ → afficher TOUS les ingrédients en vert avec badge ✅ OK et explication courte "Ingrédient naturel sans risque identifié"
 
 ═══ SORTIE JSON ═══
 
@@ -336,7 +348,19 @@ Strict rule — the highest wins:
 
 Absolute prohibitions for "aucun": HFCS, dextrose, glucose syrup, FD&C colors, BHA, BHT, TBHQ, sodium benzoate, carrageenan, aspartame, acesulfame K, sucralose, nitrites/nitrates.
 
-Mandatory sorting of substances_detectees: danger → probable → possible → aucun.
+⚠️ ABSOLUTE SUBSTANCE DISPLAY RULE ⚠️
+You MUST include in substances_detectees ABSOLUTELY ALL problematic ingredients detected, sorted in this strict order:
+1. First all REDS (danger)
+2. Then all ORANGES (probable)
+3. Then all YELLOWS (possible)
+4. GREENS (aucun) ONLY if the final verdict is APPROVED
+
+ABSOLUTELY FORBIDDEN:
+- NEVER stop at oranges and ignore yellows
+- NEVER show only the most severe ingredients
+- If a product has 1 red + 3 oranges + 5 yellows → display the 9 problematic ingredients
+- If a product has 2 oranges + 4 yellows → display the 6 ingredients
+- If verdict = APPROVED → display ALL ingredients in green with badge ✅ OK and short explanation "Natural ingredient, no identified risk"
 
 ═══ JSON OUTPUT ═══
 

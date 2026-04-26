@@ -348,14 +348,14 @@ const translations = {
   wrong_answer: { fr: 'Mauvaise réponse', en: 'Wrong answer' },
 
   // ===== DR TOXI VERDICT =====
-  verdict_danger_title: { fr: 'Dr. Toxi déconseille ce produit', en: 'Dr. Toxi does not recommend this product' },
-  verdict_danger_msg: { fr: "Ce produit contient au moins un ingrédient classé cancérigène (Groupe 1 CIRC). Je te le déconseille — tu trouveras des alternatives plus saines, naturelles et bio du même type de produit tout en bas de la page.", en: "This product contains at least one ingredient classified as carcinogenic (IARC Group 1). I advise against it — you'll find healthier, natural and organic alternatives of the same type of product at the very bottom of the page." },
-  verdict_caution_title: { fr: 'Dr. Toxi ne te recommande pas ce produit', en: 'Dr. Toxi does not recommend this product' },
-  verdict_caution_msg: { fr: "Ce produit contient plusieurs substances controversées ou ultra-transformées. À éviter si possible — des alternatives plus saines, naturelles et bio du même type de produit sont proposées tout en bas de la page.", en: "This product contains several controversial or ultra-processed substances. Avoid if possible — healthier, natural and organic alternatives of the same type of product are listed at the very bottom of the page." },
-  verdict_moderation_title: { fr: 'Dr. Toxi conseille la modération', en: 'Dr. Toxi recommends moderation' },
-  verdict_moderation_msg: { fr: "Ce produit contient une substance controversée isolée ou classée Groupe 2B. Consomme avec modération — ce n'est pas dangereux ponctuellement, mais privilégie mieux au quotidien. Tu trouveras des alternatives plus saines, naturelles et bio du même type de produit tout en bas de la page.", en: "This product contains an isolated controversial substance or a Group 2B classification. Consume in moderation — not dangerous occasionally, but choose better for daily use. You'll find healthier, natural and organic alternatives of the same type of product at the very bottom of the page." },
-  verdict_approved_title: { fr: 'Dr. Toxi approuve ce produit', en: 'Dr. Toxi approves this product' },
-  verdict_approved_msg: { fr: "Bonne nouvelle ! Ce produit ne contient aucun ingrédient cancérigène ni controversé. C'est un excellent choix pour toi et ta famille !", en: "Great news! This product contains no carcinogenic or controversial ingredients. It's an excellent choice for you and your family!" },
+  verdict_danger_title: { fr: 'Dr. Toxi déconseille ce produit 🚫', en: 'Dr. Toxi advises against this product 🚫' },
+  verdict_danger_msg: { fr: "Ce produit contient un ingrédient classé cancérigène par l'OMS. Je te déconseille fortement de le consommer régulièrement.", en: "This product contains an ingredient classified as carcinogenic by the WHO. I strongly advise against consuming it regularly." },
+  verdict_caution_title: { fr: 'Dr. Toxi te recommande la prudence ⚠️', en: 'Dr. Toxi advises caution ⚠️' },
+  verdict_caution_msg: { fr: "Ce produit contient plusieurs substances controversées ou ultra-transformées. Je te recommande de le consommer très rarement et de chercher une alternative plus naturelle.", en: "This product contains several controversial or ultra-processed substances. I recommend consuming it very rarely and looking for a more natural alternative." },
+  verdict_moderation_title: { fr: 'Dr. Toxi te recommande la modération 🟡', en: 'Dr. Toxi recommends moderation 🟡' },
+  verdict_moderation_msg: { fr: "Ce produit contient quelques ingrédients transformés ou controversés. Tu peux en consommer occasionnellement, mais évite d'en faire un aliment du quotidien.", en: "This product contains a few processed or controversial ingredients. You can consume it occasionally, but avoid making it a daily food." },
+  verdict_approved_title: { fr: 'Dr. Toxi approuve ce produit ✅', en: 'Dr. Toxi approves this product ✅' },
+  verdict_approved_msg: { fr: "Excellent choix ! La grande majorité des ingrédients sont naturels et sains. Tu peux consommer ce produit sans inquiétude.", en: "Excellent choice! The vast majority of ingredients are natural and healthy. You can consume this product without worry." },
 
   // ===== SHARE IMAGE CARD =====
   share_approved_label: { fr: 'APPROUVE', en: 'APPROVED' },
