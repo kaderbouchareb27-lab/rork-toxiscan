@@ -6,6 +6,7 @@ import { lookupBarcode, searchByName, formatOpenFactsContext, OpenFactsResult } 
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t, isEnglish } from '@/utils/i18n';
 import { renderIngredientsDatabaseForPrompt } from '@/constants/ingredientsDatabase';
+import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 
 const CATEGORY_VALUES = ['food', 'beverage', 'kitchen_utensil', 'clothing', 'cosmetic', 'household', 'electronics', 'furniture', 'toy', 'other'] as const;
 const RISK_VALUES = ['danger', 'probable', 'possible', 'aucun'] as const;
@@ -449,20 +450,51 @@ If the checklist passes → emit the JSON. Otherwise → fix.`;
 
 const UNIVERSAL_ANALYSIS_PROMPT = isEnglish() ? UNIVERSAL_ANALYSIS_PROMPT_EN : UNIVERSAL_ANALYSIS_PROMPT_FR;
 
-async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContext?: string): Promise<UniversalAnalysisResult> {
+async function tryGenerateUniversalAnalysis(
+  imageBase64: string,
+  openFactsContext?: string,
+  ocrText?: string,
+  ocrIngredientsBlock?: string,
+): Promise<UniversalAnalysisResult> {
   console.log('[API] Calling OpenAI (gpt-4o) for universal analysis...');
   if (openFactsContext) {
     console.log('[API] Including Open Food Facts data in analysis prompt');
   }
+  if (ocrText) {
+    console.log('[API] Including Google Vision OCR text, chars:', ocrText.length, 'ingredientsBlock:', ocrIngredientsBlock ? ocrIngredientsBlock.length : 0);
+  }
 
   const regionPrompt = getAnalysisRegionPrompt();
   const systemParts: string[] = [UNIVERSAL_ANALYSIS_PROMPT, regionPrompt];
+  if (ocrText) {
+    const ocrHeader = isEnglish()
+      ? '\n\n═══ GOOGLE VISION OCR — RAW TEXT EXTRACTED FROM THE PHOTO ═══\n\nThis text was extracted by a specialized OCR engine (Google Cloud Vision). It is your PRIMARY source for the ingredient list — it is exhaustive and reliable. The photo is provided as a complement (for the brand/visual identification). NEVER omit an ingredient that appears in the OCR text. If the OCR ingredient block lists 17 ingredients, substances_detectees MUST contain 17 entries.\n\n--- FULL OCR TEXT ---\n'
+      : '\n\n═══ OCR GOOGLE VISION — TEXTE BRUT EXTRAIT DE LA PHOTO ═══\n\nCe texte a été extrait par un moteur OCR spécialisé (Google Cloud Vision). C\'est ta source PRINCIPALE pour la liste des ingrédients — elle est exhaustive et fiable. La photo est fournie en complément (pour l\'identification visuelle de la marque). N\'omets JAMAIS un ingrédient qui apparaît dans le texte OCR. Si le bloc ingrédients OCR liste 17 ingrédients, substances_detectees DOIT contenir 17 entrées.\n\n--- TEXTE OCR COMPLET ---\n';
+    systemParts.push(ocrHeader);
+    systemParts.push(ocrText.substring(0, 8000));
+    if (ocrIngredientsBlock) {
+      systemParts.push(
+        isEnglish()
+          ? '\n\n--- INGREDIENTS BLOCK ISOLATED FROM OCR (highest priority) ---\n'
+          : '\n\n--- BLOC INGRÉDIENTS ISOLÉ DE L\'OCR (priorité maximale) ---\n',
+      );
+      systemParts.push(ocrIngredientsBlock.substring(0, 4000));
+    }
+    systemParts.push('\n--- END OCR ---\n');
+  }
   if (openFactsContext) {
     systemParts.push('\n\n' + openFactsContext);
     systemParts.push(
       isEnglish()
         ? '\nIMPORTANT: You received Open Food Facts data for this product. Use the FULL ingredient list provided by Open Food Facts as your PRIMARY source. Cross-reference with the photo if visible. If the photo only shows the barcode or packaging without a readable ingredient list, that is FINE — base your entire analysis on the Open Food Facts data. NEVER set erreur="Unreadable photo" or "Photo illisible" when Open Food Facts data is provided — the OFF data alone is enough to perform a complete analysis. Set erreur=null. Your PRIORITY remains finding carcinogenic and toxic substances from our Dr.Toxi database.'
         : '\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts comme source PRINCIPALE. Croise avec la photo si elle est lisible. Si la photo ne montre que le code-barres ou l\'emballage sans liste d\'ingrédients lisible, ce n\'est PAS un problème — base toute ton analyse sur les données Open Food Facts. NE JAMAIS mettre erreur="Photo illisible" quand les données Open Food Facts sont fournies — les données OFF seules suffisent à faire une analyse complète. Mets erreur=null. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.'
+    );
+  }
+  if (ocrText && !openFactsContext) {
+    systemParts.push(
+      isEnglish()
+        ? '\nIMPORTANT: Google Vision OCR text is provided. Even if the photo looks blurry, use the OCR text as the source of truth. NEVER set erreur="Unreadable photo" when OCR text is provided. Set erreur=null.'
+        : '\nIMPORTANT : Le texte OCR Google Vision est fourni. Même si la photo paraît floue, utilise le texte OCR comme source de vérité. NE JAMAIS mettre erreur="Photo illisible" quand le texte OCR est fourni. Mets erreur=null.',
     );
   }
 
@@ -607,13 +639,31 @@ function enforceExhaustiveSubstances(result: UniversalAnalysisResult): Universal
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
   const MAX_RETRIES = 3;
 
-  const { context: offContext, offResult } = await tryFetchOpenFactsData(imageBase64);
+  const offPromise = tryFetchOpenFactsData(imageBase64);
+  const ocrPromise = (async () => {
+    try {
+      const ocr = await runGoogleVisionOcr(imageBase64);
+      const block = extractIngredientsBlock(ocr.fullText);
+      return { fullText: ocr.fullText, ingredientsBlock: block };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn('[API] Google Vision OCR failed (non-blocking):', msg);
+      return { fullText: '', ingredientsBlock: null as string | null };
+    }
+  })();
+
+  const [{ context: offContext, offResult }, ocrData] = await Promise.all([offPromise, ocrPromise]);
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       console.log('[API] Universal analysis attempt', attempt, '/', MAX_RETRIES);
 
-      const rawResult = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
+      const rawResult = await tryGenerateUniversalAnalysis(
+        imageBase64,
+        offContext || undefined,
+        ocrData.fullText || undefined,
+        ocrData.ingredientsBlock || undefined,
+      );
 
       if (!rawResult || !rawResult.categorie_produit) {
         console.error('[API] Invalid result structure, retrying...');
