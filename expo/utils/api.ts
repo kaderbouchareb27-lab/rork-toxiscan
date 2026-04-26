@@ -588,67 +588,54 @@ async function tryGenerateUniversalAnalysis(
   return result;
 }
 
-async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: string; offResult: OpenFactsResult | null }> {
+function extractBarcodeFromOcr(text: string): string | null {
+  if (!text) return null;
+  const candidates = text.match(/\b\d{8,14}\b/g);
+  if (!candidates || candidates.length === 0) return null;
+  const valid = candidates.filter(c => c.length === 8 || c.length === 12 || c.length === 13 || c.length === 14);
+  if (valid.length === 0) return null;
+  valid.sort((a, b) => b.length - a.length);
+  return valid[0];
+}
+
+function extractProductNameFromOcr(text: string): string {
+  if (!text) return '';
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+  const stopWords = /ingr[ée]dients?|nutrition|valeurs?|conserver|fabriqu|produit\s+par|distribu|net\s+weight|poids\s+net|best\s+before|allerg|contient/i;
+  const candidates: string[] = [];
+  for (const line of lines.slice(0, 10)) {
+    if (stopWords.test(line)) continue;
+    if (/^\d+$/.test(line)) continue;
+    if (line.length < 3 || line.length > 60) continue;
+    candidates.push(line);
+    if (candidates.length >= 3) break;
+  }
+  return candidates.join(' ').trim();
+}
+
+async function tryFetchOpenFactsDataFromOcr(ocrText: string): Promise<{ context: string; offResult: OpenFactsResult | null }> {
   try {
-    console.log('[API] Attempting barcode + product name detection from image for Open Food Facts lookup...');
-
-    const preDetectionSchema = z.object({
-      barcode_detected: z.boolean(),
-      barcode_value: z.string().nullable(),
-      barcode_type: z.enum(['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E', 'other', 'none']),
-      product_name_visible: z.string().nullable(),
-      brand_visible: z.string().nullable(),
-    });
-
-    const preResult = await aiGenerateObject({
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: isEnglish()
-              ? 'Look at this photo of a product. Return: 1) the barcode (EAN-13, EAN-8, UPC-A, UPC-E) if visible and readable — otherwise null. 2) the PRODUCT NAME as printed on the packaging (e.g., "Fils Extra", "Nutella", "Coca-Cola Zero") in product_name_visible. 3) the BRAND if visible (e.g., "LU", "Ferrero", "Coca-Cola") in brand_visible. Read what is written on the packaging, even without a barcode. If nothing is readable, set to null.'
-              : 'Regarde cette photo d\'un produit. Retourne : 1) le code-barres (EAN-13, EAN-8, UPC-A, UPC-E) si visible et lisible — sinon null. 2) le NOM DU PRODUIT tel qu\'il est imprimé sur l\'emballage (ex: "Fils Extra", "Nutella", "Coca-Cola Zero") dans product_name_visible. 3) la MARQUE si visible (ex: "LU", "Ferrero", "Coca-Cola") dans brand_visible. Lis ce qui est écrit sur l\'emballage, même sans code-barres. Si rien n\'est lisible, mets null.' },
-            { type: 'image', image: imageBase64 },
-          ],
-        },
-      ],
-      schema: preDetectionSchema,
-      toolName: 'record_pre_detection',
-      toolDescription: isEnglish() ? 'Record the barcode and product name detected in the photo.' : 'Enregistre le code-barres et le nom du produit détectés sur la photo.',
-      maxTokens: 512,
-    });
-
-    console.log('[API] Pre-detection result:', JSON.stringify(preResult));
-
-    if (preResult.barcode_detected && preResult.barcode_value) {
-      const barcode = preResult.barcode_value.replace(/\s/g, '');
-      console.log('[API] Barcode detected:', barcode, 'Type:', preResult.barcode_type);
-
+    const barcode = extractBarcodeFromOcr(ocrText);
+    if (barcode) {
+      console.log('[API] Barcode extracted from OCR:', barcode);
       const offResult = await lookupBarcode(barcode);
       if (offResult.found) {
         const context = formatOpenFactsContext(offResult);
-        console.log('[API] Open Food Facts data found via barcode, context length:', context.length);
+        console.log('[API] Open Food Facts data found via OCR barcode, context length:', context.length);
         return { context, offResult };
       }
-      console.log('[API] Barcode detected but product not found in Open Food Facts');
-    } else {
-      console.log('[API] No barcode detected in image');
+      console.log('[API] OCR barcode not found in Open Food Facts');
     }
 
-    const nameParts: string[] = [];
-    if (preResult.brand_visible) nameParts.push(preResult.brand_visible);
-    if (preResult.product_name_visible) nameParts.push(preResult.product_name_visible);
-    const searchQuery = nameParts.join(' ').trim();
-
+    const searchQuery = extractProductNameFromOcr(ocrText);
     if (searchQuery.length >= 3) {
-      console.log('[API] Trying Open Food Facts search by name:', searchQuery);
+      console.log('[API] Trying Open Food Facts search by OCR name:', searchQuery);
       const offResult = await searchByName(searchQuery);
       if (offResult.found) {
         const context = formatOpenFactsContext(offResult);
-        console.log('[API] Open Food Facts data found via name search, context length:', context.length);
+        console.log('[API] Open Food Facts data found via OCR name search, context length:', context.length);
         return { context, offResult };
       }
-      console.log('[API] No name match in Open Food Facts');
     }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -707,20 +694,16 @@ function enforceExhaustiveSubstances(result: UniversalAnalysisResult): Universal
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
   const MAX_RETRIES = 3;
 
-  const offPromise = tryFetchOpenFactsData(imageBase64);
-  const ocrPromise = (async () => {
-    try {
-      const ocr = await runGoogleVisionOcr(imageBase64);
-      const block = extractIngredientsBlock(ocr.fullText);
-      return { fullText: ocr.fullText, ingredientsBlock: block };
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.warn('[API] Google Vision OCR failed (non-blocking):', msg);
-      return { fullText: '', ingredientsBlock: null as string | null };
-    }
-  })();
+  let ocrData: { fullText: string; ingredientsBlock: string | null } = { fullText: '', ingredientsBlock: null };
+  try {
+    const ocr = await runGoogleVisionOcr(imageBase64);
+    ocrData = { fullText: ocr.fullText, ingredientsBlock: extractIngredientsBlock(ocr.fullText) };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn('[API] Google Vision OCR failed (non-blocking):', msg);
+  }
 
-  const [{ context: offContext, offResult }, ocrData] = await Promise.all([offPromise, ocrPromise]);
+  const { context: offContext, offResult } = await tryFetchOpenFactsDataFromOcr(ocrData.fullText);
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
@@ -752,7 +735,7 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       console.error('[API] Universal analysis error (attempt ' + attempt + '):', errorMsg);
 
       if (attempt < MAX_RETRIES) {
-        const delay = attempt * 1500;
+        const delay = attempt * 600;
         console.log('[API] Retrying in ' + delay + 'ms...');
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
