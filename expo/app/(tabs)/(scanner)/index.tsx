@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
-import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan, Barcode } from 'lucide-react-native';
+import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -404,21 +404,6 @@ export default function ScannerScreen() {
                   <Text style={styles.scanButtonText}>{t('photo_product')}</Text>
                 </TouchableOpacity>
               </Animated.View>
-
-              <TouchableOpacity
-                style={styles.barcodeButton}
-                onPress={() => {
-                  if (Platform.OS !== 'web') {
-                    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  }
-                  router.push('/barcode-scanner');
-                }}
-                activeOpacity={0.85}
-                testID="barcode-button"
-              >
-                <Barcode color="#2E9E34" size={20} strokeWidth={2} />
-                <Text style={styles.barcodeButtonText}>{t('scan_barcode')}</Text>
-              </TouchableOpacity>
 
               <Text style={styles.scanHint}>
                 {t('scan_hint')}
