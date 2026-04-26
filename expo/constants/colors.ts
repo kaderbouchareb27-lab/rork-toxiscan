@@ -23,7 +23,7 @@ const Colors = {
 
   danger: '#FF3B30',
   warning: '#FF9500',
-  caution: '#FFCC00',
+  caution: '#FF9500',
   safe: '#2E9E34',
 
   cardShadow: 'rgba(0, 0, 0, 0.05)',
