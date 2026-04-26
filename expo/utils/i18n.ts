@@ -353,13 +353,13 @@ const translations = {
   wrong_answer: { fr: 'Mauvaise réponse', en: 'Wrong answer' },
 
   // ===== DR TOXI VERDICT =====
-  verdict_danger_title: { fr: 'Dr. Toxi déconseille ce produit 🚫', en: 'Dr. Toxi advises against this product 🚫' },
+  verdict_danger_title: { fr: 'Dr. Toxi déconseille ce produit', en: 'Dr. Toxi advises against this product' },
   verdict_danger_msg: { fr: "Ce produit contient un ingrédient classé cancérigène par l'OMS. Je te déconseille fortement de le consommer régulièrement.", en: "This product contains an ingredient classified as carcinogenic by the WHO. I strongly advise against consuming it regularly." },
-  verdict_caution_title: { fr: 'Dr. Toxi te recommande la prudence ⚠️', en: 'Dr. Toxi advises caution ⚠️' },
+  verdict_caution_title: { fr: 'Dr. Toxi te recommande la prudence', en: 'Dr. Toxi advises caution' },
   verdict_caution_msg: { fr: "Ce produit contient plusieurs substances controversées ou ultra-transformées. Je te recommande de le consommer très rarement et de chercher une alternative plus naturelle.", en: "This product contains several controversial or ultra-processed substances. I recommend consuming it very rarely and looking for a more natural alternative." },
-  verdict_moderation_title: { fr: 'Dr. Toxi te recommande la modération 🟡', en: 'Dr. Toxi recommends moderation 🟡' },
+  verdict_moderation_title: { fr: 'Dr. Toxi te recommande la modération', en: 'Dr. Toxi recommends moderation' },
   verdict_moderation_msg: { fr: "Ce produit contient quelques ingrédients transformés ou controversés. Tu peux en consommer occasionnellement, mais évite d'en faire un aliment du quotidien.", en: "This product contains a few processed or controversial ingredients. You can consume it occasionally, but avoid making it a daily food." },
-  verdict_approved_title: { fr: 'Dr. Toxi approuve ce produit ✅', en: 'Dr. Toxi approves this product ✅' },
+  verdict_approved_title: { fr: 'Dr. Toxi approuve ce produit', en: 'Dr. Toxi approves this product' },
   verdict_approved_msg: { fr: "Excellent choix ! La grande majorité des ingrédients sont naturels et sains. Tu peux consommer ce produit sans inquiétude.", en: "Excellent choice! The vast majority of ingredients are natural and healthy. You can consume this product without worry." },
 
   // ===== SHARE IMAGE CARD =====
