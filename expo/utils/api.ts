@@ -461,8 +461,8 @@ async function tryGenerateUniversalAnalysis(imageBase64: string, openFactsContex
     systemParts.push('\n\n' + openFactsContext);
     systemParts.push(
       isEnglish()
-        ? '\nIMPORTANT: You received Open Food Facts data for this product. Use the FULL ingredient list provided by Open Food Facts for a more accurate analysis. Cross-reference this data with your own visual analysis of the photo. If you detect ingredients in the photo that are not in Open Food Facts, add them. If Open Food Facts lists additives you don\'t see in the photo, include them anyway because the database is reliable. Your PRIORITY remains finding carcinogenic and toxic substances from our Dr.Toxi database.'
-        : '\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts pour une analyse plus précise. Croise ces données avec ta propre analyse visuelle de la photo. Si tu détectes des ingrédients sur la photo qui ne sont pas dans Open Food Facts, ajoute-les. Si Open Food Facts liste des additifs que tu ne vois pas sur la photo, inclus-les quand même car la base de données est fiable. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.'
+        ? '\nIMPORTANT: You received Open Food Facts data for this product. Use the FULL ingredient list provided by Open Food Facts as your PRIMARY source. Cross-reference with the photo if visible. If the photo only shows the barcode or packaging without a readable ingredient list, that is FINE — base your entire analysis on the Open Food Facts data. NEVER set erreur="Unreadable photo" or "Photo illisible" when Open Food Facts data is provided — the OFF data alone is enough to perform a complete analysis. Set erreur=null. Your PRIORITY remains finding carcinogenic and toxic substances from our Dr.Toxi database.'
+        : '\nIMPORTANT : Tu as reçu des données Open Food Facts pour ce produit. Utilise la LISTE COMPLÈTE des ingrédients fournie par Open Food Facts comme source PRINCIPALE. Croise avec la photo si elle est lisible. Si la photo ne montre que le code-barres ou l\'emballage sans liste d\'ingrédients lisible, ce n\'est PAS un problème — base toute ton analyse sur les données Open Food Facts. NE JAMAIS mettre erreur="Photo illisible" quand les données Open Food Facts sont fournies — les données OFF seules suffisent à faire une analyse complète. Mets erreur=null. Ta PRIORITÉ reste de chercher les substances cancérigènes et toxiques de notre base Dr.Toxi.'
     );
   }
 
@@ -621,6 +621,11 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       }
 
       const result = enforceExhaustiveSubstances(rawResult);
+
+      if (result.erreur && offResult?.found && offResult.product) {
+        console.log('[API] AI returned erreur="' + result.erreur + '" but Open Food Facts found the product. Clearing erreur and using OFF data.');
+        result.erreur = '';
+      }
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);
       return { ...result, openFactsData: offResult };
