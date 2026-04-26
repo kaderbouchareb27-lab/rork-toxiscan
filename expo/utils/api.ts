@@ -192,19 +192,28 @@ Règle stricte — le plus élevé l'emporte :
 
 Interdits absolus pour "aucun" : HFCS, dextrose, sirop de glucose, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame, acésulfame K, sucralose, nitrites/nitrates.
 
-⚠️ RÈGLE ABSOLUE D'AFFICHAGE DES SUBSTANCES ⚠️
-Tu DOIS inclure dans substances_detectees ABSOLUMENT TOUS les ingrédients problématiques détectés, classés dans cet ordre strict :
+⚠️ RÈGLE ABSOLUE D'AFFICHAGE DES SUBSTANCES — EXHAUSTIVITÉ TOTALE ⚠️
+Tu DOIS afficher dans substances_detectees ABSOLUMENT TOUS les ingrédients de la liste, du PREMIER au DERNIER, SANS EXCEPTION, quel que soit le verdict final (rouge, orange, jaune ou vert).
+
+RÈGLE D'OR : substances_detectees.length DOIT être STRICTEMENT ÉGAL au nombre d'ingrédients lus sur l'étiquette (ingredients_lus_bruts.length).
+
+• Si l'étiquette contient 15 ingrédients → 15 entrées (peu importe leur couleur).
+• Si l'étiquette contient 8 ingrédients → 8 entrées (peu importe leur couleur).
+• Chaque ingrédient reçoit SA propre couleur réelle (rouge, orange, jaune ou vert) selon la base de données.
+• Les ingrédients sains (eau, sel, farine, œufs, lait, huile de colza, levure, amidon, etc.) doivent apparaître AVEC un badge VERT (niveau_risque="aucun") et l'explication courte "Ingrédient naturel sans risque identifié".
+• Les sous-ingrédients entre parenthèses peuvent être regroupés dans le même nom (ex: "Poudres à lever (diphosphates, carbonates de sodium)" = 1 entrée), mais aucun ingrédient principal ne doit être omis.
+
+ORDRE D'AFFICHAGE — tri obligatoire de substances_detectees :
 1. D'abord tous les ROUGES (danger)
 2. Ensuite tous les ORANGES (probable)
 3. Ensuite tous les JAUNES (possible)
-4. Les VERTS (aucun) UNIQUEMENT si le verdict final est APPROUVÉ
+4. Enfin tous les VERTS (aucun) — TOUJOURS inclus, jamais omis
 
 INTERDIT ABSOLU :
-- Ne JAMAIS s'arrêter aux oranges et ignorer les jaunes
-- Ne JAMAIS afficher seulement les ingrédients les plus graves
-- Si un produit a 1 rouge + 3 oranges + 5 jaunes → afficher les 9 ingrédients problématiques
-- Si un produit a 2 oranges + 4 jaunes → afficher les 6 ingrédients
-- Si verdict = APPROUVÉ → afficher TOUS les ingrédients en vert avec badge ✅ OK et explication courte "Ingrédient naturel sans risque identifié"
+- Ne JAMAIS omettre un ingrédient sain sous prétexte que le verdict est orange ou rouge.
+- Ne JAMAIS s'arrêter aux ingrédients problématiques. La liste doit être complète.
+- Ne JAMAIS afficher seulement 4 ingrédients quand l'étiquette en contient 15.
+- Exemple concret : si une génoise contient (Sucre, Farine de blé, Huile de colza, Œufs, Chocolat en poudre, Pâte de noisette, Lait écrémé, Sirop de glucose-fructose, Poudres à lever, Émulsifiants E471, Sel, Acide citrique, Amidon de blé, Arômes naturels, Levure sèche) → tu DOIS afficher les 15 ingrédients (4 jaunes + 11 verts), pas seulement les 4 problématiques.
 
 ═══ SORTIE JSON ═══
 
@@ -348,19 +357,28 @@ Strict rule — the highest wins:
 
 Absolute prohibitions for "aucun": HFCS, dextrose, glucose syrup, FD&C colors, BHA, BHT, TBHQ, sodium benzoate, carrageenan, aspartame, acesulfame K, sucralose, nitrites/nitrates.
 
-⚠️ ABSOLUTE SUBSTANCE DISPLAY RULE ⚠️
-You MUST include in substances_detectees ABSOLUTELY ALL problematic ingredients detected, sorted in this strict order:
+⚠️ ABSOLUTE SUBSTANCE DISPLAY RULE — TOTAL EXHAUSTIVENESS ⚠️
+You MUST display in substances_detectees ABSOLUTELY ALL ingredients on the label, from the FIRST to the LAST, NO EXCEPTION, regardless of the final verdict (red, orange, yellow, or green).
+
+GOLDEN RULE: substances_detectees.length MUST be STRICTLY EQUAL to the number of ingredients read on the label (ingredients_lus_bruts.length).
+
+• If the label contains 15 ingredients → 15 entries (regardless of their color).
+• If the label contains 8 ingredients → 8 entries (regardless of their color).
+• Each ingredient gets ITS own real color (red, orange, yellow, or green) according to the database.
+• Healthy ingredients (water, salt, flour, eggs, milk, rapeseed oil, yeast, starch, etc.) must appear WITH a GREEN badge (niveau_risque="aucun") and the short explanation "Natural ingredient, no identified risk".
+• Sub-ingredients in parentheses may be grouped under the same name (e.g., "Raising agents (diphosphates, sodium carbonates)" = 1 entry), but no main ingredient may be omitted.
+
+DISPLAY ORDER — mandatory sorting of substances_detectees:
 1. First all REDS (danger)
 2. Then all ORANGES (probable)
 3. Then all YELLOWS (possible)
-4. GREENS (aucun) ONLY if the final verdict is APPROVED
+4. Finally all GREENS (aucun) — ALWAYS included, never omitted
 
 ABSOLUTELY FORBIDDEN:
-- NEVER stop at oranges and ignore yellows
-- NEVER show only the most severe ingredients
-- If a product has 1 red + 3 oranges + 5 yellows → display the 9 problematic ingredients
-- If a product has 2 oranges + 4 yellows → display the 6 ingredients
-- If verdict = APPROVED → display ALL ingredients in green with badge ✅ OK and short explanation "Natural ingredient, no identified risk"
+- NEVER omit a healthy ingredient because the verdict is orange or red.
+- NEVER stop at problematic ingredients. The list must be complete.
+- NEVER show only 4 ingredients when the label contains 15.
+- Concrete example: if a sponge cake contains (Sugar, Wheat flour, Rapeseed oil, Eggs, Chocolate powder, Hazelnut paste, Skimmed milk, Glucose-fructose syrup, Raising agents, Emulsifiers E471, Salt, Citric acid, Wheat starch, Natural flavors, Dry yeast) → you MUST display all 15 ingredients (4 yellow + 11 green), not just the 4 problematic ones.
 
 ═══ JSON OUTPUT ═══
 
