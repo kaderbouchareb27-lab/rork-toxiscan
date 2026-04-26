@@ -278,27 +278,24 @@ export default function ScannerScreen() {
       });
     }, 5000);
 
-    const stages = [
-      { target: 15, delay: 300 },
-      { target: 30, delay: 1000 },
-      { target: 55, delay: 2000 },
-      { target: 75, delay: 3500 },
-      { target: 90, delay: 5000 },
-      { target: 95, delay: 7000 },
-    ];
-    const timeouts: ReturnType<typeof setTimeout>[] = [];
-    for (const stage of stages) {
-      const t = setTimeout(() => {
-        setProgressPercent(stage.target);
+    let current = 0;
+    const startedAt = Date.now();
+    const progressInterval = setInterval(() => {
+      const elapsed = (Date.now() - startedAt) / 1000;
+      const target = Math.min(95, 95 * (1 - Math.exp(-elapsed / 4)));
+      const next = Math.min(97, current + Math.max(0.3, (target - current) * 0.18));
+      if (next > current) {
+        current = next;
+        const rounded = Math.floor(current);
+        setProgressPercent(rounded);
         Animated.timing(progressAnim, {
-          toValue: stage.target / 100,
-          duration: 800,
+          toValue: current / 100,
+          duration: 200,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: false,
         }).start();
-      }, stage.delay);
-      timeouts.push(t);
-    }
+      }
+    }, 200);
 
     const spinLoop = Animated.loop(
       Animated.timing(spinnerRotation, {
@@ -312,7 +309,7 @@ export default function ScannerScreen() {
 
     return () => {
       clearInterval(tipInterval);
-      timeouts.forEach(t => clearTimeout(t));
+      clearInterval(progressInterval);
       spinLoop.stop();
       spinnerRotation.setValue(0);
     };
