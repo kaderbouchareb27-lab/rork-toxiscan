@@ -41,7 +41,7 @@ function getLevelBadgeColor(level: SubstanceLevel): string {
     case 'group1': return '#FF3B30';
     case 'group2a': return '#E65100';
     case 'group2b': return '#FF9500';
-    case 'controversial': return '#FF9500';
+    case 'controversial': return '#FFCC00';
     case 'safe': return '#2E9E34';
   }
 }

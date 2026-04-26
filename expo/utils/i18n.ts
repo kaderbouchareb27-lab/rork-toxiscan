@@ -157,7 +157,7 @@ const translations = {
   level_confirmed_carcinogen: { fr: 'CANCÉRIGÈNE CONFIRMÉ', en: 'CONFIRMED CARCINOGEN' },
   level_probable_carcinogen: { fr: 'PROBABLEMENT CANCÉRIGÈNE', en: 'PROBABLY CARCINOGENIC' },
   level_possible_carcinogen: { fr: 'POSSIBLEMENT CANCÉRIGÈNE', en: 'POSSIBLY CARCINOGENIC' },
-  level_controversial: { fr: 'SUBSTANCE CONTROVERSÉE', en: 'CONTROVERSIAL SUBSTANCE' },
+  level_controversial: { fr: 'À SURVEILLER', en: 'WATCH' },
   level_low_risk: { fr: 'FAIBLE RISQUE', en: 'LOW RISK' },
   classification_iarc: { fr: 'Classification : CIRC/OMS', en: 'Classification: IARC/WHO' },
   not_classified_iarc: { fr: 'Non classé cancérogène par le CIRC', en: 'Not classified as carcinogenic by the IARC' },
