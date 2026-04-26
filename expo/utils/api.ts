@@ -161,6 +161,40 @@ categorie_produit : food | beverage | cosmetic | household | other.
 
 Chaque entrée : { nom, code (E-xxx ou null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication (OBLIGATOIRE 3 à 5 phrases détaillées), source_exposition }.
 
+🌐 RÈGLE DE TRADUCTION OBLIGATOIRE — LANGUE FRANÇAISE :
+Le champ 'nom' de CHAQUE ingrédient DOIT être écrit en FRANÇAIS, peu importe la langue de l'étiquette d'origine. Traduis systématiquement les noms anglais vers le français :
+• "Modified milk ingredients" → "Ingrédients laitiers modifiés"
+• "Yeast extract" → "Extrait de levure"
+• "Potassium chloride" → "Chlorure de potassium"
+• "Sugars (maltodextrin, sugar)" → "Sucres (maltodextrine, sucre)"
+• "Monosodium glutamate" → "Glutamate monosodique"
+• "Wheat flour" → "Farine de blé"
+• "Rapeseed oil" / "Canola oil" → "Huile de colza"
+• "Natural flavors" / "Natural flavours" → "Arômes naturels"
+• "Salt" → "Sel"
+• "Water" → "Eau"
+• "Citric acid" → "Acide citrique"
+• "Ascorbic acid" → "Acide ascorbique"
+• "Carbonated water" → "Eau gazéifiée"
+• "Skimmed milk" / "Skim milk" → "Lait écrémé"
+• "Glucose-fructose syrup" / "High fructose corn syrup" → "Sirop de glucose-fructose"
+• "Raising agents" → "Poudres à lever"
+• "Emulsifiers" → "Émulsifiants"
+• "Preservatives" → "Conservateurs"
+• "Colors" / "Colours" → "Colorants"
+• "Artificial flavors" → "Arômes artificiels"
+• "Dry yeast" → "Levure sèche"
+• "Wheat starch" → "Amidon de blé"
+• "Soy lecithin" → "Lécithine de soja"
+• "Vegetable oil" → "Huile végétale"
+• "Palm oil" → "Huile de palme"
+• "Modified corn starch" → "Amidon de maïs modifié"
+• "Spices" → "Épices"
+• "Cocoa" → "Cacao"
+• "Whole milk" → "Lait entier"
+• "Hydrogenated oil" → "Huile hydrogénée"
+Tous les autres ingrédients en anglais doivent aussi être traduits. Le champ 'classification_circ' reste en français ("Groupe 2A", "Ultra-transformé", etc.). L'utilisateur francophone NE DOIT JAMAIS voir un nom d'ingrédient en anglais.
+
 RÈGLE CRITIQUE — CHAMP 'explication' : CHAQUE ingrédient (même sain) doit avoir une explication PÉDAGOGIQUE de 3 à 5 phrases en français clair, tutoiement, non-alarmiste. Structure obligatoire :
   1) Phrase 1 : ce qu'est l'ingrédient / son rôle dans le produit (1 phrase simple).
   2) Phrase 2-3 : pourquoi il est controversé OU pourquoi il est sain — cite les effets santé concrets (obésité, diabète, inflammation, cancer du sein/côlon/foie, palpitations, perturbateur endocrinien, allergies, effets cardiovasculaires, etc.).
@@ -325,6 +359,40 @@ categorie_produit: food | beverage | cosmetic | household | other.
 5. NEVER merge 2 ingredients. NEVER skip a mundane ingredient.
 
 Each entry: { nom, code (E-xxx or null), classification_circ, niveau_risque (danger|probable|possible|aucun), explication (MANDATORY 3 to 5 detailed sentences), source_exposition }.
+
+🌐 MANDATORY TRANSLATION RULE — ENGLISH LANGUAGE:
+The 'nom' field of EVERY ingredient MUST be written in ENGLISH, regardless of the original label language. Always translate French names to English:
+• "Ingrédients laitiers modifiés" / "Substances laitières modifiées" → "Modified milk ingredients"
+• "Extrait de levure" → "Yeast extract"
+• "Chlorure de potassium" → "Potassium chloride"
+• "Sucres (maltodextrine, sucre)" → "Sugars (maltodextrin, sugar)"
+• "Glutamate monosodique" → "Monosodium glutamate"
+• "Farine de blé" → "Wheat flour"
+• "Huile de colza" → "Canola oil"
+• "Arômes naturels" → "Natural flavors"
+• "Sel" → "Salt"
+• "Eau" → "Water"
+• "Acide citrique" → "Citric acid"
+• "Acide ascorbique" → "Ascorbic acid"
+• "Eau gazéifiée" → "Carbonated water"
+• "Lait écrémé" → "Skim milk"
+• "Lait entier" → "Whole milk"
+• "Sirop de glucose-fructose" → "Glucose-fructose syrup"
+• "Poudres à lever" → "Raising agents"
+• "Émulsifiants" → "Emulsifiers"
+• "Conservateurs" → "Preservatives"
+• "Colorants" → "Colors"
+• "Arômes artificiels" → "Artificial flavors"
+• "Levure sèche" → "Dry yeast"
+• "Amidon de blé" → "Wheat starch"
+• "Lécithine de soja" → "Soy lecithin"
+• "Huile végétale" → "Vegetable oil"
+• "Huile de palme" → "Palm oil"
+• "Amidon de maïs modifié" → "Modified corn starch"
+• "Épices" → "Spices"
+• "Cacao" → "Cocoa"
+• "Huile hydrogénée" → "Hydrogenated oil"
+All other French ingredient names must also be translated. The 'classification_circ' field stays in English ("Group 2A", "Ultra-processed", etc.). The English-speaking user MUST NEVER see an ingredient name in French.
 
 CRITICAL RULE — 'explication' FIELD: EACH ingredient (even healthy ones) must have an EDUCATIONAL explanation of 3 to 5 sentences in clear English, friendly tone, non-alarmist. Mandatory structure:
   1) Sentence 1: what the ingredient is / its role in the product (1 simple sentence).
