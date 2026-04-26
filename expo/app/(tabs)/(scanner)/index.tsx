@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
-import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan } from 'lucide-react-native';
+import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan, Barcode } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -405,6 +405,21 @@ export default function ScannerScreen() {
                 </TouchableOpacity>
               </Animated.View>
 
+              <TouchableOpacity
+                style={styles.barcodeButton}
+                onPress={() => {
+                  if (Platform.OS !== 'web') {
+                    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }
+                  router.push('/barcode-scanner');
+                }}
+                activeOpacity={0.85}
+                testID="barcode-button"
+              >
+                <Barcode color="#2E9E34" size={20} strokeWidth={2} />
+                <Text style={styles.barcodeButtonText}>{t('scan_barcode')}</Text>
+              </TouchableOpacity>
+
               <Text style={styles.scanHint}>
                 {t('scan_hint')}
               </Text>
@@ -509,6 +524,26 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700' as const,
     letterSpacing: -0.2,
+  },
+  barcodeButton: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    gap: 10,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: 'rgba(46, 158, 52, 0.35)',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 18,
+    width: SCREEN_WIDTH - 48,
+    marginTop: 12,
+  },
+  barcodeButtonText: {
+    color: '#2E9E34',
+    fontSize: 15,
+    fontWeight: '700' as const,
+    letterSpacing: -0.1,
   },
   scanHint: {
     fontSize: 13,

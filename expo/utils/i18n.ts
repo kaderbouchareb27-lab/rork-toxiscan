@@ -39,6 +39,11 @@ const translations = {
   // ===== SCANNER =====
   protect_health: { fr: 'Protégez votre santé au quotidien', en: 'Protect your health every day' },
   photo_product: { fr: 'Photographier un produit', en: 'Photograph a product' },
+  scan_barcode: { fr: 'Scanner un code-barres', en: 'Scan a barcode' },
+  scan_barcode_hint: { fr: 'Pointez la caméra vers le code-barres du produit', en: 'Point the camera at the product barcode' },
+  barcode_not_found_title: { fr: 'Produit introuvable', en: 'Product not found' },
+  barcode_not_found_msg: { fr: "Ce code-barres n'est pas dans la base. Photographie la liste d'ingrédients à la place.", en: 'This barcode is not in the database. Photograph the ingredient list instead.' },
+  barcode_scanning: { fr: 'Recherche du produit...', en: 'Looking up product...' },
   scan_hint: { fr: "Photographiez la liste d'ingrédients pour un résultat précis", en: 'Photograph the ingredient list for accurate results' },
   cat_food: { fr: 'Aliments', en: 'Food' },
   cat_cosmetics: { fr: 'Cosmétiques', en: 'Cosmetics' },

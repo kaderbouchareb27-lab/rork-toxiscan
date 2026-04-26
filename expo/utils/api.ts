@@ -558,6 +558,52 @@ async function tryFetchOpenFactsData(imageBase64: string): Promise<{ context: st
   return { context: '', offResult: null };
 }
 
+function normalizeNameForCompare(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+}
+
+function enforceExhaustiveSubstances(result: UniversalAnalysisResult): UniversalAnalysisResult {
+  const rawList = result.raisonnement?.ingredients_lus_bruts;
+  if (!Array.isArray(rawList) || rawList.length === 0) {
+    return result;
+  }
+  const cleanRaw = rawList
+    .map((s) => String(s ?? '').trim())
+    .filter((s) => s.length > 0);
+  if (cleanRaw.length === 0) return result;
+  if (result.substances_detectees.length >= cleanRaw.length) {
+    return result;
+  }
+
+  console.warn('[API] AI returned only', result.substances_detectees.length, 'substances but ingredients_lus_bruts has', cleanRaw.length, '— padding missing ingredients with VERT/aucun');
+
+  const existingNorm = new Set(
+    result.substances_detectees.map((s) => normalizeNameForCompare(s.nom))
+  );
+  const padded = [...result.substances_detectees];
+  for (const raw of cleanRaw) {
+    const norm = normalizeNameForCompare(raw);
+    if (norm.length === 0) continue;
+    const alreadyPresent = Array.from(existingNorm).some(
+      (n) => n.length > 0 && (n === norm || n.includes(norm) || norm.includes(n))
+    );
+    if (alreadyPresent) continue;
+    existingNorm.add(norm);
+    padded.push({
+      nom: raw,
+      code: null,
+      classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
+      niveau_risque: 'aucun',
+      explication: isEnglish()
+        ? 'Natural ingredient, no identified risk.'
+        : 'Ingrédient naturel sans risque identifié.',
+      source_exposition: null,
+    });
+  }
+  console.log('[API] After padding, substances_detectees has', padded.length, 'entries');
+  return { ...result, substances_detectees: padded };
+}
+
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
   const MAX_RETRIES = 3;
 
@@ -567,12 +613,14 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
     try {
       console.log('[API] Universal analysis attempt', attempt, '/', MAX_RETRIES);
 
-      const result = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
+      const rawResult = await tryGenerateUniversalAnalysis(imageBase64, offContext || undefined);
 
-      if (!result || !result.categorie_produit) {
+      if (!rawResult || !rawResult.categorie_produit) {
         console.error('[API] Invalid result structure, retrying...');
         throw new Error(isEnglish() ? 'Invalid result received' : 'Résultat invalide reçu');
       }
+
+      const result = enforceExhaustiveSubstances(rawResult);
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);
       return { ...result, openFactsData: offResult };

@@ -107,6 +107,7 @@ function RootLayoutNav() {
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="privacy" options={{ title: t('nav_privacy') }} />
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
+      <Stack.Screen name="barcode-scanner" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="quiz" options={{ headerShown: false }} />
       <Stack.Screen name="terms" options={{ title: t('nav_terms') }} />
       <Stack.Screen name="transparency" options={{ title: t('nav_transparency') }} />
