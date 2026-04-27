@@ -4,8 +4,25 @@ import { getDeviceLanguage } from '@/utils/i18n';
 
 const TOOLKIT_URL = process.env.EXPO_PUBLIC_TOOLKIT_URL ?? 'https://toolkit.rork.com';
 const TOOLKIT_SECRET = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY ?? '';
-const OPENAI_KEY = process.env.EXPO_PUBLIC_OPEN_AI ?? '';
-const OPENAI_TRANSCRIPTIONS_URL = 'https://api.openai.com/v1/audio/transcriptions';
+const PROXY_TRANSCRIPTIONS_URL = `${TOOLKIT_URL}/v2/openai/v1/audio/transcriptions`;
+
+const REQUEST_TIMEOUT_MS = 30_000;
+
+function isEnglishLang(): boolean {
+  return getDeviceLanguage() === 'en';
+}
+
+function timeoutErrorMessage(): string {
+  return isEnglishLang()
+    ? 'Analysis took too long. Check your connection and try again.'
+    : 'L’analyse a pris trop de temps. Vérifie ta connexion et réessaie.';
+}
+
+function networkErrorMessage(): string {
+  return isEnglishLang()
+    ? 'Could not reach the AI service. Check your connection and try again.'
+    : 'Impossible de joindre le service IA. Vérifie ta connexion et réessaie.';
+}
 
 export type RecorderHandle = {
   stop: () => Promise<{ uri: string; mimeType: string } | null>;
@@ -90,16 +107,16 @@ async function startWebRecording(): Promise<RecorderHandle> {
 }
 
 export async function transcribeAudio(uri: string, mimeType: string): Promise<string> {
-  if (!OPENAI_KEY) {
-    throw new Error('openai_key_missing');
+  if (!TOOLKIT_SECRET) {
+    throw new Error('toolkit_secret_missing');
   }
-  console.log('[Voice] Transcribing directly via OpenAI API:', uri.substring(0, 60));
+  console.log('[Voice] Transcribing via Rork toolkit proxy:', uri.substring(0, 60));
 
   const form = new FormData();
 
   if (Platform.OS === 'web') {
-    const res = await fetch(uri);
-    const blob = await res.blob();
+    const fileRes = await fetch(uri);
+    const blob = await fileRes.blob();
     const ext = blob.type.includes('webm') ? 'webm' : blob.type.includes('mp4') ? 'mp4' : 'wav';
     form.append('file', new File([blob], `voice.${ext}`, { type: blob.type || 'audio/webm' }));
   } else {
@@ -115,13 +132,33 @@ export async function transcribeAudio(uri: string, mimeType: string): Promise<st
   const lang = getDeviceLanguage();
   form.append('language', lang);
 
-  const res = await fetch(OPENAI_TRANSCRIPTIONS_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENAI_KEY}`,
-    },
-    body: form,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    console.warn('[Voice] Aborting transcription after', REQUEST_TIMEOUT_MS, 'ms');
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(PROXY_TRANSCRIPTIONS_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TOOLKIT_SECRET}`,
+      },
+      body: form,
+      signal: controller.signal,
+    });
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    const name = (err as { name?: string } | null)?.name ?? '';
+    if (name === 'AbortError') {
+      throw new Error(timeoutErrorMessage());
+    }
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[Voice] Network error:', msg);
+    throw new Error(networkErrorMessage());
+  }
+  clearTimeout(timeoutId);
 
   if (!res.ok) {
     const errText = await res.text();
