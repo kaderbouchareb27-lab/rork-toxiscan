@@ -1,22 +1,22 @@
 import { z } from 'zod';
 import { isEnglish } from '@/utils/i18n';
 
-const MODEL_ID = 'openai/gpt-4o';
-const TOOLKIT_URL = process.env.EXPO_PUBLIC_TOOLKIT_URL ?? 'https://toolkit.rork.com';
-const TOOLKIT_SECRET = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY ?? '';
-const PROXY_CHAT_URL = `${TOOLKIT_URL}/v2/vercel/v1/chat/completions`;
+const MODEL_ID = 'gpt-4o';
+const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 
-const REQUEST_TIMEOUT_MS = 30_000;
-
-function getProxyConfig(): { url: string; apiKey: string } {
-  if (!TOOLKIT_SECRET) {
+function getOpenAIConfig(): { url: string; apiKey: string } {
+  const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
+  if (!apiKey) {
     throw new Error(
       isEnglish()
-        ? 'AI configuration is missing. The Rork toolkit secret is not set.'
-        : "Configuration IA manquante. La clé du toolkit Rork n'est pas définie."
+        ? 'AI configuration is missing. The EXPO_PUBLIC_OPEN_AI environment variable must be set.'
+        : "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie."
     );
   }
-  return { url: PROXY_CHAT_URL, apiKey: TOOLKIT_SECRET };
+  return {
+    url: OPENAI_CHAT_URL,
+    apiKey,
+  };
 }
 
 type TextPart = { type: 'text'; text: string };
@@ -46,49 +46,17 @@ function normalizeContent(
   });
 }
 
-function timeoutErrorMessage(): string {
-  return isEnglish()
-    ? 'Analysis took too long. Check your connection and try again.'
-    : 'L’analyse a pris trop de temps. Vérifie ta connexion et réessaie.';
-}
-
 async function callChatCompletions(body: Record<string, unknown>): Promise<any> {
-  const { url, apiKey } = getProxyConfig();
-  console.log('[AI] Calling', MODEL_ID, 'via Rork toolkit proxy (timeout', REQUEST_TIMEOUT_MS, 'ms)');
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    console.warn('[AI] Aborting request after', REQUEST_TIMEOUT_MS, 'ms timeout');
-    controller.abort();
-  }, REQUEST_TIMEOUT_MS);
-
-  let res: Response;
-  try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-  } catch (err: unknown) {
-    clearTimeout(timeoutId);
-    const name = (err as { name?: string } | null)?.name ?? '';
-    if (name === 'AbortError') {
-      throw new Error(timeoutErrorMessage());
-    }
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[AI] Network error:', msg);
-    throw new Error(
-      isEnglish()
-        ? 'Could not reach the AI service. Check your connection and try again.'
-        : 'Impossible de joindre le service IA. Vérifie ta connexion et réessaie.'
-    );
-  }
-  clearTimeout(timeoutId);
-
+  const { url, apiKey } = getOpenAIConfig();
+  console.log('[AI] Calling', MODEL_ID, 'directly via OpenAI API');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  });
   if (!res.ok) {
     const errText = await res.text();
     console.error('[AI] API error', res.status, errText.substring(0, 500));
@@ -188,7 +156,7 @@ export async function aiGenerateObject<T>(params: {
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonStr);
-  } catch {
+  } catch (e) {
     console.error('[AI] Failed to parse JSON response:', contentStr.substring(0, 500));
     throw new Error(isEnglish() ? 'Unreadable AI response.' : 'Réponse IA illisible.');
   }

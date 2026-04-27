@@ -671,7 +671,9 @@ function enforceExhaustiveSubstances(result: UniversalAnalysisResult): Universal
   for (const raw of cleanRaw) {
     const norm = normalizeNameForCompare(raw);
     if (norm.length === 0) continue;
-    const alreadyPresent = existingNorm.has(norm);
+    const alreadyPresent = Array.from(existingNorm).some(
+      (n) => n.length > 0 && (n === norm || n.includes(norm) || norm.includes(n))
+    );
     if (alreadyPresent) continue;
     existingNorm.add(norm);
     padded.push({
@@ -690,7 +692,7 @@ function enforceExhaustiveSubstances(result: UniversalAnalysisResult): Universal
 }
 
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
-  const MAX_RETRIES = 1;
+  const MAX_RETRIES = 3;
 
   let ocrData: { fullText: string; ingredientsBlock: string | null } = { fullText: '', ingredientsBlock: null };
   try {
@@ -766,26 +768,12 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
   };
 }
 
-function applyCumulativeRule(riskGroup: RiskGroup, controversialCount: number, totalCount: number): RiskGroup {
+function applyCumulativeRule(riskGroup: RiskGroup, controversialCount: number): RiskGroup {
   const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
-  const naturalCount = Math.max(0, totalCount - controversialCount);
-  const naturalRatio = totalCount > 0 ? naturalCount / totalCount : 0;
-
-  if (naturalRatio >= 0.7) {
-    console.log('[API] Cumulative rule skipped: ' + Math.round(naturalRatio * 100) + '% of ingredients are natural/healthy — no upgrade');
-    return riskGroup;
-  }
-
-  if (controversialCount >= 5 && groupPriority[riskGroup] < groupPriority['group2a']) {
-    console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (5+), upgrading to ORANGE (group2a)');
+  if (controversialCount >= 3 && groupPriority[riskGroup] < groupPriority['group2a']) {
+    console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (3+), upgrading to ORANGE (group2a max for non-IARC)');
     return 'group2a';
   }
-
-  if (controversialCount >= 3 && groupPriority[riskGroup] < groupPriority['group2b']) {
-    console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (3+), upgrading to YELLOW (group2b)');
-    return 'group2b';
-  }
-
   return riskGroup;
 }
 
@@ -929,7 +917,7 @@ export function universalResultToScannedProduct(
     riskGroup = highestSubstance;
   }
 
-  riskGroup = applyCumulativeRule(riskGroup, controversialCount, result.substances_detectees.length);
+  riskGroup = applyCumulativeRule(riskGroup, controversialCount);
   console.log('[API] Final riskGroup after cumulative rule:', riskGroup, 'controversial:', controversialCount);
 
   const detectedIngredients: DetectedIngredient[] = result.substances_detectees.map((s: SubstanceDetected) => ({
