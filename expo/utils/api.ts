@@ -692,7 +692,7 @@ function enforceExhaustiveSubstances(result: UniversalAnalysisResult): Universal
 }
 
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 2;
 
   let ocrData: { fullText: string; ingredientsBlock: string | null } = { fullText: '', ingredientsBlock: null };
   try {
@@ -735,7 +735,7 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       console.error('[API] Universal analysis error (attempt ' + attempt + '):', errorMsg);
 
       if (attempt < MAX_RETRIES) {
-        const delay = attempt * 600;
+        const delay = 250;
         console.log('[API] Retrying in ' + delay + 'ms...');
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;

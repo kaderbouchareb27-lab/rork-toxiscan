@@ -50,6 +50,7 @@ const FACTS_FR: ScanFact[] = [
   { id: 38, category: 'general', text: 'Les nitrosamines — formées à partir des nitrites dans les charcuteries — sont parmi les substances les plus cancérigènes connues (Groupe 1).', source: 'ANSES 2022 / IARC / OMS' },
   { id: 39, category: 'general', text: "Une étude d'Oxford 2024 a montré que le colorant Red 40 (E129) cause des dommages à l'ADN de souris. Première preuve directe de génotoxicité pour ce colorant.", source: "Université d'Oxford 2024 / FDA" },
   { id: 40, category: 'general', text: "ToxiScan est basé sur les classifications officielles du CIRC, de l'OMS, de l'EFSA, de l'ANSES et de l'EWG. Chaque badge est fondé sur des preuves scientifiques vérifiées.", source: 'IARC / OMS / EFSA / ANSES / EWG' },
+  { id: 41, category: 'general', text: "La pilule contraceptive est classée Groupe 1 par le CIRC — comme l'alcool et la cigarette. Mais elle réduit aussi le risque de certains cancers. Le risque n'est pas équivalent.", source: 'IARC Vol.100A / OMS' },
 ];
 
 const FACTS_EN: ScanFact[] = [
@@ -93,6 +94,7 @@ const FACTS_EN: ScanFact[] = [
   { id: 38, category: 'general', text: 'Nitrosamines — formed from nitrites in processed meats — are among the most carcinogenic substances known (Group 1 IARC).', source: 'ANSES 2022 / IARC / WHO' },
   { id: 39, category: 'general', text: 'A 2024 Oxford study showed that Red 40 (E129) causes DNA damage in mice. First direct evidence of genotoxicity for this widely used dye.', source: 'University of Oxford 2024 / FDA' },
   { id: 40, category: 'general', text: 'ToxiScan is based on official classifications from IARC, WHO, EFSA, ANSES and EWG. Every badge is grounded in verified scientific evidence.', source: 'IARC / WHO / EFSA / ANSES / EWG' },
+  { id: 41, category: 'general', text: 'Oral contraceptives are classified Group 1 by the IARC — like alcohol and tobacco. But they also reduce the risk of certain cancers. The risk level is not equivalent.', source: 'IARC Vol.100A / WHO' },
 ];
 
 export function getScanFacts(): ScanFact[] {

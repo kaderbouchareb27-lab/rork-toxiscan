@@ -39,9 +39,9 @@ import { t, isEnglish } from '@/utils/i18n';
 function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
     case 'group1': return '#FF3B30';
-    case 'group2a': return '#E65100';
-    case 'group2b': return '#FF9500';
-    case 'controversial': return '#FF9500';
+    case 'group2a': return '#FF3B30';
+    case 'group2b': return '#F5C000';
+    case 'controversial': return '#E8640A';
     case 'safe': return '#2E9E34';
   }
 }
@@ -77,17 +77,24 @@ function getNovaColor(group: number): string {
   }
 }
 
-function getBannerConfig(level: VerdictLevel): { color: string; label: string; icon: React.ReactNode } {
+function getBannerConfig(level: VerdictLevel): { color: string; label: string; intro: string; icon: React.ReactNode } {
   switch (level) {
     case 'danger':
-      return { color: '#FF3B30', label: t('badge_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
+      return { color: '#FF3B30', label: t('badge_danger'), intro: t('intro_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
     case 'warning':
-      return { color: '#FF9500', label: t('badge_caution'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#E8640A', label: t('badge_caution'), intro: t('intro_warning'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'moderation':
-      return { color: '#E0B400', label: t('badge_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#F5C000', label: t('badge_moderation'), intro: t('intro_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'approuve':
-      return { color: '#2E9E34', label: t('badge_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
+      return { color: '#2E9E34', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
   }
+}
+
+const SWEETENER_KEYWORDS = ['acesulfame', 'aspartame', 'sucralose', 'saccharine', 'cyclamate', 'sucre', 'sugar', 'fructose', 'cane sugar', 'sucre de canne'];
+
+function isSweetenerOrSugar(name: string): boolean {
+  const n = (name ?? '').toLowerCase();
+  return SWEETENER_KEYWORDS.some(k => n.includes(k));
 }
 
 const CONFETTI_COLORS = ['#2E9E34', '#34C759', '#7ED957', '#A8E6A1', '#C4EDC9'];
@@ -273,23 +280,28 @@ export default function ProductScreen() {
   const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
     let _hasGroup1 = false;
     let _hasGroup2A = false;
-    let _hasGroup2B = false;
-    let _controversialCount = 0;
+    let _orangeCount = 0;
+    let _yellowCount = 0;
+    let _hasSweetener = false;
 
-    const tally = (level: SubstanceLevel) => {
+    const tally = (level: SubstanceLevel, name: string) => {
       if (level === 'group1') _hasGroup1 = true;
       else if (level === 'group2a') _hasGroup2A = true;
-      else if (level === 'group2b') _hasGroup2B = true;
-      else if (level === 'controversial') _controversialCount += 1;
+      else if (level === 'controversial') _orangeCount += 1;
+      else if (level === 'group2b') {
+        _yellowCount += 1;
+        if (isSweetenerOrSugar(name)) _hasSweetener = true;
+      }
     };
 
     for (const additive of product.detectedAdditives) {
-      tally(classifyAdditiveLevel(additive));
+      tally(classifyAdditiveLevel(additive), additive.name);
     }
 
     if (product.substances) {
       for (const s of product.substances) {
-        tally(classifySubstanceLevel(s));
+        tally(classifySubstanceLevel(s), s.nom);
+        if (isSweetenerOrSugar(s.nom) && s.niveau_risque !== 'aucun') _hasSweetener = true;
       }
     }
 
@@ -300,24 +312,29 @@ export default function ProductScreen() {
           niveau_risque: i.niveau_risque,
           explication: i.explication,
           nom: i.nom,
-        }));
+        }), i.nom);
+        if (isSweetenerOrSugar(i.nom) && i.niveau_risque !== 'aucun') _hasSweetener = true;
       }
     }
 
+    const concerningTotal = _orangeCount + _yellowCount + (_hasGroup2A ? 1 : 0);
+
     let _verdictLevel: VerdictLevel = 'approuve';
-    if (_hasGroup1) {
+    if (_hasGroup1 || _hasGroup2A) {
       _verdictLevel = 'danger';
-    } else if (_hasGroup2A || _controversialCount >= 2) {
+    } else if (concerningTotal >= 3) {
       _verdictLevel = 'warning';
-    } else if (_controversialCount === 1 || _hasGroup2B) {
+    } else if (_orangeCount >= 1 || _hasSweetener || _yellowCount >= 2) {
+      _verdictLevel = 'moderation';
+    } else if (_yellowCount === 1) {
       _verdictLevel = 'moderation';
     }
 
-    console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'G2B:', _hasGroup2B, 'controversial:', _controversialCount);
+    console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'orange:', _orangeCount, 'yellow:', _yellowCount, 'sweetener:', _hasSweetener);
     return {
       verdictLevel: _verdictLevel,
       hasCarcinogen: _hasGroup1 || _hasGroup2A,
-      hasControversial: _hasGroup2B || _controversialCount > 0,
+      hasControversial: _orangeCount > 0 || _yellowCount > 0,
     };
   }, [product]);
 
@@ -562,6 +579,10 @@ export default function ProductScreen() {
           </View>
         </View>
 
+        <View style={styles.introCard}>
+          <Text style={[styles.introText, { color: bannerConfig.color }]}>{bannerConfig.intro}</Text>
+        </View>
+
         <DrToxiVerdict level={verdictLevel} />
 
         {!isGreen && isUniversalScan && dangerousSubstances.length > 0 ? (
@@ -646,6 +667,38 @@ export default function ProductScreen() {
             })}
           </View>
         ) : null}
+
+        {(product.detectedIngredients && product.detectedIngredients.length > 0) || (product.substances && product.substances.length > 0) ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t('all_ingredients')}</Text>
+            <View style={styles.allIngredientsCard}>
+              {(product.detectedIngredients ?? product.substances ?? []).map((ing, index) => {
+                const level = classifySubstanceLevel({
+                  classification_circ: ing.classification_circ,
+                  niveau_risque: ing.niveau_risque,
+                  explication: ing.explication,
+                  nom: ing.nom,
+                });
+                return (
+                  <View key={`all-ing-${index}`} style={styles.allIngRow}>
+                    <View style={[styles.allIngDot, { backgroundColor: getLevelBadgeColor(level) }]} />
+                    <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
+                    <View style={[styles.allIngBadge, { backgroundColor: getLevelBadgeColor(level) }]}>
+                      <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+
+        {isGreen && (
+          <View style={styles.approvedFooterCard}>
+            <CheckCircle color="#2E9E34" size={18} />
+            <Text style={styles.approvedFooterText}>{t('approved_consume_freely')}</Text>
+          </View>
+        )}
 
         {!isGreen && product.recommendations && product.recommendations.length > 0 && (
           <View style={styles.section}>
@@ -1260,6 +1313,74 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 32,
+  },
+  introCard: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 4,
+    alignItems: 'center' as const,
+  },
+  introText: {
+    fontSize: 15,
+    fontWeight: '700' as const,
+    textAlign: 'center' as const,
+    letterSpacing: -0.1,
+  },
+  allIngredientsCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 14,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  allIngRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 10,
+    paddingVertical: 6,
+  },
+  allIngDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  allIngName: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.text,
+  },
+  allIngBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  allIngBadgeText: {
+    fontSize: 9,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
+  },
+  approvedFooterCard: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 10,
+    backgroundColor: '#E8F9ED',
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#C4EDC9',
+  },
+  approvedFooterText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#2D6A3E',
+    fontWeight: '600' as const,
+    lineHeight: 20,
   },
   confettiLayer: {
     position: 'absolute' as const,

@@ -158,9 +158,9 @@ export function getRiskBadgeInfo(group: RiskGroup): { label: string; sublabel: s
     case 'group1':
       return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#FF3B30' };
     case 'group2a':
-      return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g2a'), color: '#FF3B30' };
+      return { label: t('risk_warning_label'), sublabel: t('risk_warning_sub'), color: '#E8640A' };
     case 'group2b':
-      return { label: t('risk_caution_label'), sublabel: t('risk_caution_sub'), color: '#FF9500' };
+      return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#F5C000' };
     case 'none':
     default:
       return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };

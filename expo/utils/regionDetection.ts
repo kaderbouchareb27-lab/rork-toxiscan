@@ -77,7 +77,7 @@ export function getRegionStores(region: UserRegion): string[] {
     case 'france':
       return ['Carrefour', 'Monoprix', 'Leclerc', 'Intermarché', 'Biocoop', 'Naturalia', 'La Vie Claire', 'Auchan'];
     case 'usa':
-      return ['Whole Foods', 'Walmart', 'Target', 'CVS', 'Trader Joe\'s', 'Costco', 'Sprouts'];
+      return ['Whole Foods Market', 'Sprouts Farmers Market', 'Natural Grocers', 'The Fresh Market', 'Earth Fare', 'Trader Joe\'s', 'Target', 'Walmart', 'Kroger', 'Costco', 'Thrive Market'];
     case 'belgium':
       return ['Delhaize', 'Colruyt', 'Carrefour Belgique', 'Bio-Planet', 'Aldi', 'Lidl'];
     case 'switzerland':
@@ -94,7 +94,7 @@ export function getRegionSpecialtyStores(region: UserRegion): string[] {
     case 'france':
       return ['Biocoop', 'Naturalia', 'La Vie Claire', 'Bio c\' Bon', 'Marcel & Fils'];
     case 'usa':
-      return ['Whole Foods', 'Sprouts Farmers Market', 'Natural Grocers', 'Trader Joe\'s'];
+      return ['Whole Foods Market', 'Sprouts Farmers Market', 'Natural Grocers', 'The Fresh Market', 'Earth Fare', 'Thrive Market (online)'];
     case 'belgium':
       return ['Bio-Planet', 'Séquoia'];
     case 'switzerland':
@@ -111,7 +111,7 @@ export function getRegionGroceryStores(region: UserRegion): string[] {
     case 'france':
       return ['Carrefour Bio', 'Auchan Bio', 'Leclerc Bio', 'Monoprix Bio'];
     case 'usa':
-      return ['Walmart', 'Target', 'Kroger', 'Costco'];
+      return ['Trader Joe\'s', 'Target (Good & Gather organic)', 'Walmart (Marketside organic)', 'Kroger (Simple Truth organic)', 'Costco (Kirkland organic)', 'Amazon Fresh organic', 'Vitacost'];
     case 'belgium':
       return ['Delhaize Bio', 'Colruyt', 'Carrefour Bio BE'];
     case 'switzerland':
@@ -128,7 +128,7 @@ export function getRegionCleanBrands(region: UserRegion, isHouseholdOrCosmetic: 
       case 'france':
         return ['Ecover', 'L\'Arbre Vert', 'Cattier', 'Coslys'];
       case 'usa':
-        return ['Seventh Generation', 'Mrs. Meyer\'s', 'Dr. Bronner\'s', 'Method'];
+        return ['Beautycounter', 'Honest Company', 'Dr. Bronner\'s', 'Burt\'s Bees', 'Acure (EWG Verified)', 'Branch Basics', 'Seventh Generation', 'Method', 'Mrs. Meyer\'s'];
       case 'belgium':
         return ['Ecover', 'Rainett', 'Kneipp', 'Weleda'];
       case 'switzerland':
@@ -144,7 +144,7 @@ export function getRegionCleanBrands(region: UserRegion, isHouseholdOrCosmetic: 
     case 'france':
       return ['Bjorg', 'Bonneterre', 'Priméal', 'Jardin Bio'];
     case 'usa':
-      return ['365 by Whole Foods', 'Annie\'s', 'Nature\'s Path', 'Bob\'s Red Mill'];
+      return ['Applegate Farms (nitrite-free deli)', 'Pederson\'s Natural Farms', 'Niman Ranch', 'Siete Foods', 'Jackson\'s Honest', 'Lesser Evil', 'Spindrift', 'Olipop', 'Poppi', 'Harmless Harvest', 'Primal Kitchen', 'Chosen Foods', 'Sir Kensington\'s', '365 by Whole Foods', 'Annie\'s', 'Nature\'s Path', 'Bob\'s Red Mill'];
     case 'belgium':
       return ['Boni Bio', 'Delhaize Bio'];
     case 'switzerland':

@@ -18,7 +18,7 @@ import {
   Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, ChevronRight, Share2, Camera, ChevronLeft, Plus, MessageSquare, X, Mic, Volume2, Square } from 'lucide-react-native';
+import { Send, ChevronRight, Share2, Camera, ChevronLeft, Plus, MessageSquare, X, Mic, Volume2, Square, Lock } from 'lucide-react-native';
 import { startRecording, transcribeAudio, speakText, stopSpeech, type RecorderHandle } from '@/utils/voiceChat';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
@@ -579,6 +579,11 @@ export default function DrToxiScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    if (!isPro) {
+      console.log('[DrToxi] Listen blocked, user is not Pro');
+      router.push('/paywall?source=listen');
+      return;
+    }
     if (speakingMessageId === messageId) {
       await stopSpeech();
       setSpeakingMessageId(null);
@@ -593,7 +598,7 @@ export default function DrToxiScreen() {
       setSpeakingMessageId(null);
       Alert.alert(t('mic_error_title'), t('tts_error'));
     }
-  }, [speakingMessageId]);
+  }, [speakingMessageId, isPro]);
 
   const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
     const isUser = item.role === 'user';
@@ -635,12 +640,19 @@ export default function DrToxiScreen() {
               >
                 {speakingMessageId === item.id ? (
                   <Square color={Colors.primary} size={14} fill={Colors.primary} />
+                ) : !isPro ? (
+                  <Lock color={Colors.textSecondary} size={12} />
                 ) : (
                   <Volume2 color={Colors.textSecondary} size={14} />
                 )}
                 <Text style={[styles.shareResponseText, speakingMessageId === item.id && styles.shareResponseTextActive]}>
                   {speakingMessageId === item.id ? t('listening') : t('listen')}
                 </Text>
+                {!isPro && (
+                  <View style={styles.listenProBadge}>
+                    <Text style={styles.listenProBadgeText}>Pro</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             </View>
           )}
@@ -1325,6 +1337,19 @@ const styles = StyleSheet.create({
   shareResponseTextActive: {
     color: '#2E7D32',
     fontWeight: '600' as const,
+  },
+  listenProBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    backgroundColor: '#2E9E34',
+    borderRadius: 6,
+    marginLeft: 4,
+  },
+  listenProBadgeText: {
+    fontSize: 9,
+    fontWeight: '800' as const,
+    color: '#FFFFFF',
+    letterSpacing: 0.4,
   },
   micButton: {
     width: 42,
