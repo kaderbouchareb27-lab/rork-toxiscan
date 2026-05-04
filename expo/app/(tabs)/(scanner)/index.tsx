@@ -73,9 +73,9 @@ export default function ScannerScreen() {
       let base64: string;
       try {
         if (Platform.OS === 'web') {
-          base64 = await compressImageWeb(imageUri, 1024);
+          base64 = await compressImageWeb(imageUri, 800);
         } else {
-          base64 = await compressImageNative(imageUri, 1024, 0.8);
+          base64 = await compressImageNative(imageUri, 800, 0.7);
         }
         console.log('[Scanner] Image compressed, base64 length:', base64.length);
       } catch (compressionError) {

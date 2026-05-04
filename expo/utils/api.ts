@@ -566,6 +566,21 @@ async function tryGenerateUniversalAnalysis(
     );
   }
 
+  const hasOcrIngredients = !!(ocrIngredientsBlock && ocrIngredientsBlock.length > 30);
+  const userContent: { type: 'text'; text: string }[] | ({ type: 'text'; text: string } | { type: 'image'; image: string })[] = hasOcrIngredients
+    ? [
+        { type: 'text' as const, text: isEnglish()
+          ? 'Analyze the OCR text above by STRICTLY following this generation order:'
+          : 'Analyse le texte OCR ci-dessus en suivant STRICTEMENT cet ordre de génération :' },
+      ]
+    : [
+        { type: 'text' as const, text: '' },
+        { type: 'image' as const, image: imageBase64 },
+      ];
+  if (hasOcrIngredients) {
+    console.log('[API] Skipping image to GPT (OCR text sufficient) — faster + cheaper');
+  }
+
   const result = await aiGenerateObject({
     system: systemParts.join(''),
     messages: [
@@ -575,7 +590,7 @@ async function tryGenerateUniversalAnalysis(
           { type: 'text', text: isEnglish()
             ? 'Analyze this photo by STRICTLY following this generation order:\n\nSTEP 0 (raisonnement) — BEFORE any other field, fill "raisonnement":\n  • ingredients_lus_bruts: list every ingredient on the label, one by one, separated at every comma/semicolon. SKIP NONE.\n  • nombre_ingredients_lus: the exact count of the elements above.\n  • deduction_produit: how you identify the product (name, brand, or deduction).\n  • verification_exhaustivite: phrase "I read X ingredients and I will create X entries in substances_detectees".\n  • verification_coherence_badge: badge count and final verdict.\n\nSTEP 1 — objet_identifie (brand + name, never "Unknown object" if text/ingredients are readable).\nSTEP 2 — categorie_produit.\nSTEP 3 — substances_detectees: for EACH element of ingredients_lus_bruts, create ONE entry (same name, same order). substances_detectees.length MUST equal nombre_ingredients_lus. Include healthy ingredients (water, salt, flour, vegetables) with niveau_risque="aucun".\nSTEP 4 — badge_global, resume, recommandations, alternatives_saines.\n\nIf you notice that substances_detectees.length ≠ nombre_ingredients_lus, FIX substances_detectees before finishing — never truncate the list.'
             : 'Analyse cette photo en suivant STRICTEMENT cet ordre de génération :\n\nÉTAPE 0 (raisonnement) — AVANT tout autre champ, remplis "raisonnement" :\n  • ingredients_lus_bruts : liste chaque ingrédient de l\'étiquette, un par un, séparé à chaque virgule/point-virgule. N\'en saute AUCUN.\n  • nombre_ingredients_lus : le nombre exact d\'éléments ci-dessus.\n  • deduction_produit : comment tu identifies le produit (nom, marque, ou déduction).\n  • verification_exhaustivite : phrase "J\'ai lu X ingrédients et je vais créer X entrées dans substances_detectees".\n  • verification_coherence_badge : compte des badges et verdict final.\n\nÉTAPE 1 — objet_identifie (marque + nom, jamais "Objet inconnu" si texte/ingrédients lisibles).\nÉTAPE 2 — categorie_produit.\nÉTAPE 3 — substances_detectees : pour CHAQUE élément de ingredients_lus_bruts, crée UNE entrée (même nom, même ordre). substances_detectees.length DOIT égaler nombre_ingredients_lus. Inclure les ingrédients sains (eau, sel, farine, légumes) avec niveau_risque="aucun".\nÉTAPE 4 — badge_global, resume, recommandations, alternatives_saines.\n\nSi tu t\'aperçois que substances_detectees.length ≠ nombre_ingredients_lus, CORRIGE substances_detectees avant de finir — ne tronque jamais la liste.' },
-          { type: 'image', image: imageBase64 },
+          ...(hasOcrIngredients ? [] : [{ type: 'image' as const, image: imageBase64 }]),
         ],
       },
     ],
@@ -691,6 +706,15 @@ function enforceExhaustiveSubstances(result: UniversalAnalysisResult): Universal
   return { ...result, substances_detectees: padded };
 }
 
+const ANALYSIS_CACHE = new Map<string, UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }>();
+const CACHE_MAX = 50;
+
+function hashString(s: string): string {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return String(h);
+}
+
 export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
   const MAX_RETRIES = 2;
 
@@ -701,6 +725,14 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.warn('[API] Google Vision OCR failed (non-blocking):', msg);
+  }
+
+  const cacheKey = ocrData.ingredientsBlock
+    ? hashString(ocrData.ingredientsBlock.toLowerCase().replace(/\s+/g, ' ').trim())
+    : null;
+  if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
+    console.log('[API] Cache hit — returning cached analysis instantly');
+    return ANALYSIS_CACHE.get(cacheKey)!;
   }
 
   const { context: offContext, offResult } = await tryFetchOpenFactsDataFromOcr(ocrData.fullText);
@@ -729,7 +761,15 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       }
 
       console.log('[API] Universal analysis result:', result.categorie_produit, result.objet_identifie, 'substances:', result.substances_detectees.length, 'badge_global:', result.badge_global);
-      return { ...result, openFactsData: offResult };
+      const finalResult = { ...result, openFactsData: offResult };
+      if (cacheKey && !result.erreur) {
+        if (ANALYSIS_CACHE.size >= CACHE_MAX) {
+          const firstKey = ANALYSIS_CACHE.keys().next().value;
+          if (firstKey) ANALYSIS_CACHE.delete(firstKey);
+        }
+        ANALYSIS_CACHE.set(cacheKey, finalResult);
+      }
+      return finalResult;
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('[API] Universal analysis error (attempt ' + attempt + '):', errorMsg);

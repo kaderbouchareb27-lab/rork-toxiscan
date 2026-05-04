@@ -39,7 +39,7 @@ import { t, isEnglish } from '@/utils/i18n';
 function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
     case 'group1': return '#FF3B30';
-    case 'group2a': return '#FF3B30';
+    case 'group2a': return '#E8640A';
     case 'group2b': return '#F5C000';
     case 'controversial': return '#E8640A';
     case 'safe': return '#2E9E34';
@@ -584,89 +584,6 @@ export default function ProductScreen() {
         </View>
 
         <DrToxiVerdict level={verdictLevel} />
-
-        {!isGreen && isUniversalScan && dangerousSubstances.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
-            {dangerousSubstances.map((substance: SubstanceDetected, index: number) => {
-              const level = classifySubstanceLevel(substance);
-              if (level === 'safe') return null;
-              return (
-                <View key={`substance-${index}`} style={styles.additiveCard}>
-                  <View style={styles.additiveHeader}>
-                    <View style={[styles.additiveTag, { backgroundColor: getLevelBadgeColor(level) }]}>
-                      <Text style={styles.additiveTagText}>
-                        {getLevelBadgeLabel(level)}
-                      </Text>
-                    </View>
-                    <Text style={styles.additiveName}>{substance.nom}</Text>
-                  </View>
-                  {substance.explication ? (
-                    <Text style={styles.additiveDescription}>{shortenText(substance.explication, 2)}</Text>
-                  ) : null}
-                  <Text style={styles.additiveSource}>
-                    {isIARCClassified(level) ? t('classification_iarc') : t('not_classified_iarc')}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        ) : !isGreen && isPhotoScan && dangerousIngredients.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
-            {dangerousIngredients.map((ingredient: DetectedIngredient, index: number) => {
-              const level = classifySubstanceLevel({
-                classification_circ: ingredient.classification_circ,
-                niveau_risque: ingredient.niveau_risque,
-                explication: ingredient.explication,
-                nom: ingredient.nom,
-              });
-              if (level === 'safe') return null;
-              return (
-                <View key={`danger-${index}`} style={styles.additiveCard}>
-                  <View style={styles.additiveHeader}>
-                    <View style={[styles.additiveTag, { backgroundColor: getLevelBadgeColor(level) }]}>
-                      <Text style={styles.additiveTagText}>
-                        {getLevelBadgeLabel(level)}
-                      </Text>
-                    </View>
-                    <Text style={styles.additiveName}>{ingredient.nom}</Text>
-                  </View>
-                  {ingredient.explication ? (
-                    <Text style={styles.additiveDescription}>{shortenText(ingredient.explication, 2)}</Text>
-                  ) : null}
-                  <Text style={styles.additiveSource}>
-                    {isIARCClassified(level) ? t('classification_iarc') : t('not_classified_iarc')}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        ) : !isGreen && product.detectedAdditives.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('substances_detected')}</Text>
-            {product.detectedAdditives.map((additive, index) => {
-              const level = classifyAdditiveLevel(additive);
-              if (level === 'safe') return null;
-              return (
-                <View key={`${additive.code}-${index}`} style={styles.additiveCard}>
-                  <View style={styles.additiveHeader}>
-                    <View style={[styles.additiveTag, { backgroundColor: getLevelBadgeColor(level) }]}>
-                      <Text style={styles.additiveTagText}>
-                        {getLevelBadgeLabel(level)}
-                      </Text>
-                    </View>
-                    <Text style={styles.additiveName}>{additive.name}</Text>
-                  </View>
-                  <Text style={styles.additiveDescription}>{shortenText(additive.description, 2)}</Text>
-                  <Text style={styles.additiveSource}>
-                    {isIARCClassified(level) ? t('classification_iarc') : t('not_classified_iarc')}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        ) : null}
 
         {(product.detectedIngredients && product.detectedIngredients.length > 0) || (product.substances && product.substances.length > 0) ? (
           <View style={styles.section}>

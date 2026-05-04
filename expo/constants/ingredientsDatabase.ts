@@ -189,6 +189,14 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['quinoa'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['avocat', 'avocado'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['huile d\'avocat', 'avocado oil'], code: null, risk: 'aucun', circ: 'Naturel' },
+
+  { keywords: ['poulet bio', 'organic chicken', 'poulet biologique', 'free-range chicken bio'], code: null, risk: 'possible', circ: 'Naturel', note: 'Bon choix — sans antibiotiques ni hormones. Consommation régulière possible.' },
+  { keywords: ['poulet conventionnel', 'conventional chicken', 'poulet d\'élevage'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Élevé avec antibiotiques et hormones de croissance. Privilégier le poulet bio sans antibiotiques.' },
+  { keywords: ['boeuf conventionnel', 'conventional beef', 'beef'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Élevage intensif, hormones de croissance. Privilégier le bœuf grass-fed bio.' },
+  { keywords: ['porc conventionnel', 'conventional pork', 'pork'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Élevage intensif, antibiotiques fréquents. Privilégier le porc élevé en plein air.' },
+  { keywords: ['saumon d\'élevage', 'farmed salmon', 'atlantic salmon'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Colorants artificiels, antibiotiques. Privilégier le saumon sauvage.' },
+  { keywords: ['saumon sauvage', 'wild salmon', 'wild-caught salmon'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Riche en oméga-3, protéines de qualité.' },
+  { keywords: ['boeuf grass-fed', 'grass-fed beef', 'bœuf bio', 'organic beef'], code: null, risk: 'possible', circ: 'Naturel', note: 'Bien meilleur que le bœuf industriel — consommation modérée recommandée.' },
 ] as const;
 
 export const DANGER_PREGNANCY: readonly string[] = [
