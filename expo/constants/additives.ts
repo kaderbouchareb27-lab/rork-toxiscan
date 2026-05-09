@@ -145,10 +145,10 @@ export function analyzeAdditives(additiveTags: string[]): { riskGroup: RiskGroup
   }
 
   const controversialCount = detected.filter(a => a.group !== 'none').length;
-  if (controversialCount >= 3 && groupPriority[worstGroup] < groupPriority['group2a']) {
-    worstGroup = 'group2a';
-    console.log('[Additives] Cumulative rule applied: 3+ controversial substances detected, upgrading to ORANGE');
-  }
+  if (controversialCount >= 5 && groupPriority[worstGroup] < groupPriority['group2b']) {
+  worstGroup = 'group2b';
+  console.log('[Additives] Cumulative rule applied: 3+ controversial substances detected, upgrading to ORANGE');
+}
 
   return { riskGroup: worstGroup, detectedAdditives: detected };
 }
