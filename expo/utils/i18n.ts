@@ -160,7 +160,7 @@ const translations = {
   badge_moderation: { fr: 'MODÉRATION', en: 'CAUTION' },
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED' },
   intro_danger: { fr: 'Ce produit contient des substances cancérigènes.', en: 'This product contains carcinogenic substances.' },
-  intro_warning: { fr: 'Ce produit est nocif pour la santé.', en: 'This product is harmful to your health.' },
+  intro_warning: { fr: 'Ce produit est transformé. Limite ta consommation.', en: 'This product is harmful to your health.' },
   intro_moderation: { fr: 'Ce produit est à consommer avec modération.', en: 'This product should be consumed in moderation.' },
   intro_approved: { fr: 'Ce produit est sain et approuvé.', en: 'This product is healthy and approved.' },
   approved_consume_freely: { fr: 'Vous pouvez consommer ce produit régulièrement sans inquiétude.', en: 'You can consume this product regularly without concern.' },
