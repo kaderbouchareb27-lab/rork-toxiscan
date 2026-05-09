@@ -599,11 +599,16 @@ export default function ProductScreen() {
                 return (
                   <View key={`all-ing-${index}`} style={styles.allIngRow}>
                     <View style={[styles.allIngDot, { backgroundColor: getLevelBadgeColor(level) }]} />
-                    <Text style={styles.allIngName} numberOfLines={level !== 'safe' && ing.explication ? 10 : 2}>{ing.nom}{level !== 'safe' && ing.explication ? `\n\n${ing.explication}` : ''}</Text>  
+                    <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
                     <View style={[styles.allIngBadge, { backgroundColor: getLevelBadgeColor(level) }]}>
                       <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
                     </View>
                   </View>
+                  {level !== 'safe' && ing.explication ? (
+                    <View style={[styles.allIngExplanation, { backgroundColor: getLevelBadgeColor(level) + '18' }]}>
+                      <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>{ing.explication}</Text>
+                    </View>
+                  ) : null}
                 );
               })}
             </View>
