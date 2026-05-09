@@ -70,7 +70,7 @@ const translations = {
   filter_all: { fr: 'Tous', en: 'All' },
   filter_favorites: { fr: 'Favoris', en: 'Favorites' },
   filter_danger: { fr: 'Cancérigène', en: 'Carcinogenic' },
-  filter_warning: { fr: 'Nocif', en: 'Warning' },
+  filter_warning: { fr: 'ULTRA-TRANSFORMÉ', en: 'Warning' },
   filter_caution: { fr: 'Modération', en: 'Caution' },
   filter_moderation: { fr: 'Modération', en: 'Caution' },
   filter_approved: { fr: 'Approuvé', en: 'Approved' },
