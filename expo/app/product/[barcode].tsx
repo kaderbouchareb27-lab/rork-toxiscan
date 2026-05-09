@@ -322,12 +322,12 @@ export default function ProductScreen() {
     let _verdictLevel: VerdictLevel = 'approuve';
     if (_hasGroup1 || _hasGroup2A) {
       _verdictLevel = 'danger';
-    } else if (concerningTotal >= 3) {
+    } else if (concerningTotal >= 4) {
       _verdictLevel = 'warning';
-    } else if (_orangeCount >= 1 || _hasSweetener || _yellowCount >= 2) {
+    } else if (_orangeCount >= 1 || _yellowCount >= 2) {
       _verdictLevel = 'moderation';
-    } else if (_yellowCount === 1) {
-      _verdictLevel = 'moderation';
+    } else if (_yellowCount >= 1) {
+   _verdictLevel = 'moderation';
     }
 
     console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'orange:', _orangeCount, 'yellow:', _yellowCount, 'sweetener:', _hasSweetener);
