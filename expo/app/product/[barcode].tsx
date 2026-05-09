@@ -599,7 +599,7 @@ export default function ProductScreen() {
                 return (
                   <View key={`all-ing-${index}`} style={styles.allIngRow}>
                     <View style={[styles.allIngDot, { backgroundColor: getLevelBadgeColor(level) }]} />
-                    <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
+                    <Text style={styles.allIngName} numberOfLines={level !== 'safe' && ing.explication ? 10 : 2}>{ing.nom}{level !== 'safe' && ing.explication ? `\n\n${ing.explication}` : ''}</Text>  
                     <View style={[styles.allIngBadge, { backgroundColor: getLevelBadgeColor(level) }]}>
                       <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
                     </View>
