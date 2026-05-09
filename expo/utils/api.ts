@@ -810,9 +810,9 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
 
 function applyCumulativeRule(riskGroup: RiskGroup, controversialCount: number): RiskGroup {
   const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
-  if (controversialCount >= 3 && groupPriority[riskGroup] < groupPriority['group2a']) {
+  if (controversialCount >= 5 && groupPriority[riskGroup] < groupPriority['group2b']) {
     console.log('[API] Cumulative rule applied: ' + controversialCount + ' controversial substances (3+), upgrading to ORANGE (group2a max for non-IARC)');
-    return 'group2a';
+    return 'group2b';
   }
   return riskGroup;
 }
@@ -945,7 +945,7 @@ export function universalResultToScannedProduct(
     }));
 
   const controversialCount = result.substances_detectees.filter(
-    (s: SubstanceDetected) => s.niveau_risque !== 'aucun'
+    (s: SubstanceDetected) => s.niveau_risque === 'danger' || s.niveau_risque === 'probable'
   ).length;
 
   if (riskGroup === 'none' && detectedAdditives.length > 0) {
