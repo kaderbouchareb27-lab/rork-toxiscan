@@ -141,7 +141,7 @@ Interdit : écrire "substance cancérigène Groupe 2A" dans une explication si l
 
 Règles par mot-clé (toujours ORANGE, priorité sur la base) : "modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
 
-Règle sucre blanc raffiné (sucre/sugar/saccharose) selon position dans la liste : 1er-2e ingrédient → ORANGE ; milieu → JAUNE ; fin ou <5g/portion → VERT.
+Règle sucre blanc raffiné (sucre/sugar/saccharose) : toujours niveau_risque="possible" (JAUNE) maximum, JAMAIS "probable" ou "danger", peu importe sa position dans la liste.
 
 ═══ ÉTAPE 1 — IDENTIFIER LE PRODUIT ═══
 
