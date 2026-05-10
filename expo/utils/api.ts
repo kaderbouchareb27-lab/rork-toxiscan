@@ -223,10 +223,9 @@ Cette précision rassure l'utilisateur tout en restant factuel.
 
 Règle stricte — le plus élevé l'emporte :
 - danger → ≥1 ingrédient Groupe 1 EXPLICITEMENT listé comme tel dans la base. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS (Groupe 1 CIRC). Je te déconseille fortement d'en consommer régulièrement."
-- probable → ≥3 ingrédients ORANGE OU ≥1 ROUGE OU ≥7 jaunes cumulés. EXCEPTION : si 1 ou 2 oranges isolés avec majorité d'ingrédients naturels (≥70% verts), rétrograder à "possible" (jaune). Resume : "Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle." INTERDIT d'écrire "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" dans le resume si aucun ingrédient n'est réellement listé comme tel dans la base.
+- probable → ≥4 ingrédients ORANGE OU ≥1 ROUGE OU ≥7 jaunes cumulés. EXCEPTION : si 1, 2 ou 3 oranges isolés avec majorité d'ingrédients naturels (≥70% verts), rétrograder à "possible" (jaune). Resume : "Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle." INTERDIT d'écrire "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" dans le resume si aucun ingrédient n'est réellement listé comme tel dans la base.
 - possible → 2-6 jaunes, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien." INTERDIT d'écrire "cancérigène" dans ce resume.
 - aucun → 0-1 jaune isolé parmi des naturels sains. Resume : "Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains."
-
 Interdits absolus pour "aucun" : HFCS, dextrose, sirop de glucose, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame, acésulfame K, sucralose, nitrites/nitrates.
 
 ⚠️ RÈGLE ABSOLUE D'AFFICHAGE DES SUBSTANCES — EXHAUSTIVITÉ TOTALE ⚠️
@@ -307,7 +306,7 @@ Réponds mentalement OUI à chaque question. Si une seule réponse est NON → r
 [1] EXHAUSTIVITÉ — Combien d'ingrédients sur l'étiquette (virgules + 1) ? Ce nombre DOIT égaler le nombre d'entrées dans substances_detectees. 15 ingrédients lus = 15 entrées, pas 14.
 [2] IDENTIFICATION — objet_identifie est-il rempli avec un nom réel ? Jamais "Objet inconnu" si texte/ingrédients lisibles.
 [3] CLASSIFICATION — Chaque entrée a-t-elle été cherchée dans la BASE DE DONNÉES ci-dessus et a-t-elle le niveau_risque EXACT issu de la base ?
-[4] 3+ probable OU 7+ possible → "probable" (EXCEPTION : 1 ou 2 oranges isolés parmi ≥70% naturels → rétrograder à "possible") ; 2-6 possible → "possible" ; sinon → "aucun".
+[4] 4+ probable OU 7+ possible → "probable" (EXCEPTION : 1, 2 ou 3 oranges isolés parmi ≥70% naturels → rétrograder à "possible") ; sinon → "aucun".
 [5] INTERDITS ABSOLUS — badge_global="aucun" n'est pas utilisé si la liste contient HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carraghénane, édulcorants artificiels, nitrites.
 [5bis] ANTI-ALARMISME — Aucun ingrédient n'est classé "Groupe 1" ou "Groupe 2A" sans correspondance EXPLICITE dans la base de données. Si tu as mis "Groupe 2A" ou "Groupe 1" quelque part, vérifie que l'ingrédient exact est listé comme tel dans la base — sinon, rétrograde à "Controversé" + niveau_risque="possible" ou "probable". Le champ 'resume' ne doit JAMAIS contenir "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" si aucune substance_detectee n'a réellement cette classification_circ. Utilise plutôt "substances controversées", "ultra-transformé", "additifs industriels".
 [5ter] PRODUIT SIMPLE — Si le produit a ≤2 ingrédients naturels (lait+ferments, eau+café, viande fraîche, fruit/légume brut), badge_global doit être "aucun" sauf preuve CIRC formelle. Ne diabolise pas les aliments basiques.
@@ -421,10 +420,9 @@ This clarification reassures the user while staying factual.
 
 Strict rule — the highest wins:
 - danger → ≥1 ingredient explicitly listed as Group 1 in the database. Resume: "Warning! This product contains an ingredient classified as carcinogenic by the WHO (IARC Group 1). I strongly advise against consuming it regularly."
-- probable → ≥3 ORANGE ingredients OR ≥1 RED OR ≥7 yellows cumulated. EXCEPTION: if 1 or 2 isolated oranges with a majority of natural ingredients (≥70% green), downgrade to "possible" (yellow). Resume: "This product contains several controversial or ultra-processed substances. Consume it only occasionally and look for a more natural alternative." FORBIDDEN to write "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" in the resume if no ingredient is actually listed as such in the database.
+- probable → ≥4 ORANGE ingredients OR ≥1 RED OR ≥7 yellows cumulated. EXCEPTION: if 1, 2 or 3 isolated oranges with a majority of natural ingredients (≥70% green), downgrade to "possible" (yellow). Resume: "This product contains several controversial or ultra-processed substances. Consume it only occasionally and look for a more natural alternative." FORBIDDEN to write "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" in the resume if no ingredient is actually listed as such in the database.
 - possible → 2-6 yellows, no orange/red. Resume: "This product contains a few processed ingredients. You can consume it but avoid making it an everyday food." FORBIDDEN to write "carcinogenic" in this resume.
 - aucun → 0-1 isolated yellow among healthy naturals. Resume: "This product is overall very good. The vast majority of ingredients are natural and healthy."
-
 Absolute prohibitions for "aucun": HFCS, dextrose, glucose syrup, FD&C colors, BHA, BHT, TBHQ, sodium benzoate, carrageenan, aspartame, acesulfame K, sucralose, nitrites/nitrates.
 
 ⚠️ ABSOLUTE SUBSTANCE DISPLAY RULE — TOTAL EXHAUSTIVENESS ⚠️
@@ -507,7 +505,7 @@ Mentally answer YES to each question. If a single answer is NO → restart.
 [1] EXHAUSTIVENESS — How many ingredients on the label (commas + 1)? This number MUST equal the number of entries in substances_detectees. 15 ingredients read = 15 entries, not 14.
 [2] IDENTIFICATION — Is objet_identifie filled with a real name? Never "Unknown object" if text/ingredients are readable.
 [3] CLASSIFICATION — Has each entry been searched in the DATABASE above and assigned the EXACT niveau_risque from the database?
-[4] VERDICT CONSISTENCY: 1+ danger → badge="danger"; 3+ probable OR 7+ possible → "probable" (EXCEPTION: 1 or 2 isolated oranges among ≥70% naturals → downgrade to "possible"); 2-6 possible → "possible"; otherwise → "aucun".
+[4] VERDICT CONSISTENCY: 1+ danger → badge="danger"; 4+ probable OR 7+ possible → "probable" (EXCEPTION: 1, 2 or 3 isolated oranges among ≥70% naturals → downgrade to "possible"); 2-6 possible → "possible"; 2-6 possible → "possible"; otherwise → "aucun".
 [5] ABSOLUTE PROHIBITIONS — badge_global="aucun" is not used if the list contains HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carrageenan, artificial sweeteners, nitrites.
 [5bis] ANTI-ALARMISM — No ingredient is classified "Group 1" or "Group 2A" without an EXPLICIT match in the database. If you put "Group 2A" or "Group 1" somewhere, verify the exact ingredient is listed as such in the database — otherwise downgrade to "Controversial" + niveau_risque="possible" or "probable". The 'resume' field must NEVER contain "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" if no substance_detectee actually has that classification_circ. Use instead "controversial substances", "ultra-processed", "industrial additives".
 [5ter] SIMPLE PRODUCT — If the product has ≤2 natural ingredients (milk+cultures, water+coffee, fresh meat, raw fruit/vegetable), badge_global must be "aucun" unless formal IARC proof. Do not demonize basic foods.
