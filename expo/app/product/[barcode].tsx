@@ -282,7 +282,6 @@ export default function ProductScreen() {
     let _hasGroup2A = false;
     let _orangeCount = 0;
     let _yellowCount = 0;
-    let _hasSweetener = false;
 
     const tally = (level: SubstanceLevel, name: string) => {
       if (level === 'group1') _hasGroup1 = true;
@@ -290,7 +289,6 @@ export default function ProductScreen() {
       else if (level === 'controversial') _orangeCount += 1;
       else if (level === 'group2b') {
         _yellowCount += 1;
-        if (isSweetenerOrSugar(name)) _hasSweetener = true;
       }
     };
 
@@ -301,7 +299,6 @@ export default function ProductScreen() {
     if (product.substances) {
       for (const s of product.substances) {
         tally(classifySubstanceLevel(s), s.nom);
-        if (isSweetenerOrSugar(s.nom) && s.niveau_risque !== 'aucun') _hasSweetener = true;
       }
     }
 
@@ -313,7 +310,6 @@ export default function ProductScreen() {
           explication: i.explication,
           nom: i.nom,
         }), i.nom);
-        if (isSweetenerOrSugar(i.nom) && i.niveau_risque !== 'aucun') _hasSweetener = true;
       }
     }
 
@@ -327,10 +323,10 @@ export default function ProductScreen() {
     } else if (_orangeCount >= 1 || _yellowCount >= 2) {
       _verdictLevel = 'moderation';
     } else if (_yellowCount >= 1) {
-   _verdictLevel = 'moderation';
+      _verdictLevel = 'moderation';
     }
 
-    console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'orange:', _orangeCount, 'yellow:', _yellowCount, 'sweetener:', _hasSweetener);
+    console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'orange:', _orangeCount, 'yellow:', _yellowCount);
     return {
       verdictLevel: _verdictLevel,
       hasCarcinogen: _hasGroup1 || _hasGroup2A,
@@ -437,13 +433,6 @@ export default function ProductScreen() {
     });
   };
 
-  const dangerousIngredients = product.detectedIngredients?.filter(
-    (i: DetectedIngredient) => i.niveau_risque !== 'aucun'
-  ) ?? [];
-  const safeIngredients = product.detectedIngredients?.filter(
-    (i: DetectedIngredient) => i.niveau_risque === 'aucun'
-  ) ?? [];
-
   const healthyAlternatives: HealthyAlternative[] = (() => {
     if (product.healthyAlternatives && product.healthyAlternatives.length > 0) {
       return product.healthyAlternatives;
@@ -461,10 +450,6 @@ export default function ProductScreen() {
 
   const showBioStores = !isGreen && (hasCarcinogen || hasControversial || healthyAlternatives.length > 0);
   const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
-
-  const dangerousSubstances = product.substances?.filter(
-    (s: SubstanceDetected) => s.niveau_risque !== 'aucun'
-  ) ?? [];
 
   const shortAnalysis = useMemo(() => {
     if (!product.analysisSummary) return null;
@@ -597,18 +582,20 @@ export default function ProductScreen() {
                   nom: ing.nom,
                 });
                 return (
-                  <View key={`all-ing-${index}`} style={styles.allIngRow}>
-                    <View style={[styles.allIngDot, { backgroundColor: getLevelBadgeColor(level) }]} />
-                    <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
-                    <View style={[styles.allIngBadge, { backgroundColor: getLevelBadgeColor(level) }]}>
-                      <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
+                  <View key={`all-ing-${index}`}>
+                    <View style={styles.allIngRow}>
+                      <View style={[styles.allIngDot, { backgroundColor: getLevelBadgeColor(level) }]} />
+                      <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
+                      <View style={[styles.allIngBadge, { backgroundColor: getLevelBadgeColor(level) }]}>
+                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
+                      </View>
                     </View>
+                    {level !== 'safe' && ing.explication ? (
+                      <View style={[styles.allIngExplanation, { backgroundColor: getLevelBadgeColor(level) + '18' }]}>
+                        <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>{ing.explication}</Text>
+                      </View>
+                    ) : null}
                   </View>
-                  {level !== 'safe' && ing.explication ? (
-                    <View style={[styles.allIngExplanation, { backgroundColor: getLevelBadgeColor(level) + '18' }]}>
-                      <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>{ing.explication}</Text>
-                    </View>
-                  ) : null}
                 );
               })}
             </View>
@@ -1251,40 +1238,57 @@ const styles = StyleSheet.create({
   allIngredientsCard: {
     backgroundColor: Colors.surface,
     borderRadius: 16,
-    padding: 14,
-    gap: 8,
+    paddingTop: 6,
+    paddingBottom: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 1,
+    overflow: 'hidden' as const,
   },
   allIngRow: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     gap: 10,
-    paddingVertical: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
   },
   allIngDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
+    flexShrink: 0,
   },
   allIngName: {
     flex: 1,
     fontSize: 14,
     color: Colors.text,
+    fontWeight: '500' as const,
   },
   allIngBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
+    flexShrink: 0,
   },
   allIngBadgeText: {
     fontSize: 9,
     fontWeight: '700' as const,
     color: '#FFFFFF',
     letterSpacing: 0.2,
+  },
+  allIngExplanation: {
+    marginHorizontal: 14,
+    marginBottom: 8,
+    marginTop: 2,
+    padding: 10,
+    borderRadius: 8,
+  },
+  allIngExplanationText: {
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '400' as const,
   },
   approvedFooterCard: {
     flexDirection: 'row' as const,
