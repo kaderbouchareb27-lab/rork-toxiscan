@@ -142,7 +142,7 @@ Interdit : écrire "substance cancérigène Groupe 2A" dans une explication si l
 Règles par mot-clé (toujours ORANGE, priorité sur la base) : "modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
 
 Règle sucre blanc raffiné (sucre/sugar/saccharose) : toujours niveau_risque="possible" (JAUNE) maximum, JAMAIS "probable" ou "danger", peu importe sa position dans la liste.
-Arômes naturels / Arômes artificiels / Lécithine de soja / Lécithine de tournesol / Acide citrique / Gomme xanthane / Pectine / Maltodextrine / Sirop de glucose / Sucre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger".Arômes naturels / Arômes artificiels / Lécithine de soja / Lécithine de tournesol / Acide citrique / Gomme xanthane / Pectine / Maltodextrine / Sucre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger
+Arômes naturels / Arômes artificiels / Lécithine de soja / Lécithine de tournesol / Acide citrique / Gomme xanthane / Pectine / Maltodextrine / Sirop de glucose / Sucre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger"
 
 
 ═══ ÉTAPE 1 — IDENTIFIER LE PRODUIT ═══
@@ -307,7 +307,7 @@ Réponds mentalement OUI à chaque question. Si une seule réponse est NON → r
 [1] EXHAUSTIVITÉ — Combien d'ingrédients sur l'étiquette (virgules + 1) ? Ce nombre DOIT égaler le nombre d'entrées dans substances_detectees. 15 ingrédients lus = 15 entrées, pas 14.
 [2] IDENTIFICATION — objet_identifie est-il rempli avec un nom réel ? Jamais "Objet inconnu" si texte/ingrédients lisibles.
 [3] CLASSIFICATION — Chaque entrée a-t-elle été cherchée dans la BASE DE DONNÉES ci-dessus et a-t-elle le niveau_risque EXACT issu de la base ?
-[4] COHÉRENCE VERDICT : 1+ danger → badge="danger" ; 2+ probable OU 5+ possible → "probable" (EXCEPTION : 1 seul probable isolé parmi ≥70% naturels → rétrograder à "possible") ; 2-4 possible → "possible" ; sinon → "aucun".
+[4] 3+ probable OU 7+ possible → "probable" (EXCEPTION : 1 ou 2 oranges isolés parmi ≥70% naturels → rétrograder à "possible") ; 2-6 possible → "possible" ; sinon → "aucun".
 [5] INTERDITS ABSOLUS — badge_global="aucun" n'est pas utilisé si la liste contient HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carraghénane, édulcorants artificiels, nitrites.
 [5bis] ANTI-ALARMISME — Aucun ingrédient n'est classé "Groupe 1" ou "Groupe 2A" sans correspondance EXPLICITE dans la base de données. Si tu as mis "Groupe 2A" ou "Groupe 1" quelque part, vérifie que l'ingrédient exact est listé comme tel dans la base — sinon, rétrograde à "Controversé" + niveau_risque="possible" ou "probable". Le champ 'resume' ne doit JAMAIS contenir "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" si aucune substance_detectee n'a réellement cette classification_circ. Utilise plutôt "substances controversées", "ultra-transformé", "additifs industriels".
 [5ter] PRODUIT SIMPLE — Si le produit a ≤2 ingrédients naturels (lait+ferments, eau+café, viande fraîche, fruit/légume brut), badge_global doit être "aucun" sauf preuve CIRC formelle. Ne diabolise pas les aliments basiques.
@@ -507,7 +507,7 @@ Mentally answer YES to each question. If a single answer is NO → restart.
 [1] EXHAUSTIVENESS — How many ingredients on the label (commas + 1)? This number MUST equal the number of entries in substances_detectees. 15 ingredients read = 15 entries, not 14.
 [2] IDENTIFICATION — Is objet_identifie filled with a real name? Never "Unknown object" if text/ingredients are readable.
 [3] CLASSIFICATION — Has each entry been searched in the DATABASE above and assigned the EXACT niveau_risque from the database?
-[4] VERDICT CONSISTENCY: 1+ danger → badge="danger"; 2+ probable OR 5+ possible → "probable" (EXCEPTION: 1 isolated probable among ≥70% naturals → downgrade to "possible"); 2-4 possible → "possible"; otherwise → "aucun".
+[4] VERDICT CONSISTENCY: 1+ danger → badge="danger"; 3+ probable OR 7+ possible → "probable" (EXCEPTION: 1 or 2 isolated oranges among ≥70% naturals → downgrade to "possible"); 2-6 possible → "possible"; otherwise → "aucun".
 [5] ABSOLUTE PROHIBITIONS — badge_global="aucun" is not used if the list contains HFCS, dextrose, FD&C, BHA/BHT/TBHQ, benzoate, carrageenan, artificial sweeteners, nitrites.
 [5bis] ANTI-ALARMISM — No ingredient is classified "Group 1" or "Group 2A" without an EXPLICIT match in the database. If you put "Group 2A" or "Group 1" somewhere, verify the exact ingredient is listed as such in the database — otherwise downgrade to "Controversial" + niveau_risque="possible" or "probable". The 'resume' field must NEVER contain "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" if no substance_detectee actually has that classification_circ. Use instead "controversial substances", "ultra-processed", "industrial additives".
 [5ter] SIMPLE PRODUCT — If the product has ≤2 natural ingredients (milk+cultures, water+coffee, fresh meat, raw fruit/vegetable), badge_global must be "aucun" unless formal IARC proof. Do not demonize basic foods.
