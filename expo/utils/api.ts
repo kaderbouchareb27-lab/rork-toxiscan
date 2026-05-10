@@ -142,6 +142,8 @@ Interdit : écrire "substance cancérigène Groupe 2A" dans une explication si l
 Règles par mot-clé (toujours ORANGE, priorité sur la base) : "modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
 
 Règle sucre blanc raffiné (sucre/sugar/saccharose) : toujours niveau_risque="possible" (JAUNE) maximum, JAMAIS "probable" ou "danger", peu importe sa position dans la liste.
+Arômes naturels / Arômes artificiels / Lécithine de soja / Lécithine de tournesol / Acide citrique / Gomme xanthane / Pectine / Maltodextrine / Sirop de glucose / Sucre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger".Arômes naturels / Arômes artificiels / Lécithine de soja / Lécithine de tournesol / Acide citrique / Gomme xanthane / Pectine / Maltodextrine / Sucre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger
+
 
 ═══ ÉTAPE 1 — IDENTIFIER LE PRODUIT ═══
 
