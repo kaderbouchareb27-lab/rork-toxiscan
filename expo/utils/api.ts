@@ -340,8 +340,7 @@ Forbidden: writing "Group 2A carcinogen" in an explanation if the database does 
 
 Keyword rules (always ORANGE, takes priority over the database): "modified", "hydrolyzed", "isolate", "concentrate", "lipolyzed", "interesterified", "hydrogenated" (except "non-hydrogenated").
 
-Refined white sugar rule (sugar/sucrose) based on position in the list: 1st-2nd ingredient → ORANGE; middle → YELLOW; end or <5g/serving → GREEN.
-
+Refined white sugar rule (sugar/sucrose): always niveau_risque="possible" (YELLOW) maximum, NEVER "probable" or "danger", regardless of position in the list. Natural flavors, artificial flavors, soy lecithin, sunflower lecithin, citric acid, xanthan gum, pectin, maltodextrin, cane sugar, glucose syrup: always "possible" maximum, NEVER "probable" or "danger".
 ═══ STEP 1 — IDENTIFY THE PRODUCT ═══
 
 objet_identifie = brand + product (e.g., "LU Prince", "Coca-Cola Zero", "Nutella").
