@@ -222,10 +222,10 @@ Cette précision rassure l'utilisateur tout en restant factuel.
 ═══ ÉTAPE 3 — VERDICT FINAL (badge_global) ═══
 
 Règle stricte — le plus élevé l'emporte :
-• danger → ≥1 ingrédient Groupe 1 EXPLICITEMENT listé comme tel dans la base. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS (Groupe 1 CIRC). Je te déconseille fortement d'en consommer régulièrement."
-• probable → ≥2 ingrédients ORANGE OU ≥1 ROUGE OU ≥5 jaunes cumulés. EXCEPTION : si 1 seul orange isolé avec majorité d'ingrédients naturels (≥70% verts), rétrograder à "possible" (jaune). Resume : "Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle." INTERDIT d'écrire "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" dans le resume si aucun ingrédient n'est réellement listé comme tel dans la base.
-• possible → 2-3 jaunes, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien." INTERDIT d'écrire "cancérigène" dans ce resume.
-• aucun → 0-1 jaune isolé parmi des naturels sains. Resume : "Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains."
+- danger → ≥1 ingrédient Groupe 1 EXPLICITEMENT listé comme tel dans la base. Resume : "Attention ! Ce produit contient un ingrédient classé cancérigène par l'OMS (Groupe 1 CIRC). Je te déconseille fortement d'en consommer régulièrement."
+- probable → ≥3 ingrédients ORANGE OU ≥1 ROUGE OU ≥7 jaunes cumulés. EXCEPTION : si 1 ou 2 oranges isolés avec majorité d'ingrédients naturels (≥70% verts), rétrograder à "possible" (jaune). Resume : "Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle." INTERDIT d'écrire "cancérigène par l'OMS", "classé cancérigène", "Groupe 1" ou "Groupe 2A" dans le resume si aucun ingrédient n'est réellement listé comme tel dans la base.
+- possible → 2-6 jaunes, aucun orange/rouge. Resume : "Ce produit contient quelques ingrédients transformés. Tu peux en consommer mais évite d'en faire un aliment du quotidien." INTERDIT d'écrire "cancérigène" dans ce resume.
+- aucun → 0-1 jaune isolé parmi des naturels sains. Resume : "Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains."
 
 Interdits absolus pour "aucun" : HFCS, dextrose, sirop de glucose, colorants FD&C, BHA, BHT, TBHQ, sodium benzoate, carraghénane, aspartame, acésulfame K, sucralose, nitrites/nitrates.
 
@@ -420,10 +420,10 @@ This clarification reassures the user while staying factual.
 ═══ STEP 3 — FINAL VERDICT (badge_global) ═══
 
 Strict rule — the highest wins:
-• danger → ≥1 ingredient explicitly listed as Group 1 in the database. Resume: "Warning! This product contains an ingredient classified as carcinogenic by the WHO (IARC Group 1). I strongly advise against consuming it regularly."
-• probable → ≥2 ORANGE ingredients OR ≥1 RED OR ≥5 yellows cumulated. EXCEPTION: if only 1 isolated orange with a majority of natural ingredients (≥70% green), downgrade to "possible" (yellow). Resume: "This product contains several controversial or ultra-processed substances. Consume it only occasionally and look for a more natural alternative." FORBIDDEN to write "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" in the resume if no ingredient is actually listed as such in the database.
-• possible → 2-3 yellows, no orange/red. Resume: "This product contains a few processed ingredients. You can consume it but avoid making it an everyday food." FORBIDDEN to write "carcinogenic" in this resume.
-• aucun → 0-1 isolated yellow among healthy naturals. Resume: "This product is overall very good. The vast majority of ingredients are natural and healthy."
+- danger → ≥1 ingredient explicitly listed as Group 1 in the database. Resume: "Warning! This product contains an ingredient classified as carcinogenic by the WHO (IARC Group 1). I strongly advise against consuming it regularly."
+- probable → ≥3 ORANGE ingredients OR ≥1 RED OR ≥7 yellows cumulated. EXCEPTION: if 1 or 2 isolated oranges with a majority of natural ingredients (≥70% green), downgrade to "possible" (yellow). Resume: "This product contains several controversial or ultra-processed substances. Consume it only occasionally and look for a more natural alternative." FORBIDDEN to write "WHO carcinogen", "classified as carcinogenic", "Group 1" or "Group 2A" in the resume if no ingredient is actually listed as such in the database.
+- possible → 2-6 yellows, no orange/red. Resume: "This product contains a few processed ingredients. You can consume it but avoid making it an everyday food." FORBIDDEN to write "carcinogenic" in this resume.
+- aucun → 0-1 isolated yellow among healthy naturals. Resume: "This product is overall very good. The vast majority of ingredients are natural and healthy."
 
 Absolute prohibitions for "aucun": HFCS, dextrose, glucose syrup, FD&C colors, BHA, BHT, TBHQ, sodium benzoate, carrageenan, aspartame, acesulfame K, sucralose, nitrites/nitrates.
 
