@@ -947,7 +947,7 @@ export function universalResultToScannedProduct(
     (s: SubstanceDetected) => s.niveau_risque === 'danger' || s.niveau_risque === 'probable'
   ).length;
 
-  if (riskGroup === 'none' && detectedAdditives.length > 0) {
+  if (riskGroup === 'none' && detectedAdditives.filter(a => a.group === 'group1' || a.group === 'group2a').length > 0) {
     const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
     const highestSubstance = detectedAdditives.reduce<RiskGroup>((max, a) => {
       return groupPriority[a.group] > groupPriority[max] ? a.group : max;
