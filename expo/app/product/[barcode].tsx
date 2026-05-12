@@ -15,7 +15,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, AlertOctagon } from 'lucide-react-native';
+import {
+  ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle,
+  CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
+  Store, Heart, Database, AlertOctagon,
+} from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
 import { captureRef } from 'react-native-view-shot';
@@ -34,59 +38,29 @@ import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { t, isEnglish } from '@/utils/i18n';
 
-// ─────────────────────────────────────────────
-// SubstanceLevel type (local — pas d'import externe)
-// ─────────────────────────────────────────────
-type SubstanceLevel = 'group1' | 'group2a' | 'group2b' | 'controversial' | 'safe';
-
-// ─────────────────────────────────────────────
-// classifySubstanceLevel — définie ici pour éviter le crash
-// Logique cohérente avec le riskGroup déterministe de api.ts
-// ─────────────────────────────────────────────
-function classifySubstanceLevel(s: {
-  classification_circ?: string | null;
-  niveau_risque?: string | null;
-  explication?: string | null;
-  nom?: string | null;
-}): SubstanceLevel {
-  const circ = (s.classification_circ ?? '').toLowerCase().trim();
-  const risk = (s.niveau_risque ?? '').toLowerCase().trim();
-
-  if (circ === 'group 1' || circ === 'groupe 1' || risk === 'group1' || risk === 'élevé' || risk === 'eleve' || risk === 'high') {
-    return 'group1';
-  }
-  if (circ === 'group 2a' || circ === 'groupe 2a' || risk === 'group2a') {
-    return 'group2a';
-  }
-  if (circ === 'group 2b' || circ === 'groupe 2b' || risk === 'group2b' || risk === 'modéré' || risk === 'modere' || risk === 'moderate') {
-    return 'group2b';
-  }
-  if (risk === 'controversial' || risk === 'controversé' || risk === 'controverse') {
-    return 'controversial';
-  }
-  return 'safe';
-}
+// ✅ Import correct — connecté à la vraie base de données IARC + keywords
+import { classifySubstanceLevel, SubstanceLevel } from '@/utils/riskScore';
 
 // ─────────────────────────────────────────────
 // Helpers d'affichage
 // ─────────────────────────────────────────────
 function getLevelBadgeColor(level: SubstanceLevel): string {
   switch (level) {
-    case 'group1': return '#FF3B30';
-    case 'group2a': return '#E8640A';
-    case 'group2b': return '#F5C000';
+    case 'group1':        return '#FF3B30';
+    case 'group2a':       return '#E8640A';
+    case 'group2b':       return '#F5C000';
     case 'controversial': return '#E8640A';
-    case 'safe': return '#2E9E34';
+    case 'safe':          return '#2E9E34';
   }
 }
 
 function getLevelBadgeLabel(level: SubstanceLevel): string {
   switch (level) {
-    case 'group1': return t('level_confirmed_carcinogen');
-    case 'group2a': return t('level_probable_carcinogen');
-    case 'group2b': return t('level_possible_carcinogen');
+    case 'group1':        return t('level_confirmed_carcinogen');
+    case 'group2a':       return t('level_probable_carcinogen');
+    case 'group2b':       return t('level_possible_carcinogen');
     case 'controversial': return t('level_controversial');
-    case 'safe': return t('level_low_risk');
+    case 'safe':          return t('level_low_risk');
   }
 }
 
@@ -97,7 +71,7 @@ function getNutriScoreColor(grade: string): string {
     case 'C': return '#FECB02';
     case 'D': return '#EE8100';
     case 'E': return '#E63E11';
-    default: return '#8E8E93';
+    default:  return '#8E8E93';
   }
 }
 
@@ -107,7 +81,7 @@ function getNovaColor(group: number): string {
     case 2: return '#85BB2F';
     case 3: return '#EE8100';
     case 4: return '#E63E11';
-    default: return '#8E8E93';
+    default:return '#8E8E93';
   }
 }
 
@@ -136,21 +110,21 @@ function ConfettiBurst() {
     Array.from({ length: CONFETTI_COUNT }).map(() => ({
       translateY: new Animated.Value(0),
       translateX: new Animated.Value(0),
-      rotate: new Animated.Value(0),
-      opacity: new Animated.Value(1),
+      rotate:     new Animated.Value(0),
+      opacity:    new Animated.Value(1),
     }))
   ).current;
 
   const meta = useMemo(
     () =>
       pieces.map((_, i) => ({
-        startX: (Math.random() - 0.5) * SCREEN_WIDTH * 0.9,
-        endY: 180 + Math.random() * 220,
-        endX: (Math.random() - 0.5) * SCREEN_WIDTH * 1.1,
-        size: 6 + Math.random() * 8,
-        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        startX:   (Math.random() - 0.5) * SCREEN_WIDTH * 0.9,
+        endY:     180 + Math.random() * 220,
+        endX:     (Math.random() - 0.5) * SCREEN_WIDTH * 1.1,
+        size:     6 + Math.random() * 8,
+        color:    CONFETTI_COLORS[i % CONFETTI_COLORS.length],
         rotateTo: (Math.random() - 0.5) * 720,
-        delay: Math.random() * 150,
+        delay:    Math.random() * 150,
       })),
     [pieces]
   );
@@ -263,9 +237,7 @@ export default function ProductScreen() {
           const isAvailable = await StoreReview.isAvailableAsync();
           if (isAvailable) {
             console.log('[ProductScreen] Requesting store review...');
-            setTimeout(() => {
-              void StoreReview.requestReview();
-            }, 1500);
+            setTimeout(() => { void StoreReview.requestReview(); }, 1500);
           } else {
             console.log('[ProductScreen] Store review not available');
           }
@@ -320,14 +292,14 @@ export default function ProductScreen() {
     let _verdictLevel: VerdictLevel = 'approuve';
 
     switch (product.riskGroup) {
-      case 'group1': _verdictLevel = 'danger'; break;
-      case 'group2a': _verdictLevel = 'warning'; break;
-      case 'group2b': _verdictLevel = 'moderation'; break;
+      case 'group1':  _verdictLevel = 'danger';      break;
+      case 'group2a': _verdictLevel = 'warning';     break;
+      case 'group2b': _verdictLevel = 'moderation';  break;
       case 'none':
-      default: _verdictLevel = 'approuve'; break;
+      default:        _verdictLevel = 'approuve';    break;
     }
 
-    const hasCarcinogen = product.riskGroup === 'group1';
+    const hasCarcinogen    = product.riskGroup === 'group1';
     const hasControversial = product.riskGroup === 'group2a' || product.riskGroup === 'group2b';
 
     console.log('[Product] Verdict from riskGroup:', product.riskGroup, '→', _verdictLevel);
@@ -424,8 +396,8 @@ export default function ProductScreen() {
     router.push({
       pathname: '/dr-toxi',
       params: {
-        productName: product.name,
-        productBrand: product.brand,
+        productName:    product.name,
+        productBrand:   product.brand,
         productBarcode: product.barcode,
         productVerdict: verdictLevel,
         productSummary: shortAnalysis ?? '',
@@ -496,7 +468,9 @@ export default function ProductScreen() {
               </View>
             )
           )}
+
           <Text style={styles.productName}>{truncateName(product.name, 60)}</Text>
+
           {product.brand && product.brand !== getCategoryLabel(product.productCategory ?? 'other') ? (
             <Text style={styles.productBrand}>{product.brand}</Text>
           ) : null}
@@ -549,9 +523,7 @@ export default function ProductScreen() {
         {showFrontPhotoTip && (
           <View style={styles.frontPhotoTip}>
             <Camera color="#FF9500" size={16} />
-            <Text style={styles.frontPhotoTipText}>
-              {t('photo_tip')}
-            </Text>
+            <Text style={styles.frontPhotoTipText}>{t('photo_tip')}</Text>
           </View>
         )}
 
@@ -570,16 +542,18 @@ export default function ProductScreen() {
 
         <DrToxiVerdict level={verdictLevel} />
 
-        {/* ─── Liste de tous les ingrédients ─── */}
-        {(product.detectedIngredients && product.detectedIngredients.length > 0) || (product.substances && product.substances.length > 0) ? (
+        {/* ─── Tous les ingrédients ─── */}
+        {((product.detectedIngredients && product.detectedIngredients.length > 0) ||
+          (product.substances && product.substances.length > 0)) ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('all_ingredients')}</Text>
             <View style={styles.allIngredientsCard}>
               {(product.detectedIngredients ?? product.substances ?? []).map((ing, index) => {
-                // ✅ classifySubstanceLevel maintenant définie localement — plus de crash
+                // ✅ classifySubstanceLevel importée depuis @/utils/riskScore
+                // Connectée à la vraie base IARC + keywords — plus jamais de crash
                 const level = classifySubstanceLevel({
-                  classification_circ: ing.classification_circ,
-                  niveau_risque: ing.niveau_risque,
+                  classification_circ: ing.classification_circ ?? undefined,
+                  niveau_risque: ing.niveau_risque ?? 'aucun',
                   explication: ing.explication,
                   nom: ing.nom,
                 });
@@ -594,7 +568,9 @@ export default function ProductScreen() {
                     </View>
                     {level !== 'safe' && ing.explication ? (
                       <View style={[styles.allIngExplanation, { backgroundColor: getLevelBadgeColor(level) + '18' }]}>
-                        <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>{ing.explication}</Text>
+                        <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>
+                          {ing.explication}
+                        </Text>
                       </View>
                     ) : null}
                   </View>
@@ -652,15 +628,11 @@ export default function ProductScreen() {
               <Text style={styles.sectionTitle}>{t('where_find_alternatives')}</Text>
             </View>
             <View style={styles.bioStoresCard}>
-              <Text style={styles.bioStoresIntro}>
-                {t('bio_stores_intro')}
-              </Text>
+              <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
 
               {showAlternatives && (
                 <>
-                  <Text style={styles.bioStoresSubtitle}>
-                    {t('recommended_bio_alternatives')}
-                  </Text>
+                  <Text style={styles.bioStoresSubtitle}>{t('recommended_bio_alternatives')}</Text>
                   <View style={styles.healthyAlternativesCardInner}>
                     {healthyAlternatives.map((alt, index) => (
                       <View key={`healthy-alt-${index}`} style={styles.healthyAltItem}>
@@ -679,9 +651,7 @@ export default function ProductScreen() {
                 </>
               )}
 
-              <Text style={styles.bioStoresSubtitle}>
-                {t('specialty_stores')}
-              </Text>
+              <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
               {getRegionSpecialtyStores(userCountry).map((store, i) => (
                 <View key={`store-spec-${i}`} style={styles.bioStoreItem}>
                   <Store color="#2D8A4E" size={14} />
@@ -689,16 +659,12 @@ export default function ProductScreen() {
                 </View>
               ))}
 
-              <Text style={styles.bioStoresSubtitle}>
-                {t('organic_sections')}
-              </Text>
+              <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
               <Text style={styles.bioStoresNote}>{getRegionGroceryStores(userCountry).join(', ')}</Text>
 
               {getRegionLocalMarkets(userCountry).length > 0 && (
                 <>
-                  <Text style={styles.bioStoresSubtitle}>
-                    {t('local_markets')}
-                  </Text>
+                  <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
                   <Text style={styles.bioStoresNote}>{getRegionLocalMarkets(userCountry).join(', ')}</Text>
                 </>
               )}
