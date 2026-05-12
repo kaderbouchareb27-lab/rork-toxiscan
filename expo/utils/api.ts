@@ -202,7 +202,6 @@ RÈGLE CRITIQUE — CHAMP 'explication' : CHAQUE ingrédient (même sain) doit a
 
 EXEMPLES de bonnes explications (reproduis ce style) :
 • Sucrose : "Le sucre en grande quantité favorise l'obésité, le diabète et l'inflammation chronique, des facteurs de risque reconnus pour plusieurs types de cancers (sein, côlon, foie, pancréas). Ce n'est pas un cancérogène direct mais la consommation régulière excessive nuit à la santé."
-• Arômes naturels : "Bien que nommés 'naturels', ces arômes sont souvent extraits avec des procédés chimiques industriels (solvants comme hexane, distillation moléculaire). Leur composition exacte n'est pas divulguée et peut contenir des dizaines de molécules cachées. Ils ne sont pas classés cancérigènes par le CIRC, mais leur consommation régulière reste controversée."
 • Colorants (non spécifiés) : "Certaines variétés de colorants peuvent être controversées, surtout les colorants azoïques ou artificiels (E102, E110, E124). Le fabricant ne précise pas ici lesquels, donc principe de précaution. Non classés cancérogènes par le CIRC dans leur ensemble."
 • Taurine : "La taurine est un acide aminé synthétique ajouté comme stimulant dans les boissons énergisantes. À haute dose elle peut provoquer des effets cardiovasculaires (palpitations, hypertension), surtout combinée à la caféine. Non classée cancérogène mais sa consommation régulière reste controversée."
 • Eau : "Ingrédient de base, sans risque pour la santé. Essentiel à la composition du produit."
