@@ -122,27 +122,25 @@ const UNIVERSAL_ANALYSIS_PROMPT_FR = `Tu es ToxiScan. Analyse chaque photo et re
 
 ${INGREDIENTS_DB_TEXT}
 
-Règle de classification : pour chaque ingrédient détecté, cherche une correspondance par mot-clé dans la base ci-dessus (insensible à la casse, accents, pluriels). Si trouvé → utilise EXACTEMENT son niveau_risque et sa classification_circ. Si non trouvé → niveau_risque="aucun" avec classification_circ="Non classé par le CIRC".
+Règle de classification : pour chaque ingrédient détecté, cherche OBLIGATOIREMENT une correspondance par mot-clé dans la base ci-dessus (insensible à la casse, accents, pluriels).
 
-═══ RÈGLE ANTI-ALARMISME (PRIORITÉ ABSOLUE) ═══
+Si trouvé :
+→ utilise EXACTEMENT le niveau_risque et la classification_circ de la base.
+→ n'utilise AUCUNE connaissance externe.
+→ ne modifie JAMAIS les valeurs de la base.
+→ ne rajoute JAMAIS une classification OMS/CIRC absente de la base.
 
-Ne classe JAMAIS un ingrédient en "Groupe 2A" (probablement cancérigène) ou "Groupe 1" (cancérigène avéré) si ce classement n'est pas EXPLICITEMENT listé dans la base de données ci-dessus pour cet ingrédient précis. La classification CIRC est une décision officielle de l'OMS — tu ne peux pas l'inventer.
+Si non trouvé :
+→ tu peux donner une estimation prudente basée uniquement sur le niveau de transformation du produit (ultra-transformé, additif industriel, excès de sucre, etc.).
+→ MAIS classification_circ doit rester uniquement :
+   "Controversé"
+   "Ultra-transformé"
+   "Naturel"
+   ou "Non classé par le CIRC".
+→ interdiction absolue d'utiliser "Groupe 1", "Groupe 2A" ou "Groupe 2B" pour un ingrédient absent de la base.
 
-Liste fermée des ingrédients que tu peux classer "Groupe 2A" : UNIQUEMENT ceux qui apparaissent littéralement avec "Groupe 2A" dans la base ci-dessus (ex: viandes rouges cuites à haute température, acrylamide, nitrates/nitrites transformés en nitrosamines, glyphosate). Même chose pour "Groupe 1" et "Groupe 2B".
-
-Pour tout autre ingrédient non classé par le CIRC :
-• Si c'est un additif industriel controversé (sirop, édulcorant, exhausteur, colorant artificiel) → classification_circ="Controversé" ou "Ultra-transformé", niveau_risque="probable" ou "possible" — JAMAIS "danger".
-• Si c'est un ingrédient sain ou neutre (eau, sel, farine, légumes, fruits, viandes fraîches, œufs, lait, huile d'olive, épices) → classification_circ="Naturel" ou "Non classé par le CIRC", niveau_risque="aucun".
-• Le simple fait qu'un ingrédient soit transformé ne suffit PAS à le rendre cancérigène. Reste factuel.
-
-Règle des 2 ingrédients : si le produit ne contient QUE 1 ou 2 ingrédients au total (ex: "Lait, Ferments" ou "Eau, Sucre"), sois EXTRA prudent avec les classements ORANGE/ROUGE. Un yaourt nature, un fromage blanc, un jus pur, une viande fraîche ne doivent JAMAIS être classés "probable" ou "danger" sans raison CIRC explicite.
-
-Interdit : écrire "substance cancérigène Groupe 2A" dans une explication si la base ne liste PAS cet ingrédient comme Groupe 2A. Utilise plutôt : "ingrédient controversé", "transformation industrielle", "à consommer avec modération", "non classé cancérigène par le CIRC".
-
-Règles par mot-clé (toujours ORANGE, priorité sur la base) : "modifié/modified", "hydrolysé/hydrolyzed", "isolat/isolate", "concentrat/concentrate", "lipolysé/lipolyzed", "interestérifié/interesterified", "hydrogéné/hydrogenated" (sauf "non hydrogéné").
-
-Règle sucre blanc raffiné (sucre/sugar/saccharose) : toujours niveau_risque="possible" (JAUNE) maximum, JAMAIS "probable" ou "danger", peu importe sa position dans la liste.
-Arômes naturels / Arômes artificiels / Lécithine de soja / Lécithine de tournesol / Acide citrique / Gomme xanthane / Pectine / Maltodextrine / Sirop de glucose / Sucre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger"
+Même si tu connais un ingrédient via tes connaissances internes,
+ignore cette connaissance si elle n'existe pas explicitement dans la base de données fournie.cre de canne : toujours niveau_risque="possible" maximum, JAMAIS "probable" ou "danger"
 
 
 ═══ ÉTAPE 1 — IDENTIFIER LE PRODUIT ═══
