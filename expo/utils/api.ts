@@ -27,7 +27,6 @@ const CATEGORY_ALIASES: Record<string, typeof CATEGORY_VALUES[number]> = {
 const RISK_ALIASES: Record<string, typeof RISK_VALUES[number]> = {
   danger: 'danger', dangereux: 'danger', rouge: 'danger', red: 'danger', high: 'danger', eleve: 'danger', cancerigene: 'danger',
   probable: 'probable', probablement: 'probable', orange: 'probable', medium: 'probable', moyen: 'probable',
-  possible: 'possible', possiblement: 'possible', jaune: 'possible', yellow: 'possible', low: 'possible', faible: 'possible',
   moderation: 'possible', avec_moderation: 'possible', moderer: 'possible', moderate: 'possible', caution: 'possible', warning: 'possible', attention: 'possible', mise_en_garde: 'possible', prudence: 'possible', controverse: 'possible', controversial: 'possible',
   aucun: 'aucun', none: 'aucun', vert: 'aucun', green: 'aucun', safe: 'aucun', sur: 'aucun', approuve: 'aucun', approved: 'aucun', ok: 'aucun',
 };
