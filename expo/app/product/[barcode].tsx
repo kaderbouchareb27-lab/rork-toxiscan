@@ -36,34 +36,49 @@ import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
-import { t, isEnglish } from '@/utils/i18n';
-
-// ✅ Import correct — connecté à la vraie base de données IARC + keywords
-import { classifySubstanceLevel, SubstanceLevel } from '@/utils/riskScore';
+import { t } from '@/utils/i18n';
+import type { RiskLevel } from '@/constants/ingredientsDatabase';
 
 // ─────────────────────────────────────────────
-// Helpers d'affichage
+// ✅ Conversion directe niveau_risque → couleur/label
+// On utilise niveau_risque stocké par lookupIngredient (api.ts)
+// PAS de re-classification textuelle qui écrase la base de données
 // ─────────────────────────────────────────────
-function getLevelBadgeColor(level: SubstanceLevel): string {
-  switch (level) {
-    case 'group1':        return '#FF3B30';
-    case 'group2a':       return '#E8640A';
-    case 'group2b':       return '#F5C000';
-    case 'controversial': return '#E8640A';
-    case 'safe':          return '#2E9E34';
+
+type DisplayLevel = 'danger' | 'probable' | 'possible' | 'aucun';
+
+function getDisplayLevel(ing: {
+  niveau_risque?: string | null;
+}): DisplayLevel {
+  switch (ing.niveau_risque) {
+    case 'danger':   return 'danger';
+    case 'probable': return 'probable';
+    case 'possible': return 'possible';
+    default:         return 'aucun';
   }
 }
 
-function getLevelBadgeLabel(level: SubstanceLevel): string {
+function getLevelBadgeColor(level: DisplayLevel): string {
   switch (level) {
-    case 'group1':        return t('level_confirmed_carcinogen');
-    case 'group2a':       return t('level_probable_carcinogen');
-    case 'group2b':       return t('level_possible_carcinogen');
-    case 'controversial': return t('level_controversial');
-    case 'safe':          return t('level_low_risk');
+    case 'danger':   return '#FF3B30'; // 🔴 rouge
+    case 'probable': return '#E8640A'; // 🟠 orange
+    case 'possible': return '#F5C000'; // 🟡 jaune
+    case 'aucun':    return '#2E9E34'; // 🟢 vert
   }
 }
 
+function getLevelBadgeLabel(level: DisplayLevel): string {
+  switch (level) {
+    case 'danger':   return t('level_confirmed_carcinogen');
+    case 'probable': return t('level_controversial');
+    case 'possible': return t('level_possible_carcinogen');
+    case 'aucun':    return t('level_low_risk');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Helpers Nutri-Score / NOVA
+// ─────────────────────────────────────────────
 function getNutriScoreColor(grade: string): string {
   switch (grade.toUpperCase()) {
     case 'A': return '#038141';
@@ -231,15 +246,12 @@ export default function ProductScreen() {
         const newCount = count + 1;
         await AsyncStorage.setItem('toxiscan_scan_count', String(newCount));
         console.log('[ProductScreen] Scan count:', newCount);
-
         if (newCount === 3 || newCount === 10 || newCount === 25) {
           hasRequestedReview.current = true;
           const isAvailable = await StoreReview.isAvailableAsync();
           if (isAvailable) {
             console.log('[ProductScreen] Requesting store review...');
             setTimeout(() => { void StoreReview.requestReview(); }, 1500);
-          } else {
-            console.log('[ProductScreen] Store review not available');
           }
         }
       } catch (e) {
@@ -287,10 +299,8 @@ export default function ProductScreen() {
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
   // ✅ Verdict 100% déterministe — basé sur product.riskGroup calculé par api.ts
-  // Ne jamais recalculer localement — c'était le bug historique
   const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
     let _verdictLevel: VerdictLevel = 'approuve';
-
     switch (product.riskGroup) {
       case 'group1':  _verdictLevel = 'danger';      break;
       case 'group2a': _verdictLevel = 'warning';     break;
@@ -298,10 +308,8 @@ export default function ProductScreen() {
       case 'none':
       default:        _verdictLevel = 'approuve';    break;
     }
-
     const hasCarcinogen    = product.riskGroup === 'group1';
     const hasControversial = product.riskGroup === 'group2a' || product.riskGroup === 'group2b';
-
     console.log('[Product] Verdict from riskGroup:', product.riskGroup, '→', _verdictLevel);
     return { verdictLevel: _verdictLevel, hasCarcinogen, hasControversial };
   }, [product.riskGroup]);
@@ -310,9 +318,7 @@ export default function ProductScreen() {
   const bannerConfig = getBannerConfig(verdictLevel);
 
   const handleFavorite = () => {
-    console.log('[Product] Favorite tapped for:', product.barcode);
     if (!isPro) {
-      console.log('[Product] Not pro, showing paywall');
       router.push('/paywall?source=favorite');
       return;
     }
@@ -333,63 +339,42 @@ export default function ProductScreen() {
     const substancesText = product.detectedAdditives.length > 0
       ? `\n\n${t('substances_detected')} :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
       : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
-      ? `\n\n${t('substances_detected')} :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
-      : '';
+        ? `\n\n${t('substances_detected')} :\n${product.substances.filter(s => s.niveau_risque !== 'aucun').map(s => `- ${s.nom}`).join('\n')}`
+        : '';
     const result = await Share.share({
       message: `${badgeLabel} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\n${t('share_suffix')}`,
     });
     if (result.action === Share.sharedAction) {
       recordShare();
-      console.log('[Product] Text share completed, badge recorded');
     }
   };
 
   const handleShare = async () => {
-    console.log('[Product] Sharing product:', product.name);
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     setIsShareLoading(true);
     try {
       if (Platform.OS !== 'web' && shareCardRef.current) {
-        console.log('[Product] Capturing share image...');
-        const uri = await captureRef(shareCardRef, {
-          format: 'png',
-          quality: 1,
-          result: 'tmpfile',
-        });
-        console.log('[Product] Share image captured:', uri);
-
+        const uri = await captureRef(shareCardRef, { format: 'png', quality: 1, result: 'tmpfile' });
         const isAvailable = await Sharing.isAvailableAsync();
         if (isAvailable) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'image/png',
-            dialogTitle: t('share_dialog_title'),
-            UTI: 'public.png',
-          });
+          await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: t('share_dialog_title'), UTI: 'public.png' });
           recordShare();
-          console.log('[Product] Image share completed, badge recorded');
         } else {
-          console.log('[Product] Sharing not available, falling back to text');
           await fallbackTextShare();
         }
       } else {
         await fallbackTextShare();
       }
     } catch (error) {
-      console.log('[Product] Share error:', error);
-      try {
-        await fallbackTextShare();
-      } catch (fallbackError) {
-        console.log('[Product] Fallback share error:', fallbackError);
-      }
+      try { await fallbackTextShare(); } catch {}
     } finally {
       setIsShareLoading(false);
     }
   };
 
   const handleAskDrToxi = () => {
-    console.log('[Product] Navigating to Dr. Toxi with product context');
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -406,9 +391,7 @@ export default function ProductScreen() {
   };
 
   const healthyAlternatives: HealthyAlternative[] = (() => {
-    if (product.healthyAlternatives && product.healthyAlternatives.length > 0) {
-      return product.healthyAlternatives;
-    }
+    if (product.healthyAlternatives && product.healthyAlternatives.length > 0) return product.healthyAlternatives;
     if (product.riskGroup !== 'none' && product.scanMethod === 'barcode' && product.detectedAdditives.length > 0) {
       return generateBarcodeAlternatives(product.detectedAdditives);
     }
@@ -416,10 +399,8 @@ export default function ProductScreen() {
   })();
 
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
-
   const regionInfo = useMemo(() => detectRegion(), []);
   const userCountry = regionInfo.region;
-
   const showBioStores = !isGreen && (hasCarcinogen || hasControversial || healthyAlternatives.length > 0);
   const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
 
@@ -427,6 +408,11 @@ export default function ProductScreen() {
     if (!product.analysisSummary) return null;
     return shortenText(product.analysisSummary, 3);
   }, [product.analysisSummary]);
+
+  // Liste des ingrédients à afficher (detectedIngredients ou substances)
+  const ingredientsList = product.detectedIngredients && product.detectedIngredients.length > 0
+    ? product.detectedIngredients
+    : product.substances ?? [];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -455,17 +441,13 @@ export default function ProductScreen() {
             product.thumbnailBase64 || product.photoUri ? (
               <Image source={{ uri: product.thumbnailBase64 ?? product.photoUri ?? '' }} style={styles.productImage} contentFit="cover" />
             ) : (
-              <View style={styles.imagePlaceholder}>
-                <Camera color={Colors.textTertiary} size={40} />
-              </View>
+              <View style={styles.imagePlaceholder}><Camera color={Colors.textTertiary} size={40} /></View>
             )
           ) : (
             product.imageUrl ? (
               <Image source={{ uri: product.imageUrl }} style={styles.productImage} contentFit="contain" />
             ) : (
-              <View style={styles.imagePlaceholder}>
-                <Shield color={Colors.textTertiary} size={40} />
-              </View>
+              <View style={styles.imagePlaceholder}><Shield color={Colors.textTertiary} size={40} /></View>
             )
           )}
 
@@ -543,20 +525,15 @@ export default function ProductScreen() {
         <DrToxiVerdict level={verdictLevel} />
 
         {/* ─── Tous les ingrédients ─── */}
-        {((product.detectedIngredients && product.detectedIngredients.length > 0) ||
-          (product.substances && product.substances.length > 0)) ? (
+        {ingredientsList.length > 0 ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('all_ingredients')}</Text>
             <View style={styles.allIngredientsCard}>
-              {(product.detectedIngredients ?? product.substances ?? []).map((ing, index) => {
-                // ✅ classifySubstanceLevel importée depuis @/utils/riskScore
-                // Connectée à la vraie base IARC + keywords — plus jamais de crash
-                const level = classifySubstanceLevel({
-                  classification_circ: ing.classification_circ ?? undefined,
-                  niveau_risque: ing.niveau_risque ?? 'aucun',
-                  explication: ing.explication,
-                  nom: ing.nom,
-                });
+              {ingredientsList.map((ing, index) => {
+                // ✅ On utilise directement niveau_risque de la base de données
+                // PAS de re-classification textuelle qui écrase les couleurs
+                const level = getDisplayLevel(ing);
+                const isProblematic = level !== 'aucun';
                 return (
                   <View key={`all-ing-${index}`}>
                     <View style={styles.allIngRow}>
@@ -566,7 +543,7 @@ export default function ProductScreen() {
                         <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
                       </View>
                     </View>
-                    {level !== 'safe' && ing.explication ? (
+                    {isProblematic && ing.explication ? (
                       <View style={[styles.allIngExplanation, { backgroundColor: getLevelBadgeColor(level) + '18' }]}>
                         <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>
                           {ing.explication}
@@ -641,9 +618,7 @@ export default function ProductScreen() {
                         </View>
                         <View style={styles.healthyAltContent}>
                           <Text style={styles.healthyAltName}>{alt.nom}</Text>
-                          {alt.raison ? (
-                            <Text style={styles.healthyAltReason}>{alt.raison}</Text>
-                          ) : null}
+                          {alt.raison ? <Text style={styles.healthyAltReason}>{alt.raison}</Text> : null}
                         </View>
                       </View>
                     ))}
@@ -722,615 +697,93 @@ export default function ProductScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '700' as const,
-    color: Colors.text,
-    letterSpacing: -0.2,
-    flex: 1,
-    textAlign: 'center' as const,
-    marginHorizontal: 8,
-  },
-  headerRight: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-  },
-  favoriteButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  shareButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-  },
-  productHeader: {
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  productImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 20,
-    backgroundColor: Colors.surface,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  imagePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 20,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  productName: {
-    fontSize: 24,
-    fontWeight: '800' as const,
-    color: Colors.text,
-    textAlign: 'center',
-    marginTop: 18,
-    letterSpacing: -0.4,
-  },
-  productBrand: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    marginTop: 5,
-  },
-  categoryTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginTop: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    backgroundColor: '#E8F9ED',
-    borderRadius: 10,
-  },
-  categoryTagText: {
-    fontSize: 13,
-    fontWeight: '600' as const,
-    color: Colors.primary,
-  },
-  materialText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    marginTop: 6,
-    fontStyle: 'italic' as const,
-  },
-  photoTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 10,
-  },
-  photoTagText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-  },
-  frontPhotoTip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#FFF8ED',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 4,
-    borderWidth: 1,
-    borderColor: '#FFE4B5',
-  },
-  frontPhotoTipText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#8B6914',
-    lineHeight: 18,
-  },
-  badgeContainer: {
-    borderRadius: 20,
-    padding: 22,
-    marginVertical: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  badgeContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  badgeTextContainer: {
-    flex: 1,
-  },
-  badgeLabel: {
-    fontSize: 22,
-    fontWeight: '800' as const,
-    letterSpacing: 1,
-    color: '#FFFFFF',
-  },
-  summaryCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  summaryText: {
-    fontSize: 14,
-    color: Colors.text,
-    lineHeight: 20,
-  },
-  section: {
-    marginTop: 8,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: Colors.text,
-    marginBottom: 12,
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  additiveCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  additiveHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 8,
-  },
-  additiveTag: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  additiveTagText: {
-    fontSize: 10,
-    fontWeight: '700' as const,
-    letterSpacing: 0.3,
-    color: '#FFFFFF',
-  },
-  additiveName: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: Colors.text,
-    flex: 1,
-  },
-  additiveDescription: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    lineHeight: 20,
-  },
-  additiveSource: {
-    fontSize: 12,
-    color: Colors.textTertiary,
-    marginTop: 8,
-    fontStyle: 'italic' as const,
-  },
-  recommendationsCard: {
-    backgroundColor: '#FFFBF0',
-    borderRadius: 14,
-    padding: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#FFE8B2',
-  },
-  recommendationItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  recommendationBullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FF9500',
-    marginTop: 6,
-  },
-  recommendationText: {
-    fontSize: 14,
-    color: Colors.text,
-    lineHeight: 20,
-    flex: 1,
-  },
-  alternativesCard: {
-    backgroundColor: '#E8F9ED',
-    borderRadius: 14,
-    padding: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#C4EDC9',
-  },
-  alternativeItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  alternativeText: {
-    fontSize: 14,
-    color: Colors.text,
-    lineHeight: 20,
-    flex: 1,
-  },
-  healthyAlternativesCard: {
-    backgroundColor: '#F0FAF3',
-    borderRadius: 16,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: '#C4EDC9',
-    overflow: 'hidden' as const,
-  },
-  healthyAlternativesCardInner: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#C4EDC9',
-    overflow: 'hidden' as const,
-    marginBottom: 6,
-  },
-  healthyAltItem: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
-    padding: 14,
-    gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#C4EDC9',
-  },
-  healthyAltBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#2E9E34',
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    marginTop: 2,
-  },
-  healthyAltContent: {
-    flex: 1,
-  },
-  healthyAltName: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: '#1A1A1A',
-    marginBottom: 3,
-  },
-  healthyAltReason: {
-    fontSize: 13,
-    color: '#4A7C59',
-    lineHeight: 18,
-  },
-  bioStoresCard: {
-    backgroundColor: '#F0FAF3',
-    borderRadius: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#C4EDC9',
-  },
-  bioStoresIntro: {
-    fontSize: 14,
-    color: '#3A6B4A',
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  bioStoresSubtitle: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: '#1A1A1A',
-    marginTop: 14,
-    marginBottom: 6,
-  },
-  bioStoreItem: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-    paddingVertical: 5,
-  },
-  bioStoreText: {
-    fontSize: 14,
-    color: '#2D4A35',
-  },
-  bioStoresNote: {
-    fontSize: 13,
-    color: '#5A7D65',
-    lineHeight: 19,
-  },
-  bigShareButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    marginTop: 24,
-    paddingVertical: 20,
-    borderRadius: 20,
-    backgroundColor: '#2E9E34',
-    shadowColor: '#237A28',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 18,
-    elevation: 8,
-  },
-  bigShareButtonGreen: {
-    backgroundColor: '#2E9E34',
-    shadowColor: '#1B7A20',
-    shadowOpacity: 0.4,
-    shadowRadius: 24,
-    elevation: 10,
-  },
-  bigShareButtonLoading: {
-    opacity: 0.8,
-  },
-  bigShareButtonText: {
-    fontSize: 17,
-    fontWeight: '800' as const,
-    color: Colors.white,
-    letterSpacing: 0.2,
-  },
-  drToxiButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    marginTop: 16,
-    paddingVertical: 16,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: 'rgba(46, 158, 52, 0.25)',
-    backgroundColor: Colors.surface,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  drToxiButtonText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.primary,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
-  },
-  emptyText: {
-    fontSize: 17,
-    color: Colors.textSecondary,
-  },
-  retryButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-  },
-  retryButtonText: {
-    color: Colors.white,
-    fontSize: 16,
-    fontWeight: '600' as const,
-  },
-  bottomSpacer: {
-    height: 32,
-  },
-  introCard: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 4,
-    alignItems: 'center' as const,
-  },
-  introText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    textAlign: 'center' as const,
-    letterSpacing: -0.1,
-  },
-  allIngredientsCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    paddingTop: 6,
-    paddingBottom: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
-    overflow: 'hidden' as const,
-  },
-  allIngRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-  },
-  allIngDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    flexShrink: 0,
-  },
-  allIngName: {
-    flex: 1,
-    fontSize: 14,
-    color: Colors.text,
-    fontWeight: '500' as const,
-  },
-  allIngBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    flexShrink: 0,
-  },
-  allIngBadgeText: {
-    fontSize: 9,
-    fontWeight: '700' as const,
-    color: '#FFFFFF',
-    letterSpacing: 0.2,
-  },
-  allIngExplanation: {
-    marginHorizontal: 14,
-    marginBottom: 8,
-    marginTop: 2,
-    padding: 10,
-    borderRadius: 8,
-  },
-  allIngExplanationText: {
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: '400' as const,
-  },
-  approvedFooterCard: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 10,
-    backgroundColor: '#E8F9ED',
-    borderRadius: 14,
-    padding: 14,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: '#C4EDC9',
-  },
-  approvedFooterText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#2D6A3E',
-    fontWeight: '600' as const,
-    lineHeight: 20,
-  },
-  confettiLayer: {
-    position: 'absolute' as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 400,
-    pointerEvents: 'none' as const,
-  },
-  confettiPiece: {
-    position: 'absolute' as const,
-    top: 0,
-    borderRadius: 2,
-  },
-  offscreenContainer: {
-    position: 'absolute' as const,
-    left: -9999,
-    top: -9999,
-    opacity: 0,
-  },
-  offSourceTag: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 5,
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: '#E8F9ED',
-    borderRadius: 10,
-  },
-  offSourceTagText: {
-    fontSize: 12,
-    fontWeight: '500' as const,
-    color: '#2D8A4E',
-  },
-  offScoresRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-    marginTop: 8,
-  },
-  scoreTag: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-  },
-  scoreTagLabel: {
-    fontSize: 11,
-    fontWeight: '600' as const,
-    color: '#FFFFFF',
-    opacity: 0.9,
-  },
-  scoreTagValue: {
-    fontSize: 13,
-    fontWeight: '800' as const,
-    color: '#FFFFFF',
-  },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 },
+  backButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  headerTitle: { fontSize: 17, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.2, flex: 1, textAlign: 'center' as const, marginHorizontal: 8 },
+  headerRight: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8 },
+  favoriteButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  shareButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingHorizontal: 20 },
+  productHeader: { alignItems: 'center', paddingVertical: 24 },
+  productImage: { width: 120, height: 120, borderRadius: 20, backgroundColor: Colors.surface, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
+  imagePlaceholder: { width: 120, height: 120, borderRadius: 20, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  productName: { fontSize: 24, fontWeight: '800' as const, color: Colors.text, textAlign: 'center', marginTop: 18, letterSpacing: -0.4 },
+  productBrand: { fontSize: 15, color: Colors.textSecondary, marginTop: 5 },
+  categoryTag: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, paddingHorizontal: 12, paddingVertical: 5, backgroundColor: '#E8F9ED', borderRadius: 10 },
+  categoryTagText: { fontSize: 13, fontWeight: '600' as const, color: Colors.primary },
+  materialText: { fontSize: 13, color: Colors.textSecondary, marginTop: 6, fontStyle: 'italic' as const },
+  photoTag: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: Colors.surfaceSecondary, borderRadius: 10 },
+  photoTagText: { fontSize: 12, color: Colors.textSecondary },
+  frontPhotoTip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFF8ED', borderRadius: 12, padding: 14, marginBottom: 4, borderWidth: 1, borderColor: '#FFE4B5' },
+  frontPhotoTipText: { flex: 1, fontSize: 13, color: '#8B6914', lineHeight: 18 },
+  badgeContainer: { borderRadius: 20, padding: 22, marginVertical: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 4 },
+  badgeContent: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  badgeTextContainer: { flex: 1 },
+  badgeLabel: { fontSize: 22, fontWeight: '800' as const, letterSpacing: 1, color: '#FFFFFF' },
+  summaryCard: { backgroundColor: Colors.surface, borderRadius: 18, padding: 18, marginBottom: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  summaryText: { fontSize: 14, color: Colors.text, lineHeight: 20 },
+  section: { marginTop: 8 },
+  sectionTitle: { fontSize: 18, fontWeight: '700' as const, color: Colors.text, marginBottom: 12 },
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  additiveCard: { backgroundColor: Colors.surface, borderRadius: 18, padding: 18, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  additiveHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  additiveTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  additiveTagText: { fontSize: 10, fontWeight: '700' as const, letterSpacing: 0.3, color: '#FFFFFF' },
+  additiveName: { fontSize: 15, fontWeight: '600' as const, color: Colors.text, flex: 1 },
+  additiveDescription: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
+  additiveSource: { fontSize: 12, color: Colors.textTertiary, marginTop: 8, fontStyle: 'italic' as const },
+  recommendationsCard: { backgroundColor: '#FFFBF0', borderRadius: 14, padding: 16, gap: 10, borderWidth: 1, borderColor: '#FFE8B2' },
+  recommendationItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  recommendationBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#FF9500', marginTop: 6 },
+  recommendationText: { fontSize: 14, color: Colors.text, lineHeight: 20, flex: 1 },
+  alternativesCard: { backgroundColor: '#E8F9ED', borderRadius: 14, padding: 16, gap: 10, borderWidth: 1, borderColor: '#C4EDC9' },
+  alternativeItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  alternativeText: { fontSize: 14, color: Colors.text, lineHeight: 20, flex: 1 },
+  healthyAlternativesCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 4, borderWidth: 1, borderColor: '#C4EDC9', overflow: 'hidden' as const },
+  healthyAlternativesCardInner: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#C4EDC9', overflow: 'hidden' as const, marginBottom: 6 },
+  healthyAltItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, padding: 14, gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#C4EDC9' },
+  healthyAltBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#2E9E34', justifyContent: 'center' as const, alignItems: 'center' as const, marginTop: 2 },
+  healthyAltContent: { flex: 1 },
+  healthyAltName: { fontSize: 15, fontWeight: '600' as const, color: '#1A1A1A', marginBottom: 3 },
+  healthyAltReason: { fontSize: 13, color: '#4A7C59', lineHeight: 18 },
+  bioStoresCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: '#C4EDC9' },
+  bioStoresIntro: { fontSize: 14, color: '#3A6B4A', lineHeight: 20, marginBottom: 16 },
+  bioStoresSubtitle: { fontSize: 14, fontWeight: '600' as const, color: '#1A1A1A', marginTop: 14, marginBottom: 6 },
+  bioStoreItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 5 },
+  bioStoreText: { fontSize: 14, color: '#2D4A35' },
+  bioStoresNote: { fontSize: 13, color: '#5A7D65', lineHeight: 19 },
+  bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: '#2E9E34', shadowColor: '#237A28', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
+  bigShareButtonGreen: { backgroundColor: '#2E9E34', shadowColor: '#1B7A20', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
+  bigShareButtonLoading: { opacity: 0.8 },
+  bigShareButtonText: { fontSize: 17, fontWeight: '800' as const, color: Colors.white, letterSpacing: 0.2 },
+  drToxiButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 16, paddingVertical: 16, borderRadius: 18, borderWidth: 1.5, borderColor: 'rgba(46, 158, 52, 0.25)', backgroundColor: Colors.surface, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  drToxiButtonText: { fontSize: 16, fontWeight: '600' as const, color: Colors.primary },
+  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
+  emptyText: { fontSize: 17, color: Colors.textSecondary },
+  retryButton: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 12, backgroundColor: Colors.primary },
+  retryButtonText: { color: Colors.white, fontSize: 16, fontWeight: '600' as const },
+  bottomSpacer: { height: 32 },
+  introCard: { paddingVertical: 12, paddingHorizontal: 16, marginBottom: 4, alignItems: 'center' as const },
+  introText: { fontSize: 15, fontWeight: '700' as const, textAlign: 'center' as const, letterSpacing: -0.1 },
+  allIngredientsCard: { backgroundColor: Colors.surface, borderRadius: 16, paddingTop: 6, paddingBottom: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1, overflow: 'hidden' as const },
+  allIngRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, paddingVertical: 8, paddingHorizontal: 14 },
+  allIngDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+  allIngName: { flex: 1, fontSize: 14, color: Colors.text, fontWeight: '500' as const },
+  allIngBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, flexShrink: 0 },
+  allIngBadgeText: { fontSize: 9, fontWeight: '700' as const, color: '#FFFFFF', letterSpacing: 0.2 },
+  allIngExplanation: { marginHorizontal: 14, marginBottom: 8, marginTop: 2, padding: 10, borderRadius: 8 },
+  allIngExplanationText: { fontSize: 12, lineHeight: 17, fontWeight: '400' as const },
+  approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: '#C4EDC9' },
+  approvedFooterText: { flex: 1, fontSize: 14, color: '#2D6A3E', fontWeight: '600' as const, lineHeight: 20 },
+  confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },
+  confettiPiece: { position: 'absolute' as const, top: 0, borderRadius: 2 },
+  offscreenContainer: { position: 'absolute' as const, left: -9999, top: -9999, opacity: 0 },
+  offSourceTag: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, marginTop: 8, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#E8F9ED', borderRadius: 10 },
+  offSourceTagText: { fontSize: 12, fontWeight: '500' as const, color: '#2D8A4E' },
+  offScoresRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, marginTop: 8 },
+  scoreTag: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+  scoreTagLabel: { fontSize: 11, fontWeight: '600' as const, color: '#FFFFFF', opacity: 0.9 },
+  scoreTagValue: { fontSize: 13, fontWeight: '800' as const, color: '#FFFFFF' },
 });
