@@ -18,8 +18,6 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle, CheckCircle, Camera, Lightbulb, RefreshCw, Layers, Leaf, MapPin, Store, Heart, Database, AlertOctagon } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
-import { classifySubstanceLevel, classifyAdditiveLevel, isIARCClassified, isDangerLevel } from '@/utils/riskScore';
-import type { SubstanceLevel } from '@/utils/riskScore';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as StoreReview from 'expo-store-review';
@@ -278,61 +276,24 @@ export default function ProductScreen() {
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
   const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
-    let _hasGroup1 = false;
-    let _hasGroup2A = false;
-    let _orangeCount = 0;
-    let _yellowCount = 0;
-
-    const tally = (level: SubstanceLevel, name: string) => {
-      if (level === 'group1') _hasGroup1 = true;
-      else if (level === 'group2a') _hasGroup2A = true;
-      else if (level === 'controversial') _orangeCount += 1;
-      else if (level === 'group2b') {
-        _yellowCount += 1;
-      }
-    };
-
-    for (const additive of product.detectedAdditives) {
-      tally(classifyAdditiveLevel(additive), additive.name);
-    }
-
-    if (product.substances) {
-      for (const s of product.substances) {
-        tally(classifySubstanceLevel(s), s.nom);
-      }
-    }
-
-    if (product.detectedIngredients) {
-      for (const i of product.detectedIngredients) {
-        tally(classifySubstanceLevel({
-          classification_circ: i.classification_circ,
-          niveau_risque: i.niveau_risque,
-          explication: i.explication,
-          nom: i.nom,
-        }), i.nom);
-      }
-    }
-
-    const concerningTotal = _orangeCount + _yellowCount + (_hasGroup2A ? 1 : 0);
-
+    // ✅ Utilise directement le riskGroup déterministe calculé par api.ts
+    // Ne jamais recalculer ici — faire confiance au badge de la base de données
     let _verdictLevel: VerdictLevel = 'approuve';
-    if (_hasGroup1 || _hasGroup2A) {
-      _verdictLevel = 'danger';
-    } else if (concerningTotal >= 4) {
-      _verdictLevel = 'warning';
-    } else if (_orangeCount >= 1 || _yellowCount >= 2) {
-      _verdictLevel = 'moderation';
-    } else if (_yellowCount >= 1) {
-      _verdictLevel = 'moderation';
+
+    switch (product.riskGroup) {
+      case 'group1': _verdictLevel = 'danger'; break;
+      case 'group2a': _verdictLevel = 'warning'; break;
+      case 'group2b': _verdictLevel = 'moderation'; break;
+      case 'none':
+      default: _verdictLevel = 'approuve'; break;
     }
 
-    console.log('[Product] Verdict:', _verdictLevel, 'G1:', _hasGroup1, 'G2A:', _hasGroup2A, 'orange:', _orangeCount, 'yellow:', _yellowCount);
-    return {
-      verdictLevel: _verdictLevel,
-      hasCarcinogen: _hasGroup1 || _hasGroup2A,
-      hasControversial: _orangeCount > 0 || _yellowCount > 0,
-    };
-  }, [product]);
+    const hasCarcinogen = product.riskGroup === 'group1';
+    const hasControversial = product.riskGroup === 'group2a' || product.riskGroup === 'group2b';
+
+    console.log('[Product] Verdict from riskGroup:', product.riskGroup, '→', _verdictLevel);
+    return { verdictLevel: _verdictLevel, hasCarcinogen, hasControversial };
+  }, [product.riskGroup]);
 
   const isGreen = verdictLevel === 'approuve';
   const bannerConfig = getBannerConfig(verdictLevel);
