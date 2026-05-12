@@ -190,26 +190,31 @@ categorie_produit : food | beverage | cosmetic | household | other.
 • "Concentrated fruit juice" → "Jus concentré"
 • "Cassava root fiber" → "Fibre de racine de manioc"
 
-═══ ÉTAPE 3 — ÉCRIRE LA DESCRIPTION ═══
+═══ ÉTAPE 3 — ÉCRIRE LA DESCRIPTION (TON ADAPTÉ À LA NATURE DE L'INGRÉDIENT) ═══
 
-Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, ton bienveillant et NON-ALARMISTE.
+Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement.
 
-Structure :
-1) Phrase 1 : Ce qu'est l'ingrédient et son rôle dans le produit.
-2) Phrase 2-3 : Effets santé (positifs ou négatifs) — sois factuel.
-3) Phrase 4 : Précision sur le classement cancérigène SI applicable. Reste mesuré.
+⚠️ RÈGLE DU TON : adapte ton discours selon la nature réelle de l'ingrédient :
 
-EXEMPLES :
-• Eau : "Ingrédient de base, sans risque pour la santé. Essentiel à la composition du produit."
-• Sucre de canne : "Le sucre raffiné consommé en excès favorise l'obésité, le diabète et l'inflammation. Ce n'est pas un cancérogène direct mais sa consommation régulière nuit à la santé. À consommer avec modération."
-• Arômes naturels : "Bien que nommés 'naturels', ces arômes sont souvent extraits avec des procédés chimiques industriels. Leur composition exacte n'est pas divulguée. Non classés cancérigènes par le CIRC, mais leur consommation régulière reste controversée."
-• Huile de tournesol : "Huile végétale raffinée riche en oméga-6 pro-inflammatoires. À consommer avec modération. Préférer une huile pressée à froid ou l'huile d'olive."
-• Eau gazéifiée : "Eau pétillante sans risque pour la santé. Hydratante comme l'eau plate."
+INGRÉDIENTS SAINS (eau, sel, fruits, légumes, huile d'olive, miel, épices, vinaigre, lait, œufs, levure) :
+→ Ton positif, rassurant. "Ingrédient naturel, sans risque."
+
+INGRÉDIENTS TRANSFORMÉS OU CONTROVERSÉS (sucres, sirops, huiles raffinées, arômes, gommes, acide citrique industriel, lécithines, phosphates, sulfites) :
+→ Ton neutre-négatif. Explique POURQUOI c'est problématique. Ne rassure PAS.
+→ Exemple sucre de canne : "Le sucre raffiné favorise l'obésité, le diabète de type 2 et l'inflammation chronique. En grande quantité, il nuit à la santé cardiovasculaire et augmente les risques de plusieurs maladies. À consommer avec modération."
+→ Exemple arômes naturels : "Bien que nommés 'naturels', ces arômes sont souvent extraits avec des solvants industriels. Leur composition exacte n'est pas divulguée. Marqueur de produit ultra-transformé."
+→ Exemple acide citrique : "L'acide citrique industriel (E330) est produit par fermentation fongique, non extrait des agrumes. En excès, il peut éroder l'émail dentaire et irriter les muqueuses digestives chez les personnes sensibles."
+→ Exemple huile de tournesol : "Huile végétale raffinée riche en oméga-6 pro-inflammatoires. Un excès d'oméga-6 par rapport aux oméga-3 favorise l'inflammation chronique. Préférer l'huile d'olive pressée à froid."
+
+INGRÉDIENTS VRAIMENT DANGEREUX (nitrites, formaldéhyde, métaux lourds, PFAS) :
+→ Ton d'alerte. Cite le classement CIRC. Déconseille clairement.
+→ Exemple nitrite de sodium : "Conservateur utilisé dans les charcuteries (jambon, bacon, saucisson). Forme des nitrosamines cancérigènes lors de la cuisson à haute température. Classé cancérogène avéré Groupe 1 CIRC — évite d'en consommer régulièrement."
 
 INTERDIT :
-- N'écris JAMAIS "à éviter" ou "très dangereux" sauf pour les vrais cancérigènes Groupe 1 IARC (nitrites, formaldéhyde, etc.).
+- N'écris JAMAIS une description positive pour un ingrédient transformé/controversé.
+- N'écris JAMAIS "sans risque" ou "sûr" pour un ingrédient jaune ou orange.
 - N'invente JAMAIS une classification Groupe 1/2A/2B.
-- Ne mets PAS de champs niveau_risque, classification_circ ou couleur — ils seront ignorés.
+- Ne mets PAS de champs niveau_risque ou couleur — ils seront ignorés.
 
 ═══ CAS PARTICULIERS ═══
 
@@ -257,22 +262,31 @@ For EACH ingredient, create ONE entry in ingredients_lus with:
 
 DO NOT OMIT any ingredient.
 
-═══ STEP 3 — WRITE THE DESCRIPTION ═══
+═══ STEP 3 — WRITE THE DESCRIPTION (TONE ADAPTED TO THE INGREDIENT) ═══
 
-Structure:
-1) What the ingredient is.
-2) Health effects.
-3) Cancer classification IF applicable. Stay measured.
+For EACH ingredient, write 3-5 sentences in clear English, friendly but honest.
 
-EXAMPLES:
-• Water: "Basic ingredient, no health risk."
-• Cane sugar: "Refined sugar consumed in excess promotes obesity, diabetes and inflammation. Not a direct carcinogen but regular consumption is harmful. Consume in moderation."
-• Natural flavors: "Although labeled 'natural', these flavors are often extracted using industrial chemical processes. Their exact composition is not disclosed. Not classified as carcinogenic by IARC, but regular consumption remains controversial."
+⚠️ TONE RULE — adapt your tone to the ingredient's nature:
+
+HEALTHY INGREDIENTS (water, salt, fruits, vegetables, olive oil, honey, spices, vinegar, milk, eggs, yeast):
+→ Positive, reassuring tone. "Natural ingredient, no identified risk."
+
+PROCESSED OR CONTROVERSIAL INGREDIENTS (sugars, syrups, refined oils, flavors, gums, industrial citric acid, lecithins, phosphates, sulfites):
+→ Neutral-negative tone. Explain WHY it's problematic. Do NOT reassure.
+→ Cane sugar example: "Refined sugar promotes obesity, type 2 diabetes, and chronic inflammation. In large quantities it harms cardiovascular health. Consume in moderation."
+→ Natural flavors example: "Although labeled 'natural', these flavors are often extracted using industrial solvents. Their exact composition is not disclosed. A marker of ultra-processed food."
+→ Citric acid example: "Industrial citric acid (E330) is produced by fungal fermentation, not extracted from citrus fruits. In excess, it can erode tooth enamel and irritate the digestive mucosa in sensitive individuals."
+→ Sunflower oil example: "Refined vegetable oil high in pro-inflammatory omega-6 fatty acids. Excess omega-6 relative to omega-3 promotes chronic inflammation. Prefer cold-pressed olive oil."
+
+TRULY DANGEROUS INGREDIENTS (nitrites, formaldehyde, heavy metals, PFAS):
+→ Alert tone. Cite the IARC classification. Clearly advise against it.
+→ Sodium nitrite example: "Preservative used in processed meats (ham, bacon, sausage). Forms carcinogenic nitrosamines when cooked at high temperatures. Classified confirmed carcinogen Group 1 IARC — avoid consuming regularly."
 
 FORBIDDEN:
-- Never write "avoid" except for true Group 1 IARC carcinogens (nitrites, formaldehyde, etc.).
-- Never invent classifications.
-- Do NOT add risk_level fields — they will be ignored.
+- NEVER write a positive description for a processed/controversial ingredient.
+- NEVER write "safe" or "no risk" for a yellow or orange ingredient.
+- NEVER invent a Group 1/2A/2B classification.
+- Do NOT add risk_level or color fields — they will be ignored.
 
 ═══ EXPECTED JSON FORMAT ═══
 

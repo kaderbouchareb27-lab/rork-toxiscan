@@ -20,83 +20,103 @@ import { lookupBarcode } from '@/utils/openFoodFacts';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { niveauRisqueToGroup } from '@/constants/additives';
-import { aiGenerateObject } from '@/utils/aiApi';
-import { renderIngredientsDatabaseForPrompt } from '@/constants/ingredientsDatabase';
-import { z } from 'zod';
+import { INGREDIENTS_DATABASE, RiskLevel } from '@/constants/ingredientsDatabase';
 import { t, isEnglish } from '@/utils/i18n';
 import type { ScannedProduct, RiskGroup, SubstanceDetected } from '@/types';
 
-const RISK_VALUES = ['danger', 'probable', 'possible', 'aucun'] as const;
+// ═══════════════════════════════════════════════════════════════════════
+// LOOKUP DÉTERMINISTE — même logique que api.ts
+// L'IA ne classe PLUS rien pour le scan code-barres non plus.
+// ═══════════════════════════════════════════════════════════════════════
 
-const barcodeAnalysisSchema = z.object({
-  objet_identifie: z.string(),
-  badge_global: z.enum(RISK_VALUES),
-  resume: z.string(),
-  substances_detectees: z.array(
-    z.object({
-      nom: z.string(),
-      code: z.string().nullable(),
-      classification_circ: z.string(),
-      niveau_risque: z.enum(RISK_VALUES),
-      explication: z.string().nullable(),
-    })
-  ),
-  recommandations: z.array(z.string()),
-  alternatives_saines: z
-    .array(z.object({ nom: z.string(), raison: z.string() }))
-    .optional(),
-});
-
-const INGREDIENTS_DB = renderIngredientsDatabaseForPrompt();
-
-async function analyzeBarcodeIngredients(
-  productName: string,
-  brand: string,
-  ingredientsText: string,
-  ingredientsList: string[]
-): Promise<z.infer<typeof barcodeAnalysisSchema>> {
-  const en = isEnglish();
-  const system = en
-    ? `You are Dr. Toxi. Analyze a product based on its ingredient list from Open Food Facts.
-
-═══ INGREDIENT DATABASE ═══
-${INGREDIENTS_DB}
-
-CRITICAL RULES:
-1. EXHAUSTIVENESS: substances_detectees MUST contain ONE entry for EVERY ingredient in the list, from FIRST to LAST. If 15 ingredients → 15 entries. If 8 → 8.
-2. Healthy ingredients (water, salt, flour, milk, eggs, etc.) get niveau_risque="aucun" with classification_circ="Natural" and a short explanation "Natural ingredient, no identified risk."
-3. SORT: danger → probable → possible → aucun.
-4. Each problematic ingredient gets a 3-5 sentence pedagogical explanation.
-5. Match each ingredient against the database above. If not found → "aucun".
-6. badge_global = highest level (1+ danger=danger; 2+ probable OR 1 red=probable; 2-3 yellow=possible; else=aucun).
-7. Resume: 3-4 sentences, friendly, factual, non-alarmist.`
-    : `Tu es Dr. Toxi. Analyse un produit à partir de sa liste d'ingrédients fournie par Open Food Facts.
-
-═══ BASE DE DONNÉES INGRÉDIENTS ═══
-${INGREDIENTS_DB}
-
-RÈGLES CRITIQUES :
-1. EXHAUSTIVITÉ : substances_detectees DOIT contenir UNE entrée par ingrédient, du PREMIER au DERNIER. 15 ingrédients → 15 entrées. 8 → 8.
-2. Les ingrédients sains (eau, sel, farine, lait, œufs, etc.) reçoivent niveau_risque="aucun", classification_circ="Naturel" et explication courte "Ingrédient naturel sans risque identifié."
-3. TRI : danger → probable → possible → aucun.
-4. Chaque ingrédient problématique reçoit une explication pédagogique de 3 à 5 phrases.
-5. Compare chaque ingrédient à la base ci-dessus. Si non trouvé → "aucun".
-6. badge_global = plus haut niveau (1+ danger=danger ; 2+ probable OU 1 rouge=probable ; 2-3 jaunes=possible ; sinon=aucun).
-7. Resume : 3-4 phrases, bienveillant, factuel, non-alarmiste.`;
-
-  const userText = en
-    ? `Product: ${productName}\nBrand: ${brand}\nFull ingredients: ${ingredientsText}\n\nIngredient list (parsed, ${ingredientsList.length} items):\n${ingredientsList.map((i, idx) => `${idx + 1}. ${i}`).join('\n')}\n\nReturn ONE JSON entry per ingredient above. substances_detectees.length MUST equal ${ingredientsList.length}.`
-    : `Produit : ${productName}\nMarque : ${brand}\nIngrédients complets : ${ingredientsText}\n\nListe d'ingrédients (parsée, ${ingredientsList.length} éléments) :\n${ingredientsList.map((i, idx) => `${idx + 1}. ${i}`).join('\n')}\n\nRetourne UNE entrée JSON par ingrédient ci-dessus. substances_detectees.length DOIT être égal à ${ingredientsList.length}.`;
-
-  return aiGenerateObject({
-    system,
-    messages: [{ role: 'user', content: [{ type: 'text', text: userText }] }],
-    schema: barcodeAnalysisSchema,
-    toolName: 'record_barcode_analysis',
-    toolDescription: en ? 'Record barcode product analysis' : 'Enregistre l\'analyse du produit scanné par code-barres',
-    maxTokens: 3500,
-  });
+function normalizeForLookup(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
+
+function lookupIngredient(name: string) {
+  const normalized = normalizeForLookup(name);
+  if (!normalized) return null;
+
+  // Recherche exacte d'abord
+  for (const entry of INGREDIENTS_DATABASE) {
+    for (const kw of entry.keywords) {
+      if (normalizeForLookup(kw) === normalized) return entry;
+    }
+  }
+
+  // Recherche par contenance (le plus long mot-clé matchant gagne)
+  let best = null;
+  let bestLen = 0;
+  for (const entry of INGREDIENTS_DATABASE) {
+    for (const kw of entry.keywords) {
+      const nkw = normalizeForLookup(kw);
+      if (nkw.length < 3) continue;
+      if (normalized.includes(nkw) && nkw.length > bestLen) {
+        best = entry;
+        bestLen = nkw.length;
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Calcul du badge global — identique à computeBadgeGlobal dans api.ts
+ */
+function computeBadge(substances: { niveau_risque: RiskLevel }[]): RiskLevel {
+  const dangerCount  = substances.filter(s => s.niveau_risque === 'danger').length;
+  const probableCount = substances.filter(s => s.niveau_risque === 'probable').length;
+  const possibleCount = substances.filter(s => s.niveau_risque === 'possible').length;
+  const aucunCount   = substances.filter(s => s.niveau_risque === 'aucun').length;
+  const total = substances.length;
+
+  if (dangerCount >= 1) return 'danger';
+  if (probableCount >= 4) return 'probable';
+  if (possibleCount >= 7) return 'probable';
+  if (probableCount >= 1 && probableCount <= 3) {
+    const greenRatio = total > 0 ? aucunCount / total : 0;
+    if (greenRatio >= 0.7) return 'possible';
+    return 'probable';
+  }
+  if (possibleCount >= 2) return 'possible';
+  return 'aucun';
+}
+
+/**
+ * Génère un résumé déterministe selon le badge — identique à generateResume dans api.ts
+ */
+function buildResume(badge: RiskLevel, substances: { niveau_risque: RiskLevel; nom: string }[]): string {
+  const en = isEnglish();
+  if (badge === 'danger') {
+    const names = substances.filter(s => s.niveau_risque === 'danger').slice(0, 2).map(s => s.nom).join(', ');
+    return en
+      ? `Warning! This product contains ingredient(s) classified as carcinogenic by the WHO (${names}). I strongly advise against regular consumption.`
+      : `Attention ! Ce produit contient des ingrédients classés cancérigènes par l'OMS (${names}). Je te déconseille fortement d'en consommer régulièrement.`;
+  }
+  if (badge === 'probable') {
+    return en
+      ? `This product contains several controversial or ultra-processed substances. Consume it only occasionally.`
+      : `Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle.`;
+  }
+  if (badge === 'possible') {
+    return en
+      ? `This product contains a few processed or controversial ingredients. You can consume it occasionally.`
+      : `Ce produit contient quelques ingrédients transformés ou controversés. Tu peux en consommer occasionnellement, mais évite d'en faire un aliment du quotidien.`;
+  }
+  return en
+    ? `This product is overall very good. The vast majority of ingredients are natural and healthy.`
+    : `Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains.`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// COMPOSANT PRINCIPAL
+// ═══════════════════════════════════════════════════════════════════════
 
 export default function BarcodeScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -129,88 +149,103 @@ export default function BarcodeScannerScreen() {
   const lookupMutation = useMutation({
     mutationFn: async (barcode: string): Promise<ScannedProduct> => {
       console.log('[BarcodeScanner] Looking up barcode:', barcode);
+
+      // 1. Récupération Open Food Facts
       const off = await lookupBarcode(barcode);
       if (!off.found || !off.product) {
         throw new Error('NOT_FOUND');
       }
       const p = off.product;
-      const ingredientsList = off.ingredientsList;
-      console.log('[BarcodeScanner] OFF found:', p.product_name, 'ingredients:', ingredientsList.length);
+      const ingredientsList = off.ingredientsList ?? [];
+      console.log('[BarcodeScanner] OFF found:', p.product_name, '— ingredients:', ingredientsList.length);
 
-      let analysis: z.infer<typeof barcodeAnalysisSchema> | null = null;
-      if (ingredientsList.length > 0) {
-        try {
-          analysis = await analyzeBarcodeIngredients(
-            p.product_name || 'Unknown',
-            p.brands || '',
-            p.ingredients_text || ingredientsList.join(', '),
-            ingredientsList
-          );
-          console.log('[BarcodeScanner] AI analysis done, substances:', analysis.substances_detectees.length);
-        } catch (e) {
-          console.warn('[BarcodeScanner] AI analysis failed:', e);
+      // 2. CLASSIFICATION DÉTERMINISTE via lookup dans la base
+      // Aucun appel IA — la base de données décide des couleurs
+      const substances: SubstanceDetected[] = ingredientsList.map((nom) => {
+        const entry = lookupIngredient(nom);
+        if (entry) {
+          console.log('[BarcodeClassify] "' + nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
+          return {
+            nom,
+            code: entry.code,
+            classification_circ: entry.circ,
+            niveau_risque: entry.risk,
+            explication: entry.note
+              ?? (isEnglish()
+                ? 'Ingredient classified by ToxiScan database.'
+                : 'Ingrédient classifié par la base ToxiScan.'),
+            source_exposition: null,
+          };
         }
-      }
+        console.log('[BarcodeClassify] "' + nom + '" → NON TROUVÉ → aucun');
+        return {
+          nom,
+          code: null,
+          classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
+          niveau_risque: 'aucun' as RiskLevel,
+          explication: isEnglish()
+            ? 'Natural ingredient, no identified risk.'
+            : 'Ingrédient naturel sans risque identifié.',
+          source_exposition: null,
+        };
+      });
 
-      const substances: SubstanceDetected[] = analysis?.substances_detectees ?? ingredientsList.map((nom) => ({
-        nom,
-        code: null,
-        classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
-        niveau_risque: 'aucun' as const,
-        explication: isEnglish() ? 'Natural ingredient, no identified risk.' : 'Ingrédient naturel sans risque identifié.',
-        source_exposition: null,
-      }));
+      // 3. Tri par gravité (rouge → orange → jaune → vert)
+      const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
+      substances.sort((a, b) => riskOrder[a.niveau_risque] - riskOrder[b.niveau_risque]);
 
-      const badgeGlobal = analysis?.badge_global ?? 'aucun';
-      let riskGroup: RiskGroup = niveauRisqueToGroup(badgeGlobal);
+      // 4. Badge global DÉTERMINISTE
+      const badgeGlobal: RiskLevel = computeBadge(substances);
+      const riskGroup: RiskGroup = niveauRisqueToGroup(badgeGlobal);
+      console.log('[BarcodeScanner] badge_global:', badgeGlobal, '— riskGroup:', riskGroup);
+
+      // 5. Résumé déterministe
+      const resume = buildResume(badgeGlobal, substances);
+
+      // 6. Additifs détectés (non-verts seulement)
       const detectedAdditives = substances
-        .filter((s) => s.niveau_risque !== 'aucun')
-        .map((s) => ({
+        .filter(s => s.niveau_risque !== 'aucun')
+        .map(s => ({
           code: s.code ?? s.nom,
           name: s.nom,
           group: niveauRisqueToGroup(s.niveau_risque),
           description: s.explication ?? '',
         }));
-      if (riskGroup === 'none' && detectedAdditives.length > 0) {
-        const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
-        riskGroup = detectedAdditives.reduce<RiskGroup>(
-          (max, a) => (groupPriority[a.group] > groupPriority[max] ? a.group : max),
-          'none'
-        );
-      }
 
       const product: ScannedProduct = {
         barcode,
-        name: analysis?.objet_identifie || p.product_name || 'Unknown',
+        name: p.product_name || 'Unknown',
         brand: p.brands || '',
-        imageUrl: p.image_url,
+        imageUrl: p.image_url ?? null,
         riskGroup,
         detectedAdditives,
         scannedAt: new Date().toISOString(),
         categories: p.categories || 'food',
         ingredientsText: p.ingredients_text || ingredientsList.join(', '),
         scanMethod: 'barcode',
-        detectedIngredients: substances.map((s) => ({
+        detectedIngredients: substances.map(s => ({
           nom: s.nom,
           code: s.code,
           classification_circ: s.classification_circ,
           niveau_risque: s.niveau_risque,
           explication: s.explication,
         })),
-        analysisSummary: analysis?.resume ?? '',
-        objectIdentified: analysis?.objet_identifie ?? p.product_name ?? '',
+        analysisSummary: resume,
+        objectIdentified: p.product_name ?? '',
         substances,
-        recommendations: analysis?.recommandations ?? [],
+        recommendations: [],
         saferAlternatives: [],
-        healthyAlternatives: analysis?.alternatives_saines ?? [],
+        healthyAlternatives: [],
         nutriScore: p.nutriscore_grade ? p.nutriscore_grade.toUpperCase() : undefined,
         novaGroup: p.nova_group ?? undefined,
         offSource: off.source ?? undefined,
       };
+
       return product;
     },
+
     onSuccess: (product) => {
-      console.log('[BarcodeScanner] Lookup success:', product.name);
+      console.log('[BarcodeScanner] Success:', product.name, '— badge:', product.riskGroup);
       addProduct(product);
       recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
@@ -218,8 +253,9 @@ export default function BarcodeScannerScreen() {
       }
       router.replace(`/product/${product.barcode}`);
     },
+
     onError: (err: Error) => {
-      console.error('[BarcodeScanner] Lookup error:', err.message);
+      console.error('[BarcodeScanner] Error:', err.message);
       if (Platform.OS !== 'web') {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
@@ -253,7 +289,9 @@ export default function BarcodeScannerScreen() {
 
   const handleManualEntry = useCallback(() => {
     if (Platform.OS === 'web') {
-      const value = window.prompt(isEnglish() ? 'Enter barcode (EAN-13, UPC...)' : 'Saisis le code-barres (EAN-13, UPC...)');
+      const value = window.prompt(
+        isEnglish() ? 'Enter barcode (EAN-13, UPC...)' : 'Saisis le code-barres (EAN-13, UPC...)'
+      );
       if (value && value.trim().length >= 6) {
         handleBarcodeScanned(value.trim());
       }
@@ -493,7 +531,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   loadingText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' as const },
-  permissionContainer: { flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' },
+  permissionContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   permissionInner: { paddingHorizontal: 32, alignItems: 'center', gap: 14 },
   permissionIcon: {
     width: 88,
@@ -504,8 +547,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  permissionTitle: { fontSize: 22, fontWeight: '700' as const, color: '#1A1C1E', letterSpacing: -0.4 },
-  permissionText: { fontSize: 15, color: '#6B7280', textAlign: 'center', lineHeight: 22 },
+  permissionTitle: {
+    fontSize: 22,
+    fontWeight: '700' as const,
+    color: '#1A1C1E',
+    letterSpacing: -0.4,
+  },
+  permissionText: {
+    fontSize: 15,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
   permissionButton: {
     marginTop: 16,
     backgroundColor: '#2E9E34',
@@ -513,7 +566,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
     borderRadius: 14,
   },
-  permissionButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' as const },
+  permissionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700' as const,
+  },
   permissionCancel: { marginTop: 8, padding: 12 },
   permissionCancelText: { color: '#6B7280', fontSize: 14, fontWeight: '500' as const },
 });
