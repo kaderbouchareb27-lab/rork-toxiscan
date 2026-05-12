@@ -37,19 +37,15 @@ import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlt
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { t } from '@/utils/i18n';
-import type { RiskLevel } from '@/constants/ingredientsDatabase';
 
 // ─────────────────────────────────────────────
 // ✅ Conversion directe niveau_risque → couleur/label
 // On utilise niveau_risque stocké par lookupIngredient (api.ts)
 // PAS de re-classification textuelle qui écrase la base de données
 // ─────────────────────────────────────────────
-
 type DisplayLevel = 'danger' | 'probable' | 'possible' | 'aucun';
 
-function getDisplayLevel(ing: {
-  niveau_risque?: string | null;
-}): DisplayLevel {
+function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
   switch (ing.niveau_risque) {
     case 'danger':   return 'danger';
     case 'probable': return 'probable';
@@ -60,19 +56,19 @@ function getDisplayLevel(ing: {
 
 function getLevelBadgeColor(level: DisplayLevel): string {
   switch (level) {
-    case 'danger':   return '#FF3B30'; // 🔴 rouge
-    case 'probable': return '#E8640A'; // 🟠 orange
-    case 'possible': return '#F5C000'; // 🟡 jaune
-    case 'aucun':    return '#2E9E34'; // 🟢 vert
+    case 'danger':   return '#FF3B30'; // 🔴 CANCÉRIGÈNE
+    case 'probable': return '#E8640A'; // 🟠 ULTRA-TRANSFORMÉ
+    case 'possible': return '#F5C000'; // 🟡 MODÉRATION
+    case 'aucun':    return '#2E9E34'; // 🟢 APPROUVÉ
   }
 }
 
 function getLevelBadgeLabel(level: DisplayLevel): string {
   switch (level) {
-    case 'danger':   return t('level_confirmed_carcinogen');
-    case 'probable': return t('level_controversial');
-    case 'possible': return t('level_possible_carcinogen');
-    case 'aucun':    return t('level_low_risk');
+    case 'danger':   return t('badge_danger');     // CANCÉRIGÈNE
+    case 'probable': return t('badge_caution');    // ULTRA-TRANSFORMÉ
+    case 'possible': return t('badge_moderation'); // MODÉRATION
+    case 'aucun':    return t('badge_approved');   // APPROUVÉ
   }
 }
 
@@ -209,9 +205,6 @@ function ConfettiBurst() {
   );
 }
 
-// ─────────────────────────────────────────────
-// Utilitaires texte
-// ─────────────────────────────────────────────
 function truncateName(name: string, max: number = 60): string {
   if (!name) return name;
   if (name.length <= max) return name;
@@ -224,9 +217,6 @@ function shortenText(text: string, maxSentences: number): string {
   return sentences.slice(0, maxSentences).join(' ');
 }
 
-// ─────────────────────────────────────────────
-// Composant principal
-// ─────────────────────────────────────────────
 export default function ProductScreen() {
   console.log("[ProductScreen] Rendering product detail screen");
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
@@ -245,12 +235,10 @@ export default function ProductScreen() {
         const count = countStr ? parseInt(countStr, 10) : 0;
         const newCount = count + 1;
         await AsyncStorage.setItem('toxiscan_scan_count', String(newCount));
-        console.log('[ProductScreen] Scan count:', newCount);
         if (newCount === 3 || newCount === 10 || newCount === 25) {
           hasRequestedReview.current = true;
           const isAvailable = await StoreReview.isAvailableAsync();
           if (isAvailable) {
-            console.log('[ProductScreen] Requesting store review...');
             setTimeout(() => { void StoreReview.requestReview(); }, 1500);
           }
         }
@@ -262,14 +250,11 @@ export default function ProductScreen() {
   }, []);
 
   const product = useMemo(() => {
-    console.log('[Product] Looking for product with barcode:', barcode);
     return history.find(p => p.barcode === barcode);
   }, [history, barcode]);
 
   const handleBack = useCallback(() => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.back();
   }, []);
 
@@ -302,11 +287,11 @@ export default function ProductScreen() {
   const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
     let _verdictLevel: VerdictLevel = 'approuve';
     switch (product.riskGroup) {
-      case 'group1':  _verdictLevel = 'danger';      break;
-      case 'group2a': _verdictLevel = 'warning';     break;
-      case 'group2b': _verdictLevel = 'moderation';  break;
+      case 'group1':  _verdictLevel = 'danger';     break;
+      case 'group2a': _verdictLevel = 'warning';    break;
+      case 'group2b': _verdictLevel = 'moderation'; break;
       case 'none':
-      default:        _verdictLevel = 'approuve';    break;
+      default:        _verdictLevel = 'approuve';   break;
     }
     const hasCarcinogen    = product.riskGroup === 'group1';
     const hasControversial = product.riskGroup === 'group2a' || product.riskGroup === 'group2b';
@@ -318,13 +303,8 @@ export default function ProductScreen() {
   const bannerConfig = getBannerConfig(verdictLevel);
 
   const handleFavorite = () => {
-    if (!isPro) {
-      router.push('/paywall?source=favorite');
-      return;
-    }
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
+    if (!isPro) { router.push('/paywall?source=favorite'); return; }
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     toggleFavorite(product.barcode);
   };
 
@@ -344,15 +324,11 @@ export default function ProductScreen() {
     const result = await Share.share({
       message: `${badgeLabel} ${product.name} (${product.brand}) — ${badge.label}${badge.sublabel ? ` : ${badge.sublabel}` : ''}${substancesText}\n\n${t('share_suffix')}`,
     });
-    if (result.action === Share.sharedAction) {
-      recordShare();
-    }
+    if (result.action === Share.sharedAction) recordShare();
   };
 
   const handleShare = async () => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsShareLoading(true);
     try {
       if (Platform.OS !== 'web' && shareCardRef.current) {
@@ -367,17 +343,12 @@ export default function ProductScreen() {
       } else {
         await fallbackTextShare();
       }
-    } catch (error) {
-      try { await fallbackTextShare(); } catch {}
-    } finally {
-      setIsShareLoading(false);
-    }
+    } catch { try { await fallbackTextShare(); } catch {} }
+    finally { setIsShareLoading(false); }
   };
 
   const handleAskDrToxi = () => {
-    if (Platform.OS !== 'web') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({
       pathname: '/dr-toxi',
       params: {
@@ -409,7 +380,6 @@ export default function ProductScreen() {
     return shortenText(product.analysisSummary, 3);
   }, [product.analysisSummary]);
 
-  // Liste des ingrédients à afficher (detectedIngredients ou substances)
   const ingredientsList = product.detectedIngredients && product.detectedIngredients.length > 0
     ? product.detectedIngredients
     : product.substances ?? [];
@@ -530,8 +500,11 @@ export default function ProductScreen() {
             <Text style={styles.sectionTitle}>{t('all_ingredients')}</Text>
             <View style={styles.allIngredientsCard}>
               {ingredientsList.map((ing, index) => {
-                // ✅ On utilise directement niveau_risque de la base de données
-                // PAS de re-classification textuelle qui écrase les couleurs
+                // ✅ niveau_risque de la base → couleur correcte
+                // 🔴 danger = CANCÉRIGÈNE
+                // 🟠 probable = ULTRA-TRANSFORMÉ
+                // 🟡 possible = MODÉRATION
+                // 🟢 aucun = APPROUVÉ
                 const level = getDisplayLevel(ing);
                 const isProblematic = level !== 'aucun';
                 return (
@@ -606,16 +579,13 @@ export default function ProductScreen() {
             </View>
             <View style={styles.bioStoresCard}>
               <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
-
               {showAlternatives && (
                 <>
                   <Text style={styles.bioStoresSubtitle}>{t('recommended_bio_alternatives')}</Text>
                   <View style={styles.healthyAlternativesCardInner}>
                     {healthyAlternatives.map((alt, index) => (
                       <View key={`healthy-alt-${index}`} style={styles.healthyAltItem}>
-                        <View style={styles.healthyAltBadge}>
-                          <CheckCircle color="#FFFFFF" size={14} />
-                        </View>
+                        <View style={styles.healthyAltBadge}><CheckCircle color="#FFFFFF" size={14} /></View>
                         <View style={styles.healthyAltContent}>
                           <Text style={styles.healthyAltName}>{alt.nom}</Text>
                           {alt.raison ? <Text style={styles.healthyAltReason}>{alt.raison}</Text> : null}
@@ -625,7 +595,6 @@ export default function ProductScreen() {
                   </View>
                 </>
               )}
-
               <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
               {getRegionSpecialtyStores(userCountry).map((store, i) => (
                 <View key={`store-spec-${i}`} style={styles.bioStoreItem}>
@@ -633,17 +602,14 @@ export default function ProductScreen() {
                   <Text style={styles.bioStoreText}>{store}</Text>
                 </View>
               ))}
-
               <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
               <Text style={styles.bioStoresNote}>{getRegionGroceryStores(userCountry).join(', ')}</Text>
-
               {getRegionLocalMarkets(userCountry).length > 0 && (
                 <>
                   <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
                   <Text style={styles.bioStoresNote}>{getRegionLocalMarkets(userCountry).join(', ')}</Text>
                 </>
               )}
-
               <Text style={styles.bioStoresSubtitle}>
                 {isHouseholdOrCosmetic ? t('clean_brands') : t('organic_brands')}
               </Text>
@@ -654,19 +620,10 @@ export default function ProductScreen() {
 
         <TouchableOpacity
           style={[styles.bigShareButton, isGreen && styles.bigShareButtonGreen, isShareLoading && styles.bigShareButtonLoading]}
-          onPress={handleShare}
-          activeOpacity={0.85}
-          testID="big-share-button"
-          disabled={isShareLoading}
+          onPress={handleShare} activeOpacity={0.85} testID="big-share-button" disabled={isShareLoading}
         >
-          {isShareLoading ? (
-            <ActivityIndicator color={Colors.white} size="small" />
-          ) : (
-            <Share2 color={Colors.white} size={22} />
-          )}
-          <Text style={styles.bigShareButtonText}>
-            {isShareLoading ? t('preparing') : t('share_result')}
-          </Text>
+          {isShareLoading ? <ActivityIndicator color={Colors.white} size="small" /> : <Share2 color={Colors.white} size={22} />}
+          <Text style={styles.bigShareButtonText}>{isShareLoading ? t('preparing') : t('share_result')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.drToxiButton} onPress={handleAskDrToxi} activeOpacity={0.8} testID="ask-dr-toxi">
@@ -680,14 +637,9 @@ export default function ProductScreen() {
       <View style={styles.offscreenContainer} pointerEvents="none">
         <View ref={shareCardRef} collapsable={false}>
           <ShareImageCard
-            productName={product.name}
-            brand={product.brand}
-            riskGroup={product.riskGroup}
-            photoUri={product.photoUri}
-            thumbnailBase64={product.thumbnailBase64}
-            imageUrl={product.imageUrl}
-            substances={product.substances}
-            detectedIngredients={product.detectedIngredients}
+            productName={product.name} brand={product.brand} riskGroup={product.riskGroup}
+            photoUri={product.photoUri} thumbnailBase64={product.thumbnailBase64} imageUrl={product.imageUrl}
+            substances={product.substances} detectedIngredients={product.detectedIngredients}
             detectedAdditives={product.detectedAdditives}
           />
         </View>
