@@ -37,6 +37,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['nitrosamine', 'nitrosamines'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Cancérigène avéré formé par cuisson nitrites + viande.' },
   { keywords: ['hydroquinone'], code: null, risk: 'danger', circ: 'Interdit UE' },
 
+  // --- NOUVEAUX 🔴 ROUGE ---
+  { keywords: ['acide borique', 'boric acid', 'e284'], code: 'E284', risk: 'danger', circ: 'Toxique avéré', note: 'Toxique reproduction, accumulation rénale. Interdit alimentation dans plusieurs pays.' },
+  { keywords: ['tetraborate de sodium', 'tétraborate de sodium', 'borax', 'sodium tetraborate', 'e285'], code: 'E285', risk: 'danger', circ: 'Toxique avéré', note: 'Interdit UE depuis 2010. Perturbateur endocrinien, toxique reproduction.' },
+  { keywords: ['sulfate de cuivre', 'copper sulfate', 'e519'], code: 'E519', risk: 'danger', circ: 'Toxique avéré', note: 'Utilisé comme pesticide. Accumulation hépatique. Interdit alimentation humaine dans plusieurs pays.' },
+
   // ═══════════════════════════════════════════════════════════════
   // 🟠 ORANGE — ULTRA-TRANSFORMÉ (Groupe 2A IARC ou ultra-transformé sévère)
   // ═══════════════════════════════════════════════════════════════
@@ -49,22 +54,23 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // --- Huiles ultra-transformées → ORANGE ---
   { keywords: ['huile de palme', 'palm oil', 'graisses de palme', 'graisses vegetales', 'graisse de palme'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Contient du 3-MCPD et glycidol cancérigènes.' },
   { keywords: ['huile de colza', 'canola oil', 'rapeseed oil', 'huile de canola'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Huile raffinée industriellement. Préférer pressée à froid.' },
-  { keywords: ['huile de tournesol', 'sunflower oil', 'huile de tournesol raffinee'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Riche en oméga-6 pro-inflammatoires. Déséquilibre omega-6/omega-3.' },
+  { keywords: ['huile de tournesol', 'sunflower oil', 'huile de tournesol raffinee', 'huile de tournesol à haute teneur en acide oléique', 'high oleic sunflower oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Riche en oméga-6 pro-inflammatoires. Déséquilibre omega-6/omega-3.' },
   { keywords: ['huile de soja', 'soybean oil', 'soy oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Excès oméga-6. Souvent OGM.' },
   { keywords: ['huile de mais', 'corn oil', 'huile de maïs'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Excès oméga-6 pro-inflammatoire.' },
   { keywords: ['huile de coton', 'cottonseed oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Souvent OGM et résidus de pesticides.' },
-  { keywords: ['huile vegetale', 'vegetable oil', 'huiles vegetales', 'corps gras vegetaux'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Composition non précisée, souvent palme ou colza raffinés.' },
+  { keywords: ['huile vegetale', 'vegetable oil', 'huiles vegetales', 'corps gras vegetaux', 'huile végétale'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Composition non précisée, souvent palme ou colza raffinés.' },
   { keywords: ['hydrogenated', 'hydrogene', 'partiellement hydrogene', 'huile hydrogénée', 'graisse hydrogénée'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Contient des graisses trans.' },
   { keywords: ['gras trans', 'trans fat', 'acides gras trans'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
   { keywords: ['graisse interesterifiee', 'interesterified', 'graisse interestérifiée'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
 
   // --- Amidons modifiés → ORANGE ---
-  { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'e1404', 'e1412', 'e1422', 'e1450'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé à fort index glycémique.' },
+  { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1404', 'e1412', 'e1422', 'e1450'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé à fort index glycémique.' },
 
   // --- Protéines industrielles → ORANGE ---
   { keywords: ['proteines hydrolysees', 'hydrolyzed protein', 'hydrolyse', 'hydrolyzed', 'protéines hydrolysées'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
   { keywords: ['caseinate', 'caseinate de sodium', 'caséinate'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
-  { keywords: ['isolat de proteines', 'protein isolate', 'soy protein isolate', 'milk protein concentrate', 'pea protein isolate', 'isolat de protéines'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
+  { keywords: ['isolat de proteines', 'protein isolate', 'soy protein isolate', 'milk protein concentrate', 'pea protein isolate', 'isolat de protéines', 'proteine de soya texturee', 'protéine de soya texturée', 'textured soy protein', 'soja texturé', 'tsp', 'tvp'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Isolat protéique industriel ultra-transformé.' },
+  { keywords: ['substances laitieres modifiees', 'substances laitières modifiées', 'modified milk ingredients', 'ingredients laitiers modifies', 'ingrédients laitiers modifiés'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Mélange industriel de protéines de lait modifiées. Marqueur d\'ultra-transformation.' },
 
   // --- Édulcorants problématiques → ORANGE ---
   { keywords: ['acesulfame', 'acesulfame k', 'acesulfame potassium', 'e950'], code: 'E950', risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Dégrade le microbiome intestinal. Perturbateur endocrinien.' },
@@ -75,10 +81,12 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['tbhq', 'e319'], code: 'E319', risk: 'probable', circ: 'Ultra-transformé', note: 'Lié à tumeurs dans études animales.' },
 
   // --- Colorants azoïques → ORANGE ---
-  { keywords: ['tartrazine', 'jaune 5', 'yellow 5', 'e102'], code: 'E102', risk: 'probable', circ: 'Hyperactivité', note: 'Lié à l\'hyperactivité chez l\'enfant. Interdit sans avertissement.' },
-  { keywords: ['jaune 6', 'yellow 6', 'sunset yellow', 'jaune orange s', 'e110'], code: 'E110', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
+  { keywords: ['tartrazine', 'jaune 5', 'yellow 5', 'fd&c yellow 5', 'e102'], code: 'E102', risk: 'probable', circ: 'Hyperactivité', note: 'Lié à l\'hyperactivité chez l\'enfant. Interdit sans avertissement.' },
+  { keywords: ['jaune 6', 'yellow 6', 'sunset yellow', 'jaune orange s', 'fd&c yellow 6', 'e110'], code: 'E110', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
   { keywords: ['ponceau 4r', 'rouge cochenille a', 'e124'], code: 'E124', risk: 'probable', circ: 'Hyperactivité', note: 'Interdit aux USA, lié à hyperactivité.' },
-  { keywords: ['rouge 40', 'red 40', 'allura red', 'e129'], code: 'E129', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque. Oxford 2024 : dommages ADN confirmés.' },
+  { keywords: ['rouge 40', 'red 40', 'allura red', 'rouge allura', 'fd&c red 40', 'fd c red 40', 'fd&c couleur rouge 40', 'fd&c couleur rouge #40', 'rouge #40', 'red #40', 'e129'], code: 'E129', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque. Oxford 2024 : dommages ADN confirmés.' },
+  { keywords: ['azorubine', 'carmoisine', 'rouge azo', 'e122'], code: 'E122', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque lié hyperactivité enfant. Interdit dans plusieurs pays.' },
+  { keywords: ['bleu 1', 'blue 1', 'bleu brillant', 'bleu brillant fcf', 'brilliant blue', 'brilliant blue fcf', 'fd&c blue 1', 'fd c blue 1', 'fcf', 'e133'], code: 'E133', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant synthétique pétrolier. Lié à hyperactivité, interdit dans plusieurs pays européens.' },
   { keywords: ['caramel ammoniacal sulfite', 'sulfite ammonia caramel', 'caramel iv', 'e150d'], code: 'E150d', risk: 'probable', circ: 'Groupe 2B', note: 'Contient du 4-MEI classé Groupe 2B.' },
 
   // --- Émulsifiants perturbateurs microbiome → ORANGE ---
@@ -91,13 +99,27 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['msg', 'glutamate monosodique', 'monosodium glutamate', 'acide glutamique', 'e620', 'e621'], code: 'E620-E621', risk: 'probable', circ: 'Excitotoxine', note: 'Excitotoxine qui stimule excessivement les neurones.' },
 
   // --- Aluminium → ORANGE ---
-  { keywords: ['silicate aluminium', 'aluminum silicate', 'e554', 'e555', 'e556'], code: 'E554-E556', risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Accumulation neurologique préoccupante.' },
+  { keywords: ['silicate aluminium', 'aluminum silicate', 'silicate alumino-sodique', 'silicate alumino-potassique', 'silicate alumino-calcique', 'e554', 'e555', 'e556'], code: 'E554-E556', risk: 'probable', circ: 'Neurotoxique', note: 'Accumulation aluminium liée à Alzheimer.' },
   { keywords: ['ferrocyanure de sodium', 'sodium ferrocyanide', 'e535'], code: 'E535', risk: 'probable', circ: 'Toxique' },
-  { keywords: ['phosphate aluminium sodium', 'sodium aluminum phosphate', 'e541'], code: 'E541', risk: 'probable', circ: 'Neurotoxique', note: 'Aluminium neurotoxique lié à Alzheimer.' },
+  { keywords: ['phosphate aluminium sodium', 'sodium aluminum phosphate', 'phosphate acide d\'aluminium et de sodium', 'e541'], code: 'E541', risk: 'probable', circ: 'Neurotoxique', note: 'Aluminium neurotoxique lié à Alzheimer.' },
 
   // --- Additifs interdits → ORANGE ---
   { keywords: ['azodicarbonamide', 'e927a'], code: 'E927a', risk: 'probable', circ: 'Interdit UE' },
   { keywords: ['potassium bromate', 'e924'], code: 'E924', risk: 'probable', circ: 'Groupe 2B', note: 'Interdit en UE, Canada, Royaume-Uni.' },
+
+  // --- NOUVEAUX ADDITIFS 🟠 ORANGE ---
+  { keywords: ['argent', 'silver', 'e174'], code: 'E174', risk: 'probable', circ: 'Nanoparticules métalliques', note: 'Nanoparticules métalliques, accumulation organes, argyrie irréversible.' },
+  { keywords: ['edta', 'ethylenediaminetetraacetate', 'éthylènediaminetétraacétate', 'edta calcium disodique', 'calcium disodium edta', 'e385'], code: 'E385', risk: 'probable', circ: 'Chélateur industriel', note: 'Chélateur industriel qui perturbe l\'absorption des minéraux essentiels (zinc, fer, magnésium).' },
+  { keywords: ['acides gras', 'fatty acids', 'e570'], code: 'E570', risk: 'probable', circ: 'Ultra-transformé', note: 'Souvent issus d\'huiles hydrogénées trans. Marqueur d\'ultra-transformation.' },
+  { keywords: ['glycine', 'sel de sodium de la glycine', 'glycine sodium salt', 'e640'], code: 'E640', risk: 'probable', circ: 'Amplificateur de goût', note: 'Amplificateur de goût industriel, proche du MSG, excitotoxine potentielle.' },
+  { keywords: ['butane', 'isobutane', 'propane', 'e943a', 'e943b'], code: 'E943a', risk: 'probable', circ: 'Gaz pétrolier', note: 'Gaz propulseur pétrolier industriel dans les aliments — aucune justification nutritionnelle.' },
+  { keywords: ['charbon vegetal', 'charbon végétal', 'vegetable carbon', 'e153'], code: 'E153', risk: 'probable', circ: 'Ultra-transformé', note: 'Production industrielle à haute température. Absorbe médicaments et nutriments.' },
+  { keywords: ['hydroxyde de sodium', 'sodium hydroxide', 'soude caustique', 'e524'], code: 'E524', risk: 'probable', circ: 'Caustique industriel', note: 'Agent chimique industriel corrosif. Résidu alcalin problématique.' },
+  { keywords: ['hydroxyde de potassium', 'potassium hydroxide', 'e525'], code: 'E525', risk: 'probable', circ: 'Caustique industriel', note: 'Caustique industriel. Perturbateur de l\'équilibre acido-basique.' },
+  { keywords: ['hydroxyde de calcium', 'calcium hydroxide', 'chaux', 'e526'], code: 'E526', risk: 'probable', circ: 'Caustique industriel', note: 'Industriel, irritant digestif. Usage alimentaire très controversé.' },
+  { keywords: ['silicate de sodium', 'sodium silicate', 'e550'], code: 'E550', risk: 'probable', circ: 'Ultra-transformé', note: 'Composé industriel minéral. Données toxicologiques insuffisantes.' },
+  { keywords: ['sulfate d\'ammonium', 'ammonium sulfate', 'e517'], code: 'E517', risk: 'probable', circ: 'Sel industriel', note: 'Sel d\'ammonium utilisé comme engrais agricole — présence alimentaire préoccupante.' },
+  { keywords: ['phosphate d\'os', 'phosphate d os', 'bone phosphate', 'edible bone phosphate', 'e542'], code: 'E542', risk: 'probable', circ: 'Contamination métaux lourds', note: 'Extrait d\'os industriels. Risque de contamination métaux lourds (plomb, cadmium).' },
 
   // --- Perturbateurs endocriniens cosmétiques → ORANGE ---
   { keywords: ['parabene', 'paraben', 'methylparaben', 'ethylparaben', 'propylparaben', 'butylparaben', 'méthylparaben', 'propylparaben'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Détectés dans des tumeurs du sein.' },
@@ -136,7 +158,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Arômes → JAUNE ---
   { keywords: ['arome naturel', 'arôme naturel', 'aromes naturels', 'arômes naturels', 'natural flavor', 'natural flavour', 'natural flavors', 'natural flavours', 'arome', 'arôme', 'aromes', 'arômes', 'flavour', 'flavor', 'flavouring', 'flavoring'], code: null, risk: 'possible', circ: 'Composition opaque', note: 'Souvent extraits avec solvants industriels. Composition non divulguée.' },
-  { keywords: ['arome artificiel', 'arôme artificiel', 'artificial flavor', 'artificial flavour', 'artificial flavors'], code: null, risk: 'possible', circ: 'Synthétique', note: 'Molécules synthétiques. Marqueur de produit ultra-transformé.' },
+  { keywords: ['arome artificiel', 'arôme artificiel', 'artificial flavor', 'artificial flavour', 'artificial flavors', 'artificial flavours', 'saveur artificielle', 'saveurs artificielles', 'aromes artificiels', 'arômes artificiels'], code: null, risk: 'possible', circ: 'Synthétique', note: 'Molécules synthétiques. Marqueur de produit ultra-transformé.' },
 
   // --- Émulsifiants modérés → JAUNE ---
   { keywords: ['emulsifiant', 'emulsifiants', 'émulsifiant', 'émulsifiants', 'emulsifier', 'emulsifiers', 'e471', 'mono et diglycerides', 'monoglycerides', 'diglycerides', 'mono- et diglycérides', 'monodiglycérides', 'mono and diglycerides', 'mono- and diglycerides'], code: 'E471', risk: 'possible', circ: 'Ultra-transformé léger', note: 'Peuvent contenir des graisses trans cachées.' },
@@ -146,13 +168,13 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Gommes → JAUNE ---
   { keywords: ['gomme xanthane', 'xanthan gum', 'xanthan', 'e415'], code: 'E415', risk: 'possible', circ: 'Controversé', note: 'Peut perturber la digestion chez les personnes sensibles.' },
-  { keywords: ['gomme guar', 'guar gum', 'e412'], code: 'E412', risk: 'possible', circ: 'Controversé' },
+  { keywords: ['gomme guar', 'gomme de guar', 'guar gum', 'e412'], code: 'E412', risk: 'possible', circ: 'Controversé', note: 'Gélifiant industriel, peut causer ballonnements et inconforts digestifs.' },
   { keywords: ['gomme arabique', 'arabic gum', 'acacia gum', 'e414'], code: 'E414', risk: 'possible', circ: 'Controversé' },
   { keywords: ['gomme de caroube', 'carob gum', 'e410'], code: 'E410', risk: 'possible', circ: 'Controversé' },
   { keywords: ['gomme konjac', 'konjac gum', 'e425'], code: 'E425', risk: 'possible', circ: 'Controversé', note: 'Risque de blocage intestinal.' },
   { keywords: ['gomme tara', 'tara gum', 'e417'], code: 'E417', risk: 'possible', circ: 'Controversé' },
   { keywords: ['gomme gellane', 'gellan gum', 'e418'], code: 'E418', risk: 'possible', circ: 'Controversé' },
-  { keywords: ['alginate', 'e402', 'e403', 'e404'], code: 'E402-E404', risk: 'possible', circ: 'Controversé' },
+  { keywords: ['alginate', 'alginate de potassium', 'potassium alginate', 'alginate d\'ammonium', 'ammonium alginate', 'alginate de calcium', 'calcium alginate', 'e401', 'e402', 'e403', 'e404'], code: 'E401-E404', risk: 'possible', circ: 'Gélifiant marin', note: 'Gélifiant industriel marin. Marqueur d\'ultra-transformation.' },
 
   // --- Acide citrique → JAUNE ---
   { keywords: ['acide citrique', 'citric acid', 'e330', 'acidifiant acide citrique', 'acidifiant (acide citrique)', 'acidifiant: acide citrique'], code: 'E330', risk: 'possible', circ: 'Industriel', note: 'Produit par fermentation fongique. Peut éroder l\'émail dentaire.' },
@@ -161,7 +183,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['diphosphate', 'e450'], code: 'E450', risk: 'possible', circ: 'Excès phosphates' },
   { keywords: ['tripolyphosphate', 'e451'], code: 'E451', risk: 'possible', circ: 'Excès phosphates' },
   { keywords: ['polyphosphate', 'e452'], code: 'E452', risk: 'possible', circ: 'Excès phosphates' },
-  { keywords: ['phosphate de sodium', 'phosphate de potassium', 'phosphate de calcium', 'e339', 'e340', 'e341'], code: 'E339/E340/E341', risk: 'possible', circ: 'Excès phosphates' },
+  { keywords: ['phosphate de sodium', 'phosphate de potassium', 'phosphate de calcium', 'sodium phosphate', 'e339', 'e340', 'e341'], code: 'E339/E340/E341', risk: 'possible', circ: 'Excès phosphates', note: 'Excès lié à calcification artères et troubles rénaux.' },
 
   // --- Conservateurs modérés → JAUNE ---
   { keywords: ['sodium benzoate', 'benzoate de sodium', 'e211'], code: 'E211', risk: 'possible', circ: 'Controversé', note: 'Forme du benzène avec vitamine C dans certaines boissons.' },
@@ -169,16 +191,16 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['sulfite', 'sulphite', 'dioxyde de soufre', 'sulfur dioxide', 'e220', 'e221', 'e222', 'e223', 'e224', 'e225', 'e226', 'e227', 'e228'], code: 'E220-E228', risk: 'possible', circ: 'Allergène', note: 'Provoque des crises d\'asthme et réactions allergiques.' },
   { keywords: ['sorbate de potassium', 'potassium sorbate', 'e202'], code: 'E202', risk: 'possible', circ: 'Conservateur', note: 'Conservateur synthétique généralement bien toléré mais controversé.' },
   { keywords: ['propionate de calcium', 'calcium propionate', 'e282'], code: 'E282', risk: 'possible', circ: 'Conservateur', note: 'Lié à irritabilité et troubles du comportement chez l\'enfant.' },
+  { keywords: ['erythorbate de sodium', 'érythorbate de sodium', 'sodium erythorbate', 'e316'], code: 'E316', risk: 'possible', circ: 'Antioxydant industriel', note: 'Antioxydant synthétique utilisé dans les charcuteries pour fixer les nitrites.' },
 
   // --- Colorants Groupe 2B → JAUNE ---
   { keywords: ['rouge 3', 'red 3', 'erythrosine', 'e127'], code: 'E127', risk: 'possible', circ: 'Groupe 2B' },
-  { keywords: ['bleu 1', 'blue 1', 'e133'], code: 'E133', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['bleu 2', 'blue 2', 'e132'], code: 'E132', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['vert 3', 'green 3', 'e143'], code: 'E143', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171'], code: 'E171', risk: 'possible', circ: 'Groupe 2B', note: 'Interdit en alimentation en UE depuis 2022.' },
   { keywords: ['cochenille', 'carmine', 'carmin', 'cochineal', 'e120'], code: 'E120', risk: 'possible', circ: 'Allergène', note: 'Allergène fort, chocs anaphylactiques possibles.' },
   { keywords: ['caramel ammoniacal', 'caramel iii', 'e150c'], code: 'E150c', risk: 'possible', circ: 'Groupe 2B' },
-  { keywords: ['silice', 'silicon dioxide', 'e551'], code: 'E551', risk: 'possible', circ: 'Controversé' },
+  { keywords: ['silice', 'silicon dioxide', 'gel de silice', 'silica gel', 'dioxyde de silicium', 'e551'], code: 'E551', risk: 'possible', circ: 'Nanoparticules', note: 'Anti-agglomérant en nanoparticules. EFSA 2018 : accumulation hépatique constatée.' },
 
   // --- Édulcorants Groupe 2B → JAUNE ---
   { keywords: ['saccharine', 'saccharin', 'e954'], code: 'E954', risk: 'possible', circ: 'Groupe 2B' },
@@ -189,7 +211,21 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['extrait de levure', 'yeast extract', 'extraits de levure'], code: null, risk: 'possible', circ: 'Glutamate caché', note: 'Contient du glutamate naturel — MSG caché.' },
 
   // --- Amplificateurs de goût → JAUNE ---
-  { keywords: ['guanylate', 'inosinate', 'e626', 'e627', 'e628', 'e629', 'e630', 'e631', 'e632', 'e633', 'e634', 'e635'], code: 'E626-E635', risk: 'possible', circ: 'Amplificateur de goût' },
+  { keywords: ['guanylate', 'inosinate', 'guanylate disodique', 'inosinate disodique', 'ribonucleotides', 'ribonucléotides', 'e626', 'e627', 'e628', 'e629', 'e630', 'e631', 'e632', 'e633', 'e634', 'e635'], code: 'E626-E635', risk: 'possible', circ: 'Amplificateur de goût', note: 'Souvent combiné avec MSG pour amplifier le goût umami.' },
+
+  // --- NOUVEAUX 🟡 JAUNE ---
+  { keywords: ['anthocyanes', 'anthocyanins', 'e163'], code: 'E163', risk: 'possible', circ: 'Naturel transformé', note: 'Naturel mais souvent extrait avec solvants industriels.' },
+  { keywords: ['chlorophylle', 'chlorophylles', 'chlorophyll', 'chlorophyllines', 'e140', 'e141'], code: 'E140', risk: 'possible', circ: 'Naturel transformé', note: 'Naturel mais version industrielle souvent avec cuivre ajouté.' },
+  { keywords: ['alpha-tocopherol', 'alpha tocopherol', 'alpha-tocophérol', 'tocopherols', 'tocophérols', 'e307'], code: 'E307', risk: 'possible', circ: 'Vitamine E synthétique', note: 'Vitamine E synthétique industrielle, moins biodisponible que la naturelle.' },
+  { keywords: ['gamma-tocopherol', 'gamma tocopherol', 'gamma-tocophérol', 'e308'], code: 'E308', risk: 'possible', circ: 'Vitamine E synthétique', note: 'Forme synthétique de vitamine E, moins biodisponible.' },
+  { keywords: ['delta-tocopherol', 'delta tocopherol', 'delta-tocophérol', 'e309'], code: 'E309', risk: 'possible', circ: 'Vitamine E synthétique', note: 'Forme synthétique de vitamine E, moins biodisponible.' },
+  { keywords: ['acide succinique', 'succinic acid', 'e363'], code: 'E363', risk: 'possible', circ: 'Acidifiant industriel', note: 'Acidifiant industriel, peu étudié à long terme.' },
+  { keywords: ['citrate triammonique', 'triammonium citrate', 'e380'], code: 'E380', risk: 'possible', circ: 'Sel ammonium', note: 'Sel d\'ammonium industriel, données toxicologiques limitées.' },
+  { keywords: ['tanin ferrique', 'tanins ferriques', 'iron tannate', 'e181'], code: 'E181', risk: 'possible', circ: 'Stabilisant', note: 'Colorant/stabilisant peu étudié. Interaction avec absorption du fer.' },
+  { keywords: ['or', 'gold', 'e175'], code: 'E175', risk: 'possible', circ: 'Métal inerte', note: 'Métal inerte mais nanoparticules d\'or de plus en plus controversées.' },
+  { keywords: ['sulfate de magnesium', 'sulfate de magnésium', 'magnesium sulfate', 'sel d\'epsom', 'e518'], code: 'E518', risk: 'possible', circ: 'Laxatif', note: 'Laxatif industriel à doses élevées. Perturbation des électrolytes.' },
+  { keywords: ['stearate de magnesium', 'stéarate de magnésium', 'magnesium stearate', 'e572'], code: 'E572', risk: 'possible', circ: 'Lubrifiant industriel', note: 'Agent lubrifiant industriel. Peut réduire l\'absorption des nutriments.' },
+  { keywords: ['glucono-delta-lactone', 'gdl', 'glucono delta lactone', 'e575'], code: 'E575', risk: 'possible', circ: 'Acidifiant industriel', note: 'Acidifiant industriel par fermentation artificielle. Données long terme limitées.' },
 
   // --- Cosmétique modéré → JAUNE ---
   { keywords: ['fragrance', 'parfum'], code: null, risk: 'possible', circ: 'Composition opaque', note: 'Composition non divulguée. Peut contenir des allergènes.' },
@@ -205,14 +241,14 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['sel', 'salt', 'sel marin', 'sel de mer', 'fleur de sel', 'sel iode', 'sel iodé'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Céréales et féculents ---
-  { keywords: ['farine de ble', 'farine de blé', 'farine complete', 'wheat flour', 'whole wheat flour', 'whole flour'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['farine de ble', 'farine de blé', 'farine complete', 'wheat flour', 'whole wheat flour', 'whole flour', 'farine de blé enrichie', 'enriched wheat flour'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['avoine', 'oat', 'flocons d\'avoine'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['riz', 'rice', 'riz complet', 'brown rice'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['riz', 'rice', 'riz complet', 'brown rice', 'riz précuit', 'vermicelles de blé', 'vermicelles de riz'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['quinoa'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['orge', 'barley'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['sarrasin', 'buckwheat'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['epeautre', 'épeautre', 'spelt'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['amidon de ble', 'amidon de blé', 'wheat starch', 'fécule de pomme de terre', 'potato starch', 'fécule de maïs', 'cornstarch'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Amidon naturel non modifié.' },
+  { keywords: ['amidon de ble', 'amidon de blé', 'wheat starch', 'fécule de pomme de terre', 'potato starch', 'fécule de maïs', 'cornstarch', 'amidon de mais', 'amidon de maïs', 'farine de mais', 'farine de maïs', 'farine de riz'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Amidon naturel non modifié.' },
 
   // --- Vinaigres ---
   { keywords: ['vinaigre', 'vinegar', 'vinaigre de cidre', 'vinaigre de cidre de pomme', 'apple cider vinegar', 'vinaigre balsamique', 'vinaigre de vin'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -231,7 +267,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['lait', 'milk', 'lait entier', 'whole milk'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['lait ecreme', 'lait écrémé', 'skim milk', 'skimmed milk', 'lait en poudre', 'milk powder', 'lait écrémé en poudre', 'skimmed milk powder'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['yaourt', 'yogurt', 'yoghurt'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['fromage', 'cheese', 'fromage blanc'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['fromage', 'cheese', 'fromage blanc', 'cheddar', 'fromage cheddar', 'cheddar déshydraté'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['oeuf', 'oeufs', 'egg', 'eggs', 'œuf', 'œufs'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Levures et ferments ---
@@ -255,28 +291,32 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Légumineuses ---
   { keywords: ['lentilles', 'lentils'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['pois chiches', 'chickpeas', 'pois chiche'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['pois chiches', 'chickpeas', 'pois chiche', 'pois secs'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['haricots', 'beans', 'haricot'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['soja', 'soy', 'tofu'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Non OGM et non transformé. Modération recommandée.' },
+  { keywords: ['soja', 'soy', 'tofu', 'fève de soya', 'soya'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Non OGM et non transformé. Modération recommandée.' },
 
   // --- Fruits et légumes ---
   { keywords: ['fruit', 'legume', 'vegetable'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['pomme', 'apple', 'poire', 'pear', 'banane', 'banana', 'citron', 'lemon'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['tomate', 'tomato', 'tomates', 'tomatoes', 'concentre de tomate', 'concentré de tomate', 'tomato paste', 'puree de tomate', 'purée de tomate'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['carotte', 'carrot', 'carottes', 'carrots'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['epinard', 'épinard', 'spinach', 'brocoli', 'broccoli'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['tomate', 'tomato', 'tomates', 'tomatoes', 'concentre de tomate', 'concentré de tomate', 'tomato paste', 'puree de tomate', 'purée de tomate', 'poudre de tomate', 'tomato powder', 'tomates séchées au soleil', 'sun dried tomatoes'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['carotte', 'carrot', 'carottes', 'carrots', 'carotte déshydratée'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['epinard', 'épinard', 'spinach', 'brocoli', 'broccoli', 'brocoli séché', 'brocoli sec', 'chou', 'chou déshydraté', 'cabbage'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['raisin', 'grape', 'raisins', 'grapes'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['fraise', 'strawberry', 'myrtille', 'blueberry', 'framboise', 'raspberry'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['fibre de racine de manioc', 'cassava root fiber', 'manioc', 'cassava', 'tapioca'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Fibre naturelle prébiotique.' },
+  { keywords: ['mais déshydraté', 'maïs déshydraté', 'dried corn', 'mais', 'maïs'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['oignon déshydraté', 'oignon vert déshydraté', 'dried onion', 'poudre d\'oignon', 'onion powder', 'poireau', 'poireau déshydraté'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['poudre de céleri', 'celery powder', 'céleri'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Épices et aromates ---
   { keywords: ['gingembre', 'ginger'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['curcuma', 'turmeric'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['cannelle', 'cinnamon'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['vanille', 'vanilla', 'extrait de vanille', 'vanilla extract', 'gousse de vanille'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['poivre', 'pepper', 'paprika', 'cumin', 'origan', 'oregano', 'basilic', 'basil', 'thym', 'thyme', 'romarin', 'rosemary'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['ail', 'garlic', 'oignon', 'onion', 'echalote', 'échalote', 'shallot'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['poivre', 'pepper', 'paprika', 'extrait de paprika', 'paprika extract', 'cumin', 'origan', 'oregano', 'basilic', 'basil', 'thym', 'thyme', 'romarin', 'rosemary'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['ail', 'garlic', 'oignon', 'onion', 'echalote', 'échalote', 'shallot', 'poudre d\'ail', 'garlic powder'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['epices', 'épices', 'spices', 'herbes', 'herbs', 'fines herbes'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['extrait d\'annatto', 'annatto extract', 'annatto', 'rocou'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Colorant naturel extrait des graines de rocou.' },
 
   // --- Sucres naturels ---
   { keywords: ['sucre de coco', 'coconut sugar'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -308,6 +348,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Protéines et poissons naturels ---
   { keywords: ['saumon sauvage', 'wild salmon', 'sardine', 'sardines', 'maquereau', 'mackerel', 'anchois', 'anchovy'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Riche en oméga-3.' },
+  { keywords: ['porc', 'pork', 'bœuf', 'boeuf', 'beef', 'poulet', 'chicken', 'dinde', 'turkey'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['fumée', 'smoke', 'fumée naturelle', 'natural smoke'], code: null, risk: 'aucun', circ: 'Naturel' },
 
 ] as const;
 
@@ -325,6 +367,8 @@ export const DANGER_PREGNANCY: readonly string[] = [
   'alcool', 'alcohol',
   'aspartame',
   'nitrite',
+  'acide borique', 'borax',
+  'sulfate de cuivre',
 ] as const;
 
 export function renderIngredientsDatabaseForPrompt(): string {
