@@ -2,7 +2,7 @@
   "expo": {
     "name": "ToxiScan",
     "slug": "toxis",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rork-app",
@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.rork.toxis",
-      "buildNumber": "23",
+      "buildNumber": "24",
       "infoPlist": {
         "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients.",
         "NSMicrophoneUsageDescription": "Dr. Toxi a besoin du microphone pour t'écouter quand tu lui poses des questions vocales sur tes produits.",
