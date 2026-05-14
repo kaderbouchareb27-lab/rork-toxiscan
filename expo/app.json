@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.rork.toxis",
+      "appleTeamId": "X8MBSD9JM3",
       "buildNumber": "24",
       "infoPlist": {
         "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients.",
