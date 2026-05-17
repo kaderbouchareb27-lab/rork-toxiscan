@@ -5,6 +5,7 @@ import React, { useEffect, Component, ErrorInfo, ReactNode } from "react";
 import { t } from '@/utils/i18n';
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { BadgesProvider } from "@/providers/BadgesProvider";
@@ -123,18 +124,20 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <GestureHandlerRootView>
-          <SubscriptionProvider>
-            <ScanHistoryProvider>
-              <BadgesProvider>
-                <OnboardingProvider>
-                  <QuizProvider>
-                    <RootLayoutNav />
-                  </QuizProvider>
-                </OnboardingProvider>
-              </BadgesProvider>
-            </ScanHistoryProvider>
-          </SubscriptionProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <SafeAreaProvider>
+              <SubscriptionProvider>
+              <ScanHistoryProvider>
+                <BadgesProvider>
+                  <OnboardingProvider>
+                    <QuizProvider>
+                      <RootLayoutNav />
+                    </QuizProvider>
+                  </OnboardingProvider>
+                </BadgesProvider>
+              </ScanHistoryProvider>
+            </SubscriptionProvider>
+          </SafeAreaProvider>
         </GestureHandlerRootView>
       </QueryClientProvider>
     </ErrorBoundary>
