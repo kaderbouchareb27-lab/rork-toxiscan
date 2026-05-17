@@ -49,31 +49,56 @@ function getVerdictBadge(level: VerdictLevel): { label: string; sublabel: string
   }
 }
 
+/**
+ * Order risk levels from most to least concerning so that when there are more
+ * than 5 problematic items we surface the worst offenders first.
+ */
+const RISK_ORDER: Record<string, number> = {
+  eleve: 0,
+  élevé: 0,
+  high: 0,
+  modere: 1,
+  modéré: 1,
+  moderate: 1,
+  faible: 2,
+  low: 2,
+};
+
+function riskRank(level: string | undefined): number {
+  if (!level) return 99;
+  const normalized = level.toLowerCase();
+  return RISK_ORDER[normalized] ?? 50;
+}
+
+const MAX_SUBSTANCES = 5;
+
 function getTopSubstances(props: ShareImageCardProps): string[] {
   const results: string[] = [];
 
-  const dangerousSubstances = props.substances?.filter(
-    s => s.niveau_risque !== 'aucun'
-  ) ?? [];
+  const dangerousSubstances = (props.substances ?? [])
+    .filter(s => s.niveau_risque !== 'aucun')
+    .slice()
+    .sort((a, b) => riskRank(a.niveau_risque) - riskRank(b.niveau_risque));
   if (dangerousSubstances.length > 0) {
-    for (const s of dangerousSubstances.slice(0, 3)) {
+    for (const s of dangerousSubstances.slice(0, MAX_SUBSTANCES)) {
       results.push(s.nom);
     }
     return results;
   }
 
-  const dangerousIngredients = props.detectedIngredients?.filter(
-    i => i.niveau_risque !== 'aucun'
-  ) ?? [];
+  const dangerousIngredients = (props.detectedIngredients ?? [])
+    .filter(i => i.niveau_risque !== 'aucun')
+    .slice()
+    .sort((a, b) => riskRank(a.niveau_risque) - riskRank(b.niveau_risque));
   if (dangerousIngredients.length > 0) {
-    for (const i of dangerousIngredients.slice(0, 3)) {
+    for (const i of dangerousIngredients.slice(0, MAX_SUBSTANCES)) {
       results.push(i.nom);
     }
     return results;
   }
 
   if (props.detectedAdditives && props.detectedAdditives.length > 0) {
-    for (const a of props.detectedAdditives.slice(0, 3)) {
+    for (const a of props.detectedAdditives.slice(0, MAX_SUBSTANCES)) {
       results.push(a.name);
     }
     return results;
