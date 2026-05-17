@@ -1,45 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
-import { classifySubstanceLevel, classifyAdditiveLevel, SubstanceLevel } from '@/utils/riskScore';
 import { t } from '@/utils/i18n';
 
 type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
 
-function computeVerdictLevel(props: ShareImageCardProps): VerdictLevel {
-  let hasGroup1 = false;
-  let hasGroup2A = false;
-  let hasGroup2B = false;
-  let controversialCount = 0;
-
-  const tally = (level: SubstanceLevel) => {
-    if (level === 'group1') hasGroup1 = true;
-    else if (level === 'group2a') hasGroup2A = true;
-    else if (level === 'group2b') hasGroup2B = true;
-    else if (level === 'controversial') controversialCount += 1;
-  };
-
-  if (props.detectedAdditives) {
-    for (const a of props.detectedAdditives) tally(classifyAdditiveLevel(a));
+/**
+ * Derive verdict level from product.riskGroup — IDENTICAL to product page logic
+ * (see expo/app/product/[barcode].tsx). This guarantees the share card badge
+ * matches what the user sees on screen.
+ */
+function computeVerdictLevel(riskGroup: RiskGroup): VerdictLevel {
+  switch (riskGroup) {
+    case 'group1':  return 'danger';
+    case 'group2a': return 'warning';
+    case 'group2b': return 'moderation';
+    default:        return 'approuve';
   }
-  if (props.substances) {
-    for (const s of props.substances) tally(classifySubstanceLevel(s));
-  }
-  if (props.detectedIngredients) {
-    for (const i of props.detectedIngredients) {
-      tally(classifySubstanceLevel({
-        classification_circ: i.classification_circ,
-        niveau_risque: i.niveau_risque,
-        explication: i.explication,
-        nom: i.nom,
-      }));
-    }
-  }
-
-  if (hasGroup1) return 'danger';
-  if (hasGroup2A || controversialCount >= 2) return 'warning';
-  if (controversialCount === 1 || hasGroup2B) return 'moderation';
-  return 'approuve';
 }
 
 interface ShareImageCardProps {
@@ -54,14 +31,22 @@ interface ShareImageCardProps {
   detectedAdditives?: AdditiveInfo[];
 }
 
+/**
+ * Badge configuration — uses the SAME labels and colors as the product page
+ * (badge_danger / badge_caution / badge_moderation / badge_approved + matching
+ * banner colors from getBannerConfig in expo/app/product/[barcode].tsx).
+ */
 function getVerdictBadge(level: VerdictLevel): { label: string; sublabel: string; color: string; textColor: string; explanation: string } {
-  if (level === 'danger') {
-    return { label: t('share_danger_label'), sublabel: t('share_danger_sub'), color: '#FF3B30', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
+  switch (level) {
+    case 'danger':
+      return { label: t('badge_danger'), sublabel: t('share_danger_sub'), color: '#FF3B30', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
+    case 'warning':
+      return { label: t('badge_caution'), sublabel: t('share_caution_sub'), color: '#E8640A', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
+    case 'moderation':
+      return { label: t('badge_moderation'), sublabel: t('share_caution_sub'), color: '#F5C000', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
+    case 'approuve':
+      return { label: t('badge_approved'), sublabel: t('share_approved_sub'), color: '#2E9E34', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
   }
-  if (level === 'warning' || level === 'moderation') {
-    return { label: t('share_caution_label'), sublabel: t('share_caution_sub'), color: '#FF9500', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
-  }
-  return { label: t('share_approved_label'), sublabel: t('share_approved_sub'), color: '#2E9E34', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
 }
 
 function getTopSubstances(props: ShareImageCardProps): string[] {
@@ -101,7 +86,7 @@ const TOXISCAN_LOGO = 'https://r2-pub.rork.com/attachments/3a89mndx58c8x8mx5wdrr
 
 export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
-  const verdictLevel = computeVerdictLevel(props);
+  const verdictLevel = computeVerdictLevel(riskGroup);
   const badge = getVerdictBadge(verdictLevel);
   const badgeLabel = badge.label;
   const badgeColor = badge.color;
