@@ -27,6 +27,7 @@ import { compressImageWeb, compressImageNative } from '@/utils/imageCompression'
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
+import { useSubscription } from '@/providers/SubscriptionProvider';
 import DailyFact from '@/components/DailyFact';
 import DonationBanner from '@/components/DonationBanner';
 import { t } from '@/utils/i18n';
@@ -37,6 +38,7 @@ export default function ScannerScreen() {
   const { addProduct } = useScanHistory();
   const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasAcceptedAIConsent } = useOnboarding();
+  const { canScan, consumeScan, isPro, scanRemaining, scanLimit } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -146,6 +148,7 @@ export default function ScannerScreen() {
         useNativeDriver: false,
       }).start();
       addProduct(product);
+      consumeScan();
       recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -251,8 +254,13 @@ export default function ScannerScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+    if (!canScan) {
+      console.log('[Scanner] Daily scan limit reached, showing paywall');
+      router.push('/paywall?source=scan');
+      return;
+    }
     await requestCameraAndProceed();
-  }, [requestCameraAndProceed]);
+  }, [requestCameraAndProceed, canScan]);
 
   const isLoading = photoMutation.isPending;
 
@@ -406,6 +414,12 @@ export default function ScannerScreen() {
                 {t('scan_hint')}
               </Text>
 
+              {!isPro && (
+                <Text style={styles.scanCounterText} testID="scan-counter">
+                  {(t('free_scans_counter') as unknown as (r: number, l: number) => string)(scanRemaining, scanLimit)}
+                </Text>
+              )}
+
               <View style={styles.scanTypesRow}>
                 <View style={styles.scanTypeItem}>
                   <Salad color="#A0A0A0" size={14} strokeWidth={1.5} />
@@ -534,6 +548,14 @@ const styles = StyleSheet.create({
     textAlign: 'center' as const,
     paddingHorizontal: 20,
     lineHeight: 18,
+  },
+  scanCounterText: {
+    marginTop: 10,
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: '#2E9E34',
+    textAlign: 'center' as const,
+    paddingHorizontal: 20,
   },
   scanTypesRow: {
     flexDirection: 'row' as const,

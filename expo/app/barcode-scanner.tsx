@@ -19,6 +19,7 @@ import { X, Barcode, Keyboard as KeyboardIcon } from 'lucide-react-native';
 import { lookupBarcode } from '@/utils/openFoodFacts';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
+import { useSubscription } from '@/providers/SubscriptionProvider';
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { INGREDIENTS_DATABASE, RiskLevel } from '@/constants/ingredientsDatabase';
 import { t, isEnglish } from '@/utils/i18n';
@@ -122,6 +123,7 @@ export default function BarcodeScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const { addProduct } = useScanHistory();
   const { recordScan } = useBadges();
+  const { canScan, consumeScan } = useSubscription();
   const scannedRef = useRef<boolean>(false);
   const [scannedCode, setScannedCode] = useState<string | null>(null);
 
@@ -247,6 +249,7 @@ export default function BarcodeScannerScreen() {
     onSuccess: (product) => {
       console.log('[BarcodeScanner] Success:', product.name, '— badge:', product.riskGroup);
       addProduct(product);
+      consumeScan();
       recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -276,6 +279,12 @@ export default function BarcodeScannerScreen() {
       if (scannedRef.current) return;
       const cleaned = data.replace(/\s/g, '');
       if (!cleaned || cleaned.length < 6) return;
+      if (!canScan) {
+        scannedRef.current = true;
+        console.log('[BarcodeScanner] Daily scan limit reached, showing paywall');
+        router.replace('/paywall?source=scan');
+        return;
+      }
       scannedRef.current = true;
       setScannedCode(cleaned);
       console.log('[BarcodeScanner] Barcode scanned:', cleaned);
@@ -284,7 +293,7 @@ export default function BarcodeScannerScreen() {
       }
       lookupMutation.mutate(cleaned);
     },
-    [lookupMutation]
+    [lookupMutation, canScan]
   );
 
   const handleManualEntry = useCallback(() => {

@@ -20,11 +20,13 @@ if (Platform.OS !== 'web') {
 const USAGE_KEY = 'toxiscan_daily_usage';
 const FREE_DRTOXI_LIMIT = 3;
 const FREE_HISTORY_LIMIT = 3;
+const FREE_SCAN_LIMIT = 3;
 const ENTITLEMENT_ID = 'toxiscan_pro';
 
 interface DailyUsage {
   date: string;
   drToxiCount: number;
+  scanCount: number;
 }
 
 function getTodayString(): string {
@@ -33,7 +35,7 @@ function getTodayString(): string {
 }
 
 function getDefaultUsage(): DailyUsage {
-  return { date: getTodayString(), drToxiCount: 0 };
+  return { date: getTodayString(), drToxiCount: 0, scanCount: 0 };
 }
 
 function getRCToken(): string {
@@ -114,11 +116,15 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     queryFn: async () => {
       const stored = await AsyncStorage.getItem(USAGE_KEY);
       if (!stored) return getDefaultUsage();
-      const parsed = JSON.parse(stored) as DailyUsage;
+      const parsed = JSON.parse(stored) as Partial<DailyUsage>;
       if (parsed.date !== getTodayString()) {
         return getDefaultUsage();
       }
-      return parsed;
+      return {
+        date: parsed.date,
+        drToxiCount: parsed.drToxiCount ?? 0,
+        scanCount: parsed.scanCount ?? 0,
+      };
     },
   });
 
@@ -217,6 +223,13 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const canUseDrToxi = useMemo(() => isPro || usage.drToxiCount < FREE_DRTOXI_LIMIT, [isPro, usage.drToxiCount]);
 
+  const scanRemaining = useMemo(() => {
+    if (isPro) return Infinity;
+    return Math.max(0, FREE_SCAN_LIMIT - usage.scanCount);
+  }, [isPro, usage.scanCount]);
+
+  const canScan = useMemo(() => isPro || usage.scanCount < FREE_SCAN_LIMIT, [isPro, usage.scanCount]);
+
   const consumeDrToxi = useCallback(() => {
     if (isPro) return;
     const today = getTodayString();
@@ -225,6 +238,16 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     setUsage(updated);
     saveUsageMutation.mutate(updated);
     console.log('[Subscription] Dr. Toxi message consumed:', updated.drToxiCount, '/', FREE_DRTOXI_LIMIT);
+  }, [isPro, usage, saveUsageMutation]);
+
+  const consumeScan = useCallback(() => {
+    if (isPro) return;
+    const today = getTodayString();
+    const current = usage.date === today ? usage : getDefaultUsage();
+    const updated: DailyUsage = { ...current, date: today, scanCount: current.scanCount + 1 };
+    setUsage(updated);
+    saveUsageMutation.mutate(updated);
+    console.log('[Subscription] Scan consumed:', updated.scanCount, '/', FREE_SCAN_LIMIT);
   }, [isPro, usage, saveUsageMutation]);
 
 
@@ -250,16 +273,20 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     drToxiRemaining,
     canUseDrToxi,
     consumeDrToxi,
+    canScan,
+    scanRemaining,
+    consumeScan,
     restorePurchase,
     purchasePackage,
     currentOffering,
     purchaseInProgress: purchaseMutation.isPending,
     restoreInProgress: restoreMutation.isPending,
     drToxiLimit: FREE_DRTOXI_LIMIT,
+    scanLimit: FREE_SCAN_LIMIT,
     freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
     offeringsLoading: offeringsQuery.isLoading,
     offeringsError: offeringsQuery.isError,
     refetchOfferings,
-  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isFetching, offeringsQuery.isError, refetchOfferings]);
+  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, canScan, scanRemaining, consumeScan, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isFetching, offeringsQuery.isError, refetchOfferings]);
 });

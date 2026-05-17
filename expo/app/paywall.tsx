@@ -200,6 +200,7 @@ export default function PaywallScreen() {
       case 'history': return t('paywall_history');
       case 'favorite': return t('paywall_favorite');
       case 'alerts': return t('paywall_alerts');
+      case 'scan': return t('paywall_scan');
       default: return t('paywall_default');
     }
   };
@@ -210,6 +211,7 @@ export default function PaywallScreen() {
       case 'history': return t('paywall_sub_history');
       case 'favorite': return t('paywall_sub_favorite');
       case 'alerts': return t('paywall_sub_alerts');
+      case 'scan': return t('paywall_sub_scan');
       default: return t('paywall_sub_default');
     }
   };
