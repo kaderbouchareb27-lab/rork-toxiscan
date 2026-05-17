@@ -218,14 +218,17 @@ export default function PaywallScreen() {
 
   const isLoading = purchaseInProgress || restoreInProgress;
   const insets = useSafeAreaInsets();
+  const isMandatory = source === 'scan' || source === 'drtoxi';
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={[styles.closeButton, { top: insets.top + 12 }]} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
-        <View style={styles.closeCircle}>
-          <X color={Colors.textSecondary} size={18} />
-        </View>
-      </TouchableOpacity>
+      {!isMandatory && (
+        <TouchableOpacity style={[styles.closeButton, { top: insets.top + 12 }]} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
+          <View style={styles.closeCircle}>
+            <X color={Colors.textSecondary} size={18} />
+          </View>
+        </TouchableOpacity>
+      )}
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
