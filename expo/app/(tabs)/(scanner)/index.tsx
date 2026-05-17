@@ -30,7 +30,7 @@ import { useOnboarding } from '@/providers/OnboardingProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import DailyFact from '@/components/DailyFact';
 import DonationBanner from '@/components/DonationBanner';
-import { t } from '@/utils/i18n';
+import { t, tf } from '@/utils/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -416,7 +416,7 @@ export default function ScannerScreen() {
 
               {!isPro && (
                 <Text style={styles.scanCounterText} testID="scan-counter">
-                  {(t('free_scans_counter') as unknown as (r: number, l: number) => string)(scanRemaining, scanLimit)}
+                  {tf('free_scans_counter', scanRemaining, scanLimit)}
                 </Text>
               )}
 
