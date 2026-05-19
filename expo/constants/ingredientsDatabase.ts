@@ -243,12 +243,14 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Base ---
   { keywords: ['eau', 'water', 'aqua', 'eau gazeifiee', 'eau gazéifiée', 'carbonated water', 'sparkling water', 'eau pétillante', 'eau minérale'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['sel', 'salt', 'sel marin', 'sel de mer', 'fleur de sel', 'sel iode', 'sel iodé'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['sel', 'salt', 'sel marin', 'sel de mer', 'fleur de sel', 'sel iode', 'sel iodé'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Minéral essentiel au bon fonctionnement de l\'organisme (équilibre hydrique, transmission nerveuse). Problématique uniquement en excès. / Essential mineral for bodily functions (fluid balance, nerve transmission). Only problematic in excess.' },
 
   // --- Céréales et féculents ---
   { keywords: ['farine de ble', 'farine de blé', 'farine complete', 'wheat flour', 'whole wheat flour', 'whole flour', 'farine de blé enrichie', 'enriched wheat flour'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['avoine', 'oat', 'flocons d\'avoine'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['riz', 'rice', 'riz complet', 'brown rice', 'riz précuit', 'vermicelles de blé', 'vermicelles de riz'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['riz', 'rice', 'riz complet', 'brown rice', 'vermicelles de riz'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['riz précuit', 'riz precuit', 'pre-cooked rice', 'precooked rice', 'parboiled rice'], code: null, risk: 'possible', circ: 'Céréale transformée', note: 'Céréale transformée aux nutriments réduits et à index glycémique élevé comparé au riz complet. / Processed grain with reduced nutrients and a high glycemic index compared to whole grain rice.' },
+  { keywords: ['vermicelles de blé', 'vermicelles de ble', 'wheat vermicelli'], code: null, risk: 'possible', circ: 'Blé raffiné', note: 'Produit à base de blé raffiné, index glycémique élevé pouvant provoquer des pics de glycémie. / Refined wheat product with a high glycemic index that can cause blood sugar spikes.' },
   { keywords: ['quinoa'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['orge', 'barley'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['sarrasin', 'buckwheat'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -310,7 +312,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['fraise', 'strawberry', 'myrtille', 'blueberry', 'framboise', 'raspberry'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['fibre de racine de manioc', 'cassava root fiber', 'manioc', 'cassava', 'tapioca'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Fibre naturelle prébiotique.' },
   { keywords: ['mais déshydraté', 'maïs déshydraté', 'dried corn', 'mais', 'maïs'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['oignon déshydraté', 'oignon vert déshydraté', 'dried onion', 'poudre d\'oignon', 'onion powder', 'poireau', 'poireau déshydraté'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['oignon déshydraté', 'oignon vert déshydraté', 'dried onion', 'poudre d\'oignon', 'onion powder', 'poireau', 'poireau déshydraté'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Oignon naturel déshydraté utilisé comme aromate, conserve une partie des antioxydants de l\'oignon, généralement sans danger. / Natural dehydrated onion used for flavoring, retains some antioxidant properties of onions, generally safe.' },
   { keywords: ['poudre de céleri', 'celery powder', 'céleri'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Épices et aromates ---
