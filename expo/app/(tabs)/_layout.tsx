@@ -1,31 +1,43 @@
 import { Tabs } from "expo-router";
 import { Camera, Clock, MessageCircle, User } from "lucide-react-native";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
+import { BlurView } from "expo-blur";
 import { t } from '@/utils/i18n';
+
+function TabBarBackground() {
+  if (Platform.OS === 'ios') {
+    return (
+      <BlurView
+        tint="light"
+        intensity={80}
+        style={StyleSheet.absoluteFill}
+      />
+    );
+  }
+  return <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(250,250,250,0.96)' }]} />;
+}
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#2E9E34",
-        tabBarInactiveTintColor: "#B0B5BE",
+        tabBarActiveTintColor: "#34C759",
+        tabBarInactiveTintColor: "#B8B8B3",
         headerShown: false,
+        tabBarBackground: () => <TabBarBackground />,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "transparent",
-          borderTopWidth: 0,
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(250,250,250,0.96)',
+          borderTopColor: '#E8E8E6',
+          borderTopWidth: StyleSheet.hairlineWidth,
           elevation: 0,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.06,
-          shadowRadius: 12,
-          ...(Platform.OS === "web" ? {} : {}),
+          shadowColor: 'transparent',
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600" as const,
-          letterSpacing: 0.2,
+          fontFamily: 'DMSans_600SemiBold',
+          letterSpacing: 0.1,
         },
       }}
     >
@@ -33,28 +45,28 @@ export default function TabLayout() {
         name="(scanner)"
         options={{
           title: t('tab_scanner'),
-          tabBarIcon: ({ color, size }) => <Camera color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Camera color={color} size={size} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
           title: t('tab_history'),
-          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="dr-toxi"
         options={{
           title: t('tab_drtoxi'),
-          tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: t('tab_profile'),
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2} />,
         }}
       />
     </Tabs>

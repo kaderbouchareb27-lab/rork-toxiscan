@@ -6,6 +6,32 @@ import { t } from '@/utils/i18n';
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  useFonts,
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+  DMSans_800ExtraBold,
+} from "@expo-google-fonts/dm-sans";
+import { Fonts } from "@/constants/typography";
+
+// Apply DM Sans as the default font globally to every <Text> / <TextInput>.
+function applyDefaultFont() {
+  const setDefault = (Component: { defaultProps?: Record<string, unknown> }) => {
+    const existing = (Component.defaultProps ?? {}) as { style?: unknown };
+    Component.defaultProps = {
+      ...existing,
+      style: [{ fontFamily: Fonts.regular }, existing.style],
+    };
+  };
+  setDefault(Text as unknown as { defaultProps?: Record<string, unknown> });
+  try {
+    const RNTextInput = require("react-native").TextInput;
+    setDefault(RNTextInput);
+  } catch {}
+}
+applyDefaultFont();
 import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { BadgesProvider } from "@/providers/BadgesProvider";
@@ -66,32 +92,42 @@ const ebStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FAFAFA',
     paddingHorizontal: 32,
   },
   title: {
     fontSize: 20,
     fontWeight: '700' as const,
-    color: '#1A1C1E',
+    fontFamily: 'DMSans_700Bold',
+    color: '#0E0E0C',
     marginBottom: 12,
+    letterSpacing: -0.4,
   },
   message: {
     fontSize: 14,
-    color: '#6B7280',
+    fontFamily: 'DMSans_400Regular',
+    color: '#9A9A96',
     textAlign: 'center' as const,
     marginBottom: 24,
     lineHeight: 20,
   },
   button: {
-    backgroundColor: '#2E9E34',
+    backgroundColor: '#34C759',
     paddingVertical: 14,
     paddingHorizontal: 32,
-    borderRadius: 14,
+    borderRadius: 16,
+    shadowColor: '#2E7D32',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 4,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
+    fontFamily: 'DMSans_700Bold',
+    letterSpacing: -0.1,
   },
 });
 
@@ -117,9 +153,23 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+    DMSans_800ExtraBold,
+  });
+
   useEffect(() => {
-    void SplashScreen.hideAsync();
-  }, []);
+    if (fontsLoaded) {
+      void SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <ErrorBoundary>
