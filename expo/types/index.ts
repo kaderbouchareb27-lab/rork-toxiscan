@@ -25,11 +25,15 @@ export interface SubstanceDetected {
   source_exposition: string | null;
 }
 
+export type AdditiveCategory = 'food' | 'cosmetic' | 'household' | 'kitchen' | 'textile' | 'packaging';
+
 export interface AdditiveInfo {
   code: string;
   name: string;
   group: RiskGroup;
+  category: AdditiveCategory;
   description: string;
+  descriptionEn?: string;
 }
 
 export interface DetectedIngredient {

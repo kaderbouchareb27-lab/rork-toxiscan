@@ -1,133 +1,273 @@
-import { AdditiveInfo, RiskGroup } from '@/types';
-import { t } from '@/utils/i18n';
+import { AdditiveInfo, RiskGroup, ProductCategory, AdditiveCategory } from '@/types';
+import { t, isEnglish } from '@/utils/i18n';
 
 export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // ═══════════════════════════════════════════════════════════════
   // 🔴 GROUPE 1 — CANCÉROGÈNES AVÉRÉS (IARC officiel ou interdit santé)
   // ═══════════════════════════════════════════════════════════════
 
-  // --- Nitrites & Nitrates ---
-  { code: 'en:e249', name: 'Nitrite de potassium', group: 'group1', description: 'Conservateur de charcuterie. Forme des nitrosamines cancérogènes lors de la cuisson. Classé cancérogène avéré par le CIRC (Groupe 1) via la viande transformée.' },
-  { code: 'en:e250', name: 'Nitrite de sodium', group: 'group1', description: 'Conservateur utilisé dans les charcuteries (jambon, bacon, saucisson). Forme des nitrosamines cancérogènes (Groupe 1 CIRC) lors de la cuisson. À éviter le plus possible.' },
-  { code: 'en:e251', name: 'Nitrate de sodium', group: 'group1', description: 'Conservateur qui se transforme en nitrites puis en nitrosamines dans l\'organisme. Lié au cancer colorectal et de l\'estomac.' },
-  { code: 'en:e252', name: 'Nitrate de potassium', group: 'group1', description: 'Conservateur de charcuterie. Se transforme en nitrosamines cancérogènes (Groupe 1 CIRC).' },
+  // --- Nitrites & Nitrates (FOOD) ---
+  { code: 'en:e249', name: 'Nitrite de potassium', group: 'group1', category: 'food', description: 'Conservateur de charcuterie. Forme des nitrosamines cancérogènes lors de la cuisson. Classé cancérogène avéré par le CIRC (Groupe 1) via la viande transformée.' },
+  { code: 'en:e250', name: 'Nitrite de sodium', group: 'group1', category: 'food', description: 'Conservateur utilisé dans les charcuteries (jambon, bacon, saucisson). Forme des nitrosamines cancérogènes (Groupe 1 CIRC) lors de la cuisson. À éviter le plus possible.' },
+  { code: 'en:e251', name: 'Nitrate de sodium', group: 'group1', category: 'food', description: 'Conservateur qui se transforme en nitrites puis en nitrosamines dans l\'organisme. Lié au cancer colorectal et de l\'estomac.' },
+  { code: 'en:e252', name: 'Nitrate de potassium', group: 'group1', category: 'food', description: 'Conservateur de charcuterie. Se transforme en nitrosamines cancérogènes (Groupe 1 CIRC).' },
 
   // --- Formaldéhyde et libérateurs ---
-  { code: 'en:e240', name: 'Formaldéhyde', group: 'group1', description: 'Cancérogène avéré (Groupe 1 CIRC). Lié au cancer du nasopharynx et à la leucémie. Interdit en cosmétique UE.' },
-  { code: 'dmdm-hydantoin', name: 'DMDM Hydantoïne', group: 'group1', description: 'Conservateur qui libère du formaldéhyde cancérogène. Présent dans les lingettes bébé, crèmes, shampoings.' },
-  { code: 'quaternium-15', name: 'Quaternium-15', group: 'group1', description: 'Conservateur qui libère du formaldéhyde cancérogène. À éviter en cosmétique.' },
-  { code: 'bronopol', name: 'Bronopol', group: 'group1', description: 'Conservateur qui libère du formaldéhyde. Peut former des nitrosamines.' },
-  { code: 'diazolidinyl-urea', name: 'Diazolidinyl Urea', group: 'group1', description: 'Libérateur de formaldéhyde. Allergène sensibilisant.' },
-  { code: 'imidazolidinyl-urea', name: 'Imidazolidinyl Urea', group: 'group1', description: 'Libérateur de formaldéhyde. Conservateur cosmétique à éviter.' },
+  { code: 'en:e240', name: 'Formaldéhyde', group: 'group1', category: 'food', description: 'Cancérogène avéré (Groupe 1 CIRC). Lié au cancer du nasopharynx et à la leucémie. Interdit en cosmétique UE.' },
+  {
+    code: 'dmdm-hydantoin', name: 'DMDM Hydantoïne', group: 'group1', category: 'cosmetic',
+    description: 'Conservateur cosmétique libérateur de formaldéhyde, classé cancérigène par le CIRC (Groupe 1). Sensibilisant cutané, présent dans lingettes bébé, crèmes et shampoings. Éviter tout contact.',
+    descriptionEn: 'Cosmetic preservative that releases carcinogenic formaldehyde (IARC Group 1). Skin sensitizer found in baby wipes, creams and shampoos. Avoid all contact.',
+  },
+  {
+    code: 'quaternium-15', name: 'Quaternium-15', group: 'group1', category: 'cosmetic',
+    description: 'Conservateur cosmétique libérateur de formaldéhyde (cancérigène CIRC Groupe 1). Sensibilisant cutané puissant. Éviter tout contact.',
+    descriptionEn: 'Cosmetic preservative that releases carcinogenic formaldehyde (IARC Group 1). Strong skin sensitizer. Avoid all contact.',
+  },
+  {
+    code: 'bronopol', name: 'Bronopol', group: 'group1', category: 'cosmetic',
+    description: 'Conservateur cosmétique libérateur de formaldéhyde. Peut former des nitrosamines cancérigènes au contact de la peau. Allergène cutané. Éviter tout contact.',
+    descriptionEn: 'Cosmetic preservative that releases formaldehyde and can form carcinogenic nitrosamines on skin. Known skin allergen. Avoid all contact.',
+  },
+  {
+    code: 'diazolidinyl-urea', name: 'Diazolidinyl Urea', group: 'group1', category: 'cosmetic',
+    description: 'Libérateur de formaldéhyde (CIRC Groupe 1) en cosmétique. Sensibilisant cutané pouvant déclencher dermatites de contact. Éviter tout contact.',
+    descriptionEn: 'Formaldehyde-releasing cosmetic preservative (IARC Group 1). Skin sensitizer that can trigger contact dermatitis. Avoid all contact.',
+  },
+  {
+    code: 'imidazolidinyl-urea', name: 'Imidazolidinyl Urea', group: 'group1', category: 'cosmetic',
+    description: 'Conservateur cosmétique libérateur de formaldéhyde. Allergène cutané sensibilisant. Éviter tout contact.',
+    descriptionEn: 'Formaldehyde-releasing cosmetic preservative. Skin allergen and sensitizer. Avoid all contact.',
+  },
 
   // --- Métaux lourds et toxines ---
-  { code: 'aflatoxine', name: 'Aflatoxines', group: 'group1', description: 'Mycotoxines cancérogènes avérées (Groupe 1 CIRC). Cancer du foie. Contamination possible des arachides, maïs.' },
-  { code: 'benzene', name: 'Benzène', group: 'group1', description: 'Solvant cancérogène avéré (leucémie). Peut se former dans les sodas combinant vitamine C + benzoate de sodium.' },
-  { code: 'mercury-thimerosal', name: 'Mercure / Thimérosal', group: 'group1', description: 'Métal lourd cancérogène et neurotoxique. Interdit en cosmétique UE.' },
-  { code: 'cadmium', name: 'Cadmium', group: 'group1', description: 'Métal lourd cancérogène avéré (Groupe 1 CIRC). Cancer du poumon, rein, prostate.' },
-  { code: 'arsenic', name: 'Arsenic', group: 'group1', description: 'Métal lourd cancérogène avéré. Cancer de la peau, poumon, vessie.' },
-  { code: 'lead-acetate', name: 'Plomb (acétate de plomb)', group: 'group1', description: 'Cancérogène avéré, neurotoxique. Interdit dans les cosmétiques UE.' },
+  { code: 'aflatoxine', name: 'Aflatoxines', group: 'group1', category: 'food', description: 'Mycotoxines cancérogènes avérées (Groupe 1 CIRC). Cancer du foie. Contamination possible des arachides, maïs.' },
+  { code: 'benzene', name: 'Benzène', group: 'group1', category: 'food', description: 'Solvant cancérogène avéré (leucémie). Peut se former dans les sodas combinant vitamine C + benzoate de sodium.' },
+  {
+    code: 'mercury-thimerosal', name: 'Mercure / Thimérosal', group: 'group1', category: 'cosmetic',
+    description: 'Métal lourd cancérigène et neurotoxique. Interdit en cosmétique UE. Toxique par contact cutané et inhalation. Éviter tout contact.',
+    descriptionEn: 'Heavy metal classified carcinogenic and neurotoxic. Banned in EU cosmetics. Toxic via skin contact and inhalation. Avoid all contact.',
+  },
+  { code: 'cadmium', name: 'Cadmium', group: 'group1', category: 'food', description: 'Métal lourd cancérogène avéré (Groupe 1 CIRC). Cancer du poumon, rein, prostate.' },
+  { code: 'arsenic', name: 'Arsenic', group: 'group1', category: 'food', description: 'Métal lourd cancérogène avéré. Cancer de la peau, poumon, vessie.' },
+  {
+    code: 'lead-acetate', name: 'Plomb (acétate de plomb)', group: 'group1', category: 'cosmetic',
+    description: 'Cancérigène avéré (CIRC Groupe 1) et neurotoxique. Interdit en cosmétique UE. Éviter tout contact.',
+    descriptionEn: 'Confirmed carcinogen (IARC Group 1) and neurotoxin. Banned in EU cosmetics. Avoid all contact.',
+  },
 
   // --- PFAS / Polluants éternels ---
-  { code: 'pfas', name: 'PFAS / Polluants éternels', group: 'group1', description: 'PFOA classé Groupe 1 CIRC depuis 2023. Cancérogène, perturbateur endocrinien, affaiblit le système immunitaire. Présent dans emballages alimentaires antigraisse.' },
-  { code: 'pfas-textile', name: 'PFAS / PFC dans textiles', group: 'group1', description: 'Présents dans les vêtements imperméables, anti-taches. Cancérogène, perturbateur endocrinien.' },
+  {
+    code: 'pfas', name: 'PFAS / Polluants éternels', group: 'group1', category: 'packaging',
+    description: 'PFOA classé cancérigène CIRC Groupe 1 depuis 2023. Présents dans emballages alimentaires antigraisse, papiers traités. Migration vers le contenu. Éviter tout contact prolongé.',
+    descriptionEn: 'PFOA classified IARC Group 1 carcinogen since 2023. Found in grease-resistant food packaging and treated paper. Can migrate into contents. Avoid prolonged contact.',
+  },
+  {
+    code: 'pfas-textile', name: 'PFAS / PFC dans textiles', group: 'group1', category: 'textile',
+    description: 'Présents dans vêtements imperméables, anti-taches et anti-feu. Cancérigènes et perturbateurs endocriniens par contact cutané prolongé. Éviter tout contact prolongé.',
+    descriptionEn: 'Used in waterproof, stain-resistant and flame-retardant clothing. Carcinogenic and endocrine-disrupting via prolonged skin contact. Avoid prolonged contact.',
+  },
 
   // --- Cosmétique cancérogène ---
-  { code: 'coal-tar', name: 'Goudron de houille (coal tar)', group: 'group1', description: 'Cancérogène avéré (Groupe 1 CIRC). Présent dans certains shampoings antipelliculaires. À éviter.' },
-  { code: 'chrome-vi', name: 'Chrome hexavalent (Cr VI)', group: 'group1', description: 'Utilisé dans le tannage du cuir. Cancérogène avéré Groupe 1 CIRC.' },
+  {
+    code: 'coal-tar', name: 'Goudron de houille (coal tar)', group: 'group1', category: 'cosmetic',
+    description: 'Cancérigène avéré (CIRC Groupe 1) utilisé dans certains shampoings antipelliculaires. Irritant cutané. Éviter tout contact.',
+    descriptionEn: 'Confirmed carcinogen (IARC Group 1) used in some anti-dandruff shampoos. Skin irritant. Avoid all contact.',
+  },
+  {
+    code: 'chrome-vi', name: 'Chrome hexavalent (Cr VI)', group: 'group1', category: 'textile',
+    description: 'Utilisé dans le tannage du cuir. Cancérigène avéré CIRC Groupe 1 par contact cutané. Provoque eczémas et brûlures. Éviter tout contact.',
+    descriptionEn: 'Used in leather tanning. Confirmed carcinogen (IARC Group 1) via skin contact. Causes eczema and burns. Avoid all contact.',
+  },
 
   // --- Additifs interdits ---
-  { code: 'en:e927a', name: 'Azodicarbonamide', group: 'group1', description: 'Interdit dans l\'UE depuis 2005. Libère du semicarbazide cancérogène lors de la cuisson.' },
-  { code: 'en:e924', name: 'Bromate de potassium', group: 'group1', description: 'Interdit en UE, Canada, Royaume-Uni. Cancérogène possible (Groupe 2B CIRC).' },
-  { code: 'en:e173', name: 'Aluminium (colorant)', group: 'group1', description: 'Métal neurotoxique lié à la maladie d\'Alzheimer.' },
-  { code: 'en:e535', name: 'Ferrocyanure de sodium', group: 'group1', description: 'Peut libérer du cyanure en milieu acide. Toxique à doses élevées.' },
-  { code: 'en:e541', name: 'Phosphate d\'aluminium sodium', group: 'group1', description: 'Contient de l\'aluminium neurotoxique lié à Alzheimer.' },
+  { code: 'en:e927a', name: 'Azodicarbonamide', group: 'group1', category: 'food', description: 'Interdit dans l\'UE depuis 2005. Libère du semicarbazide cancérogène lors de la cuisson.' },
+  { code: 'en:e924', name: 'Bromate de potassium', group: 'group1', category: 'food', description: 'Interdit en UE, Canada, Royaume-Uni. Cancérogène possible (Groupe 2B CIRC).' },
+  { code: 'en:e173', name: 'Aluminium (colorant)', group: 'group1', category: 'food', description: 'Métal neurotoxique lié à la maladie d\'Alzheimer.' },
+  { code: 'en:e535', name: 'Ferrocyanure de sodium', group: 'group1', category: 'food', description: 'Peut libérer du cyanure en milieu acide. Toxique à doses élevées.' },
+  { code: 'en:e541', name: 'Phosphate d\'aluminium sodium', group: 'group1', category: 'food', description: 'Contient de l\'aluminium neurotoxique lié à Alzheimer.' },
 
-  // --- Mélamine ---
-  { code: 'melamine', name: 'Mélamine', group: 'group1', description: 'Toxique pour les reins. Peut causer des calculs rénaux et une insuffisance rénale.' },
+  // --- Mélamine (food contaminant) ---
+  { code: 'melamine', name: 'Mélamine', group: 'group1', category: 'food', description: 'Toxique pour les reins. Peut causer des calculs rénaux et une insuffisance rénale.' },
 
   // --- Hydroquinone ---
-  { code: 'hydroquinone', name: 'Hydroquinone', group: 'group1', description: 'Agent éclaircissant interdit en Europe. Lié à l\'ochronose et aux cancers cutanés.' },
+  {
+    code: 'hydroquinone', name: 'Hydroquinone', group: 'group1', category: 'cosmetic',
+    description: 'Agent éclaircissant cutané cancérigène (CIRC Groupe 1), interdit en Europe en cosmétique. Provoque ochronose et lésions cutanées. Éviter tout contact.',
+    descriptionEn: 'Skin-lightening agent classified carcinogenic (IARC Group 1), banned in EU cosmetics. Causes ochronosis and skin lesions. Avoid all contact.',
+  },
 
   // --- Azoïques textile ---
-  { code: 'azo-dyes', name: 'Colorants azoïques textiles', group: 'group1', description: 'Peuvent libérer des amines aromatiques cancérogènes par contact cutané.' },
+  {
+    code: 'azo-dyes', name: 'Colorants azoïques textiles', group: 'group1', category: 'textile',
+    description: 'Peuvent libérer des amines aromatiques cancérigènes par contact cutané prolongé. Allergènes puissants. Éviter tout contact prolongé.',
+    descriptionEn: 'Can release carcinogenic aromatic amines via prolonged skin contact. Strong allergens. Avoid prolonged contact.',
+  },
 
 
   // ═══════════════════════════════════════════════════════════════
   // 🟠 GROUPE 2A — PROBABLEMENT CANCÉROGÈNES / PROBLÉMATIQUES MAJEURS
   // ═══════════════════════════════════════════════════════════════
 
-  // --- Groupe 2A IARC officiel ---
-  { code: 'acrylamide', name: 'Acrylamide', group: 'group2a', description: 'Se forme à haute température (chips, frites, café). Classé probablement cancérogène par le CIRC (Groupe 2A).' },
-  { code: 'glyphosate', name: 'Glyphosate', group: 'group2a', description: 'Herbicide classé probablement cancérogène par le CIRC (2015).' },
-  { code: 'viande-rouge', name: 'Viande rouge', group: 'group2a', description: 'Probablement cancérogène (Groupe 2A CIRC). Lien avec cancer colorectal. Limiter à 500g/semaine.' },
+  // --- Groupe 2A IARC officiel (food) ---
+  { code: 'acrylamide', name: 'Acrylamide', group: 'group2a', category: 'food', description: 'Se forme à haute température (chips, frites, café). Classé probablement cancérogène par le CIRC (Groupe 2A).' },
+  { code: 'glyphosate', name: 'Glyphosate', group: 'group2a', category: 'food', description: 'Herbicide classé probablement cancérogène par le CIRC (2015).' },
+  { code: 'viande-rouge', name: 'Viande rouge', group: 'group2a', category: 'food', description: 'Probablement cancérogène (Groupe 2A CIRC). Lien avec cancer colorectal. Limiter à 500g/semaine.' },
 
   // --- Édulcorant problématique ---
-  { code: 'en:e951', name: 'Aspartame', group: 'group2a', description: 'Classé possiblement cancérogène (Groupe 2B CIRC) en juillet 2023. Présent dans sodas light, chewing-gums sans sucre. À limiter.' },
-  { code: 'en:e950', name: 'Acésulfame potassium', group: 'group2a', description: 'Perturbateur du microbiome intestinal. Lien suspecté avec diabète. À limiter.' },
+  { code: 'en:e951', name: 'Aspartame', group: 'group2a', category: 'food', description: 'Classé possiblement cancérogène (Groupe 2B CIRC) en juillet 2023. Présent dans sodas light, chewing-gums sans sucre. À limiter.' },
+  { code: 'en:e950', name: 'Acésulfame potassium', group: 'group2a', category: 'food', description: 'Perturbateur du microbiome intestinal. Lien suspecté avec diabète. À limiter.' },
 
   // --- Conservateurs problématiques ---
-  { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group2a', description: 'Classé cancérogène possible (Groupe 2B CIRC). Perturbateur endocrinien. À éviter.' },
-  { code: 'en:e319', name: 'TBHQ (Tert-butylhydroquinone)', group: 'group2a', description: 'Lié à des tumeurs dans des études animales. Limité en UE.' },
+  { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group2a', category: 'food', description: 'Classé cancérogène possible (Groupe 2B CIRC). Perturbateur endocrinien. À éviter.' },
+  { code: 'en:e319', name: 'TBHQ (Tert-butylhydroquinone)', group: 'group2a', category: 'food', description: 'Lié à des tumeurs dans des études animales. Limité en UE.' },
 
   // --- Colorants azoïques (hyperactivité enfant) ---
-  { code: 'en:e102', name: 'Tartrazine / Yellow 5', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE. Souvent contaminé par la benzidine.' },
-  { code: 'en:e110', name: 'Jaune orangé S / Yellow 6', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE.' },
-  { code: 'en:e124', name: 'Rouge cochenille A / Ponceau 4R', group: 'group2a', description: 'Colorant azoïque interdit aux USA. Lié à l\'hyperactivité chez l\'enfant.' },
-  { code: 'en:e129', name: 'Rouge allura / Red 40', group: 'group2a', description: 'Colorant alimentaire synthétique (E129 / Allura Red) lié à l\'hyperactivité chez l\'enfant. Études Oxford 2024 : dommages ADN documentés. Préoccupations cancérigènes possibles.' },
-  { code: 'orange-b', name: 'Orange B', group: 'group2a', description: 'Colorant azoïque synthétique lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
-  { code: 'en:e122', name: 'Azorubine / Carmoisine', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
-  { code: 'en:e150d', name: 'Caramel ammoniaqué sulfite (Caramel IV)', group: 'group2a', description: 'Contient du 4-MEI classé possiblement cancérogène (Groupe 2B CIRC). Présent dans sodas colas.' },
+  { code: 'en:e102', name: 'Tartrazine / Yellow 5', group: 'group2a', category: 'food', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE. Souvent contaminé par la benzidine.' },
+  { code: 'en:e110', name: 'Jaune orangé S / Yellow 6', group: 'group2a', category: 'food', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE.' },
+  { code: 'en:e124', name: 'Rouge cochenille A / Ponceau 4R', group: 'group2a', category: 'food', description: 'Colorant azoïque interdit aux USA. Lié à l\'hyperactivité chez l\'enfant.' },
+  { code: 'en:e129', name: 'Rouge allura / Red 40', group: 'group2a', category: 'food', description: 'Colorant alimentaire synthétique (E129 / Allura Red) lié à l\'hyperactivité chez l\'enfant. Études Oxford 2024 : dommages ADN documentés. Préoccupations cancérigènes possibles.' },
+  { code: 'orange-b', name: 'Orange B', group: 'group2a', category: 'food', description: 'Colorant azoïque synthétique lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
+  { code: 'en:e122', name: 'Azorubine / Carmoisine', group: 'group2a', category: 'food', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
+  { code: 'en:e150d', name: 'Caramel ammoniaqué sulfite (Caramel IV)', group: 'group2a', category: 'food', description: 'Contient du 4-MEI classé possiblement cancérogène (Groupe 2B CIRC). Présent dans sodas colas.' },
 
   // --- Émulsifiants nocifs pour le microbiome ---
-  { code: 'en:e407', name: 'Carraghénane / Carraghénine', group: 'group2a', description: 'Lié à l\'inflammation intestinale et au syndrome du côlon irritable. Études récentes alarmantes.' },
-  { code: 'en:e433', name: 'Polysorbate 80', group: 'group2a', description: 'Perturbe le microbiome intestinal selon études (Nature 2015). Lien avec inflammation.' },
-  { code: 'en:e466', name: 'CMC / Carboxyméthylcellulose', group: 'group2a', description: 'Lié à l\'inflammation intestinale dans études récentes.' },
-  { code: 'en:e432', name: 'Polysorbate 20', group: 'group2a', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
-  { code: 'en:e434', name: 'Polysorbate 40', group: 'group2a', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
-  { code: 'en:e435', name: 'Polysorbate 60', group: 'group2a', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
-  { code: 'en:e436', name: 'Polysorbate 65', group: 'group2a', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
+  { code: 'en:e407', name: 'Carraghénane / Carraghénine', group: 'group2a', category: 'food', description: 'Lié à l\'inflammation intestinale et au syndrome du côlon irritable. Études récentes alarmantes.' },
+  { code: 'en:e433', name: 'Polysorbate 80', group: 'group2a', category: 'food', description: 'Perturbe le microbiome intestinal selon études (Nature 2015). Lien avec inflammation.' },
+  { code: 'en:e466', name: 'CMC / Carboxyméthylcellulose', group: 'group2a', category: 'food', description: 'Lié à l\'inflammation intestinale dans études récentes.' },
+  { code: 'en:e432', name: 'Polysorbate 20', group: 'group2a', category: 'food', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
+  { code: 'en:e434', name: 'Polysorbate 40', group: 'group2a', category: 'food', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
+  { code: 'en:e435', name: 'Polysorbate 60', group: 'group2a', category: 'food', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
+  { code: 'en:e436', name: 'Polysorbate 65', group: 'group2a', category: 'food', description: 'Émulsifiant industriel qui perturbe le microbiome intestinal.' },
 
   // --- Exhausteur de goût excitotoxique ---
-  { code: 'en:e621', name: 'Glutamate monosodique (MSG)', group: 'group2a', description: 'Excitotoxine qui stimule excessivement les neurones. Maux de tête, palpitations possibles. Marqueur d\'ultra-transformé.' },
-  { code: 'en:e620', name: 'Acide glutamique', group: 'group2a', description: 'Excitotoxine, même famille que MSG.' },
+  { code: 'en:e621', name: 'Glutamate monosodique (MSG)', group: 'group2a', category: 'food', description: 'Excitotoxine qui stimule excessivement les neurones. Maux de tête, palpitations possibles. Marqueur d\'ultra-transformé.' },
+  { code: 'en:e620', name: 'Acide glutamique', group: 'group2a', category: 'food', description: 'Excitotoxine, même famille que MSG.' },
 
   // --- Huiles vraiment problématiques ---
-  { code: 'palm-oil', name: 'Huile de palme', group: 'group2a', description: 'Riche en acides gras saturés. Contaminants 3-MCPD et glycidol (Groupe 2A CIRC) formés lors du raffinage à haute température.' },
-  { code: 'hydrogenated-oil', name: 'Huile hydrogénée / Gras trans', group: 'group2a', description: 'Contient des gras trans liés aux maladies cardiovasculaires. Interdit aux USA depuis 2018.' },
+  { code: 'palm-oil', name: 'Huile de palme', group: 'group2a', category: 'food', description: 'Riche en acides gras saturés. Contaminants 3-MCPD et glycidol (Groupe 2A CIRC) formés lors du raffinage à haute température.' },
+  { code: 'hydrogenated-oil', name: 'Huile hydrogénée / Gras trans', group: 'group2a', category: 'food', description: 'Contient des gras trans liés aux maladies cardiovasculaires. Interdit aux USA depuis 2018.' },
 
   // --- Aluminium ---
-  { code: 'en:e554', name: 'Silicate aluminium sodium', group: 'group2a', description: 'Contient de l\'aluminium biodisponible. Accumulation neurologique préoccupante.' },
-  { code: 'en:e555', name: 'Silicate aluminium potassium', group: 'group2a', description: 'Aluminium biodisponible, accumulation neurologique.' },
-  { code: 'en:e556', name: 'Silicate aluminium calcium', group: 'group2a', description: 'Aluminium biodisponible, accumulation neurologique.' },
-  { code: 'aluminium-deodorant', name: 'Aluminium chlorohydrate (déodorants)', group: 'group2a', description: 'Sels d\'aluminium dans déodorants. Lien suspecté avec cancer du sein.' },
+  { code: 'en:e554', name: 'Silicate aluminium sodium', group: 'group2a', category: 'food', description: 'Contient de l\'aluminium biodisponible. Accumulation neurologique préoccupante.' },
+  { code: 'en:e555', name: 'Silicate aluminium potassium', group: 'group2a', category: 'food', description: 'Aluminium biodisponible, accumulation neurologique.' },
+  { code: 'en:e556', name: 'Silicate aluminium calcium', group: 'group2a', category: 'food', description: 'Aluminium biodisponible, accumulation neurologique.' },
+  {
+    code: 'aluminium-deodorant', name: 'Aluminium chlorohydrate (déodorants)', group: 'group2a', category: 'cosmetic',
+    description: 'Sels d\'aluminium présents dans déodorants antitranspirants. Lien suspecté avec cancer du sein par absorption cutanée. Éviter contact prolongé sur peau lésée.',
+    descriptionEn: 'Aluminum salts in antiperspirant deodorants. Suspected link with breast cancer through skin absorption. Avoid prolonged contact with broken skin.',
+  },
 
   // --- Cosmétiques perturbateurs endocriniens ---
-  { code: 'parabens', name: 'Parabènes (méthyl, éthyl, propyl, butyl)', group: 'group2a', description: 'Perturbateurs endocriniens qui miment l\'œstrogène. Liens suspectés cancer du sein.' },
-  { code: 'phthalate-dbp', name: 'Phtalate DBP', group: 'group2a', description: 'Perturbateur endocrinien interdit dans les jouets UE. Affecte la fertilité masculine.' },
-  { code: 'phthalate-dehp', name: 'Phtalate DEHP', group: 'group2a', description: 'Perturbateur endocrinien interdit dans les jouets UE. Affecte la fertilité.' },
-  { code: 'cyclosiloxane-d4', name: 'Cyclotétrasiloxane D4', group: 'group2a', description: 'Perturbateur endocrinien. Restrictions UE.' },
-  { code: 'cyclosiloxane-d5', name: 'Cyclopentasiloxane D5', group: 'group2a', description: 'Perturbateur endocrinien. Restrictions UE.' },
-  { code: 'triclosan', name: 'Triclosan', group: 'group2a', description: 'Perturbateur endocrinien. Interdit dans les savons antibactériens FDA.' },
-  { code: 'oxybenzone', name: 'Oxybenzone (Benzophenone-3)', group: 'group2a', description: 'Filtre solaire perturbateur hormonal. Interdit dans certaines zones marines.' },
-  { code: 'octinoxate', name: 'Octinoxate', group: 'group2a', description: 'Filtre solaire perturbateur hormonal.' },
-  { code: 'bpa', name: 'BPA (Bisphénol A)', group: 'group2a', description: 'Perturbateur endocrinien dans plastiques. Lié au cancer du sein et de la prostate.' },
-  { code: 'phenoxyethanol', name: 'Phénoxyéthanol', group: 'group2a', description: 'Interdit aux bébés <3 ans en France. Effets hépatiques.' },
-  { code: 'phthalates-fragrance', name: 'Phtalates (parfums)', group: 'group2a', description: 'Présents dans parfums d\'ambiance, bougies. Perturbateurs endocriniens.' },
+  {
+    code: 'parabens', name: 'Parabènes (méthyl, éthyl, propyl, butyl)', group: 'group2a', category: 'cosmetic',
+    description: 'Conservateurs cosmétiques perturbateurs endocriniens qui miment l\'œstrogène. Liens suspectés avec cancer du sein. Allergènes connus. Éviter contact prolongé.',
+    descriptionEn: 'Cosmetic preservatives that act as endocrine disruptors and mimic estrogen. Suspected links with breast cancer. Known allergens. Avoid prolonged contact.',
+  },
+  {
+    code: 'phthalate-dbp', name: 'Phtalate DBP', group: 'group2a', category: 'cosmetic',
+    description: 'Plastifiant perturbateur endocrinien, interdit dans jouets et cosmétiques UE. Reprotoxique. Éviter tout contact.',
+    descriptionEn: 'Plasticizer and endocrine disruptor, banned in EU toys and cosmetics. Reproductive toxin. Avoid all contact.',
+  },
+  {
+    code: 'phthalate-dehp', name: 'Phtalate DEHP', group: 'group2a', category: 'cosmetic',
+    description: 'Plastifiant perturbateur endocrinien, interdit dans jouets et cosmétiques UE. Reprotoxique. Éviter tout contact.',
+    descriptionEn: 'Plasticizer and endocrine disruptor, banned in EU toys and cosmetics. Reproductive toxin. Avoid all contact.',
+  },
+  {
+    code: 'cyclosiloxane-d4', name: 'Cyclotétrasiloxane D4', group: 'group2a', category: 'cosmetic',
+    description: 'Silicone cyclique perturbateur endocrinien, restreint en cosmétique UE. Bioaccumulation cutanée. Éviter contact prolongé.',
+    descriptionEn: 'Cyclic silicone classified as endocrine disruptor, restricted in EU cosmetics. Skin bioaccumulation. Avoid prolonged contact.',
+  },
+  {
+    code: 'cyclosiloxane-d5', name: 'Cyclopentasiloxane D5', group: 'group2a', category: 'cosmetic',
+    description: 'Silicone cyclique perturbateur endocrinien, restreint en cosmétique UE. Éviter contact prolongé.',
+    descriptionEn: 'Cyclic silicone classified as endocrine disruptor, restricted in EU cosmetics. Avoid prolonged contact.',
+  },
+  {
+    code: 'triclosan', name: 'Triclosan', group: 'group2a', category: 'cosmetic',
+    description: 'Antibactérien cosmétique perturbateur endocrinien. Interdit FDA dans les savons antibactériens. Sensibilisant cutané. Éviter tout contact.',
+    descriptionEn: 'Cosmetic antibacterial agent and endocrine disruptor. Banned by FDA in antibacterial soaps. Skin sensitizer. Avoid all contact.',
+  },
+  {
+    code: 'oxybenzone', name: 'Oxybenzone (Benzophenone-3)', group: 'group2a', category: 'cosmetic',
+    description: 'Filtre solaire perturbateur hormonal. Allergène cutané, interdit dans certaines zones marines. Éviter tout contact.',
+    descriptionEn: 'Sunscreen filter and hormone disruptor. Skin allergen, banned in some marine zones. Avoid all contact.',
+  },
+  {
+    code: 'octinoxate', name: 'Octinoxate', group: 'group2a', category: 'cosmetic',
+    description: 'Filtre solaire perturbateur hormonal. Allergène cutané. Éviter tout contact.',
+    descriptionEn: 'Sunscreen filter and hormone disruptor. Skin allergen. Avoid all contact.',
+  },
+  {
+    code: 'bpa', name: 'BPA (Bisphénol A)', group: 'group2a', category: 'packaging',
+    description: 'Présent dans plastiques alimentaires et tickets de caisse. Perturbateur endocrinien lié à cancer du sein et de la prostate. Migration possible vers le contenu. Éviter contact avec contenus chauds ou gras.',
+    descriptionEn: 'Found in food plastics and thermal receipts. Endocrine disruptor linked to breast and prostate cancer. Can migrate into contents. Avoid contact with hot or fatty contents.',
+  },
+  {
+    code: 'phenoxyethanol', name: 'Phénoxyéthanol', group: 'group2a', category: 'cosmetic',
+    description: 'Conservateur cosmétique. Interdit aux bébés <3 ans en France. Sensibilisant cutané. Éviter contact prolongé.',
+    descriptionEn: 'Cosmetic preservative. Banned for babies under 3 in France. Skin sensitizer. Avoid prolonged contact.',
+  },
+  {
+    code: 'phthalates-fragrance', name: 'Phtalates (parfums)', group: 'group2a', category: 'cosmetic',
+    description: 'Phtalates présents dans parfums d\'ambiance, bougies et eaux de toilette. Perturbateurs endocriniens par inhalation. Éviter exposition prolongée.',
+    descriptionEn: 'Phthalates found in air fresheners, candles and eaux de toilette. Endocrine disruptors via inhalation. Avoid prolonged exposure.',
+  },
 
-  // --- Huiles minérales ---
-  { code: 'mineral-oil', name: 'Huile minérale (paraffinum, petrolatum)', group: 'group2a', description: 'Dérivés pétroliers. Non raffinés = Groupe 2A IARC.' },
+  // --- Huiles minérales (cosmetic context) ---
+  {
+    code: 'mineral-oil', name: 'Huile minérale (paraffinum, petrolatum)', group: 'group2a', category: 'cosmetic',
+    description: 'Dérivés pétroliers en cosmétique. Versions non raffinées classées CIRC Groupe 2A. Peuvent obstruer les pores. Éviter contact prolongé.',
+    descriptionEn: 'Petroleum-derived cosmetic ingredients. Unrefined versions classified IARC Group 2A. May clog pores. Avoid prolonged contact.',
+  },
 
   // --- Produits ménagers toxiques ---
-  { code: '2-butoxyethanol', name: '2-Butoxyéthanol', group: 'group2a', description: 'Présent dans nettoyants vitres. Toxique pour foie et reins.' },
-  { code: 'chlorine-bleach', name: 'Eau de Javel (hypochlorite)', group: 'group2a', description: 'Produit des dioxines cancérogènes. Irritant respiratoire puissant.' },
-  { code: 'perchloroethylene', name: 'Perchloréthylène', group: 'group2a', description: 'Nettoyage à sec. Cancérogène probable Groupe 2A CIRC.' },
-  { code: 'mit-cmit', name: 'Isothiazolinones (MIT, CMIT)', group: 'group2a', description: 'Conservateurs ménagers. Allergènes puissants, sensibilisants cutanés sévères.' },
-  { code: 'apeo', name: 'Alkylphénols éthoxylés (APEO)', group: 'group2a', description: 'Détergents. Perturbateurs endocriniens.' },
-  { code: 'dmf', name: 'Diméthylformamide (DMF)', group: 'group2a', description: 'Solvant textiles synthétiques. Toxique pour le foie.' },
-  { code: 'npe', name: 'Nonylphénols éthoxylés (NPE)', group: 'group2a', description: 'Détergent industriel. Perturbateur endocrinien puissant.' },
-  { code: '1-4-dioxane', name: '1,4-Dioxane', group: 'group2a', description: 'Contaminant cancérogène probable dans certains shampoings.' },
-  { code: 'dea', name: 'DEA (Diéthanolamine)', group: 'group2a', description: 'Forme des nitrosamines cancérogènes. À éviter.' },
+  {
+    code: '2-butoxyethanol', name: '2-Butoxyéthanol', group: 'group2a', category: 'household',
+    description: 'Solvant présent dans nettoyants vitres et dégraissants. Toxique pour le foie et les reins par inhalation. Irritant respiratoire. Tenir hors de portée des enfants, ventiler.',
+    descriptionEn: 'Solvent in glass cleaners and degreasers. Toxic to liver and kidneys via inhalation. Respiratory irritant. Keep away from children, ventilate.',
+  },
+  {
+    code: 'chlorine-bleach', name: 'Eau de Javel (hypochlorite)', group: 'group2a', category: 'household',
+    description: 'Hypochlorite de sodium. Peut produire des dioxines cancérigènes lors de mélanges. Irritant respiratoire et oculaire puissant. Toxique en cas d\'ingestion. Tenir hors de portée des enfants, ne jamais mélanger.',
+    descriptionEn: 'Sodium hypochlorite. Can produce carcinogenic dioxins when mixed. Strong respiratory and eye irritant. Toxic if ingested. Keep away from children, never mix with other cleaners.',
+  },
+  {
+    code: 'perchloroethylene', name: 'Perchloréthylène', group: 'group2a', category: 'household',
+    description: 'Solvant de nettoyage à sec. Cancérigène probable (CIRC Groupe 2A) par inhalation et contact cutané. Aérer les vêtements traités avant port.',
+    descriptionEn: 'Dry-cleaning solvent. Probable carcinogen (IARC Group 2A) via inhalation and skin contact. Air out treated garments before wearing.',
+  },
+  {
+    code: 'mit-cmit', name: 'Isothiazolinones (MIT, CMIT)', group: 'group2a', category: 'household',
+    description: 'Conservateurs ménagers. Allergènes puissants, sensibilisants cutanés sévères pouvant provoquer eczémas. Éviter contact prolongé.',
+    descriptionEn: 'Household preservatives. Strong allergens and severe skin sensitizers that can cause eczema. Avoid prolonged contact.',
+  },
+  {
+    code: 'apeo', name: 'Alkylphénols éthoxylés (APEO)', group: 'group2a', category: 'household',
+    description: 'Détergents perturbateurs endocriniens. Toxiques pour la vie aquatique. Éviter contact prolongé.',
+    descriptionEn: 'Detergents that act as endocrine disruptors. Toxic to aquatic life. Avoid prolonged contact.',
+  },
+  {
+    code: 'dmf', name: 'Diméthylformamide (DMF)', group: 'group2a', category: 'textile',
+    description: 'Solvant utilisé pour textiles synthétiques et cuir. Toxique pour le foie par contact cutané et inhalation. Éviter contact prolongé.',
+    descriptionEn: 'Solvent used for synthetic textiles and leather. Toxic to the liver via skin contact and inhalation. Avoid prolonged contact.',
+  },
+  {
+    code: 'npe', name: 'Nonylphénols éthoxylés (NPE)', group: 'group2a', category: 'household',
+    description: 'Détergent industriel perturbateur endocrinien puissant. Toxique aquatique persistant. Éviter tout contact.',
+    descriptionEn: 'Industrial detergent and strong endocrine disruptor. Persistent aquatic toxin. Avoid all contact.',
+  },
+  {
+    code: '1-4-dioxane', name: '1,4-Dioxane', group: 'group2a', category: 'cosmetic',
+    description: 'Contaminant cancérigène probable présent dans certains shampoings et tensioactifs. Toxique par absorption cutanée. Éviter tout contact.',
+    descriptionEn: 'Probable carcinogen contaminant found in some shampoos and surfactants. Toxic via skin absorption. Avoid all contact.',
+  },
+  {
+    code: 'dea', name: 'DEA (Diéthanolamine)', group: 'group2a', category: 'cosmetic',
+    description: 'Tensioactif cosmétique. Peut former des nitrosamines cancérigènes au contact d\'autres ingrédients. Allergène cutané. Éviter tout contact.',
+    descriptionEn: 'Cosmetic surfactant. Can form carcinogenic nitrosamines when combined with other ingredients. Skin allergen. Avoid all contact.',
+  },
 
 
   // ═══════════════════════════════════════════════════════════════
@@ -135,167 +275,276 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // (la plupart des additifs courants tombent ici — pas alarmant)
   // ═══════════════════════════════════════════════════════════════
 
-  // --- Édulcorants Groupe 2B ---
-  { code: 'en:e954', name: 'Saccharine', group: 'group2b', description: 'Anciennement Groupe 2B IARC (déclassé en 1999 mais reste controversé).' },
-  { code: 'en:e955', name: 'Sucralose', group: 'group2b', description: 'Effets sur le microbiome intestinal. À modérer.' },
-  { code: 'en:e952', name: 'Cyclamate', group: 'group2b', description: 'Interdit aux USA depuis 1969. Autorisé en UE avec limites.' },
+  // --- Édulcorants Groupe 2B (food) ---
+  { code: 'en:e954', name: 'Saccharine', group: 'group2b', category: 'food', description: 'Anciennement Groupe 2B IARC (déclassé en 1999 mais reste controversé).' },
+  { code: 'en:e955', name: 'Sucralose', group: 'group2b', category: 'food', description: 'Effets sur le microbiome intestinal. À modérer.' },
+  { code: 'en:e952', name: 'Cyclamate', group: 'group2b', category: 'food', description: 'Interdit aux USA depuis 1969. Autorisé en UE avec limites.' },
 
-  // --- Colorants Groupe 2B ---
-  { code: 'en:e127', name: 'Érythrosine / Red 3', group: 'group2b', description: 'Interdit dans les produits topiques aux USA depuis 1990. Études animales montrent tumeurs thyroïdiennes.' },
-  { code: 'en:e133', name: 'Bleu brillant / Blue 1', group: 'group2b', description: 'Colorant artificiel. Allergies possibles. À limiter.' },
-  { code: 'en:e132', name: 'Indigotine / Blue 2', group: 'group2b', description: 'Colorant artificiel. Allergies possibles.' },
-  { code: 'en:e143', name: 'Vert solide FCF / Green 3', group: 'group2b', description: 'Colorant artificiel interdit en UE.' },
-  { code: 'en:e171', name: 'Dioxyde de titane', group: 'group2b', description: 'Interdit comme additif alimentaire en UE depuis 2022. Nanoparticules suspectes (Groupe 2B CIRC).' },
-  { code: 'en:e160b', name: 'Annatto / Rocou', group: 'group2a', description: 'Colorant semi-synthétique jaune/orange (E160b) lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
-  { code: 'en:e120', name: 'Cochenille / Carmin', group: 'group2b', description: 'Colorant rouge naturel mais allergène fort, chocs anaphylactiques possibles.' },
-  { code: 'carbon-black', name: 'Noir de carbone', group: 'group2b', description: 'Nanoparticules controversées (Groupe 2B CIRC).' },
+  // --- Colorants Groupe 2B (food) ---
+  { code: 'en:e127', name: 'Érythrosine / Red 3', group: 'group2b', category: 'food', description: 'Interdit dans les produits topiques aux USA depuis 1990. Études animales montrent tumeurs thyroïdiennes.' },
+  { code: 'en:e133', name: 'Bleu brillant / Blue 1', group: 'group2b', category: 'food', description: 'Colorant artificiel. Allergies possibles. À limiter.' },
+  { code: 'en:e132', name: 'Indigotine / Blue 2', group: 'group2b', category: 'food', description: 'Colorant artificiel. Allergies possibles.' },
+  { code: 'en:e143', name: 'Vert solide FCF / Green 3', group: 'group2b', category: 'food', description: 'Colorant artificiel interdit en UE.' },
+  { code: 'en:e171', name: 'Dioxyde de titane', group: 'group2b', category: 'food', description: 'Interdit comme additif alimentaire en UE depuis 2022. Nanoparticules suspectes (Groupe 2B CIRC).' },
+  { code: 'en:e160b', name: 'Annatto / Rocou', group: 'group2a', category: 'food', description: 'Colorant semi-synthétique jaune/orange (E160b) lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
+  { code: 'en:e120', name: 'Cochenille / Carmin', group: 'group2b', category: 'food', description: 'Colorant rouge naturel mais allergène fort, chocs anaphylactiques possibles.' },
+  {
+    code: 'carbon-black', name: 'Noir de carbone', group: 'group2b', category: 'cosmetic',
+    description: 'Pigment cosmétique (eye-liner, mascara). Nanoparticules controversées (CIRC Groupe 2B). Allergène cutané possible. Éviter contact prolongé avec les muqueuses.',
+    descriptionEn: 'Cosmetic pigment (eye-liner, mascara). Controversial nanoparticles (IARC Group 2B). Possible skin allergen. Avoid prolonged contact with mucous membranes.',
+  },
 
   // --- Caramels colorants ---
-  { code: 'en:e150c', name: 'Caramel ammoniaqué (III)', group: 'group2b', description: 'Contient 4-MEI. À modérer.' },
-  { code: 'en:e150b', name: 'Caramel de sulfite caustique', group: 'group2b', description: 'Sous-produits controversés.' },
+  { code: 'en:e150c', name: 'Caramel ammoniaqué (III)', group: 'group2b', category: 'food', description: 'Contient 4-MEI. À modérer.' },
+  { code: 'en:e150b', name: 'Caramel de sulfite caustique', group: 'group2b', category: 'food', description: 'Sous-produits controversés.' },
 
   // --- Conservateurs courants ---
-  { code: 'en:e211', name: 'Benzoate de sodium', group: 'group2b', description: 'Conservateur courant. Peut former du benzène cancérogène avec vitamine C dans certaines boissons.' },
-  { code: 'en:e210', name: 'Acide benzoïque', group: 'group2b', description: 'Conservateur, peut former du benzène avec vitamine C.' },
-  { code: 'en:e321', name: 'BHT (Butylhydroxytoluène)', group: 'group2b', description: 'Antioxydant synthétique. Effets hépatiques à fortes doses. Classé Groupe 3 IARC (preuves insuffisantes).' },
+  { code: 'en:e211', name: 'Benzoate de sodium', group: 'group2b', category: 'food', description: 'Conservateur courant. Peut former du benzène cancérogène avec vitamine C dans certaines boissons.' },
+  { code: 'en:e210', name: 'Acide benzoïque', group: 'group2b', category: 'food', description: 'Conservateur, peut former du benzène avec vitamine C.' },
+  { code: 'en:e321', name: 'BHT (Butylhydroxytoluène)', group: 'group2b', category: 'food', description: 'Antioxydant synthétique. Effets hépatiques à fortes doses. Classé Groupe 3 IARC (preuves insuffisantes).' },
 
   // --- Sulfites (modération) ---
-  { code: 'en:e220', name: 'Dioxyde de soufre', group: 'group2b', description: 'Sulfite. Provoque crises d\'asthme et réactions allergiques sévères.' },
-  { code: 'en:e221', name: 'Sulfite de sodium', group: 'group2b', description: 'Sulfite. Allergène, déclenche crises d\'asthme.' },
-  { code: 'en:e222', name: 'Bisulfite de sodium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
-  { code: 'en:e223', name: 'Métabisulfite de sodium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
-  { code: 'en:e224', name: 'Métabisulfite de potassium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
-  { code: 'en:e225', name: 'Sulfite de potassium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
-  { code: 'en:e226', name: 'Sulfite de calcium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
-  { code: 'en:e227', name: 'Bisulfite de calcium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
-  { code: 'en:e228', name: 'Bisulfite de potassium', group: 'group2b', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e220', name: 'Dioxyde de soufre', group: 'group2b', category: 'food', description: 'Sulfite. Provoque crises d\'asthme et réactions allergiques sévères.' },
+  { code: 'en:e221', name: 'Sulfite de sodium', group: 'group2b', category: 'food', description: 'Sulfite. Allergène, déclenche crises d\'asthme.' },
+  { code: 'en:e222', name: 'Bisulfite de sodium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e223', name: 'Métabisulfite de sodium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e224', name: 'Métabisulfite de potassium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e225', name: 'Sulfite de potassium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e226', name: 'Sulfite de calcium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e227', name: 'Bisulfite de calcium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { code: 'en:e228', name: 'Bisulfite de potassium', group: 'group2b', category: 'food', description: 'Sulfite. Réactions allergiques et asthme possibles.' },
 
   // --- Exhausteurs (amplificateurs MSG) ---
-  { code: 'en:e631', name: 'Inosinate disodique', group: 'group2b', description: 'Amplifie l\'effet du MSG. Marqueur d\'ultra-transformé.' },
-  { code: 'en:e627', name: 'Guanylate disodique', group: 'group2b', description: 'Amplifie l\'effet du MSG. Marqueur d\'ultra-transformé.' },
-  { code: 'en:e635', name: '5\'-Ribonucléotide disodique', group: 'group2b', description: 'Amplificateur MSG.' },
+  { code: 'en:e631', name: 'Inosinate disodique', group: 'group2b', category: 'food', description: 'Amplifie l\'effet du MSG. Marqueur d\'ultra-transformé.' },
+  { code: 'en:e627', name: 'Guanylate disodique', group: 'group2b', category: 'food', description: 'Amplifie l\'effet du MSG. Marqueur d\'ultra-transformé.' },
+  { code: 'en:e635', name: '5\'-Ribonucléotide disodique', group: 'group2b', category: 'food', description: 'Amplificateur MSG.' },
 
   // --- Sucres et sirops (MODÉRATION, pas alarmant) ---
-  { code: 'maltodextrine', name: 'Maltodextrine', group: 'group2b', description: 'Glucide ultra-transformé, index glycémique élevé. À modérer.' },
-  { code: 'glucose-syrup', name: 'Sirop de glucose', group: 'group2b', description: 'Sirop industriel. À modérer.' },
-  { code: 'hfcs', name: 'Sirop de glucose-fructose / HFCS', group: 'group2b', description: 'Sirop à teneur élevée en fructose. Lien obésité, stéatose hépatique.' },
-  { code: 'dextrose', name: 'Dextrose', group: 'group2b', description: 'Sucre rapide industriel.' },
-  { code: 'corn-syrup', name: 'Sirop de maïs', group: 'group2b', description: 'Sirop industriel sucrant.' },
-  { code: 'agave-syrup', name: 'Sirop d\'agave', group: 'group2b', description: 'Présenté comme naturel mais très riche en fructose isolé.' },
-  { code: 'rice-syrup', name: 'Sirop de riz', group: 'group2b', description: 'Sirop transformé, index glycémique élevé.' },
-  { code: 'fructose-added', name: 'Fructose ajouté', group: 'group2b', description: 'Fructose isolé. Lien stéatose hépatique en excès.' },
-  { code: 'refined-sugar', name: 'Sucre blanc raffiné', group: 'group2b', description: 'Consommer avec modération. Lié à obésité, diabète, inflammation.' },
+  { code: 'maltodextrine', name: 'Maltodextrine', group: 'group2b', category: 'food', description: 'Glucide ultra-transformé, index glycémique élevé. À modérer.' },
+  { code: 'glucose-syrup', name: 'Sirop de glucose', group: 'group2b', category: 'food', description: 'Sirop industriel. À modérer.' },
+  { code: 'hfcs', name: 'Sirop de glucose-fructose / HFCS', group: 'group2b', category: 'food', description: 'Sirop à teneur élevée en fructose. Lien obésité, stéatose hépatique.' },
+  { code: 'dextrose', name: 'Dextrose', group: 'group2b', category: 'food', description: 'Sucre rapide industriel.' },
+  { code: 'corn-syrup', name: 'Sirop de maïs', group: 'group2b', category: 'food', description: 'Sirop industriel sucrant.' },
+  { code: 'agave-syrup', name: 'Sirop d\'agave', group: 'group2b', category: 'food', description: 'Présenté comme naturel mais très riche en fructose isolé.' },
+  { code: 'rice-syrup', name: 'Sirop de riz', group: 'group2b', category: 'food', description: 'Sirop transformé, index glycémique élevé.' },
+  { code: 'fructose-added', name: 'Fructose ajouté', group: 'group2b', category: 'food', description: 'Fructose isolé. Lien stéatose hépatique en excès.' },
+  { code: 'refined-sugar', name: 'Sucre blanc raffiné', group: 'group2b', category: 'food', description: 'Consommer avec modération. Lié à obésité, diabète, inflammation.' },
 
   // --- Arômes ---
-  { code: 'natural-flavor', name: 'Arôme naturel', group: 'group2b', description: 'Composition non détaillée. Souvent extrait chimiquement malgré "naturel". Manque de transparence.' },
-  { code: 'artificial-flavor', name: 'Arôme artificiel', group: 'group2b', description: 'Molécules synthétiques. Marqueur de produit ultra-transformé.' },
+  { code: 'natural-flavor', name: 'Arôme naturel', group: 'group2b', category: 'food', description: 'Composition non détaillée. Souvent extrait chimiquement malgré "naturel". Manque de transparence.' },
+  { code: 'artificial-flavor', name: 'Arôme artificiel', group: 'group2b', category: 'food', description: 'Molécules synthétiques. Marqueur de produit ultra-transformé.' },
 
   // --- Huiles raffinées (modération) ---
-  { code: 'sunflower-oil', name: 'Huile de tournesol raffinée', group: 'group2b', description: 'Excès oméga-6 pro-inflammatoire. Préférer pressée à froid ou huile d\'olive.' },
-  { code: 'canola-oil', name: 'Huile de canola / colza raffinée', group: 'group2b', description: 'Raffinée industriellement. Préférer pressée à froid ou huile d\'olive.' },
-  { code: 'soybean-oil', name: 'Huile de soja', group: 'group2b', description: 'Riche en oméga-6 pro-inflammatoire. Souvent OGM.' },
-  { code: 'corn-oil', name: 'Huile de maïs', group: 'group2b', description: 'Riche en oméga-6 pro-inflammatoire. Souvent OGM.' },
-  { code: 'cottonseed-oil', name: 'Huile de coton', group: 'group2b', description: 'Souvent OGM. Résidus de pesticides possibles.' },
-  { code: 'vegetable-oil', name: 'Huile végétale (non spécifiée)', group: 'group2b', description: 'Composition non précisée. Souvent palme ou colza raffinés.' },
-  { code: 'grapeseed-oil', name: 'Huile de pépin de raisin', group: 'group2b', description: 'Très riche en oméga-6 pro-inflammatoire.' },
+  { code: 'sunflower-oil', name: 'Huile de tournesol raffinée', group: 'group2b', category: 'food', description: 'Excès oméga-6 pro-inflammatoire. Préférer pressée à froid ou huile d\'olive.' },
+  { code: 'canola-oil', name: 'Huile de canola / colza raffinée', group: 'group2b', category: 'food', description: 'Raffinée industriellement. Préférer pressée à froid ou huile d\'olive.' },
+  { code: 'soybean-oil', name: 'Huile de soja', group: 'group2b', category: 'food', description: 'Riche en oméga-6 pro-inflammatoire. Souvent OGM.' },
+  { code: 'corn-oil', name: 'Huile de maïs', group: 'group2b', category: 'food', description: 'Riche en oméga-6 pro-inflammatoire. Souvent OGM.' },
+  { code: 'cottonseed-oil', name: 'Huile de coton', group: 'group2b', category: 'food', description: 'Souvent OGM. Résidus de pesticides possibles.' },
+  { code: 'vegetable-oil', name: 'Huile végétale (non spécifiée)', group: 'group2b', category: 'food', description: 'Composition non précisée. Souvent palme ou colza raffinés.' },
+  { code: 'grapeseed-oil', name: 'Huile de pépin de raisin', group: 'group2b', category: 'food', description: 'Très riche en oméga-6 pro-inflammatoire.' },
 
   // --- Protéines industrielles ---
-  { code: 'hydrolyzed-protein', name: 'Protéines hydrolysées', group: 'group2b', description: 'Protéine industrielle. Peut contenir glutamate libre caché.' },
-  { code: 'protein-isolate', name: 'Isolat de protéines (whey, soja, lait)', group: 'group2b', description: 'Protéines industrielles isolées. Pas les concentrés naturels de fruits/tomate.' },
-  { code: 'yeast-extract', name: 'Extrait de levure', group: 'group2b', description: 'Contient du glutamate naturel, équivalent MSG caché.' },
-  { code: 'sodium-caseinate', name: 'Caséinate de sodium', group: 'group2b', description: 'Protéine de lait industrielle.' },
+  { code: 'hydrolyzed-protein', name: 'Protéines hydrolysées', group: 'group2b', category: 'food', description: 'Protéine industrielle. Peut contenir glutamate libre caché.' },
+  { code: 'protein-isolate', name: 'Isolat de protéines (whey, soja, lait)', group: 'group2b', category: 'food', description: 'Protéines industrielles isolées. Pas les concentrés naturels de fruits/tomate.' },
+  { code: 'yeast-extract', name: 'Extrait de levure', group: 'group2b', category: 'food', description: 'Contient du glutamate naturel, équivalent MSG caché.' },
+  { code: 'sodium-caseinate', name: 'Caséinate de sodium', group: 'group2b', category: 'food', description: 'Protéine de lait industrielle.' },
 
   // --- Émulsifiants modérés ---
-  { code: 'en:e471', name: 'Mono- et diglycérides E471', group: 'group2b', description: 'Émulsifiant industriel. Peut contenir traces de gras trans cachées.' },
-  { code: 'en:e476', name: 'PGPR (Polyglycerol polyricinoleate)', group: 'group2b', description: 'Émulsifiant dans chocolat industriel.' },
-  { code: 'en:e322', name: 'Lécithine de soja', group: 'group2b', description: 'Émulsifiant courant. Souvent OGM. Préférer lécithine de tournesol.' },
-  { code: 'en:e463', name: 'Hydroxypropyl cellulose', group: 'group2b', description: 'Dérivé industriel de la cellulose.' },
-  { code: 'en:e464', name: 'Hydroxypropyl méthylcellulose', group: 'group2b', description: 'Dérivé industriel de la cellulose.' },
-  { code: 'en:e465', name: 'Méthyl éthyl cellulose', group: 'group2b', description: 'Dérivé industriel de la cellulose.' },
+  { code: 'en:e471', name: 'Mono- et diglycérides E471', group: 'group2b', category: 'food', description: 'Émulsifiant industriel. Peut contenir traces de gras trans cachées.' },
+  { code: 'en:e476', name: 'PGPR (Polyglycerol polyricinoleate)', group: 'group2b', category: 'food', description: 'Émulsifiant dans chocolat industriel.' },
+  { code: 'en:e322', name: 'Lécithine de soja', group: 'group2b', category: 'food', description: 'Émulsifiant courant. Souvent OGM. Préférer lécithine de tournesol.' },
+  { code: 'en:e463', name: 'Hydroxypropyl cellulose', group: 'group2b', category: 'food', description: 'Dérivé industriel de la cellulose.' },
+  { code: 'en:e464', name: 'Hydroxypropyl méthylcellulose', group: 'group2b', category: 'food', description: 'Dérivé industriel de la cellulose.' },
+  { code: 'en:e465', name: 'Méthyl éthyl cellulose', group: 'group2b', category: 'food', description: 'Dérivé industriel de la cellulose.' },
 
   // --- Phosphates ---
-  { code: 'en:e450', name: 'Diphosphates', group: 'group2b', description: 'Excès de phosphates lié à problèmes cardiaques et osseux.' },
-  { code: 'en:e451', name: 'Triphosphates', group: 'group2b', description: 'Excès de phosphates dans l\'alimentation moderne.' },
-  { code: 'en:e452', name: 'Polyphosphates', group: 'group2b', description: 'Excès de phosphates.' },
-  { code: 'en:e339', name: 'Phosphate de sodium', group: 'group2b', description: 'Sel phosphaté, modération.' },
-  { code: 'en:e340', name: 'Phosphate de potassium', group: 'group2b', description: 'Sel phosphaté, modération.' },
-  { code: 'en:e341', name: 'Phosphate de calcium', group: 'group2b', description: 'Sel phosphaté, modération.' },
+  { code: 'en:e450', name: 'Diphosphates', group: 'group2b', category: 'food', description: 'Excès de phosphates lié à problèmes cardiaques et osseux.' },
+  { code: 'en:e451', name: 'Triphosphates', group: 'group2b', category: 'food', description: 'Excès de phosphates dans l\'alimentation moderne.' },
+  { code: 'en:e452', name: 'Polyphosphates', group: 'group2b', category: 'food', description: 'Excès de phosphates.' },
+  { code: 'en:e339', name: 'Phosphate de sodium', group: 'group2b', category: 'food', description: 'Sel phosphaté, modération.' },
+  { code: 'en:e340', name: 'Phosphate de potassium', group: 'group2b', category: 'food', description: 'Sel phosphaté, modération.' },
+  { code: 'en:e341', name: 'Phosphate de calcium', group: 'group2b', category: 'food', description: 'Sel phosphaté, modération.' },
 
   // --- Gommes (généralement OK mais modération) ---
-  { code: 'en:e415', name: 'Gomme xanthane', group: 'group2b', description: 'Épaississant industriel. Effets digestifs à haute dose.' },
-  { code: 'en:e412', name: 'Gomme de guar', group: 'group2b', description: 'Épaississant, effets digestifs possibles.' },
-  { code: 'en:e417', name: 'Gomme tara', group: 'group2b', description: 'Peu étudiée, effets digestifs possibles.' },
-  { code: 'en:e418', name: 'Gomme gellane', group: 'group2b', description: 'Effets digestifs à haute dose.' },
-  { code: 'en:e425', name: 'Gomme konjac', group: 'group2b', description: 'Risque de blocage intestinal et étouffement chez les enfants.' },
-  { code: 'en:e416', name: 'Gomme karaya', group: 'group2b', description: 'Allergène pouvant provoquer des réactions.' },
+  { code: 'en:e415', name: 'Gomme xanthane', group: 'group2b', category: 'food', description: 'Épaississant industriel. Effets digestifs à haute dose.' },
+  { code: 'en:e412', name: 'Gomme de guar', group: 'group2b', category: 'food', description: 'Épaississant, effets digestifs possibles.' },
+  { code: 'en:e417', name: 'Gomme tara', group: 'group2b', category: 'food', description: 'Peu étudiée, effets digestifs possibles.' },
+  { code: 'en:e418', name: 'Gomme gellane', group: 'group2b', category: 'food', description: 'Effets digestifs à haute dose.' },
+  { code: 'en:e425', name: 'Gomme konjac', group: 'group2b', category: 'food', description: 'Risque de blocage intestinal et étouffement chez les enfants.' },
+  { code: 'en:e416', name: 'Gomme karaya', group: 'group2b', category: 'food', description: 'Allergène pouvant provoquer des réactions.' },
 
   // --- Acides industriels ---
-  { code: 'citric-acid-industrial', name: 'Acide citrique industriel', group: 'group2b', description: 'Très courant. Produit par fermentation Aspergillus. Sûr pour la plupart, irritant possible chez sensibles.' },
+  { code: 'citric-acid-industrial', name: 'Acide citrique industriel', group: 'group2b', category: 'food', description: 'Très courant. Produit par fermentation Aspergillus. Sûr pour la plupart, irritant possible chez sensibles.' },
 
   // --- Cosmétiques modérés ---
-  { code: 'fragrance', name: 'Fragrance / Parfum', group: 'group2b', description: 'Composition non divulguée, peut contenir des dizaines de molécules cachées.' },
-  { code: 'sls', name: 'SLS (Sodium Lauryl Sulfate)', group: 'group2b', description: 'Tensioactif irritant. Peut causer des ulcères buccaux. Préférer formules sans sulfates.' },
-  { code: 'sles', name: 'SLES (Sodium Laureth Sulfate)', group: 'group2b', description: 'Contamination possible au 1,4-dioxane cancérogène.' },
-  { code: 'propylene-glycol', name: 'Propylène glycol', group: 'group2b', description: 'Irritant, contamination possible.' },
-  { code: 'ppd', name: 'PPD (P-Phénylènediamine)', group: 'group2b', description: 'Teinture capillaire. Allergène sévère, suspect cancer vessie.' },
-  { code: 'resorcinol', name: 'Résorcinol', group: 'group2b', description: 'Teintures cheveux. Perturbateur endocrinien.' },
-  { code: 'toluene', name: 'Toluène', group: 'group2b', description: 'Vernis à ongles. Neurotoxique, cancérogène possible.' },
-  { code: 'acetaldehyde', name: 'Acétaldéhyde', group: 'group2b', description: 'Lissages brésiliens. Cancérogène possible Groupe 2B.' },
-  { code: 'microplastics', name: 'Microplastiques / Microbilles', group: 'group2b', description: 'Polluant persistant. S\'accumule dans l\'organisme.' },
-  { code: 'mica-contaminated', name: 'Mica contaminé', group: 'group2b', description: 'Peut contenir de l\'amiante dans certains maquillages.' },
-  { code: 'phthalate-dep', name: 'Phtalate DEP', group: 'group2b', description: 'Perturbateur endocrinien moins toxique que DBP/DEHP.' },
+  {
+    code: 'fragrance', name: 'Fragrance / Parfum', group: 'group2b', category: 'cosmetic',
+    description: 'Composition non divulguée pouvant contenir des dizaines de molécules cachées. Allergènes fréquents, sensibilisants cutanés. Éviter contact prolongé en cas de peau sensible.',
+    descriptionEn: 'Undisclosed composition that may contain dozens of hidden molecules. Frequent allergens and skin sensitizers. Avoid prolonged contact on sensitive skin.',
+  },
+  {
+    code: 'sls', name: 'SLS (Sodium Lauryl Sulfate)', group: 'group2b', category: 'cosmetic',
+    description: 'Tensioactif cosmétique irritant. Peut causer ulcères buccaux et dessèchement cutané. Préférer formules sans sulfates. Éviter contact prolongé.',
+    descriptionEn: 'Irritating cosmetic surfactant. Can cause mouth ulcers and skin dryness. Prefer sulfate-free formulas. Avoid prolonged contact.',
+  },
+  {
+    code: 'sles', name: 'SLES (Sodium Laureth Sulfate)', group: 'group2b', category: 'cosmetic',
+    description: 'Tensioactif cosmétique. Contamination possible au 1,4-dioxane cancérigène. Irritant cutané et oculaire. Éviter contact prolongé.',
+    descriptionEn: 'Cosmetic surfactant. Possible contamination with carcinogenic 1,4-dioxane. Skin and eye irritant. Avoid prolonged contact.',
+  },
+  {
+    code: 'propylene-glycol', name: 'Propylène glycol', group: 'group2b', category: 'cosmetic',
+    description: 'Solvant cosmétique. Allergène cutané possible, contamination possible. Éviter contact prolongé.',
+    descriptionEn: 'Cosmetic solvent. Possible skin allergen, possible contamination. Avoid prolonged contact.',
+  },
+  {
+    code: 'ppd', name: 'PPD (P-Phénylènediamine)', group: 'group2b', category: 'cosmetic',
+    description: 'Teinture capillaire. Allergène sévère pouvant provoquer chocs anaphylactiques. Suspect cancer vessie. Éviter tout contact direct avec le cuir chevelu.',
+    descriptionEn: 'Hair dye. Severe allergen that can trigger anaphylactic reactions. Suspected bladder cancer link. Avoid direct contact with scalp.',
+  },
+  {
+    code: 'resorcinol', name: 'Résorcinol', group: 'group2b', category: 'cosmetic',
+    description: 'Composant de teintures capillaires. Perturbateur endocrinien et allergène cutané. Éviter contact prolongé.',
+    descriptionEn: 'Hair dye component. Endocrine disruptor and skin allergen. Avoid prolonged contact.',
+  },
+  {
+    code: 'toluene', name: 'Toluène', group: 'group2b', category: 'cosmetic',
+    description: 'Solvant utilisé dans vernis à ongles. Neurotoxique par inhalation, cancérigène possible. Bien ventiler lors de l\'application, éviter inhalation prolongée.',
+    descriptionEn: 'Solvent used in nail polish. Neurotoxic via inhalation, possible carcinogen. Ventilate well during use, avoid prolonged inhalation.',
+  },
+  {
+    code: 'acetaldehyde', name: 'Acétaldéhyde', group: 'group2b', category: 'cosmetic',
+    description: 'Présent dans lissages brésiliens. Cancérigène possible (CIRC Groupe 2B) par inhalation. Irritant respiratoire. Éviter exposition prolongée.',
+    descriptionEn: 'Found in Brazilian hair-straightening treatments. Possible carcinogen (IARC Group 2B) via inhalation. Respiratory irritant. Avoid prolonged exposure.',
+  },
+  {
+    code: 'microplastics', name: 'Microplastiques / Microbilles', group: 'group2b', category: 'cosmetic',
+    description: 'Microbilles plastiques dans gommages et dentifrices. Polluants persistants qui s\'accumulent dans l\'organisme. Préférer produits sans microplastiques.',
+    descriptionEn: 'Plastic microbeads in scrubs and toothpastes. Persistent pollutants that accumulate in the body. Choose microplastic-free products.',
+  },
+  {
+    code: 'mica-contaminated', name: 'Mica contaminé', group: 'group2b', category: 'cosmetic',
+    description: 'Mica cosmétique pouvant contenir des traces d\'amiante (cancérigène CIRC Groupe 1). Risque par inhalation lors d\'application en poudre. Éviter poudres non certifiées.',
+    descriptionEn: 'Cosmetic mica that may contain traces of asbestos (IARC Group 1 carcinogen). Risk via inhalation when applied as powder. Avoid uncertified powders.',
+  },
+  {
+    code: 'phthalate-dep', name: 'Phtalate DEP', group: 'group2b', category: 'cosmetic',
+    description: 'Phtalate plastifiant moins toxique que DBP/DEHP mais perturbateur endocrinien. Éviter contact prolongé.',
+    descriptionEn: 'Phthalate plasticizer, less toxic than DBP/DEHP but still an endocrine disruptor. Avoid prolonged contact.',
+  },
 
   // --- Glycérol ---
-  { code: 'en:e422', name: 'Glycérol / Glycérine', group: 'group2b', description: 'Sûr en petite quantité. Le glycérol industriel peut contenir des contaminants (3-MCPD, esters glycidiques).' },
+  { code: 'en:e422', name: 'Glycérol / Glycérine', group: 'group2b', category: 'food', description: 'Sûr en petite quantité. Le glycérol industriel peut contenir des contaminants (3-MCPD, esters glycidiques).' },
 
   // --- Produits ménagers modérés ---
-  { code: 'ammonia', name: 'Ammoniac', group: 'group2b', description: 'Nettoyants. Irritant respiratoire puissant.' },
-  { code: 'phosphates-detergent', name: 'Phosphates (détergents)', group: 'group2b', description: 'Polluant environnemental. Toxique à haute dose.' },
+  {
+    code: 'ammonia', name: 'Ammoniac', group: 'group2b', category: 'household',
+    description: 'Présent dans nettoyants. Irritant respiratoire et oculaire puissant par inhalation. Ne jamais mélanger avec eau de Javel. Tenir hors de portée des enfants, ventiler.',
+    descriptionEn: 'Found in cleaners. Strong respiratory and eye irritant via inhalation. Never mix with bleach. Keep away from children, ventilate.',
+  },
+  {
+    code: 'phosphates-detergent', name: 'Phosphates (détergents)', group: 'group2b', category: 'household',
+    description: 'Polluants environnementaux persistants. Toxiques pour la vie aquatique. Préférer détergents sans phosphates.',
+    descriptionEn: 'Persistent environmental pollutants. Toxic to aquatic life. Prefer phosphate-free detergents.',
+  },
 
   // --- Ustensiles ---
-  { code: 'pfoa-ptfe', name: 'PFOA / PTFE (Teflon)', group: 'group2b', description: 'Poêles antiadhésives. Cancérogène quand chauffé à haute température. Libère gaz toxiques.' },
-  { code: 'aluminum-cookware', name: 'Aluminium (casseroles, papier)', group: 'group2b', description: 'Lié à Alzheimer. Migration accrue avec aliments acides.' },
-  { code: 'polycarbonate-7', name: 'Polycarbonate (plastique #7)', group: 'group2b', description: 'Contient du BPA. Perturbateur endocrinien.' },
-  { code: 'pvc-3', name: 'PVC (plastique #3)', group: 'group2b', description: 'Contient des phtalates. Ne jamais chauffer.' },
-  { code: 'polystyrene-6', name: 'Polystyrène (plastique #6)', group: 'group2b', description: 'Peut libérer du styrène. Éviter avec aliments chauds.' },
-  { code: 'melamine-cookware', name: 'Mélamine (vaisselle)', group: 'group2b', description: 'Peut libérer du formaldéhyde quand chauffée. Ne jamais utiliser au micro-ondes.' },
-  { code: 'antimony', name: 'Antimoine', group: 'group2b', description: 'Présent dans le polyester. Potentiellement cancérigène.' },
+  {
+    code: 'pfoa-ptfe', name: 'PFOA / PTFE (Teflon)', group: 'group2b', category: 'kitchen',
+    description: 'Revêtement antiadhésif de poêles. Libère des gaz toxiques quand chauffé à haute température (>260°C). Tenir hors de portée des enfants, ne jamais préchauffer à vide.',
+    descriptionEn: 'Non-stick pan coating. Releases toxic fumes when heated above 260°C (500°F). Keep away from children, never preheat empty.',
+  },
+  {
+    code: 'aluminum-cookware', name: 'Aluminium (casseroles, papier)', group: 'group2b', category: 'kitchen',
+    description: 'Casseroles et papier aluminium. Migration accrue avec aliments acides. Lien suspecté avec maladie d\'Alzheimer. Éviter contact prolongé avec aliments acides ou très chauds.',
+    descriptionEn: 'Aluminum pans and foil. Increased migration with acidic foods. Suspected link with Alzheimer\'s disease. Avoid prolonged contact with acidic or very hot foods.',
+  },
+  {
+    code: 'polycarbonate-7', name: 'Polycarbonate (plastique #7)', group: 'group2b', category: 'packaging',
+    description: 'Contient du BPA, perturbateur endocrinien. Migration possible vers le contenu, surtout chauffé. Ne pas chauffer, ne pas utiliser pour contenus chauds.',
+    descriptionEn: 'Contains BPA, an endocrine disruptor. Can migrate into contents, especially when heated. Do not heat, do not use for hot contents.',
+  },
+  {
+    code: 'pvc-3', name: 'PVC (plastique #3)', group: 'group2b', category: 'packaging',
+    description: 'Contient des phtalates plastifiants. Ne jamais chauffer. Tenir hors de portée des enfants pour usage avec contenus chauds.',
+    descriptionEn: 'Contains phthalate plasticizers. Never heat. Keep away from children when used with hot contents.',
+  },
+  {
+    code: 'polystyrene-6', name: 'Polystyrène (plastique #6)', group: 'group2b', category: 'packaging',
+    description: 'Peut libérer du styrène, cancérigène possible. Éviter avec contenus chauds ou gras. Ne pas chauffer.',
+    descriptionEn: 'Can release styrene, a possible carcinogen. Avoid with hot or fatty contents. Do not heat.',
+  },
+  {
+    code: 'melamine-cookware', name: 'Mélamine (vaisselle)', group: 'group2b', category: 'kitchen',
+    description: 'Vaisselle en mélamine. Peut libérer du formaldéhyde quand chauffée. Ne jamais utiliser au micro-ondes ni avec liquides très chauds. Tenir hors de portée des enfants pour usage en chaleur.',
+    descriptionEn: 'Melamine dishware. Can release formaldehyde when heated. Never use in microwave or with very hot liquids. Keep away from children for hot uses.',
+  },
+  {
+    code: 'antimony', name: 'Antimoine', group: 'group2b', category: 'textile',
+    description: 'Catalyseur résiduel présent dans le polyester. Potentiellement cancérigène par contact cutané prolongé. Laver les vêtements neufs avant port.',
+    descriptionEn: 'Residual catalyst found in polyester. Potential carcinogen via prolonged skin contact. Wash new garments before wearing.',
+  },
 
 
   // ═══════════════════════════════════════════════════════════════
-  // 🟢 SÛRS — ADDITIFS NATURELS OU NEUTRES
+  // 🟢 SÛRS — ADDITIFS NATURELS OU NEUTRES (FOOD)
   // ═══════════════════════════════════════════════════════════════
 
-  { code: 'en:e150a', name: 'Caramel ordinaire (E150a)', group: 'none', description: 'Caramel simple, généralement considéré sûr.' },
-  { code: 'en:e300', name: 'Acide ascorbique / Vitamine C', group: 'none', description: 'Vitamine C, antioxydant naturel sûr.' },
-  { code: 'en:e306', name: 'Vitamine E naturelle (tocophérol)', group: 'none', description: 'Antioxydant naturel sûr.' },
-  { code: 'en:e330', name: 'Acide citrique', group: 'none', description: 'Acide naturel, sûr pour la plupart. Très courant.' },
-  { code: 'en:e331', name: 'Citrate de sodium', group: 'none', description: 'Sel d\'acide citrique, sûr.' },
-  { code: 'en:e332', name: 'Citrate de potassium', group: 'none', description: 'Sel d\'acide citrique, sûr.' },
-  { code: 'en:e270', name: 'Acide lactique', group: 'none', description: 'Acide naturel issu de fermentation, sûr.' },
-  { code: 'en:e296', name: 'Acide malique', group: 'none', description: 'Acide naturel des fruits, sûr.' },
-  { code: 'en:e334', name: 'Acide tartrique', group: 'none', description: 'Acide naturel du raisin, sûr.' },
-  { code: 'en:e440', name: 'Pectine', group: 'none', description: 'Fibre naturelle extraite de fruits, sûre.' },
-  { code: 'en:e406', name: 'Agar-agar', group: 'none', description: 'Gélifiant naturel à base d\'algues, sûr.' },
-  { code: 'en:e414', name: 'Gomme arabique / Acacia', group: 'none', description: 'Fibre naturelle, généralement bien tolérée.' },
-  { code: 'en:e410', name: 'Gomme de caroube', group: 'none', description: 'Épaississant naturel à base de caroube, sûr.' },
-  { code: 'en:e163', name: 'Anthocyanes', group: 'none', description: 'Colorant naturel antioxydant, bénéfique.' },
-  { code: 'en:e170', name: 'Carbonate de calcium', group: 'none', description: 'Source naturelle de calcium, sûre.' },
-  { code: 'en:e500', name: 'Carbonate de sodium', group: 'none', description: 'Bicarbonate, sûr.' },
-  { code: 'en:e504', name: 'Carbonate de magnésium', group: 'none', description: 'Sel minéral naturel, sûr.' },
-  { code: 'en:e508', name: 'Chlorure de potassium', group: 'none', description: 'Sel minéral, sûr.' },
-  { code: 'en:e322-sunflower', name: 'Lécithine de tournesol', group: 'none', description: 'Émulsifiant naturel sans OGM, sûr.' },
-  { code: 'en:e960', name: 'Stévia / Steviol glycosides', group: 'none', description: 'Édulcorant naturel issu de la stévia, sûr.' },
-  { code: 'erythritol', name: 'Érythritol', group: 'none', description: 'Édulcorant naturel fermenté, considéré sûr par EFSA et FDA.' },
-  { code: 'monk-fruit', name: 'Fruit du moine / Monk fruit', group: 'none', description: 'Édulcorant naturel, sûr.' },
-  { code: 'allulose', name: 'Allulose', group: 'none', description: 'Sucre rare naturel, faible impact glycémique.' },
-  { code: 'xylitol', name: 'Xylitol', group: 'none', description: 'Édulcorant naturel sûr pour humains (TOXIQUE pour chiens).' },
-  { code: 'en:e392', name: 'Extrait de romarin', group: 'none', description: 'Antioxydant naturel, sûr.' },
+  { code: 'en:e150a', name: 'Caramel ordinaire (E150a)', group: 'none', category: 'food', description: 'Caramel simple, généralement considéré sûr.' },
+  { code: 'en:e300', name: 'Acide ascorbique / Vitamine C', group: 'none', category: 'food', description: 'Vitamine C, antioxydant naturel sûr.' },
+  { code: 'en:e306', name: 'Vitamine E naturelle (tocophérol)', group: 'none', category: 'food', description: 'Antioxydant naturel sûr.' },
+  { code: 'en:e330', name: 'Acide citrique', group: 'none', category: 'food', description: 'Acide naturel, sûr pour la plupart. Très courant.' },
+  { code: 'en:e331', name: 'Citrate de sodium', group: 'none', category: 'food', description: 'Sel d\'acide citrique, sûr.' },
+  { code: 'en:e332', name: 'Citrate de potassium', group: 'none', category: 'food', description: 'Sel d\'acide citrique, sûr.' },
+  { code: 'en:e270', name: 'Acide lactique', group: 'none', category: 'food', description: 'Acide naturel issu de fermentation, sûr.' },
+  { code: 'en:e296', name: 'Acide malique', group: 'none', category: 'food', description: 'Acide naturel des fruits, sûr.' },
+  { code: 'en:e334', name: 'Acide tartrique', group: 'none', category: 'food', description: 'Acide naturel du raisin, sûr.' },
+  { code: 'en:e440', name: 'Pectine', group: 'none', category: 'food', description: 'Fibre naturelle extraite de fruits, sûre.' },
+  { code: 'en:e406', name: 'Agar-agar', group: 'none', category: 'food', description: 'Gélifiant naturel à base d\'algues, sûr.' },
+  { code: 'en:e414', name: 'Gomme arabique / Acacia', group: 'none', category: 'food', description: 'Fibre naturelle, généralement bien tolérée.' },
+  { code: 'en:e410', name: 'Gomme de caroube', group: 'none', category: 'food', description: 'Épaississant naturel à base de caroube, sûr.' },
+  { code: 'en:e163', name: 'Anthocyanes', group: 'none', category: 'food', description: 'Colorant naturel antioxydant, bénéfique.' },
+  { code: 'en:e170', name: 'Carbonate de calcium', group: 'none', category: 'food', description: 'Source naturelle de calcium, sûre.' },
+  { code: 'en:e500', name: 'Carbonate de sodium', group: 'none', category: 'food', description: 'Bicarbonate, sûr.' },
+  { code: 'en:e504', name: 'Carbonate de magnésium', group: 'none', category: 'food', description: 'Sel minéral naturel, sûr.' },
+  { code: 'en:e508', name: 'Chlorure de potassium', group: 'none', category: 'food', description: 'Sel minéral, sûr.' },
+  { code: 'en:e322-sunflower', name: 'Lécithine de tournesol', group: 'none', category: 'food', description: 'Émulsifiant naturel sans OGM, sûr.' },
+  { code: 'en:e960', name: 'Stévia / Steviol glycosides', group: 'none', category: 'food', description: 'Édulcorant naturel issu de la stévia, sûr.' },
+  { code: 'erythritol', name: 'Érythritol', group: 'none', category: 'food', description: 'Édulcorant naturel fermenté, considéré sûr par EFSA et FDA.' },
+  { code: 'monk-fruit', name: 'Fruit du moine / Monk fruit', group: 'none', category: 'food', description: 'Édulcorant naturel, sûr.' },
+  { code: 'allulose', name: 'Allulose', group: 'none', category: 'food', description: 'Sucre rare naturel, faible impact glycémique.' },
+  { code: 'xylitol', name: 'Xylitol', group: 'none', category: 'food', description: 'Édulcorant naturel sûr pour humains (TOXIQUE pour chiens).' },
+  { code: 'en:e392', name: 'Extrait de romarin', group: 'none', category: 'food', description: 'Antioxydant naturel, sûr.' },
 ];
 
 export function findAdditiveByCode(code: string): AdditiveInfo | undefined {
   const normalized = code.toLowerCase().replace(/\s/g, '');
   return ADDITIVES_DATABASE.find(a => a.code === normalized);
+}
+
+/**
+ * Returns the description in the active language, falling back to FR if no EN.
+ */
+export function getAdditiveDescription(a: AdditiveInfo): string {
+  if (isEnglish() && a.descriptionEn && a.descriptionEn.trim().length > 0) {
+    return a.descriptionEn;
+  }
+  return a.description;
+}
+
+/**
+ * Maps a ScannedProduct.productCategory to the AdditiveCategory used for badges.
+ */
+export function productCategoryToAdditiveCategory(cat?: ProductCategory): AdditiveCategory {
+  switch (cat) {
+    case 'cosmetic':       return 'cosmetic';
+    case 'household':      return 'household';
+    case 'kitchen_utensil':return 'kitchen';
+    case 'clothing':       return 'textile';
+    case 'food':
+    case 'beverage':
+    default:               return 'food';
+  }
 }
 
 export function analyzeAdditives(additiveTags: string[]): { riskGroup: RiskGroup; detectedAdditives: AdditiveInfo[] } {
@@ -327,17 +576,89 @@ export function analyzeAdditives(additiveTags: string[]): { riskGroup: RiskGroup
   return { riskGroup: worstGroup, detectedAdditives: detected };
 }
 
-export function getRiskBadgeInfo(group: RiskGroup): { label: string; sublabel: string; color: string } {
+/**
+ * Returns a category-appropriate badge for the given risk group.
+ * Food keeps the existing labels. Non-food categories use language suited to their context.
+ */
+export function getRiskBadgeInfo(
+  group: RiskGroup,
+  category: AdditiveCategory = 'food',
+): { label: string; sublabel: string; color: string } {
+  // Food — preserve existing labels (handled via i18n)
+  if (category === 'food') {
+    switch (group) {
+      case 'group1':
+        return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#FF3B30' };
+      case 'group2a':
+        return { label: t('risk_warning_label'), sublabel: t('risk_warning_sub'), color: '#E8640A' };
+      case 'group2b':
+        return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#F5C000' };
+      case 'none':
+      default:
+        return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
+    }
+  }
+
+  const en = isEnglish();
+
+  // Cosmetic
+  if (category === 'cosmetic') {
+    switch (group) {
+      case 'group1':
+        return {
+          label: en ? 'CARCINOGENIC' : 'CANCÉRIGÈNE',
+          sublabel: en ? 'Classified carcinogenic (IARC Group 1) — avoid all contact' : 'Classé cancérigène (CIRC Groupe 1) — éviter tout contact',
+          color: '#FF3B30',
+        };
+      case 'group2a':
+        return {
+          label: en ? 'HARMFUL' : 'NOCIF',
+          sublabel: en ? 'Known allergen or toxic to skin or respiratory system' : 'Allergène connu ou toxique pour la peau ou les voies respiratoires',
+          color: '#E8640A',
+        };
+      case 'group2b':
+        return {
+          label: en ? 'USE WITH CARE' : 'AVEC PRÉCAUTION',
+          sublabel: en ? 'May cause skin irritation — avoid prolonged contact' : 'Peut causer une irritation cutanée — éviter contact prolongé',
+          color: '#F5C000',
+        };
+      case 'none':
+      default:
+        return {
+          label: en ? 'SAFE' : 'SANS RISQUE',
+          sublabel: en ? 'Dermatologically tolerated, non-irritating' : 'Dermatologiquement toléré, non irritant',
+          color: '#2E9E34',
+        };
+    }
+  }
+
+  // Household / Kitchen / Textile / Packaging — shared labels
   switch (group) {
     case 'group1':
-      return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#FF3B30' };
+      return {
+        label: en ? 'CARCINOGENIC' : 'CANCÉRIGÈNE',
+        sublabel: en ? 'Classified carcinogenic by IARC — avoid all contact' : 'Classé cancérigène par le CIRC — éviter tout contact',
+        color: '#FF3B30',
+      };
     case 'group2a':
-      return { label: t('risk_warning_label'), sublabel: t('risk_warning_sub'), color: '#E8640A' };
+      return {
+        label: en ? 'HAZARDOUS' : 'DANGEREUX',
+        sublabel: en ? 'Toxic if ingested or inhaled' : 'Toxique en cas d\'ingestion ou d\'inhalation',
+        color: '#E8640A',
+      };
     case 'group2b':
-      return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#F5C000' };
+      return {
+        label: en ? 'CAUTION' : 'PRÉCAUTION',
+        sublabel: en ? 'Keep away from children, avoid prolonged contact' : 'Tenir hors de portée des enfants, éviter contact prolongé',
+        color: '#F5C000',
+      };
     case 'none':
     default:
-      return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
+      return {
+        label: en ? 'SAFE' : 'SÉCURITAIRE',
+        sublabel: en ? 'Safe for use' : 'Sûr à l\'usage',
+        color: '#2E9E34',
+      };
   }
 }
 

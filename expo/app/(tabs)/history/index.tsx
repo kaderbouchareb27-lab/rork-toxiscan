@@ -17,7 +17,7 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
-import { getRiskBadgeInfo } from '@/constants/additives';
+import { getRiskBadgeInfo, productCategoryToAdditiveCategory } from '@/constants/additives';
 import { RiskGroup, ScannedProduct } from '@/types';
 import { t, getDateLocale } from '@/utils/i18n';
 
@@ -116,7 +116,7 @@ export default function HistoryScreen() {
   }, [clearHistory]);
 
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
-    const badge = getRiskBadgeInfo(item.riskGroup);
+    const badge = getRiskBadgeInfo(item.riskGroup, productCategoryToAdditiveCategory(item.productCategory));
     const date = new Date(item.scannedAt);
     const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',
