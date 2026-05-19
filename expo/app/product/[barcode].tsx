@@ -32,7 +32,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
-import { getRiskBadgeInfo, productCategoryToAdditiveCategory } from '@/constants/additives';
+import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
@@ -396,6 +396,12 @@ export default function ProductScreen() {
       : `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`;
   }, []);
 
+  const additiveCategory = useMemo(
+    () => productCategoryToAdditiveCategory(product.productCategory),
+    [product.productCategory],
+  );
+  const isNonFood = additiveCategory !== 'food';
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -520,9 +526,15 @@ export default function ProductScreen() {
                 const level = getDisplayLevel(ing);
                 const color = getLevelBadgeColor(level);
                 const isExpanded = !!expandedIngredients[index];
-                const description = (ing.explication && ing.explication.trim().length > 0)
-                  ? ing.explication
-                  : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
+                // For non-food scans, prefer the category-appropriate description
+                // from the additives database (FR/EN) when we can match the ingredient.
+                const additiveMatch = isNonFood ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
+                const additiveDescription = additiveMatch ? getAdditiveDescription(additiveMatch) : '';
+                const description = additiveDescription.length > 0
+                  ? additiveDescription
+                  : (ing.explication && ing.explication.trim().length > 0)
+                    ? ing.explication
+                    : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
                 return (
                   <View key={`all-ing-${index}`}>
                     <TouchableOpacity

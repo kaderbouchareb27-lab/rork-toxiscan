@@ -523,6 +523,59 @@ export function findAdditiveByCode(code: string): AdditiveInfo | undefined {
 }
 
 /**
+ * Normalize a name for fuzzy matching (lowercase, strip accents, parentheses,
+ * non-alphanumeric chars).
+ */
+function normalizeName(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Find an additive entry by ingredient name. If a category is given, prefer
+ * entries matching that category before falling back to any match.
+ */
+export function findAdditiveByName(
+  name: string,
+  category?: AdditiveCategory,
+): AdditiveInfo | undefined {
+  const target = normalizeName(name);
+  if (target.length === 0) return undefined;
+
+  const candidates: AdditiveInfo[] = [];
+  for (const a of ADDITIVES_DATABASE) {
+    const additiveName = normalizeName(a.name);
+    if (additiveName.length === 0) continue;
+    if (additiveName === target) {
+      candidates.push(a);
+      continue;
+    }
+    // Token-based partial match: every token of the shorter name appears in the other.
+    const aTokens = additiveName.split(' ').filter(t => t.length >= 3);
+    const tTokens = target.split(' ').filter(t => t.length >= 3);
+    if (aTokens.length === 0 || tTokens.length === 0) continue;
+    const [shorter, longer] = aTokens.length <= tTokens.length
+      ? [aTokens, target]
+      : [tTokens, additiveName];
+    if (shorter.every(tok => longer.includes(tok))) {
+      candidates.push(a);
+    }
+  }
+
+  if (candidates.length === 0) return undefined;
+  if (category) {
+    const sameCat = candidates.find(c => c.category === category);
+    if (sameCat) return sameCat;
+  }
+  return candidates[0];
+}
+
+/**
  * Returns the description in the active language, falling back to FR if no EN.
  */
 export function getAdditiveDescription(a: AdditiveInfo): string {
