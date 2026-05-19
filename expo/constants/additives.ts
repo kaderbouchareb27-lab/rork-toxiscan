@@ -74,7 +74,8 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e102', name: 'Tartrazine / Yellow 5', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE. Souvent contaminé par la benzidine.' },
   { code: 'en:e110', name: 'Jaune orangé S / Yellow 6', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE.' },
   { code: 'en:e124', name: 'Rouge cochenille A / Ponceau 4R', group: 'group2a', description: 'Colorant azoïque interdit aux USA. Lié à l\'hyperactivité chez l\'enfant.' },
-  { code: 'en:e129', name: 'Rouge allura / Red 40', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE.' },
+  { code: 'en:e129', name: 'Rouge allura / Red 40', group: 'group2a', description: 'Colorant alimentaire synthétique (E129 / Allura Red) lié à l\'hyperactivité chez l\'enfant. Études Oxford 2024 : dommages ADN documentés. Préoccupations cancérigènes possibles.' },
+  { code: 'orange-b', name: 'Orange B', group: 'group2a', description: 'Colorant azoïque synthétique lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
   { code: 'en:e122', name: 'Azorubine / Carmoisine', group: 'group2a', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
   { code: 'en:e150d', name: 'Caramel ammoniaqué sulfite (Caramel IV)', group: 'group2a', description: 'Contient du 4-MEI classé possiblement cancérogène (Groupe 2B CIRC). Présent dans sodas colas.' },
 
@@ -145,7 +146,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e132', name: 'Indigotine / Blue 2', group: 'group2b', description: 'Colorant artificiel. Allergies possibles.' },
   { code: 'en:e143', name: 'Vert solide FCF / Green 3', group: 'group2b', description: 'Colorant artificiel interdit en UE.' },
   { code: 'en:e171', name: 'Dioxyde de titane', group: 'group2b', description: 'Interdit comme additif alimentaire en UE depuis 2022. Nanoparticules suspectes (Groupe 2B CIRC).' },
-  { code: 'en:e160b', name: 'Annatto / Rocou', group: 'group2b', description: 'Colorant naturel. Allergies possibles chez certaines personnes sensibles.' },
+  { code: 'en:e160b', name: 'Annatto / Rocou', group: 'group2a', description: 'Colorant semi-synthétique jaune/orange (E160b) lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
   { code: 'en:e120', name: 'Cochenille / Carmin', group: 'group2b', description: 'Colorant rouge naturel mais allergène fort, chocs anaphylactiques possibles.' },
   { code: 'carbon-black', name: 'Noir de carbone', group: 'group2b', description: 'Nanoparticules controversées (Groupe 2B CIRC).' },
 

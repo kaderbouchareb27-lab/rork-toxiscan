@@ -80,11 +80,13 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['bha', 'butylhydroxyanisole', 'e320'], code: 'E320', risk: 'probable', circ: 'Groupe 2B', note: 'Perturbateur endocrinien, cancérigène possible.' },
   { keywords: ['tbhq', 'e319'], code: 'E319', risk: 'probable', circ: 'Ultra-transformé', note: 'Lié à tumeurs dans études animales.' },
 
-  // --- Colorants azoïques → ORANGE ---
-  { keywords: ['tartrazine', 'jaune 5', 'yellow 5', 'fd&c yellow 5', 'e102'], code: 'E102', risk: 'probable', circ: 'Hyperactivité', note: 'Lié à l\'hyperactivité chez l\'enfant. Interdit sans avertissement.' },
-  { keywords: ['jaune 6', 'yellow 6', 'sunset yellow', 'jaune orange s', 'fd&c yellow 6', 'e110'], code: 'E110', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
+  // --- Colorants azoïques et colorants jaunes/oranges → ORANGE ---
+  { keywords: ['annatto', 'rocou', 'extrait d\'annatto', 'annatto extract', 'e160b'], code: 'E160b', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant semi-synthétique (jaune/orange) lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
+  { keywords: ['tartrazine', 'jaune 5', 'yellow 5', 'fd&c yellow 5', 'e102'], code: 'E102', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant synthétique jaune lié à l\'hyperactivité chez l\'enfant, à des réactions allergiques et à des perturbations hormonales. Avertissement obligatoire en UE.' },
+  { keywords: ['jaune 6', 'yellow 6', 'sunset yellow', 'jaune orange s', 'fd&c yellow 6', 'e110'], code: 'E110', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque jaune/orange lié à l\'hyperactivité chez l\'enfant, allergies et perturbations hormonales.' },
   { keywords: ['ponceau 4r', 'rouge cochenille a', 'e124'], code: 'E124', risk: 'probable', circ: 'Hyperactivité', note: 'Interdit aux USA, lié à hyperactivité.' },
-  { keywords: ['rouge 40', 'red 40', 'allura red', 'rouge allura', 'fd&c red 40', 'fd c red 40', 'fd&c couleur rouge 40', 'fd&c couleur rouge #40', 'rouge #40', 'red #40', 'e129'], code: 'E129', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque. Oxford 2024 : dommages ADN confirmés.' },
+  { keywords: ['rouge 40', 'red 40', 'allura red', 'rouge allura', 'fd&c red 40', 'fd c red 40', 'fd&c couleur rouge 40', 'fd&c couleur rouge #40', 'rouge #40', 'red #40', 'e129'], code: 'E129', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant alimentaire synthétique lié à l\'hyperactivité chez l\'enfant. Oxford 2024 : dommages ADN confirmés. Préoccupations cancérigènes documentées.' },
+  { keywords: ['orange b'], code: null, risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque synthétique lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
   { keywords: ['azorubine', 'carmoisine', 'rouge azo', 'e122'], code: 'E122', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque lié hyperactivité enfant. Interdit dans plusieurs pays.' },
   { keywords: ['bleu 1', 'blue 1', 'bleu brillant', 'bleu brillant fcf', 'brilliant blue', 'brilliant blue fcf', 'fd&c blue 1', 'fd c blue 1', 'fcf', 'e133'], code: 'E133', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant synthétique pétrolier. Lié à hyperactivité, interdit dans plusieurs pays européens.' },
   { keywords: ['caramel ammoniacal sulfite', 'sulfite ammonia caramel', 'caramel iv', 'e150d'], code: 'E150d', risk: 'probable', circ: 'Groupe 2B', note: 'Contient du 4-MEI classé Groupe 2B.' },
@@ -137,6 +139,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // ═══════════════════════════════════════════════════════════════
 
   // --- Sucres et sirops → JAUNE ---
+  { keywords: ['sirop de ble', 'sirop de blé', 'wheat syrup'], code: null, risk: 'possible', circ: 'Sucre raffiné', note: 'Sirop industriel à index glycémique élevé. Contient du gluten — déconseillé aux personnes intolérantes.' },
+  { keywords: ['amidon', 'starch'], code: null, risk: 'possible', circ: 'Source ambiguë', note: 'Source non précisée — possiblement amidon de maïs modifié industriellement. Préférer un amidon avec source clairement identifiée (blé, riz, pomme de terre).' },
+  { keywords: ['bicarbonate d ammonium', 'bicarbonate d\'ammonium', 'ammonium bicarbonate', 'e503'], code: 'E503', risk: 'possible', circ: 'Levant industriel', note: 'Agent levant industriel, additif borderline. Préférer le bicarbonate de sodium classique.' },
   { keywords: ['sucre', 'sugar', 'saccharose', 'sucre blanc', 'sucre raffiné', 'sucre raffine'], code: null, risk: 'possible', circ: 'Sucre raffiné', note: 'Lié à obésité, diabète type 2 et inflammation chronique.' },
   { keywords: ['sucre de canne', 'cane sugar', 'sucre de canne roux', 'raw cane sugar'], code: null, risk: 'possible', circ: 'Sucre raffiné' },
   { keywords: ['sucres', 'sugars'], code: null, risk: 'possible', circ: 'Sucre raffiné', note: 'Sucres ajoutés. Consommer avec modération.' },
@@ -316,7 +321,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['poivre', 'pepper', 'paprika', 'extrait de paprika', 'paprika extract', 'cumin', 'origan', 'oregano', 'basilic', 'basil', 'thym', 'thyme', 'romarin', 'rosemary'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['ail', 'garlic', 'oignon', 'onion', 'echalote', 'échalote', 'shallot', 'poudre d\'ail', 'garlic powder'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['epices', 'épices', 'spices', 'herbes', 'herbs', 'fines herbes'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['extrait d\'annatto', 'annatto extract', 'annatto', 'rocou'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Colorant naturel extrait des graines de rocou.' },
+  // (Annatto / Rocou / E160b déplacé en ORANGE — voir colorants azoïques)
 
   // --- Sucres naturels ---
   { keywords: ['sucre de coco', 'coconut sugar'], code: null, risk: 'aucun', circ: 'Naturel' },

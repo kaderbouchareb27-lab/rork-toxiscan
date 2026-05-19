@@ -18,7 +18,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Database, AlertOctagon,
+  Store, Heart, Database, AlertOctagon, ChevronDown,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
@@ -36,7 +36,7 @@ import { getRiskBadgeInfo } from '@/constants/additives';
 import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
-import { t } from '@/utils/i18n';
+import { t, isEnglish } from '@/utils/i18n';
 
 // ─────────────────────────────────────────────
 // ✅ Conversion directe niveau_risque → couleur/label
@@ -384,6 +384,18 @@ export default function ProductScreen() {
     ? product.detectedIngredients
     : product.substances ?? [];
 
+  const [expandedIngredients, setExpandedIngredients] = useState<Record<number, boolean>>({});
+  const toggleIngredient = useCallback((index: number) => {
+    if (Platform.OS !== 'web') void Haptics.selectionAsync();
+    setExpandedIngredients(prev => ({ ...prev, [index]: !prev[index] }));
+  }, []);
+
+  const getApprovedDescription = useCallback((name: string): string => {
+    return isEnglish()
+      ? `${name} is a natural or commonly accepted ingredient with no identified health risk at typical food levels.`
+      : `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`;
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -506,20 +518,34 @@ export default function ProductScreen() {
                 // 🟡 possible = MODÉRATION
                 // 🟢 aucun = APPROUVÉ
                 const level = getDisplayLevel(ing);
-                const isProblematic = level !== 'aucun';
+                const color = getLevelBadgeColor(level);
+                const isExpanded = !!expandedIngredients[index];
+                const description = (ing.explication && ing.explication.trim().length > 0)
+                  ? ing.explication
+                  : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
                 return (
                   <View key={`all-ing-${index}`}>
-                    <View style={styles.allIngRow}>
-                      <View style={[styles.allIngDot, { backgroundColor: getLevelBadgeColor(level) }]} />
+                    <TouchableOpacity
+                      style={styles.allIngRow}
+                      onPress={() => toggleIngredient(index)}
+                      activeOpacity={0.7}
+                      testID={`ingredient-row-${index}`}
+                    >
+                      <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
-                      <View style={[styles.allIngBadge, { backgroundColor: getLevelBadgeColor(level) }]}>
+                      <View style={[styles.allIngBadge, { backgroundColor: color }]}>
                         <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
                       </View>
-                    </View>
-                    {isProblematic && ing.explication ? (
-                      <View style={[styles.allIngExplanation, { backgroundColor: getLevelBadgeColor(level) + '18' }]}>
-                        <Text style={[styles.allIngExplanationText, { color: getLevelBadgeColor(level) }]}>
-                          {ing.explication}
+                      <ChevronDown
+                        color={Colors.textTertiary}
+                        size={16}
+                        style={isExpanded ? styles.allIngChevronOpen : undefined}
+                      />
+                    </TouchableOpacity>
+                    {isExpanded && description ? (
+                      <View style={[styles.allIngExplanation, { backgroundColor: color + '18' }]}>
+                        <Text style={[styles.allIngExplanationText, { color }]}>
+                          {description}
                         </Text>
                       </View>
                     ) : null}
@@ -727,6 +753,7 @@ const styles = StyleSheet.create({
   allIngBadgeText: { fontSize: 9, fontWeight: '700' as const, color: '#FFFFFF', letterSpacing: 0.2 },
   allIngExplanation: { marginHorizontal: 14, marginBottom: 8, marginTop: 2, padding: 10, borderRadius: 8 },
   allIngExplanationText: { fontSize: 12, lineHeight: 17, fontWeight: '400' as const },
+  allIngChevronOpen: { transform: [{ rotate: '180deg' }] },
   approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: '#C4EDC9' },
   approvedFooterText: { flex: 1, fontSize: 14, color: '#2D6A3E', fontWeight: '600' as const, lineHeight: 20 },
   confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },
