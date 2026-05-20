@@ -61,7 +61,11 @@ export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
       <View style={[styles.accentBar, { backgroundColor: config.accentColor }]} />
       <View style={styles.headerRow}>
         <View style={[styles.avatarRing, { borderColor: config.accentColor }]}>
-          <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.avatar} contentFit="cover" />
+          <Image
+            source={{ uri: config.avatarUri ?? DR_TOXI_DEFAULT_AVATAR_URI }}
+            style={styles.avatar}
+            contentFit="cover"
+          />
         </View>
         <View style={styles.headerText}>
           <View style={styles.eyebrowRow}>
@@ -69,13 +73,6 @@ export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
             <Text style={styles.eyebrow}>{eyebrow}</Text>
           </View>
           <Text style={styles.signature}>{signature}</Text>
-        </View>
-        <View style={[styles.iconBubble, { borderColor: config.accentColor }]}> 
-          {config.avatarUri ? (
-            <Image source={{ uri: config.avatarUri }} style={styles.badgeAvatar} contentFit="contain" />
-          ) : (
-            config.icon
-          )}
         </View>
       </View>
       <Text style={[styles.title, { color: config.accentColor }]}>{config.title}</Text>
@@ -114,17 +111,18 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   avatarRing: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     borderWidth: 2,
     padding: 2,
     backgroundColor: '#FFFFFF',
+    overflow: 'hidden' as const,
   },
   avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   headerText: {
     flex: 1,

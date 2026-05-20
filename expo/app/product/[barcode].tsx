@@ -504,13 +504,6 @@ export default function ProductScreen() {
 
         <DrToxiVerdict level={verdictLevel} />
 
-        {shortAnalysis ? (
-          <View style={[styles.aiSummaryCard, { borderColor: bannerConfig.color }]}> 
-            <Text style={[styles.aiSummaryKicker, { color: bannerConfig.color }]}>{isEnglish() ? 'SCAN SUMMARY' : 'RÉSUMÉ DU SCAN'}</Text>
-            <Text style={styles.aiSummaryText}>{shortAnalysis}</Text>
-          </View>
-        ) : null}
-
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (
           <View style={styles.section}>
