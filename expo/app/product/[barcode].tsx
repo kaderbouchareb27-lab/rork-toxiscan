@@ -766,7 +766,6 @@ const styles = StyleSheet.create({
   allIngBadgeText: { fontSize: 9, fontWeight: '700' as const, color: '#FFFFFF', letterSpacing: 0.2 },
   allIngExplanation: { marginHorizontal: 14, marginBottom: 8, marginTop: 2, padding: 10, borderRadius: 8 },
   allIngExplanationText: { fontSize: 12, lineHeight: 17, fontWeight: '400' as const },
-  allIngChevronOpen: { transform: [{ rotate: '180deg' }] },
   approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: '#C4EDC9' },
   approvedFooterText: { flex: 1, fontSize: 14, color: '#2D6A3E', fontWeight: '600' as const, lineHeight: 20 },
   confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },
