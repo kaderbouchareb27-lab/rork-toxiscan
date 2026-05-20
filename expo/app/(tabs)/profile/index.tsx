@@ -164,10 +164,10 @@ export default function ProfileScreen() {
 
           {stats.total > 0 && (
             <View style={styles.statsBreakdown}>
-              <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color={Colors.danger} />
-              <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color={Colors.warning} />
-              <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color={Colors.caution} />
-              <StatBar label="OK" count={stats.safe} max={maxStat} color={Colors.safe} />
+              <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
+              <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#C07A00" />
+              <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#C07A00" />
+              <StatBar label="Approved" count={stats.safe} max={maxStat} color="#1A7F3C" />
             </View>
           )}
         </View>
