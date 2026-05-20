@@ -138,35 +138,40 @@ async function fetchOFFAlternatives(
   ingredientTokens: string[],
   cc: string,
 ): Promise<OFFAlt[]> {
-  // Cascading relaxation — stop at the first attempt that returns >=3 products,
-  // otherwise keep the best non-empty result we found.
+  // Cascading relaxation — NO ingredient exclusion at all (too restrictive).
+  // Stop at the first attempt that returns >=3 products, else keep the best.
+  const parent = parentCategory(categoryTag);
   const attempts: FetchAttemptOptions[] = [
-    { categoryTag, ingredientTokens, cc, withNutriScore: true, withIngredientExclusion: true, label: `${cc}/full` },
-    { categoryTag, ingredientTokens, cc, withNutriScore: false, withIngredientExclusion: true, label: `${cc}/no-grade` },
-    { categoryTag, ingredientTokens, cc: 'fr', withNutriScore: true, withIngredientExclusion: true, label: 'fr/full' },
-    { categoryTag, ingredientTokens, cc: 'fr', withNutriScore: false, withIngredientExclusion: true, label: 'fr/no-grade' },
+    // 1) Category + Nutri-Score A/B (user's country)
+    { categoryTag, ingredientTokens, cc, withNutriScore: true, withIngredientExclusion: false, label: `${cc}/cat+ab` },
+    // 2) Category + Nutri-Score A/B (France — much larger catalog)
+    { categoryTag, ingredientTokens, cc: 'fr', withNutriScore: true, withIngredientExclusion: false, label: 'fr/cat+ab' },
+    // 3) Category only — no grade filter (user's country)
+    { categoryTag, ingredientTokens, cc, withNutriScore: false, withIngredientExclusion: false, label: `${cc}/cat-only` },
+    // 4) Category only — no grade filter (France)
+    { categoryTag, ingredientTokens, cc: 'fr', withNutriScore: false, withIngredientExclusion: false, label: 'fr/cat-only' },
   ];
 
-  const parent = parentCategory(categoryTag);
+  // 5) Parent category + Nutri-Score A/B (France)
   if (parent && parent !== categoryTag) {
     attempts.push({
       categoryTag: parent,
       ingredientTokens,
       cc: 'fr',
       withNutriScore: true,
-      withIngredientExclusion: true,
-      label: `fr/parent(${parent})`,
+      withIngredientExclusion: false,
+      label: `fr/parent(${parent})+ab`,
+    });
+    // 6) Parent category, no grade filter (last resort)
+    attempts.push({
+      categoryTag: parent,
+      ingredientTokens,
+      cc: 'fr',
+      withNutriScore: false,
+      withIngredientExclusion: false,
+      label: `fr/parent(${parent})-only`,
     });
   }
-  // Last resort: same category, no ingredient exclusion, just A/B grade.
-  attempts.push({
-    categoryTag,
-    ingredientTokens,
-    cc: 'fr',
-    withNutriScore: true,
-    withIngredientExclusion: false,
-    label: 'fr/no-exclude',
-  });
 
   let best: OFFAlt[] = [];
   for (const attempt of attempts) {
@@ -215,7 +220,9 @@ export default function HealthierAlternativesOFF({ category, problematicIngredie
 
   console.log('[OFF-Alts] Render — enabled:', enabled, 'isLoading:', isLoading, 'final:', data.length);
 
+  // Never show the empty state — if we somehow ended up with no products AND no loading, hide the section entirely.
   if (!enabled && !forceShow) return null;
+  if (!isLoading && data.length === 0) return null;
 
   const title = isEnglish() ? 'Healthier alternatives' : 'Alternatives plus saines';
   const inGrocery = isEnglish() ? 'Available in grocery stores' : 'Disponible en épicerie';
@@ -236,14 +243,6 @@ export default function HealthierAlternativesOFF({ category, problematicIngredie
       {isLoading ? (
         <View style={styles.loadingBox}>
           <ActivityIndicator color={Colors.primary} />
-        </View>
-      ) : data.length === 0 ? (
-        <View style={styles.emptyBox}>
-          <Text style={styles.emptyText}>
-            {isEnglish()
-              ? 'No alternatives found right now. Try again later.'
-              : 'Aucune alternative trouvée pour le moment. Réessaie plus tard.'}
-          </Text>
         </View>
       ) : (
         <ScrollView
