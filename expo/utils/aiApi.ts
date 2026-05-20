@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { isEnglish } from '@/utils/i18n';
 
-const MODEL_ID = 'gpt-4o-mini';
+const MODEL_ID = 'gpt-4.1-nano';
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 
 function getOpenAIConfig(): { url: string; apiKey: string } {
