@@ -12,18 +12,36 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Shield, Trash2, Camera, Lock, Heart } from 'lucide-react-native';
+import {
+  Shield,
+  Trash2,
+  Camera,
+  Lock,
+  Heart,
+  ChevronRight,
+  ShieldX,
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle,
+} from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
-import { getRiskBadgeInfo, productCategoryToAdditiveCategory } from '@/constants/additives';
 import { RiskGroup, ScannedProduct } from '@/types';
 import { t, getDateLocale } from '@/utils/i18n';
 
 type FilterType = 'all' | 'favorites' | RiskGroup;
 
-function getFilters(): { key: FilterType; label: string; color?: string }[] {
+type FilterConfig = { key: FilterType; label: string; color?: string };
+
+type HistoryRiskPresentation = {
+  label: string;
+  description: string;
+  color: string;
+};
+
+function getFilters(): FilterConfig[] {
   return [
     { key: 'all', label: t('filter_all') },
     { key: 'favorites', label: t('filter_favorites'), color: '#FF2D55' },
@@ -32,6 +50,50 @@ function getFilters(): { key: FilterType; label: string; color?: string }[] {
     { key: 'group2b', label: t('filter_caution'), color: '#EAB308' },
     { key: 'none', label: t('filter_approved'), color: '#22C55E' },
   ];
+}
+
+function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
+  switch (group) {
+    case 'group1':
+      return {
+        label: t('history_status_carcinogenic'),
+        description: t('history_status_carcinogenic_desc'),
+        color: '#D0260F',
+      };
+    case 'group2a':
+      return {
+        label: t('history_status_ultra_processed'),
+        description: t('history_status_ultra_processed_desc'),
+        color: '#E8730A',
+      };
+    case 'group2b':
+      return {
+        label: t('history_status_caution'),
+        description: t('history_status_caution_desc'),
+        color: '#EAB308',
+      };
+    case 'none':
+    default:
+      return {
+        label: t('history_status_approved'),
+        description: t('history_status_approved_desc'),
+        color: '#22C55E',
+      };
+  }
+}
+
+function RiskStatusIcon({ group, color, size = 16 }: { group: RiskGroup; color: string; size?: number }) {
+  switch (group) {
+    case 'group1':
+      return <ShieldX color={color} size={size} strokeWidth={2.4} />;
+    case 'group2a':
+      return <AlertTriangle color={color} size={size} strokeWidth={2.4} />;
+    case 'group2b':
+      return <AlertCircle color={color} size={size} strokeWidth={2.4} />;
+    case 'none':
+    default:
+      return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
+  }
 }
 
 function SkeletonRow() {
@@ -49,13 +111,23 @@ function SkeletonRow() {
   }, [opacity]);
 
   return (
-    <Animated.View style={[styles.productRow, { opacity }]} testID="skeleton-row">
-      <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#F0F0EE' }]} />
-      <View style={styles.productInfo}>
-        <View style={{ width: 140, height: 14, borderRadius: 7, backgroundColor: '#F0F0EE', marginBottom: 8 }} />
-        <View style={{ width: 90, height: 10, borderRadius: 5, backgroundColor: '#F4F4F2' }} />
+    <Animated.View style={[styles.productCard, styles.skeletonCard, { opacity }]} testID="skeleton-row">
+      <View style={styles.cardTopRow}>
+        <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#F0F0EE' }]} />
+        <View style={styles.productInfo}>
+          <View style={styles.skeletonTitle} />
+          <View style={styles.skeletonBrand} />
+          <View style={styles.skeletonMeta} />
+        </View>
+        <View style={styles.skeletonChevron} />
       </View>
-      <View style={{ width: 70, height: 22, borderRadius: 11, backgroundColor: '#F0F0EE' }} />
+      <View style={styles.statusPanel}>
+        <View style={[styles.statusIconBubble, { backgroundColor: '#E6E6E2' }]} />
+        <View style={styles.statusCopy}>
+          <View style={styles.skeletonStatusTitle} />
+          <View style={styles.skeletonStatusLine} />
+        </View>
+      </View>
     </Animated.View>
   );
 }
@@ -114,46 +186,75 @@ export default function HistoryScreen() {
   }, [clearHistory]);
 
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
-    const badge = getRiskBadgeInfo(item.riskGroup, productCategoryToAdditiveCategory(item.productCategory));
+    const risk = getHistoryRiskPresentation(item.riskGroup);
     const date = new Date(item.scannedAt);
     const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',
       month: 'short',
     });
     const isPhoto = item.scanMethod === 'photo';
+    const brandLabel = item.brand?.trim() ? item.brand : t('history_unknown_brand');
 
     return (
       <TouchableOpacity
-        style={styles.productRow}
+        style={[styles.productCard, { borderLeftColor: risk.color }]}
         onPress={() => handleProductPress(item.barcode)}
-        activeOpacity={0.7}
+        activeOpacity={0.76}
         testID={`history-item-${item.barcode}`}
       >
-        {isPhoto && item.thumbnailBase64 ? (
-          <Image source={{ uri: item.thumbnailBase64 }} style={styles.thumbnail} contentFit="cover" />
-        ) : isPhoto && item.photoUri ? (
-          <Image source={{ uri: item.photoUri }} style={styles.thumbnail} contentFit="cover" />
-        ) : item.imageUrl ? (
-          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} contentFit="contain" />
-        ) : (
-          <View style={styles.thumbnailPlaceholder}>
-            {isPhoto ? (
-              <Camera color={Colors.textTertiary} size={20} />
+        <View style={styles.cardTopRow}>
+          <View style={styles.thumbnailShell}>
+            {isPhoto && item.thumbnailBase64 ? (
+              <Image source={{ uri: item.thumbnailBase64 }} style={styles.thumbnail} contentFit="cover" />
+            ) : isPhoto && item.photoUri ? (
+              <Image source={{ uri: item.photoUri }} style={styles.thumbnail} contentFit="cover" />
+            ) : item.imageUrl ? (
+              <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} contentFit="contain" />
             ) : (
-              <Shield color={Colors.textTertiary} size={20} />
+              <View style={styles.thumbnailPlaceholder}>
+                {isPhoto ? (
+                  <Camera color={Colors.textTertiary} size={21} strokeWidth={2.2} />
+                ) : (
+                  <Shield color={Colors.textTertiary} size={21} strokeWidth={2.2} />
+                )}
+              </View>
             )}
           </View>
-        )}
-        <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.productBrand} numberOfLines={1}>{item.brand}</Text>
+
+          <View style={styles.productInfo}>
+            <View style={styles.productTitleRow}>
+              <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+              {item.isFavorite && (
+                <View style={styles.favoriteBadge}>
+                  <Heart color="#FF2D55" size={12} fill="#FF2D55" strokeWidth={2.4} />
+                </View>
+              )}
+            </View>
+            <Text style={styles.productBrand} numberOfLines={1}>{brandLabel}</Text>
+            <View style={styles.metaRow}>
+              <View style={styles.scanMethodChip}>
+                {isPhoto ? (
+                  <Camera color={Colors.textSecondary} size={12} strokeWidth={2.3} />
+                ) : (
+                  <Shield color={Colors.textSecondary} size={12} strokeWidth={2.3} />
+                )}
+                <Text style={styles.scanMethodText}>{isPhoto ? t('history_photo_scan') : t('history_barcode_scan')}</Text>
+              </View>
+              <Text style={styles.dateText}>{t('history_saved_label')} {formattedDate}</Text>
+            </View>
+          </View>
+
+          <ChevronRight color={Colors.textTertiary} size={18} strokeWidth={2.2} />
         </View>
-        <View style={styles.badgeColumn}>
-          {item.isFavorite && (
-            <Heart color="#FF2D55" size={14} fill="#FF2D55" />
-          )}
-          <View style={[styles.badgeDot, { backgroundColor: badge.color }]} />
-          <Text style={styles.dateText}>{formattedDate}</Text>
+
+        <View style={styles.statusPanel}>
+          <View style={[styles.statusIconBubble, { backgroundColor: risk.color }]}>
+            <RiskStatusIcon group={item.riskGroup} color={Colors.white} size={18} />
+          </View>
+          <View style={styles.statusCopy}>
+            <Text style={[styles.statusLabel, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
+            <Text style={styles.statusDescription} numberOfLines={2}>{risk.description}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -185,12 +286,21 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('history_title')}</Text>
-        {filteredHistory.length > 0 && (
-          <TouchableOpacity onPress={handleClearHistory} style={styles.clearButton} testID="clear-history">
-            <Trash2 color={Colors.textSecondary} size={18} />
-          </TouchableOpacity>
-        )}
+        <View style={styles.headerTextBlock}>
+          <Text style={styles.title}>{t('history_title')}</Text>
+          <Text style={styles.subtitle}>{t('history_saved_subtitle')}</Text>
+        </View>
+        <View style={styles.headerActions}>
+          <View style={styles.scanCountPill}>
+            <Text style={styles.scanCountNumber}>{totalHistoryCount}</Text>
+            <Text style={styles.scanCountLabel}>{t('history_scan_count')}</Text>
+          </View>
+          {filteredHistory.length > 0 && (
+            <TouchableOpacity onPress={handleClearHistory} style={styles.clearButton} testID="clear-history">
+              <Trash2 color={Colors.textSecondary} size={18} strokeWidth={2.2} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <View style={styles.filtersContainer}>
@@ -200,35 +310,39 @@ export default function HistoryScreen() {
           keyExtractor={(item) => item.key}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filtersList}
-          renderItem={({ item: filter }) => (
-            <TouchableOpacity
-              style={[
-                styles.filterChip,
-                activeFilter === filter.key && styles.filterChipActive,
-                activeFilter === filter.key && filter.color ? { backgroundColor: filter.color } : undefined,
-                filter.key === 'favorites' && !isPro ? styles.filterChipLocked : undefined,
-              ]}
-              onPress={() => handleFilterPress(filter.key)}
-              testID={`filter-${filter.key}`}
-            >
-              {filter.key === 'favorites' ? (
-                <Heart color={activeFilter === 'favorites' ? Colors.white : '#FF2D55'} size={12} fill={activeFilter === 'favorites' ? Colors.white : '#FF2D55'} />
-              ) : filter.color && activeFilter !== filter.key ? (
-                <View style={[styles.filterDot, { backgroundColor: filter.color }]} />
-              ) : null}
-              <Text
+          renderItem={({ item: filter }) => {
+            const isActive = activeFilter === filter.key;
+            const isRiskFilter = filter.key !== 'all' && filter.key !== 'favorites';
+            return (
+              <TouchableOpacity
                 style={[
-                  styles.filterChipText,
-                  activeFilter === filter.key && styles.filterChipTextActive,
+                  styles.filterChip,
+                  isActive && styles.filterChipActive,
+                  isActive && filter.color ? { backgroundColor: filter.color } : undefined,
+                  filter.key === 'favorites' && !isPro ? styles.filterChipLocked : undefined,
                 ]}
+                onPress={() => handleFilterPress(filter.key)}
+                testID={`filter-${filter.key}`}
               >
-                {filter.label}
-              </Text>
-              {filter.key === 'favorites' && !isPro && (
-                <Lock color={Colors.textTertiary} size={10} />
-              )}
-            </TouchableOpacity>
-          )}
+                {filter.key === 'favorites' ? (
+                  <Heart color={isActive ? Colors.white : '#FF2D55'} size={13} fill={isActive ? Colors.white : '#FF2D55'} strokeWidth={2.4} />
+                ) : isRiskFilter && filter.color ? (
+                  <RiskStatusIcon group={filter.key as RiskGroup} color={isActive ? Colors.white : filter.color} size={13} />
+                ) : null}
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    isActive && styles.filterChipTextActive,
+                  ]}
+                >
+                  {filter.label}
+                </Text>
+                {filter.key === 'favorites' && !isPro && (
+                  <Lock color={Colors.textTertiary} size={10} />
+                )}
+              </TouchableOpacity>
+            );
+          }}
         />
       </View>
 
@@ -244,7 +358,9 @@ export default function HistoryScreen() {
         <HistorySkeleton />
       ) : filteredHistory.length === 0 ? (
         <View style={styles.emptyState}>
-          <Shield color={Colors.textTertiary} size={48} strokeWidth={1.2} />
+          <View style={styles.emptyIconCircle}>
+            <Shield color={Colors.textTertiary} size={46} strokeWidth={1.4} />
+          </View>
           <Text style={styles.emptyTitle}>
             {activeFilter === 'favorites' ? t('no_favorites') : t('no_products')}
           </Text>
@@ -279,13 +395,58 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 10,
+    paddingBottom: 8,
+    gap: 14,
+  },
+  headerTextBlock: {
+    flex: 1,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '800' as const,
+    fontSize: 34,
+    fontWeight: '900' as const,
     color: Colors.text,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginTop: 3,
+    fontWeight: '600' as const,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  scanCountPill: {
+    minWidth: 58,
+    height: 38,
+    paddingHorizontal: 10,
+    borderRadius: 19,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  scanCountNumber: {
+    fontSize: 14,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    lineHeight: 15,
+  },
+  scanCountLabel: {
+    fontSize: 9,
+    fontWeight: '800' as const,
+    color: Colors.textSecondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.3,
+    lineHeight: 11,
   },
   clearButton: {
     width: 38,
@@ -294,10 +455,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 1,
   },
   filtersContainer: {
@@ -310,111 +473,233 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 22,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 24,
     backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
     gap: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
-    shadowRadius: 3,
+    shadowRadius: 5,
     elevation: 1,
   },
   filterChipActive: {
     backgroundColor: Colors.text,
+    borderColor: 'transparent',
     shadowOpacity: 0.1,
   },
   filterChipLocked: {
     opacity: 0.6,
   },
-  filterDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
   filterChipText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: 13,
+    fontWeight: '800' as const,
     color: Colors.textSecondary,
   },
   filterChipTextActive: {
     color: Colors.white,
   },
   historyInfoBanner: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255, 149, 0, 0.06)',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 4,
+    borderWidth: 1,
+    borderColor: '#E8730A',
   },
   historyInfoText: {
     fontSize: 12,
-    color: '#FF9500',
+    color: '#E8730A',
     textAlign: 'center',
-    fontWeight: '600' as const,
+    fontWeight: '800' as const,
   },
   listContent: {
     paddingHorizontal: 20,
     paddingTop: 8,
-    paddingBottom: 20,
+    paddingBottom: 22,
   },
-  productRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  productCard: {
     paddingVertical: 14,
     paddingHorizontal: 14,
-    marginBottom: 8,
+    marginBottom: 12,
     backgroundColor: Colors.surface,
-    borderRadius: 16,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderLeftWidth: 5,
+    borderColor: Colors.borderLight,
     gap: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
+    elevation: 3,
+  },
+  skeletonCard: {
+    borderLeftColor: Colors.borderLight,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  thumbnailShell: {
+    width: 60,
+    height: 60,
+    borderRadius: 18,
+    backgroundColor: Colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
   thumbnail: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 60,
+    height: 60,
+    borderRadius: 18,
     backgroundColor: Colors.surfaceSecondary,
   },
   thumbnailPlaceholder: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 60,
+    height: 60,
+    borderRadius: 18,
     backgroundColor: Colors.surfaceSecondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   productInfo: {
     flex: 1,
+    minWidth: 0,
+  },
+  productTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   productName: {
-    fontSize: 16,
-    fontWeight: '600' as const,
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '800' as const,
     color: Colors.text,
-    letterSpacing: -0.1,
+    letterSpacing: -0.25,
+  },
+  favoriteBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#FFF4F7',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   productBrand: {
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: 3,
+    fontWeight: '600' as const,
   },
-  badgeColumn: {
-    alignItems: 'flex-end',
-    gap: 5,
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
   },
-  badgeDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+  scanMethodChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: Colors.surfaceSecondary,
+  },
+  scanMethodText: {
+    fontSize: 11,
+    fontWeight: '800' as const,
+    color: Colors.textSecondary,
   },
   dateText: {
     fontSize: 11,
     color: Colors.textTertiary,
+    fontWeight: '700' as const,
+  },
+  statusPanel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 18,
+    backgroundColor: Colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  statusIconBubble: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  statusLabel: {
+    fontSize: 13,
+    fontWeight: '900' as const,
+    letterSpacing: 0.2,
+    textTransform: 'uppercase' as const,
+  },
+  statusDescription: {
+    fontSize: 12,
+    lineHeight: 16,
+    color: Colors.textSecondary,
+    fontWeight: '600' as const,
+    marginTop: 2,
+  },
+  skeletonTitle: {
+    width: 150,
+    height: 15,
+    borderRadius: 8,
+    backgroundColor: '#F0F0EE',
+    marginBottom: 7,
+  },
+  skeletonBrand: {
+    width: 92,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: '#F4F4F2',
+    marginBottom: 10,
+  },
+  skeletonMeta: {
+    width: 126,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#F0F0EE',
+  },
+  skeletonChevron: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#F0F0EE',
+  },
+  skeletonStatusTitle: {
+    width: 128,
+    height: 13,
+    borderRadius: 7,
+    backgroundColor: '#E9E9E5',
+    marginBottom: 6,
+  },
+  skeletonStatusLine: {
+    width: '84%',
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EDEDE9',
   },
   emptyState: {
     flex: 1,
@@ -423,28 +708,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     gap: 14,
   },
+  emptyIconCircle: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: Colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.05,
+    shadowRadius: 18,
+    elevation: 2,
+  },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700' as const,
+    fontSize: 19,
+    fontWeight: '800' as const,
     color: Colors.text,
+    letterSpacing: -0.2,
   },
   emptySubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
+    fontWeight: '600' as const,
   },
   premiumUpsellCard: {
     marginTop: 12,
     backgroundColor: Colors.surface,
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 24,
     alignItems: 'center',
     gap: 10,
     shadowColor: '#2E9E34',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
-    shadowRadius: 16,
+    shadowRadius: 18,
     elevation: 4,
     borderWidth: 1.5,
     borderColor: 'rgba(46, 158, 52, 0.2)',
@@ -460,7 +762,7 @@ const styles = StyleSheet.create({
   },
   premiumUpsellTitle: {
     fontSize: 18,
-    fontWeight: '700' as const,
+    fontWeight: '800' as const,
     color: Colors.text,
     letterSpacing: -0.2,
   },
@@ -469,6 +771,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
+    fontWeight: '600' as const,
   },
   premiumUpsellButton: {
     backgroundColor: '#2E9E34',
@@ -484,7 +787,7 @@ const styles = StyleSheet.create({
   },
   premiumUpsellButtonText: {
     fontSize: 15,
-    fontWeight: '700' as const,
+    fontWeight: '800' as const,
     color: Colors.white,
   },
 });
