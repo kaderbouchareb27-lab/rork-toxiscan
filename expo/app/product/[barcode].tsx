@@ -33,7 +33,7 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
-import { RiskGroup, DetectedIngredient, PhotoType, SubstanceDetected, HealthyAlternative } from '@/types';
+import { PhotoType, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { t, isEnglish } from '@/utils/i18n';
@@ -82,6 +82,33 @@ function getBannerConfig(level: VerdictLevel): { color: string; label: string; i
       return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'approuve':
       return { color: '#22C55E', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
+  }
+}
+
+function getVerdictAction(level: VerdictLevel): string {
+  const english = isEnglish();
+  switch (level) {
+    case 'danger':
+      return english ? 'Avoid regular consumption' : 'À éviter régulièrement';
+    case 'warning':
+      return english ? 'Limit as much as possible' : 'À limiter fortement';
+    case 'moderation':
+      return english ? 'Occasional only' : 'Occasionnel seulement';
+    case 'approuve':
+      return english ? 'Good everyday choice' : 'Bon choix au quotidien';
+  }
+}
+
+function getVerdictProgress(level: VerdictLevel): `${number}%` {
+  switch (level) {
+    case 'danger':
+      return '100%';
+    case 'warning':
+      return '74%';
+    case 'moderation':
+      return '48%';
+    case 'approuve':
+      return '18%';
   }
 }
 
@@ -287,6 +314,9 @@ export default function ProductScreen() {
 
   const isGreen = verdictLevel === 'approuve';
   const bannerConfig = getBannerConfig(verdictLevel);
+  const verdictAction = getVerdictAction(verdictLevel);
+  const verdictProgress = getVerdictProgress(verdictLevel);
+  const categoryLabel = product.productCategory ? getCategoryLabel(product.productCategory) : getCategoryLabel('food');
 
   const handleFavorite = () => {
     if (!isPro) { router.push('/paywall?source=favorite'); return; }
@@ -403,47 +433,51 @@ export default function ProductScreen() {
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.productHeader}>
-          {isPhotoScan ? (
-            product.thumbnailBase64 || product.photoUri ? (
-              <Image source={{ uri: product.thumbnailBase64 ?? product.photoUri ?? '' }} style={styles.productImage} contentFit="cover" />
-            ) : (
-              <View style={styles.imagePlaceholder}><Camera color={Colors.textTertiary} size={40} /></View>
-            )
-          ) : (
-            product.imageUrl ? (
-              <Image source={{ uri: product.imageUrl }} style={styles.productImage} contentFit="contain" />
-            ) : (
-              <View style={styles.imagePlaceholder}><Shield color={Colors.textTertiary} size={40} /></View>
-            )
-          )}
-
-          <Text style={styles.productName}>{truncateName(product.name, 60)}</Text>
-
-          {product.brand && product.brand !== getCategoryLabel(product.productCategory ?? 'other') ? (
-            <Text style={styles.productBrand}>{product.brand}</Text>
-          ) : null}
-
-          {isUniversalScan && product.productCategory && (
-            <View style={styles.categoryTag}>
-              <Layers color={Colors.primary} size={12} />
-              <Text style={styles.categoryTagText}>{getCategoryLabel(product.productCategory)}</Text>
+        <View style={[styles.productHeroCard, { borderColor: bannerConfig.color + '24' }]}> 
+          <View style={[styles.heroGlow, { backgroundColor: bannerConfig.color + '12' }]} />
+          <View style={styles.productHeroTopRow}>
+            <View style={styles.productImageFrame}>
+              {isPhotoScan ? (
+                product.thumbnailBase64 || product.photoUri ? (
+                  <Image source={{ uri: product.thumbnailBase64 ?? product.photoUri ?? '' }} style={styles.productImage} contentFit="cover" />
+                ) : (
+                  <View style={styles.imagePlaceholder}><Camera color={Colors.textTertiary} size={34} /></View>
+                )
+              ) : (
+                product.imageUrl ? (
+                  <Image source={{ uri: product.imageUrl }} style={styles.productImage} contentFit="contain" />
+                ) : (
+                  <View style={styles.imagePlaceholder}><Shield color={Colors.textTertiary} size={34} /></View>
+                )
+              )}
             </View>
-          )}
 
+            <View style={styles.productHeroText}>
+              <View style={styles.productMetaRow}>
+                <View style={styles.categoryTag}>
+                  <Layers color={Colors.primary} size={12} />
+                  <Text style={styles.categoryTagText}>{categoryLabel}</Text>
+                </View>
+                {isPhotoScan && !isUniversalScan ? (
+                  <View style={styles.photoTag}>
+                    <Camera color={Colors.textSecondary} size={12} />
+                    <Text style={styles.photoTagText}>{t('analyzed_by_photo')}</Text>
+                  </View>
+                ) : null}
+              </View>
+
+              <Text style={styles.productName}>{truncateName(product.name, 60)}</Text>
+
+              {product.brand && product.brand !== getCategoryLabel(product.productCategory ?? 'other') ? (
+                <Text style={styles.productBrand}>{product.brand}</Text>
+              ) : null}
+
+              {product.materialDetected ? (
+                <Text style={styles.materialText}>{t('material_label')} : {product.materialDetected}</Text>
+              ) : null}
+            </View>
+          </View>
           {isGreen && <ConfettiBurst />}
-
-          {product.materialDetected ? (
-            <Text style={styles.materialText}>{t('material_label')} : {product.materialDetected}</Text>
-          ) : null}
-
-          {isPhotoScan && !isUniversalScan && (
-            <View style={styles.photoTag}>
-              <Camera color={Colors.textSecondary} size={12} />
-              <Text style={styles.photoTagText}>{t('analyzed_by_photo')}</Text>
-            </View>
-          )}
-
         </View>
 
         {showFrontPhotoTip && (
@@ -453,20 +487,29 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <View style={[styles.badgeContainer, { backgroundColor: bannerConfig.color }]}>
-          <View style={styles.badgeContent}>
-            {bannerConfig.icon}
+        <View style={[styles.badgeContainer, { backgroundColor: bannerConfig.color, shadowColor: bannerConfig.color }]}>
+          <View style={styles.verdictTopLine}>
+            <View style={styles.verdictIconBubble}>{bannerConfig.icon}</View>
             <View style={styles.badgeTextContainer}>
+              <Text style={styles.verdictEyebrow}>{isEnglish() ? 'RISK VERDICT' : 'VERDICT SANTÉ'}</Text>
               <Text style={styles.badgeLabel}>{bannerConfig.label}</Text>
             </View>
           </View>
-        </View>
-
-        <View style={styles.introCard}>
-          <Text style={[styles.introText, { color: bannerConfig.color }]}>{bannerConfig.intro}</Text>
+          <Text style={styles.verdictAction}>{verdictAction}</Text>
+          <Text style={styles.verdictIntro}>{bannerConfig.intro}</Text>
+          <View style={styles.riskTrack}>
+            <View style={[styles.riskFill, { width: verdictProgress }]} />
+          </View>
         </View>
 
         <DrToxiVerdict level={verdictLevel} />
+
+        {shortAnalysis ? (
+          <View style={[styles.aiSummaryCard, { borderColor: bannerConfig.color }]}> 
+            <Text style={[styles.aiSummaryKicker, { color: bannerConfig.color }]}>{isEnglish() ? 'SCAN SUMMARY' : 'RÉSUMÉ DU SCAN'}</Text>
+            <Text style={styles.aiSummaryText}>{shortAnalysis}</Text>
+          </View>
+        ) : null}
 
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (
@@ -491,7 +534,7 @@ export default function ProductScreen() {
                     ? ing.explication
                     : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
                 return (
-                  <View key={`all-ing-${index}`} testID={`ingredient-row-${index}`}>
+                  <View key={`all-ing-${index}`} style={[styles.allIngItem, { borderLeftColor: color }]} testID={`ingredient-row-${index}`}>
                     <View style={styles.allIngRow}>
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
@@ -500,8 +543,8 @@ export default function ProductScreen() {
                       </View>
                     </View>
                     {description ? (
-                      <View style={[styles.allIngExplanation, { backgroundColor: color + '18' }]}>
-                        <Text style={[styles.allIngExplanationText, { color }]}>
+                      <View style={styles.allIngExplanation}>
+                        <Text style={styles.allIngExplanationText}>
                           {description}
                         </Text>
                       </View>
@@ -649,34 +692,48 @@ export default function ProductScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 },
+  container: { flex: 1, backgroundColor: '#FAFAF8' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#FAFAF8' },
   backButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   headerTitle: { fontSize: 17, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.2, flex: 1, textAlign: 'center' as const, marginHorizontal: 8 },
   headerRight: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8 },
   favoriteButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   shareButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   scrollView: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20 },
+  scrollContent: { paddingHorizontal: 18, paddingTop: 4 },
+  productHeroCard: { position: 'relative' as const, backgroundColor: '#FFFFFF', borderRadius: 28, padding: 16, borderWidth: 1, overflow: 'hidden' as const, shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.06, shadowRadius: 24, elevation: 4 },
+  heroGlow: { position: 'absolute' as const, top: -54, right: -48, width: 150, height: 150, borderRadius: 75 },
+  productHeroTopRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 16 },
+  productImageFrame: { width: 116, height: 116, borderRadius: 28, backgroundColor: '#F7F7F3', justifyContent: 'center' as const, alignItems: 'center' as const, borderWidth: 1, borderColor: '#EFEFEB' },
+  productHeroText: { flex: 1 },
+  productMetaRow: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, alignItems: 'center' as const, gap: 7, marginBottom: 10 },
   productHeader: { alignItems: 'center', paddingVertical: 24 },
-  productImage: { width: 120, height: 120, borderRadius: 20, backgroundColor: Colors.surface, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
-  imagePlaceholder: { width: 120, height: 120, borderRadius: 20, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  productName: { fontSize: 24, fontWeight: '800' as const, color: Colors.text, textAlign: 'center', marginTop: 18, letterSpacing: -0.4 },
-  productBrand: { fontSize: 15, color: Colors.textSecondary, marginTop: 5 },
-  categoryTag: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8, paddingHorizontal: 12, paddingVertical: 5, backgroundColor: '#E8F9ED', borderRadius: 10 },
-  categoryTagText: { fontSize: 13, fontWeight: '600' as const, color: Colors.primary },
-  materialText: { fontSize: 13, color: Colors.textSecondary, marginTop: 6, fontStyle: 'italic' as const },
-  photoTag: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: Colors.surfaceSecondary, borderRadius: 10 },
-  photoTagText: { fontSize: 12, color: Colors.textSecondary },
+  productImage: { width: 104, height: 104, borderRadius: 22, backgroundColor: Colors.surface },
+  imagePlaceholder: { width: 104, height: 104, borderRadius: 22, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' },
+  productName: { fontSize: 22, lineHeight: 27, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.55 },
+  productBrand: { fontSize: 14, color: '#777772', marginTop: 6, fontWeight: '600' as const },
+  categoryTag: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#E8F9ED', borderRadius: 999 },
+  categoryTagText: { fontSize: 12, fontWeight: '800' as const, color: Colors.primary },
+  materialText: { fontSize: 13, color: Colors.textSecondary, marginTop: 7, fontStyle: 'italic' as const },
+  photoTag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: Colors.surfaceSecondary, borderRadius: 999 },
+  photoTagText: { fontSize: 12, color: Colors.textSecondary, fontWeight: '700' as const },
   frontPhotoTip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFF8ED', borderRadius: 12, padding: 14, marginBottom: 4, borderWidth: 1, borderColor: '#FFE4B5' },
   frontPhotoTipText: { flex: 1, fontSize: 13, color: '#8B6914', lineHeight: 18 },
-  badgeContainer: { borderRadius: 20, padding: 22, marginVertical: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 4 },
+  badgeContainer: { borderRadius: 28, padding: 22, marginTop: 16, marginBottom: 0, shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 },
   badgeContent: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  verdictTopLine: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 13, marginBottom: 16 },
+  verdictIconBubble: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.20)', justifyContent: 'center' as const, alignItems: 'center' as const },
   badgeTextContainer: { flex: 1 },
-  badgeLabel: { fontSize: 22, fontWeight: '800' as const, letterSpacing: 1, color: '#FFFFFF' },
-  summaryCard: { backgroundColor: Colors.surface, borderRadius: 18, padding: 18, marginBottom: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  summaryText: { fontSize: 14, color: Colors.text, lineHeight: 20 },
-  section: { marginTop: 8 },
+  verdictEyebrow: { fontSize: 11, fontWeight: '900' as const, color: 'rgba(255,255,255,0.76)', letterSpacing: 1.2, marginBottom: 3 },
+  badgeLabel: { fontSize: 25, lineHeight: 30, fontWeight: '900' as const, letterSpacing: 0.6, color: '#FFFFFF' },
+  verdictAction: { fontSize: 17, fontWeight: '800' as const, color: '#FFFFFF', letterSpacing: -0.25, marginBottom: 5 },
+  verdictIntro: { fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 20, marginBottom: 16 },
+  riskTrack: { height: 7, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' as const },
+  riskFill: { height: 7, borderRadius: 999, backgroundColor: '#FFFFFF' },
+  aiSummaryCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginTop: 12, borderWidth: 1, shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.04, shadowRadius: 18, elevation: 2 },
+  aiSummaryKicker: { fontSize: 11, fontWeight: '900' as const, letterSpacing: 1.1, marginBottom: 8 },
+  aiSummaryText: { fontSize: 14, lineHeight: 21, color: '#343430' },
+  section: { marginTop: 18 },
   sectionTitle: { fontSize: 18, fontWeight: '700' as const, color: Colors.text, marginBottom: 12 },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   additiveCard: { backgroundColor: Colors.surface, borderRadius: 18, padding: 18, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
@@ -719,14 +776,15 @@ const styles = StyleSheet.create({
   bottomSpacer: { height: 32 },
   introCard: { paddingVertical: 12, paddingHorizontal: 16, marginBottom: 4, alignItems: 'center' as const },
   introText: { fontSize: 15, fontWeight: '700' as const, textAlign: 'center' as const, letterSpacing: -0.1 },
-  allIngredientsCard: { backgroundColor: Colors.surface, borderRadius: 16, paddingTop: 6, paddingBottom: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1, overflow: 'hidden' as const },
-  allIngRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, paddingVertical: 8, paddingHorizontal: 14 },
+  allIngredientsCard: { gap: 10 },
+  allIngItem: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, borderWidth: 1, borderColor: '#EEEEEA', borderLeftWidth: 4, shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.04, shadowRadius: 14, elevation: 1 },
+  allIngRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 },
   allIngDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
-  allIngName: { flex: 1, fontSize: 14, color: Colors.text, fontWeight: '500' as const },
-  allIngBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, flexShrink: 0 },
-  allIngBadgeText: { fontSize: 9, fontWeight: '700' as const, color: '#FFFFFF', letterSpacing: 0.2 },
-  allIngExplanation: { marginHorizontal: 14, marginBottom: 8, marginTop: 2, padding: 10, borderRadius: 8 },
-  allIngExplanationText: { fontSize: 12, lineHeight: 17, fontWeight: '400' as const },
+  allIngName: { flex: 1, fontSize: 15, lineHeight: 20, color: Colors.text, fontWeight: '800' as const, letterSpacing: -0.15 },
+  allIngBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999, flexShrink: 0 },
+  allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25 },
+  allIngExplanation: { marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8', backgroundColor: '#FFFFFF' },
+  allIngExplanationText: { fontSize: 13, lineHeight: 19, fontWeight: '500' as const, color: '#4E4E49' },
   approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: '#C4EDC9' },
   approvedFooterText: { flex: 1, fontSize: 14, color: '#2D6A3E', fontWeight: '600' as const, lineHeight: 20 },
   confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },
