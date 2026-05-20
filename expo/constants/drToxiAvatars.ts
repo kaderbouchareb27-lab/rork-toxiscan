@@ -6,7 +6,7 @@ export const DR_TOXI_DEFAULT_AVATAR_URI = 'https://r2-pub.rork.com/generated-ima
 
 export const DR_TOXI_BADGE_AVATARS: Record<'danger' | 'warning' | 'moderation', string> = {
   danger: 'https://r2-pub.rork.com/generated-images/56be70c6-a769-45ba-82ec-33d4fa3eb4d5.png',
-  warning: 'https://r2-pub.rork.com/generated-images/e261702e-06aa-4129-98e5-ab484dcc7349.png',
+  warning: 'https://r2-pub.rork.com/generated-images/b9ff7bc4-d4a6-403e-8395-770f89c2fa8a.png',
   moderation: 'https://r2-pub.rork.com/generated-images/f7afa0f8-dad2-4d9a-ad05-53956011be10.png',
 };
 
