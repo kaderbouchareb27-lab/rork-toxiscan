@@ -512,7 +512,7 @@ export default function ScannerScreen() {
                   testID="photo-button"
                 >
                   <LinearGradient
-                    colors={['#141411', '#202016', '#2A2B20']}
+                    colors={['#35B83D', '#2E9E34', '#257F2B']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.scanButtonGradient}
@@ -789,9 +789,9 @@ const styles = StyleSheet.create({
   scanButton: {
     width: SCREEN_WIDTH - 48,
     borderRadius: 24,
-    shadowColor: '#11120F',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.24,
     shadowRadius: 24,
     elevation: 10,
   },
