@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { ShieldAlert, ShieldX, ThumbsUp, AlertTriangle } from 'lucide-react-native';
+import { ThumbsUp } from 'lucide-react-native';
 import { isEnglish, t } from '@/utils/i18n';
-
-const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
+import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
 
@@ -17,31 +16,36 @@ function getVerdictConfig(): Record<VerdictLevel, {
   title: string;
   message: string;
   icon: React.ReactNode;
+  avatarUri: string | null;
 }> {
   return {
     danger: {
       accentColor: '#D0260F',
       title: t('verdict_danger_title'),
       message: t('verdict_danger_msg'),
-      icon: <ShieldX color="#D0260F" size={22} />,
+      icon: null,
+      avatarUri: getDrToxiBadgeAvatarForVerdict('danger'),
     },
     warning: {
       accentColor: '#E8730A',
       title: t('verdict_caution_title'),
       message: t('verdict_caution_msg'),
-      icon: <ShieldAlert color="#E8730A" size={22} />,
+      icon: null,
+      avatarUri: getDrToxiBadgeAvatarForVerdict('warning'),
     },
     moderation: {
       accentColor: '#EAB308',
       title: t('verdict_moderation_title'),
       message: t('verdict_moderation_msg'),
-      icon: <AlertTriangle color="#EAB308" size={22} />,
+      icon: null,
+      avatarUri: getDrToxiBadgeAvatarForVerdict('moderation'),
     },
     approuve: {
       accentColor: '#2E9E34',
       title: t('verdict_approved_title'),
       message: t('verdict_approved_msg'),
       icon: <ThumbsUp color="#2E9E34" size={22} />,
+      avatarUri: null,
     },
   };
 }
@@ -57,7 +61,7 @@ export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
       <View style={[styles.accentBar, { backgroundColor: config.accentColor }]} />
       <View style={styles.headerRow}>
         <View style={[styles.avatarRing, { borderColor: config.accentColor }]}>
-          <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.avatar} contentFit="cover" />
+          <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.avatar} contentFit="cover" />
         </View>
         <View style={styles.headerText}>
           <View style={styles.eyebrowRow}>
@@ -66,7 +70,13 @@ export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
           </View>
           <Text style={styles.signature}>{signature}</Text>
         </View>
-        <View style={[styles.iconBubble, { borderColor: config.accentColor }]}>{config.icon}</View>
+        <View style={[styles.iconBubble, { borderColor: config.accentColor }]}> 
+          {config.avatarUri ? (
+            <Image source={{ uri: config.avatarUri }} style={styles.badgeAvatar} contentFit="contain" />
+          ) : (
+            config.icon
+          )}
+        </View>
       </View>
       <Text style={[styles.title, { color: config.accentColor }]}>{config.title}</Text>
       <Text style={styles.message}>{config.message}</Text>
@@ -143,13 +153,18 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   iconBubble: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     backgroundColor: '#FFFFFF',
+    overflow: 'hidden' as const,
+  },
+  badgeAvatar: {
+    width: 44,
+    height: 44,
   },
   title: {
     fontSize: 18,

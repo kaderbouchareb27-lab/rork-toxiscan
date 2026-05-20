@@ -16,9 +16,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import {
-  ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle,
+  ChevronLeft, Share2, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, AlertOctagon,
+  Store, Heart,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
@@ -38,6 +38,7 @@ import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, isEnglish } from '@/utils/i18n';
+import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
 // ✅ Conversion directe niveau_risque → couleur/label
@@ -73,16 +74,16 @@ function getLevelBadgeLabel(level: DisplayLevel): string {
   }
 }
 
-function getBannerConfig(level: VerdictLevel): { color: string; label: string; intro: string; icon: React.ReactNode } {
+function getBannerConfig(level: VerdictLevel): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
   switch (level) {
     case 'danger':
-      return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
+      return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
     case 'warning':
-      return { color: '#E8730A', label: t('badge_caution'), intro: t('intro_warning'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#E8730A', label: t('badge_caution'), intro: t('intro_warning'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
     case 'moderation':
-      return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
     case 'approuve':
-      return { color: '#2E9E34', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
+      return { color: '#2E9E34', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} />, avatarUri: null };
   }
 }
 
@@ -478,7 +479,13 @@ export default function ProductScreen() {
 
         <View style={[styles.badgeContainer, { backgroundColor: bannerConfig.color, shadowColor: bannerConfig.color }]}>
           <View style={styles.verdictTopLine}>
-            <View style={styles.verdictIconBubble}>{bannerConfig.icon}</View>
+            <View style={styles.verdictIconBubble}>
+              {bannerConfig.avatarUri ? (
+                <Image source={{ uri: bannerConfig.avatarUri }} style={styles.verdictAvatar} contentFit="contain" />
+              ) : (
+                bannerConfig.icon
+              )}
+            </View>
             <View style={styles.badgeTextContainer}>
               <Text style={styles.verdictEyebrow}>{isEnglish() ? 'RISK VERDICT' : 'VERDICT SANTÉ'}</Text>
               <Text style={styles.badgeLabel}>{bannerConfig.label}</Text>
@@ -715,7 +722,8 @@ const styles = StyleSheet.create({
   badgeContainer: { borderRadius: 28, padding: 22, marginTop: 16, marginBottom: 0, shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 },
   badgeContent: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   verdictTopLine: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 13, marginBottom: 16 },
-  verdictIconBubble: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.20)', justifyContent: 'center' as const, alignItems: 'center' as const },
+  verdictIconBubble: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.22)', justifyContent: 'center' as const, alignItems: 'center' as const, overflow: 'hidden' as const, borderWidth: 1, borderColor: 'rgba(255,255,255,0.34)' },
+  verdictAvatar: { width: 58, height: 58 },
   badgeTextContainer: { flex: 1 },
   verdictEyebrow: { fontSize: 11, fontWeight: '900' as const, color: 'rgba(255,255,255,0.76)', letterSpacing: 1.2, marginBottom: 3 },
   badgeLabel: { fontSize: 25, lineHeight: 30, fontWeight: '900' as const, letterSpacing: 0.6, color: '#FFFFFF' },

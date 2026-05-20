@@ -19,9 +19,6 @@ import {
   Lock,
   Heart,
   ChevronRight,
-  ShieldX,
-  AlertTriangle,
-  AlertCircle,
   CheckCircle,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -31,6 +28,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import { RiskGroup, ScannedProduct } from '@/types';
 import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, getDateLocale } from '@/utils/i18n';
+import { getDrToxiBadgeAvatarForRiskGroup } from '@/constants/drToxiAvatars';
 
 type FilterType = 'all' | 'favorites' | RiskGroup;
 
@@ -84,17 +82,12 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
 }
 
 function RiskStatusIcon({ group, color, size = 16 }: { group: RiskGroup; color: string; size?: number }) {
-  switch (group) {
-    case 'group1':
-      return <ShieldX color={color} size={size} strokeWidth={2.4} />;
-    case 'group2a':
-      return <AlertTriangle color={color} size={size} strokeWidth={2.4} />;
-    case 'group2b':
-      return <AlertCircle color={color} size={size} strokeWidth={2.4} />;
-    case 'none':
-    default:
-      return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
+  const avatarUri = getDrToxiBadgeAvatarForRiskGroup(group);
+  if (avatarUri) {
+    const avatarSize = Math.max(size + 10, 24);
+    return <Image source={{ uri: avatarUri }} style={{ width: avatarSize, height: avatarSize }} contentFit="contain" />;
   }
+  return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
 }
 
 function SkeletonRow() {
@@ -250,7 +243,7 @@ export default function HistoryScreen() {
         </View>
 
         <View style={styles.statusPanel}>
-          <View style={[styles.statusIconBubble, { backgroundColor: risk.color }]}>
+          <View style={[styles.statusIconBubble, { backgroundColor: item.riskGroup === 'none' ? risk.color : Colors.surface }]}>
             <RiskStatusIcon group={item.riskGroup} color={Colors.white} size={18} />
           </View>
           <View style={styles.statusCopy}>
@@ -645,11 +638,14 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderLight,
   },
   statusIconBubble: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
   statusCopy: {
     flex: 1,
