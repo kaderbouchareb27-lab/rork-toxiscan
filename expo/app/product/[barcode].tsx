@@ -212,6 +212,18 @@ function truncateName(name: string, max: number = 60): string {
   return name.slice(0, max - 1).trimEnd() + '\u2026';
 }
 
+function getRegionDisplayName(region: ReturnType<typeof detectRegion>['region']): string {
+  switch (region) {
+    case 'quebec':       return isEnglish() ? '(Quebec)' : '(Québec)';
+    case 'canada_other': return isEnglish() ? '(Canada)' : '(Canada)';
+    case 'france':       return isEnglish() ? '(France)' : '(France)';
+    case 'usa':          return isEnglish() ? '(USA)' : '(USA)';
+    case 'belgium':      return isEnglish() ? '(Belgium)' : '(Belgique)';
+    case 'switzerland':  return isEnglish() ? '(Switzerland)' : '(Suisse)';
+    default:             return '';
+  }
+}
+
 function shortenText(text: string, maxSentences: number): string {
   const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
   if (sentences.length <= maxSentences) return text;
@@ -519,6 +531,70 @@ export default function ProductScreen() {
             countryCode={(userCountry || 'ca').toLowerCase()}
             forceShow={verdictLevel === 'danger' || verdictLevel === 'warning'}
           />
+        )}
+
+        {!isGreen && (
+          <View style={styles.section}>
+            <View style={styles.sectionTitleRow}>
+              <MapPin color={Colors.primary} size={18} />
+              <Text style={styles.sectionTitle}>
+                {t('where_find_alternatives')} {getRegionDisplayName(userCountry)}
+              </Text>
+            </View>
+            <View style={styles.bioStoresCard}>
+              <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
+
+              {getRegionSpecialtyStores(userCountry).length > 0 ? (
+                <>
+                  <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
+                  {getRegionSpecialtyStores(userCountry).map((s, i) => (
+                    <View key={`spec-${i}`} style={styles.bioStoreItem}>
+                      <Store color="#2D6A3E" size={14} strokeWidth={2} />
+                      <Text style={styles.bioStoreText}>{s}</Text>
+                    </View>
+                  ))}
+                </>
+              ) : null}
+
+              {getRegionGroceryStores(userCountry).length > 0 ? (
+                <>
+                  <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
+                  {getRegionGroceryStores(userCountry).map((s, i) => (
+                    <View key={`groc-${i}`} style={styles.bioStoreItem}>
+                      <Store color="#2D6A3E" size={14} strokeWidth={2} />
+                      <Text style={styles.bioStoreText}>{s}</Text>
+                    </View>
+                  ))}
+                </>
+              ) : null}
+
+              {getRegionCleanBrands(userCountry, isNonFood).length > 0 ? (
+                <>
+                  <Text style={styles.bioStoresSubtitle}>
+                    {isNonFood ? t('clean_brands') : t('organic_brands')}
+                  </Text>
+                  {getRegionCleanBrands(userCountry, isNonFood).map((b, i) => (
+                    <View key={`brand-${i}`} style={styles.bioStoreItem}>
+                      <CheckCircle color="#2D6A3E" size={14} strokeWidth={2} />
+                      <Text style={styles.bioStoreText}>{b}</Text>
+                    </View>
+                  ))}
+                </>
+              ) : null}
+
+              {getRegionLocalMarkets(userCountry).length > 0 ? (
+                <>
+                  <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
+                  {getRegionLocalMarkets(userCountry).map((m, i) => (
+                    <View key={`mkt-${i}`} style={styles.bioStoreItem}>
+                      <MapPin color="#2D6A3E" size={14} strokeWidth={2} />
+                      <Text style={styles.bioStoreText}>{m}</Text>
+                    </View>
+                  ))}
+                </>
+              ) : null}
+            </View>
+          </View>
         )}
 
         {/* ─── Tous les ingrédients ─── */}
