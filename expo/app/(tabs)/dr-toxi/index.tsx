@@ -765,7 +765,7 @@ export default function DrToxiScreen() {
     if (level === 'danger') return '#D0260F';
     if (level === 'warning') return '#E8730A';
     if (level === 'moderation') return '#EAB308';
-    if (level === 'approuve') return '#34C759';
+    if (level === 'approuve') return '#2E9E34';
     return null;
   };
 
@@ -1085,7 +1085,7 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 23,
     borderWidth: 2,
-    borderColor: 'rgba(52, 199, 89, 0.15)',
+    borderColor: 'rgba(46, 158, 52, 0.15)',
   },
   avatarSmall: {
     width: 28,
@@ -1112,7 +1112,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    backgroundColor: 'rgba(46, 158, 52, 0.1)',
   },
   disclaimerText: {
     fontSize: 11,
@@ -1123,7 +1123,7 @@ const styles = StyleSheet.create({
     paddingBottom: 2,
   },
   counterBanner: {
-    backgroundColor: 'rgba(52, 199, 89, 0.06)',
+    backgroundColor: 'rgba(46, 158, 52, 0.06)',
     paddingHorizontal: 20,
     paddingVertical: 7,
     marginHorizontal: 16,
@@ -1151,7 +1151,7 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     marginBottom: 24,
     borderWidth: 3,
-    borderColor: 'rgba(52, 199, 89, 0.12)',
+    borderColor: 'rgba(46, 158, 52, 0.12)',
   },
   welcomeText: {
     fontSize: 17,
@@ -1167,11 +1167,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: 'rgba(52, 199, 89, 0.25)',
+    borderColor: 'rgba(46, 158, 52, 0.25)',
     marginBottom: 16,
     width: '100%',
     gap: 14,
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -1181,7 +1181,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1264,10 +1264,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   userBubble: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     borderBottomRightRadius: 6,
     marginLeft: 'auto',
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
@@ -1332,16 +1332,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   shareResponseButtonActive: {
-    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
   },
   shareResponseTextActive: {
-    color: '#34C759',
+    color: '#2E9E34',
     fontWeight: '600' as const,
   },
   listenProBadge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     borderRadius: 6,
     marginLeft: 4,
   },
@@ -1355,10 +1355,10 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -1373,10 +1373,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.25)',
+    borderColor: 'rgba(46, 158, 52, 0.25)',
     alignItems: 'center',
     gap: 6,
   },
@@ -1391,12 +1391,12 @@ const styles = StyleSheet.create({
     width: 4,
     height: 20,
     borderRadius: 2,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
   },
   recordingText: {
     fontSize: 14,
     fontWeight: '600' as const,
-    color: '#34C759',
+    color: '#2E9E34',
   },
   recordingHint: {
     fontSize: 11,
@@ -1462,7 +1462,7 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+    backgroundColor: 'rgba(46, 158, 52, 0.1)',
   },
   cameraButtonDisabled: {
     opacity: 0.4,
@@ -1484,10 +1484,10 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -1532,16 +1532,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingVertical: 14,
     paddingHorizontal: 18,
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.2)',
+    borderColor: 'rgba(46, 158, 52, 0.2)',
   },
   newConvIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1575,7 +1575,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   convItemActive: {
-    backgroundColor: 'rgba(52, 199, 89, 0.06)',
+    backgroundColor: 'rgba(46, 158, 52, 0.06)',
   },
   convItemLeft: {
     width: 32,

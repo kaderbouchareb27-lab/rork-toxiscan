@@ -49,7 +49,7 @@ function getFilters(): FilterConfig[] {
     { key: 'group1', label: t('filter_danger'), color: '#D0260F' },
     { key: 'group2a', label: t('filter_warning'), color: '#E8730A' },
     { key: 'group2b', label: t('filter_caution'), color: '#EAB308' },
-    { key: 'none', label: t('filter_approved'), color: '#34C759' },
+    { key: 'none', label: t('filter_approved'), color: '#2E9E34' },
   ];
 }
 
@@ -78,7 +78,7 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
       return {
         label: t('history_status_approved'),
         description: t('history_status_approved_desc'),
-        color: '#34C759',
+        color: '#2E9E34',
       };
   }
 }

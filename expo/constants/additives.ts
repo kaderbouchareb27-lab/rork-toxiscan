@@ -648,7 +648,7 @@ export function getRiskBadgeInfo(
         return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#EAB308' };
       case 'none':
       default:
-        return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#34C759' };
+        return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
     }
   }
 
@@ -680,7 +680,7 @@ export function getRiskBadgeInfo(
         return {
           label: en ? 'SAFE' : 'SANS RISQUE',
           sublabel: en ? 'Dermatologically tolerated, non-irritating' : 'Dermatologiquement toléré, non irritant',
-          color: '#34C759',
+          color: '#2E9E34',
         };
     }
   }
@@ -710,7 +710,7 @@ export function getRiskBadgeInfo(
       return {
         label: en ? 'SAFE' : 'SÉCURITAIRE',
         sublabel: en ? 'Safe for use' : 'Sûr à l\'usage',
-        color: '#34C759',
+        color: '#2E9E34',
       };
   }
 }

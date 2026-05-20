@@ -38,15 +38,15 @@ export interface ShareRewards {
 }
 
 export const BADGE_DEFINITIONS: BadgeDefinition[] = [
-  { id: 'scan_1', name: 'Premier pas', description: 'Premier produit scanné', category: 'scan', threshold: 1, icon: 'footprints', color: '#34C759' },
+  { id: 'scan_1', name: 'Premier pas', description: 'Premier produit scanné', category: 'scan', threshold: 1, icon: 'footprints', color: '#2E9E34' },
   { id: 'scan_10', name: 'Détective santé', description: '10 produits scannés', category: 'scan', threshold: 10, icon: 'search', color: '#007AFF' },
   { id: 'scan_50', name: 'Expert en étiquettes', description: '50 produits scannés', category: 'scan', threshold: 50, icon: 'award', color: '#FF9500' },
   { id: 'scan_100', name: 'Chasseur de toxines', description: '100 produits scannés', category: 'scan', threshold: 100, icon: 'target', color: '#FF3B30' },
   { id: 'scan_500', name: 'Légende Dr.Toxi', description: '500 produits scannés', category: 'scan', threshold: 500, icon: 'trophy', color: '#AF52DE' },
 
-  { id: 'green_1', name: 'Bon choix', description: 'Premier produit vert trouvé', category: 'green', threshold: 1, icon: 'leaf', color: '#34C759' },
-  { id: 'green_10', name: 'Panier sain', description: '10 produits verts trouvés', category: 'green', threshold: 10, icon: 'shopping-bag', color: '#34C759' },
-  { id: 'green_25', name: 'Frigo propre', description: '25 produits verts trouvés', category: 'green', threshold: 25, icon: 'home', color: '#34C759' },
+  { id: 'green_1', name: 'Bon choix', description: 'Premier produit vert trouvé', category: 'green', threshold: 1, icon: 'leaf', color: '#2E9E34' },
+  { id: 'green_10', name: 'Panier sain', description: '10 produits verts trouvés', category: 'green', threshold: 10, icon: 'shopping-bag', color: '#2E9E34' },
+  { id: 'green_25', name: 'Frigo propre', description: '25 produits verts trouvés', category: 'green', threshold: 25, icon: 'home', color: '#2E9E34' },
   { id: 'green_50', name: 'Maison saine', description: '50 produits verts trouvés', category: 'green', threshold: 50, icon: 'shield', color: '#007AFF' },
   { id: 'green_100', name: 'Mode de vie sain', description: '100 produits verts trouvés', category: 'green', threshold: 100, icon: 'heart', color: '#FF2D55' },
 
@@ -55,7 +55,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   { id: 'share_25', name: 'Viral', description: '25 partages', category: 'share', threshold: 25, icon: 'zap', color: '#FF3B30' },
   { id: 'share_100', name: 'Ambassadeur Légendaire', description: '100 partages — Badge doré exclusif rare', category: 'share', threshold: 100, icon: 'crown', color: '#FFD700', isGolden: true },
 
-  { id: 'drtoxi_1', name: 'Curieux', description: 'Première question à Dr. Toxi', category: 'drtoxi', threshold: 1, icon: 'message-circle', color: '#34C759' },
+  { id: 'drtoxi_1', name: 'Curieux', description: 'Première question à Dr. Toxi', category: 'drtoxi', threshold: 1, icon: 'message-circle', color: '#2E9E34' },
   { id: 'drtoxi_10', name: 'Étudiant en santé', description: '10 questions posées', category: 'drtoxi', threshold: 10, icon: 'graduation-cap', color: '#007AFF' },
 ];
 

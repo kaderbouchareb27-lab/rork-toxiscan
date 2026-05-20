@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   faqItemExpanded: {
-    backgroundColor: 'rgba(52, 199, 89, 0.03)',
+    backgroundColor: 'rgba(46, 158, 52, 0.03)',
     marginHorizontal: -12,
     paddingHorizontal: 12,
     borderRadius: 12,

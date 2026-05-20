@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   donationCard: {
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     borderRadius: 14,
     padding: 18,
     marginBottom: 20,

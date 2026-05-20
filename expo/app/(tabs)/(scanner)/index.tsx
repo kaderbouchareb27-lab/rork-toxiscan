@@ -352,7 +352,7 @@ export default function ScannerScreen() {
   if (hasAcceptedAIConsent === null || hasSeenOnboarding === null) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#34C759" />
+        <ActivityIndicator size="large" color="#2E9E34" />
       </View>
     );
   }
@@ -520,12 +520,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     paddingVertical: 20,
     paddingHorizontal: 32,
     borderRadius: 22,
     width: SCREEN_WIDTH - 48,
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 24,
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     gap: 10,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: 'rgba(52, 199, 89, 0.35)',
+    borderColor: 'rgba(46, 158, 52, 0.35)',
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 18,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   barcodeButtonText: {
-    color: '#34C759',
+    color: '#2E9E34',
     fontSize: 15,
     fontWeight: '700' as const,
     letterSpacing: -0.1,
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 12,
     fontWeight: '600' as const,
-    color: '#34C759',
+    color: '#2E9E34',
     textAlign: 'center' as const,
     paddingHorizontal: 20,
   },
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(52, 199, 89, 0.08)',
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -627,8 +627,8 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 3,
-    borderColor: 'rgba(52, 199, 89, 0.15)',
-    borderTopColor: '#34C759',
+    borderColor: 'rgba(46, 158, 52, 0.15)',
+    borderTopColor: '#2E9E34',
   },
   spinnerDot: {
     position: 'absolute',
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
   },
   spinnerCenter: {
     position: 'absolute',
@@ -661,18 +661,18 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
     borderRadius: 3,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
   },
   progressText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#34C759',
+    color: '#2E9E34',
     minWidth: 36,
     textAlign: 'right' as const,
   },
@@ -699,7 +699,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
     borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.1)',
+    borderColor: 'rgba(46, 158, 52, 0.1)',
   },
   tipHeaderRow: {
     flexDirection: 'row',
@@ -714,7 +714,7 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 12,
     fontWeight: '700' as const,
-    color: '#34C759',
+    color: '#2E9E34',
     letterSpacing: 0.2,
     textTransform: 'uppercase' as const,
   },

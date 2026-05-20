@@ -251,7 +251,7 @@ export default function PaywallScreen() {
 
         {(offeringsLoading || retrying) && !currentOffering ? (
           <View style={styles.loadingOfferings}>
-            <ActivityIndicator color="#34C759" size="large" />
+            <ActivityIndicator color="#2E9E34" size="large" />
             <Text style={styles.loadingOfferingsText}>{t('loading_offers')}</Text>
           </View>
         ) : offeringsError && !currentOffering ? (
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -482,9 +482,9 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   planCardSelected: {
-    borderColor: '#34C759',
+    borderColor: '#2E9E34',
     backgroundColor: '#F7FDF9',
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 3,
@@ -520,13 +520,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   radioOuterSelected: {
-    borderColor: '#34C759',
+    borderColor: '#2E9E34',
   },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
   },
   planInfo: {
     flex: 1,
@@ -548,11 +548,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     paddingVertical: 20,
     borderRadius: 18,
     marginBottom: 20,
-    shadowColor: '#34C759',
+    shadowColor: '#2E9E34',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 18,
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E9E34',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 14,

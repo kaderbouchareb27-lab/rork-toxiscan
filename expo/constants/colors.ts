@@ -3,11 +3,11 @@
  * Keys preserved for backwards compatibility with existing screens.
  */
 const Colors = {
-  primary: '#34C759',
-  primaryDark: '#34C759',
-  primaryLight: 'rgba(52, 199, 89, 0.08)',
-  primaryBorder: 'rgba(52, 199, 89, 0.18)',
-  primaryGlow: 'rgba(52, 199, 89, 0.16)',
+  primary: '#2E9E34',
+  primaryDark: '#2E9E34',
+  primaryLight: 'rgba(46, 158, 52, 0.08)',
+  primaryBorder: 'rgba(46, 158, 52, 0.18)',
+  primaryGlow: 'rgba(46, 158, 52, 0.16)',
   background: '#FAFAFA',
   surface: '#FFFFFF',
   surfaceSecondary: '#F4F4F2',
@@ -23,10 +23,10 @@ const Colors = {
   danger: '#D0260F',
   warning: '#E8730A',
   caution: '#EAB308',
-  safe: '#34C759',
+  safe: '#2E9E34',
   cardShadow: 'rgba(0, 0, 0, 0.05)',
   overlay: 'rgba(0, 0, 0, 0.5)',
-  gradientStart: '#34C759',
-  gradientEnd: '#34C759',
+  gradientStart: '#2E9E34',
+  gradientEnd: '#2E9E34',
 };
 export default Colors;

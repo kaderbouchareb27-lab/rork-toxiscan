@@ -41,7 +41,7 @@ import { t, tf } from '@/utils/i18n';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BADGE_CARD_WIDTH = (SCREEN_WIDTH - 60) / 2;
 
-const CONFETTI_COLORS = ['#34C759', '#FFD700', '#FF3B30', '#007AFF', '#FF9500', '#AF52DE', '#FF2D55', '#34C759'];
+const CONFETTI_COLORS = ['#2E9E34', '#FFD700', '#FF3B30', '#007AFF', '#FF9500', '#AF52DE', '#FF2D55', '#2E9E34'];
 
 function getBadgeIcon(iconName: string, size: number, color: string) {
   const props = { size, color, strokeWidth: 1.8 };
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: 'rgba(52, 199, 89, 0.12)',
+    borderColor: 'rgba(46, 158, 52, 0.12)',
   },
   summaryTop: {
     flexDirection: 'row',
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   badgeCardUnlocked: {
-    borderColor: 'rgba(52, 199, 89, 0.2)',
+    borderColor: 'rgba(46, 158, 52, 0.2)',
     backgroundColor: '#FAFFFE',
   },
   badgeCardGolden: {
