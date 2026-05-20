@@ -73,25 +73,32 @@ function LeafIcon({ color = '#2E9E34', size = 18 }: { color?: string; size?: num
   );
 }
 
-async function fetchOFFAlternatives(
-  categoryTag: string,
-  ingredientTokens: string[],
-  cc: string,
-): Promise<OFFAlt[]> {
+interface FetchAttemptOptions {
+  categoryTag: string;
+  ingredientTokens: string[];
+  cc: string;
+  withNutriScore: boolean;
+  withIngredientExclusion: boolean;
+  label: string;
+}
+
+async function fetchOFFAttempt(opts: FetchAttemptOptions): Promise<OFFAlt[]> {
+  const { categoryTag, ingredientTokens, cc, withNutriScore, withIngredientExclusion, label } = opts;
   const params = new URLSearchParams();
   params.set('categories_tags_en', categoryTag);
-  if (ingredientTokens.length > 0) {
+  if (withIngredientExclusion && ingredientTokens.length > 0) {
     params.set('ingredients_tags', ingredientTokens.map(i => `-en:${i}`).join(','));
   }
-  params.set('nutrition_grades_tags', 'a,b');
+  if (withNutriScore) {
+    params.set('nutrition_grades_tags', 'a,b');
+  }
   params.set('cc', cc);
   params.set('fields', 'product_name,brands,image_url,stores_tags,nutriscore_grade,code');
-  params.set('page_size', '5');
+  params.set('page_size', '10');
   params.set('json', 'true');
 
   const url = `https://world.openfoodfacts.org/api/v2/search?${params.toString()}`;
-  console.log('[OFF-Alts] cc=' + cc + ' category=' + categoryTag + ' ingredients=', ingredientTokens);
-  console.log('[OFF-Alts] Full URL:', url);
+  console.log(`[OFF-Alts] Attempt[${label}] URL:`, url);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
@@ -103,22 +110,75 @@ async function fetchOFFAlternatives(
       },
       signal: controller.signal,
     });
-    console.log('[OFF-Alts] HTTP status:', res.status, 'cc=' + cc);
     if (!res.ok) {
-      console.log('[OFF-Alts] HTTP error body status:', res.status);
+      console.log(`[OFF-Alts] Attempt[${label}] HTTP error:`, res.status);
       return [];
     }
     const json = (await res.json()) as { products?: OFFAlt[]; count?: number };
-    console.log('[OFF-Alts] Raw response — count:', json.count, 'products length:', (json.products ?? []).length);
     const products = (json.products ?? []).filter(p => !!p.product_name && !!p.image_url);
-    console.log('[OFF-Alts] Filtered (with name+image):', products.length, 'cc=' + cc);
-    return products.slice(0, 3);
+    console.log(`[OFF-Alts] Attempt[${label}] count=${json.count} filtered=${products.length}`);
+    return products;
   } catch (e) {
-    console.log('[OFF-Alts] Fetch error (cc=' + cc + '):', e);
+    console.log(`[OFF-Alts] Attempt[${label}] error:`, e);
     return [];
   } finally {
     clearTimeout(timer);
   }
+}
+
+function parentCategory(tag: string): string | null {
+  // breakfast-cereals -> cereals; chocolate-biscuits -> biscuits
+  const parts = tag.split('-');
+  if (parts.length <= 1) return null;
+  return parts[parts.length - 1];
+}
+
+async function fetchOFFAlternatives(
+  categoryTag: string,
+  ingredientTokens: string[],
+  cc: string,
+): Promise<OFFAlt[]> {
+  // Cascading relaxation — stop at the first attempt that returns >=3 products,
+  // otherwise keep the best non-empty result we found.
+  const attempts: FetchAttemptOptions[] = [
+    { categoryTag, ingredientTokens, cc, withNutriScore: true, withIngredientExclusion: true, label: `${cc}/full` },
+    { categoryTag, ingredientTokens, cc, withNutriScore: false, withIngredientExclusion: true, label: `${cc}/no-grade` },
+    { categoryTag, ingredientTokens, cc: 'fr', withNutriScore: true, withIngredientExclusion: true, label: 'fr/full' },
+    { categoryTag, ingredientTokens, cc: 'fr', withNutriScore: false, withIngredientExclusion: true, label: 'fr/no-grade' },
+  ];
+
+  const parent = parentCategory(categoryTag);
+  if (parent && parent !== categoryTag) {
+    attempts.push({
+      categoryTag: parent,
+      ingredientTokens,
+      cc: 'fr',
+      withNutriScore: true,
+      withIngredientExclusion: true,
+      label: `fr/parent(${parent})`,
+    });
+  }
+  // Last resort: same category, no ingredient exclusion, just A/B grade.
+  attempts.push({
+    categoryTag,
+    ingredientTokens,
+    cc: 'fr',
+    withNutriScore: true,
+    withIngredientExclusion: false,
+    label: 'fr/no-exclude',
+  });
+
+  let best: OFFAlt[] = [];
+  for (const attempt of attempts) {
+    const result = await fetchOFFAttempt(attempt);
+    if (result.length > best.length) best = result;
+    if (result.length >= 3) {
+      console.log(`[OFF-Alts] Using attempt[${attempt.label}] with ${result.length} products`);
+      return result.slice(0, 3);
+    }
+  }
+  console.log('[OFF-Alts] Final best result:', best.length);
+  return best.slice(0, 3);
 }
 
 function prettifyStoreTag(tag: string): string {
@@ -142,7 +202,7 @@ export default function HealthierAlternativesOFF({ category, problematicIngredie
   console.log('[OFF-Alts] Component mount — categoryTag:', categoryTag, 'effective:', effectiveCategory, 'forceShow:', forceShow, 'tokens:', ingredientTokens, 'cc:', countryCode);
 
   const enabled = !!effectiveCategory;
-  const primary = useQuery({
+  const query = useQuery({
     queryKey: ['off-alternatives', effectiveCategory, ingredientTokens, countryCode],
     queryFn: () => fetchOFFAlternatives(effectiveCategory as string, ingredientTokens, countryCode),
     enabled,
@@ -150,23 +210,10 @@ export default function HealthierAlternativesOFF({ category, problematicIngredie
     retry: 1,
   });
 
-  // Fallback to 'fr' if 'ca' returns empty OR errored
-  const primaryDone = primary.isSuccess || primary.isError;
-  const primaryEmpty = (primary.data?.length ?? 0) === 0;
-  const fallbackEnabled =
-    enabled && primaryDone && primaryEmpty && countryCode !== 'fr';
-  const fallback = useQuery({
-    queryKey: ['off-alternatives', effectiveCategory, ingredientTokens, 'fr'],
-    queryFn: () => fetchOFFAlternatives(effectiveCategory as string, ingredientTokens, 'fr'),
-    enabled: fallbackEnabled,
-    staleTime: 1000 * 60 * 30,
-    retry: 1,
-  });
+  const data = query.data ?? [];
+  const isLoading = query.isLoading;
 
-  const data = (primary.data && primary.data.length > 0 ? primary.data : fallback.data) ?? [];
-  const isLoading = primary.isLoading || (fallbackEnabled && fallback.isLoading);
-
-  console.log('[OFF-Alts] Render — enabled:', enabled, 'isLoading:', isLoading, 'primary:', primary.data?.length ?? 0, 'fallback:', fallback.data?.length ?? 0, 'final:', data.length);
+  console.log('[OFF-Alts] Render — enabled:', enabled, 'isLoading:', isLoading, 'final:', data.length);
 
   if (!enabled && !forceShow) return null;
 
