@@ -29,6 +29,7 @@ import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { RiskGroup, ScannedProduct } from '@/types';
+import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, getDateLocale } from '@/utils/i18n';
 
 type FilterType = 'all' | 'favorites' | RiskGroup;
@@ -187,6 +188,7 @@ export default function HistoryScreen() {
 
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
     const risk = getHistoryRiskPresentation(item.riskGroup);
+    const displayedRiskScore = getDisplayedRiskScore(item);
     const date = new Date(item.scannedAt);
     const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',
@@ -254,6 +256,10 @@ export default function HistoryScreen() {
           <View style={styles.statusCopy}>
             <Text style={[styles.statusLabel, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
             <Text style={styles.statusDescription} numberOfLines={2}>{risk.description}</Text>
+          </View>
+          <View style={[styles.statusScorePill, { borderColor: risk.color }]}>
+            <Text style={[styles.statusScoreValue, { color: risk.color }]}>{displayedRiskScore}%</Text>
+            <Text style={styles.statusScoreLabel}>ToxiScore</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -648,6 +654,30 @@ const styles = StyleSheet.create({
   statusCopy: {
     flex: 1,
     minWidth: 0,
+  },
+  statusScorePill: {
+    minWidth: 66,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusScoreValue: {
+    fontSize: 16,
+    lineHeight: 18,
+    fontWeight: '900' as const,
+    letterSpacing: -0.35,
+  },
+  statusScoreLabel: {
+    fontSize: 8,
+    lineHeight: 10,
+    fontWeight: '900' as const,
+    color: Colors.textTertiary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.25,
   },
   statusLabel: {
     fontSize: 13,

@@ -1,4 +1,4 @@
-import { AdditiveInfo, DetectedIngredient, SubstanceDetected } from '@/types';
+import { AdditiveInfo, DetectedIngredient, SubstanceDetected, RiskGroup } from '@/types';
 
 const IARC_GROUP1_SUBSTANCES = [
   'nitrite', 'nitrate', 'formaldéhyde', 'formaldehyde', 'benzène', 'benzene',
@@ -280,4 +280,48 @@ export function calculateRiskScore(product: {
   }
 
   return Math.min(score, 100);
+}
+
+const DISPLAY_SCORE_RANGES: Record<RiskGroup, { min: number; max: number; fallback: number }> = {
+  group1: { min: 85, max: 100, fallback: 98 },
+  group2a: { min: 61, max: 84, fallback: 74 },
+  group2b: { min: 30, max: 60, fallback: 48 },
+  none: { min: 0, max: 29, fallback: 4 },
+};
+
+function clampScoreToRiskGroup(score: number, riskGroup: RiskGroup): number {
+  const range = DISPLAY_SCORE_RANGES[riskGroup];
+  return Math.min(range.max, Math.max(range.min, Math.round(score)));
+}
+
+/**
+ * Returns the user-facing risk percentage shown in result and history screens.
+ * It keeps the existing verdict logic intact, then clamps the display score into
+ * the matching verdict band so the percentage never contradicts the badge.
+ */
+export function getDisplayedRiskScore(product: {
+  riskGroup: RiskGroup;
+  detectedAdditives?: AdditiveInfo[];
+  detectedIngredients?: DetectedIngredient[];
+  substances?: SubstanceDetected[];
+  ingredientsText?: string;
+}): number {
+  const range = DISPLAY_SCORE_RANGES[product.riskGroup];
+  const rawScore = calculateRiskScore({
+    detectedAdditives: product.detectedAdditives ?? [],
+    detectedIngredients: product.detectedIngredients,
+    substances: product.substances,
+    ingredientsText: product.ingredientsText ?? '',
+    riskGroup: product.riskGroup,
+  });
+
+  if (!Number.isFinite(rawScore)) {
+    return range.fallback;
+  }
+
+  if (rawScore <= 0) {
+    return range.fallback;
+  }
+
+  return clampScoreToRiskGroup(rawScore, product.riskGroup);
 }

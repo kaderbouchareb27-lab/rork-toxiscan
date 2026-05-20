@@ -36,6 +36,7 @@ import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName
 import { PhotoType, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
+import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, isEnglish } from '@/utils/i18n';
 
 // ─────────────────────────────────────────────
@@ -96,19 +97,6 @@ function getVerdictAction(level: VerdictLevel): string {
       return english ? 'Occasional only' : 'Occasionnel seulement';
     case 'approuve':
       return english ? 'Good everyday choice' : 'Bon choix au quotidien';
-  }
-}
-
-function getVerdictProgress(level: VerdictLevel): `${number}%` {
-  switch (level) {
-    case 'danger':
-      return '100%';
-    case 'warning':
-      return '74%';
-    case 'moderation':
-      return '48%';
-    case 'approuve':
-      return '18%';
   }
 }
 
@@ -315,7 +303,8 @@ export default function ProductScreen() {
   const isGreen = verdictLevel === 'approuve';
   const bannerConfig = getBannerConfig(verdictLevel);
   const verdictAction = getVerdictAction(verdictLevel);
-  const verdictProgress = getVerdictProgress(verdictLevel);
+  const displayedRiskScore = getDisplayedRiskScore(product);
+  const verdictProgress = `${displayedRiskScore}%` as `${number}%`;
   const categoryLabel = product.productCategory ? getCategoryLabel(product.productCategory) : getCategoryLabel('food');
 
   const handleFavorite = () => {
@@ -497,8 +486,12 @@ export default function ProductScreen() {
           </View>
           <Text style={styles.verdictAction}>{verdictAction}</Text>
           <Text style={styles.verdictIntro}>{bannerConfig.intro}</Text>
-          <View style={styles.riskTrack}>
-            <View style={[styles.riskFill, { width: verdictProgress }]} />
+          <Text style={styles.riskMeterLabel}>ToxiScore</Text>
+          <View style={styles.riskMeterRow}>
+            <View style={styles.riskTrack}>
+              <View style={[styles.riskFill, { width: verdictProgress }]} />
+            </View>
+            <Text style={styles.riskMeterValue}>{displayedRiskScore}%</Text>
           </View>
         </View>
 
@@ -727,9 +720,12 @@ const styles = StyleSheet.create({
   verdictEyebrow: { fontSize: 11, fontWeight: '900' as const, color: 'rgba(255,255,255,0.76)', letterSpacing: 1.2, marginBottom: 3 },
   badgeLabel: { fontSize: 25, lineHeight: 30, fontWeight: '900' as const, letterSpacing: 0.6, color: '#FFFFFF' },
   verdictAction: { fontSize: 17, fontWeight: '800' as const, color: '#FFFFFF', letterSpacing: -0.25, marginBottom: 5 },
-  verdictIntro: { fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 20, marginBottom: 16 },
-  riskTrack: { height: 7, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' as const },
-  riskFill: { height: 7, borderRadius: 999, backgroundColor: '#FFFFFF' },
+  verdictIntro: { fontSize: 14, color: 'rgba(255,255,255,0.88)', lineHeight: 20, marginBottom: 14 },
+  riskMeterLabel: { fontSize: 11, fontWeight: '900' as const, color: 'rgba(255,255,255,0.76)', letterSpacing: 1.1, textTransform: 'uppercase' as const, marginBottom: 8 },
+  riskMeterRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12 },
+  riskMeterValue: { minWidth: 48, textAlign: 'right' as const, fontSize: 20, lineHeight: 22, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: -0.45 },
+  riskTrack: { flex: 1, height: 8, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.24)', overflow: 'hidden' as const },
+  riskFill: { height: 8, borderRadius: 999, backgroundColor: '#FFFFFF' },
   aiSummaryCard: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginTop: 12, borderWidth: 1, shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.04, shadowRadius: 18, elevation: 2 },
   aiSummaryKicker: { fontSize: 11, fontWeight: '900' as const, letterSpacing: 1.1, marginBottom: 8 },
   aiSummaryText: { fontSize: 14, lineHeight: 21, color: '#343430' },
