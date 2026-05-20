@@ -22,8 +22,7 @@
       "infoPlist": {
         "NSCameraUsageDescription": "ToxiScan utilise la caméra pour photographier les étiquettes de vos produits et analyser leurs ingrédients.",
         "NSMicrophoneUsageDescription": "Dr. Toxi a besoin du microphone pour t'écouter quand tu lui poses des questions vocales sur tes produits.",
-        "NSSpeechRecognitionUsageDescription": "Dr. Toxi utilise la reconnaissance vocale pour transcrire tes questions vocales sur tes produits.",
-        "NSLocationWhenInUseUsageDescription": "ToxiScan utilise votre position pour trouver de vrais magasins bio et santé près de vous."
+        "NSSpeechRecognitionUsageDescription": "Dr. Toxi utilise la reconnaissance vocale pour transcrire tes questions vocales sur tes produits."
       }
     },
     "android": {
@@ -34,9 +33,7 @@
       "package": "app.rork.toxis",
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -51,13 +48,7 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization",
-      [
-        "expo-location",
-        {
-          "locationWhenInUsePermission": "ToxiScan utilise votre position pour trouver de vrais magasins bio et santé près de vous."
-        }
-      ]
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
