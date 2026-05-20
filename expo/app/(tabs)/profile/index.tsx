@@ -166,7 +166,7 @@ export default function ProfileScreen() {
             <View style={styles.statsBreakdown}>
               <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
               <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#C07A00" />
-              <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#C07A00" />
+              <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#F59E0B" />
               <StatBar label="Approved" count={stats.safe} max={maxStat} color="#1A7F3C" />
             </View>
           )}
@@ -287,7 +287,7 @@ function StatBar({ label, count, max, color }: { label: string; count: number; m
   const widthPercent = max > 0 ? (count / max) * 100 : 0;
   return (
     <View style={styles.statRow}>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{label}</Text>
       <View style={styles.statBarBackground}>
         <View style={[styles.statBarFill, { width: `${Math.max(widthPercent, 2)}%`, backgroundColor: color }]} />
       </View>
@@ -420,8 +420,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   statLabel: {
-    width: 65,
-    fontSize: 13,
+    width: 86,
+    fontSize: 12,
     color: Colors.textSecondary,
     fontWeight: '500' as const,
   },
