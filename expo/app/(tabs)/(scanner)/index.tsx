@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
-import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Camera, Shirt, Droplets, UtensilsCrossed, Salad, SprayCan, ScanLine, Database, ShieldCheck, Sparkles } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -33,6 +34,7 @@ import DonationBanner from '@/components/DonationBanner';
 import { t, tf } from '@/utils/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const ANALYZING_DR_TOXI_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/256dc913-0f70-4358-b3aa-5bc9a38cc427.png';
 
 export default function ScannerScreen() {
   const { addProduct } = useScanHistory();
@@ -362,40 +364,80 @@ export default function ScannerScreen() {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {isLoading ? (
           <View style={styles.loadingCenterSection}>
-            <View style={styles.loadingState}>
-              <View style={styles.loadingIconContainer}>
-                <Animated.View style={[styles.spinnerRing, { transform: [{ rotate: spinDeg }] }]}>
-                  <View style={styles.spinnerDot} />
-                </Animated.View>
-                <RNImage
-                  source={{ uri: 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png' }}
-                  style={styles.spinnerAvatar}
-                  resizeMode="contain"
-                />
+            <View style={styles.loadingBackdropOrbTop} />
+            <View style={styles.loadingBackdropOrbBottom} />
+
+            <LinearGradient colors={['#FFFFFF', '#F8F8F4']} style={styles.analysisPanel}>
+              <View style={styles.analysisPill}>
+                <Sparkles color="#2E9E34" size={14} strokeWidth={2.4} />
+                <Text style={styles.analysisPillText}>{t('analysis_ai_badge')}</Text>
               </View>
+
+              <View style={styles.loadingHeroStage}>
+                <View style={[styles.scanBeam, styles.scanBeamTop]} />
+                <View style={[styles.scanBeam, styles.scanBeamMiddle]} />
+                <View style={[styles.scanBeam, styles.scanBeamBottom]} />
+                <View style={styles.loadingIconContainer}>
+                  <Animated.View style={[styles.spinnerRing, { transform: [{ rotate: spinDeg }] }]}>
+                    <View style={styles.spinnerDot} />
+                  </Animated.View>
+                  <RNImage
+                    source={{ uri: ANALYZING_DR_TOXI_AVATAR_URI }}
+                    style={styles.spinnerAvatar}
+                    resizeMode="contain"
+                  />
+                </View>
+              </View>
+
               <Text style={styles.loadingTitle}>{t('analysis_in_progress')}</Text>
               <Text style={styles.loadingSubtitle}>{t('drtoxi_examining')}</Text>
 
+              <View style={styles.analysisStepsRow}>
+                <View style={styles.analysisStepItem}>
+                  <ScanLine color="#2E9E34" size={16} strokeWidth={2.2} />
+                  <Text style={styles.analysisStepText}>{t('analysis_step_photo')}</Text>
+                </View>
+                <View style={styles.analysisStepItem}>
+                  <Database color="#2E9E34" size={16} strokeWidth={2.2} />
+                  <Text style={styles.analysisStepText}>{t('analysis_step_database')}</Text>
+                </View>
+                <View style={styles.analysisStepItem}>
+                  <ShieldCheck color="#2E9E34" size={16} strokeWidth={2.2} />
+                  <Text style={styles.analysisStepText}>{t('analysis_step_verdict')}</Text>
+                </View>
+              </View>
+
               <View style={styles.progressSection}>
+                <View style={styles.progressHeaderRow}>
+                  <Text style={styles.progressLabel}>{t('analysis_progress_label')}</Text>
+                  <Text style={styles.progressText}>{progressPercent}%</Text>
+                </View>
                 <View style={styles.progressBarBg}>
                   <Animated.View style={[styles.progressBarFill, { width: progressBarWidth }]} />
                 </View>
-                <Text style={styles.progressText}>{progressPercent}%</Text>
               </View>
+            </LinearGradient>
 
-              <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}>
-                <View style={styles.tipHeaderRow}>
+            <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}> 
+              <View style={styles.tipHeaderRow}>
+                <View style={styles.tipHeaderAvatarWrap}>
                   <RNImage
-                    source={{ uri: 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png' }}
+                    source={{ uri: ANALYZING_DR_TOXI_AVATAR_URI }}
                     style={styles.tipHeaderAvatar}
                     resizeMode="contain"
                   />
-                  <Text style={styles.tipTitle}>{t('daily_fact_title')}</Text>
                 </View>
-                <Text style={styles.tipText}>{scanFacts[tipIndex]?.text}</Text>
-                <Text style={styles.tipSource} numberOfLines={1}>{scanFacts[tipIndex]?.source}</Text>
-              </Animated.View>
-            </View>
+                <View style={styles.tipHeaderTextGroup}>
+                  <Text style={styles.tipTitle}>{t('daily_fact_title')}</Text>
+                  <Text style={styles.tipSubtitle}>{t('analysis_fact_subtitle')}</Text>
+                </View>
+                <View style={styles.tipCtaPill}>
+                  <Text style={styles.tipCta}>{t('analysis_tip_cta')}</Text>
+                </View>
+              </View>
+              <Text style={styles.tipText}>{scanFacts[tipIndex]?.text}</Text>
+              <Text style={styles.tipSource} numberOfLines={1}>{scanFacts[tipIndex]?.source}</Text>
+            </Animated.View>
           </View>
         ) : (
           <ScrollView
@@ -606,120 +648,264 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 18,
+    backgroundColor: '#FBFBF7',
+    overflow: 'hidden',
   },
-  loadingState: {
+  loadingBackdropOrbTop: {
+    position: 'absolute',
+    top: 72,
+    right: -70,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
+  },
+  loadingBackdropOrbBottom: {
+    position: 'absolute',
+    bottom: 96,
+    left: -86,
+    width: 210,
+    height: 210,
+    borderRadius: 105,
+    backgroundColor: 'rgba(232, 115, 10, 0.08)',
+  },
+  analysisPanel: {
+    width: '100%',
+    maxWidth: 372,
     alignItems: 'center',
-    gap: 14,
+    borderRadius: 34,
+    paddingHorizontal: 22,
+    paddingTop: 18,
+    paddingBottom: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.12)',
+    shadowColor: '#111111',
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.10,
+    shadowRadius: 34,
+    elevation: 8,
   },
-  loadingIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(46, 158, 52, 0.08)',
+  analysisPill: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    alignSelf: 'center' as const,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: 'rgba(46, 158, 52, 0.09)',
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.14)',
+  },
+  analysisPillText: {
+    fontSize: 11,
+    fontWeight: '800' as const,
+    color: '#2E9E34',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase' as const,
+  },
+  loadingHeroStage: {
+    width: 214,
+    height: 174,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  scanBeam: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    height: 1,
+    backgroundColor: 'rgba(46, 158, 52, 0.16)',
+  },
+  scanBeamTop: {
+    top: 44,
+  },
+  scanBeamMiddle: {
+    top: 86,
+    height: 2,
+    backgroundColor: 'rgba(46, 158, 52, 0.28)',
+  },
+  scanBeamBottom: {
+    top: 130,
+  },
+  loadingIconContainer: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.12)',
+    shadowColor: '#2E9E34',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
+    elevation: 6,
   },
   spinnerRing: {
     position: 'absolute',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 164,
+    height: 164,
+    borderRadius: 82,
     borderWidth: 3,
-    borderColor: 'rgba(46, 158, 52, 0.15)',
+    borderColor: 'rgba(46, 158, 52, 0.12)',
     borderTopColor: '#2E9E34',
+    borderRightColor: 'rgba(46, 158, 52, 0.38)',
   },
   spinnerDot: {
     position: 'absolute',
-    top: -2,
+    top: -3,
     left: '50%' as unknown as number,
-    marginLeft: -4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    marginLeft: -5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#2E9E34',
   },
-  spinnerCenter: {
-    position: 'absolute',
-  },
   spinnerAvatar: {
-    position: 'absolute',
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 126,
+    height: 126,
+  },
+  analysisStepsRow: {
+    width: '100%',
+    flexDirection: 'row' as const,
+    gap: 8,
+    marginTop: 18,
+  },
+  analysisStepItem: {
+    flex: 1,
+    alignItems: 'center' as const,
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(14, 14, 12, 0.06)',
+  },
+  analysisStepText: {
+    fontSize: 10.5,
+    fontWeight: '700' as const,
+    color: '#5F675F',
+    textAlign: 'center' as const,
   },
   progressSection: {
     width: '100%',
-    maxWidth: 260,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 8,
+    marginTop: 18,
+  },
+  progressHeaderRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    marginBottom: 8,
+  },
+  progressLabel: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: '#7A7F78',
   },
   progressBarBg: {
-    flex: 1,
-    height: 6,
-    borderRadius: 3,
+    width: '100%',
+    height: 9,
+    borderRadius: 999,
     backgroundColor: 'rgba(46, 158, 52, 0.12)',
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 999,
     backgroundColor: '#2E9E34',
   },
   progressText: {
     fontSize: 13,
-    fontWeight: '600' as const,
+    fontWeight: '800' as const,
     color: '#2E9E34',
-    minWidth: 36,
+    minWidth: 38,
     textAlign: 'right' as const,
   },
   loadingTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    color: '#1A1C1E',
-    letterSpacing: -0.3,
+    fontSize: 25,
+    fontWeight: '800' as const,
+    color: '#11120F',
+    letterSpacing: -0.7,
+    textAlign: 'center' as const,
   },
   loadingSubtitle: {
+    marginTop: 5,
     fontSize: 15,
-    color: '#8E8E93',
+    fontWeight: '500' as const,
+    color: '#777B74',
+    textAlign: 'center' as const,
+    lineHeight: 21,
   },
   tipContainer: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    maxWidth: 340,
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    borderRadius: 24,
+    width: '100%',
+    maxWidth: 372,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.07,
+    shadowRadius: 22,
+    elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.1)',
+    borderColor: 'rgba(46, 158, 52, 0.10)',
   },
   tipHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 10,
+    marginBottom: 10,
+  },
+  tipHeaderAvatarWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    overflow: 'hidden' as const,
   },
   tipHeaderAvatar: {
-    width: 14,
-    height: 14,
+    width: 30,
+    height: 30,
+  },
+  tipHeaderTextGroup: {
+    flex: 1,
   },
   tipTitle: {
     fontSize: 12,
-    fontWeight: '700' as const,
+    fontWeight: '800' as const,
     color: '#2E9E34',
-    letterSpacing: 0.2,
+    letterSpacing: 0.35,
     textTransform: 'uppercase' as const,
+  },
+  tipSubtitle: {
+    marginTop: 1,
+    fontSize: 11.5,
+    fontWeight: '600' as const,
+    color: '#9A9A96',
+  },
+  tipCtaPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#F4F4F2',
+  },
+  tipCta: {
+    fontSize: 11,
+    fontWeight: '800' as const,
+    color: '#2E9E34',
   },
   tipText: {
     fontSize: 13.5,
+    fontWeight: '500' as const,
     color: '#1A1C1E',
     lineHeight: 20,
   },
