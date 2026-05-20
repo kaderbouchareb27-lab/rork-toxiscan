@@ -38,6 +38,9 @@ const translations = {
 
   // ===== SCANNER =====
   protect_health: { fr: 'Protégez votre santé au quotidien', en: 'Protect your health every day' },
+  home_premium_label: { fr: 'Scanner intelligent', en: 'Smart scanner' },
+  home_database_label: { fr: 'Base clean', en: 'Clean database' },
+  home_instant_label: { fr: 'Instantané', en: 'Instant' },
   photo_product: { fr: "Photographier l'étiquette", en: 'Photograph the label' },
   scan_barcode: { fr: 'Scanner un code-barres', en: 'Scan a barcode' },
   scan_barcode_hint: { fr: 'Pointez la caméra vers le code-barres du produit', en: 'Point the camera at the product barcode' },

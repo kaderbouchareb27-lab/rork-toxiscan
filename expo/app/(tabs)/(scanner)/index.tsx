@@ -32,6 +32,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import DailyFact from '@/components/DailyFact';
 import DonationBanner from '@/components/DonationBanner';
 import { t, tf } from '@/utils/i18n';
+import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ANALYZING_DR_TOXI_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/256dc913-0f70-4358-b3aa-5bc9a38cc427.png';
@@ -444,13 +445,60 @@ export default function ScannerScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            <View style={styles.logoSection}>
-              <RNImage
-                source={{ uri: 'https://r2-pub.rork.com/generated-images/3e815a64-7d01-4c73-af0a-f66395fbf225.png' }}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-              <Text style={styles.subtitle}>{t('protect_health')}</Text>
+            <View style={styles.heroSection}>
+              <View style={styles.heroGlowTop} />
+              <View style={styles.heroGlowBottom} />
+              <LinearGradient
+                colors={['#FFFDF7', '#FFFFFF', '#F2EFE7']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.heroCard}
+              >
+                <View style={styles.brandPill}>
+                  <Sparkles color="#E8730A" size={14} strokeWidth={2.4} />
+                  <Text style={styles.brandPillText}>{t('home_premium_label')}</Text>
+                </View>
+
+                <View style={styles.logoStage}>
+                  <View style={styles.labelPreviewCard}>
+                    <View style={styles.labelPreviewHeader} />
+                    <View style={[styles.labelPreviewLine, styles.labelPreviewLineWide]} />
+                    <View style={styles.labelPreviewLine} />
+                    <View style={styles.labelPreviewBadgesRow}>
+                      <View style={[styles.labelPreviewBadge, styles.labelPreviewBadgeDanger]} />
+                      <View style={[styles.labelPreviewBadge, styles.labelPreviewBadgeWarning]} />
+                      <View style={[styles.labelPreviewBadge, styles.labelPreviewBadgeSafe]} />
+                    </View>
+                  </View>
+                  <View style={styles.avatarHalo}>
+                    <RNImage
+                      source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }}
+                      style={styles.heroAvatar}
+                      resizeMode="contain"
+                    />
+                  </View>
+                </View>
+
+                <Text style={styles.brandTitle}>Dr. Toxi</Text>
+                <Text style={styles.subtitle}>{t('protect_health')}</Text>
+
+                <View style={styles.trustStrip}>
+                  <View style={styles.trustItem}>
+                    <ShieldCheck color="#11120F" size={15} strokeWidth={2.3} />
+                    <Text style={styles.trustText}>CIRC/OMS</Text>
+                  </View>
+                  <View style={styles.trustDivider} />
+                  <View style={styles.trustItem}>
+                    <Database color="#11120F" size={15} strokeWidth={2.3} />
+                    <Text style={styles.trustText}>{t('home_database_label')}</Text>
+                  </View>
+                  <View style={styles.trustDivider} />
+                  <View style={styles.trustItem}>
+                    <ScanLine color="#11120F" size={15} strokeWidth={2.3} />
+                    <Text style={styles.trustText}>{t('home_instant_label')}</Text>
+                  </View>
+                </View>
+              </LinearGradient>
             </View>
 
             <View style={styles.actionSection}>
@@ -460,11 +508,20 @@ export default function ScannerScreen() {
                   onPress={handleTakePhoto}
                   onPressIn={handleButtonPressIn}
                   onPressOut={handleButtonPressOut}
-                  activeOpacity={0.85}
+                  activeOpacity={0.88}
                   testID="photo-button"
                 >
-                  <Camera color="#FFFFFF" size={22} strokeWidth={2} />
-                  <Text style={styles.scanButtonText}>{t('photo_product')}</Text>
+                  <LinearGradient
+                    colors={['#141411', '#202016', '#2A2B20']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.scanButtonGradient}
+                  >
+                    <View style={styles.scanButtonIconWrap}>
+                      <Camera color="#FFFFFF" size={22} strokeWidth={2.2} />
+                    </View>
+                    <Text style={styles.scanButtonText}>{t('photo_product')}</Text>
+                  </LinearGradient>
                 </TouchableOpacity>
               </Animated.View>
 
@@ -533,51 +590,236 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 10,
     paddingBottom: 28,
   },
-  logoSection: {
+  heroSection: {
+    paddingHorizontal: 18,
+    paddingTop: 4,
+    paddingBottom: 22,
     alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 32,
   },
-  logoImage: {
-    width: 140,
-    height: 140,
+  heroGlowTop: {
+    position: 'absolute',
+    top: -32,
+    right: -38,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: 'rgba(232, 115, 10, 0.10)',
+  },
+  heroGlowBottom: {
+    position: 'absolute',
+    bottom: 6,
+    left: -54,
+    width: 168,
+    height: 168,
+    borderRadius: 84,
+    backgroundColor: 'rgba(17, 18, 15, 0.05)',
+  },
+  heroCard: {
+    width: '100%',
+    maxWidth: 392,
+    alignItems: 'center',
+    borderRadius: 34,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(17, 18, 15, 0.08)',
+    shadowColor: '#11120F',
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.12,
+    shadowRadius: 34,
+    elevation: 8,
+  },
+  brandPill: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 7,
+    alignSelf: 'center' as const,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: 'rgba(232, 115, 10, 0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(232, 115, 10, 0.18)',
+  },
+  brandPillText: {
+    fontSize: 11,
+    fontWeight: '900' as const,
+    color: '#A94F05',
+    letterSpacing: 0.55,
+    textTransform: 'uppercase' as const,
+  },
+  logoStage: {
+    width: 248,
+    height: 180,
+    marginTop: 8,
+    marginBottom: 0,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  labelPreviewCard: {
+    position: 'absolute',
+    right: 8,
+    bottom: 15,
+    width: 116,
+    height: 128,
+    borderRadius: 20,
+    padding: 13,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(17, 18, 15, 0.08)',
+    shadowColor: '#11120F',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.10,
+    shadowRadius: 18,
+    elevation: 4,
+    transform: [{ rotate: '5deg' }],
+  },
+  labelPreviewHeader: {
+    width: 40,
+    height: 11,
+    borderRadius: 7,
+    backgroundColor: '#E8730A',
     marginBottom: 14,
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#8E8E93',
+  labelPreviewLine: {
+    width: 62,
+    height: 6,
+    borderRadius: 4,
+    backgroundColor: 'rgba(17, 18, 15, 0.14)',
+    marginBottom: 8,
+  },
+  labelPreviewLineWide: {
+    width: 82,
+  },
+  labelPreviewBadgesRow: {
+    flexDirection: 'row' as const,
+    gap: 5,
+    marginTop: 6,
+  },
+  labelPreviewBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+  },
+  labelPreviewBadgeDanger: {
+    backgroundColor: '#D0260F',
+  },
+  labelPreviewBadgeWarning: {
+    backgroundColor: '#E8730A',
+  },
+  labelPreviewBadgeSafe: {
+    backgroundColor: '#2E9E34',
+  },
+  avatarHalo: {
+    width: 166,
+    height: 166,
+    borderRadius: 83,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(17, 18, 15, 0.08)',
+    shadowColor: '#E8730A',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.18,
+    shadowRadius: 30,
+    elevation: 7,
+  },
+  heroAvatar: {
+    width: 142,
+    height: 142,
+  },
+  brandTitle: {
+    fontSize: 38,
+    fontWeight: '900' as const,
+    color: '#11120F',
+    letterSpacing: -1.5,
+    lineHeight: 43,
     textAlign: 'center' as const,
-    letterSpacing: 0.1,
+  },
+  subtitle: {
+    marginTop: 5,
+    fontSize: 15,
+    fontWeight: '600' as const,
+    color: '#6F716B',
+    textAlign: 'center' as const,
+    letterSpacing: -0.05,
+  },
+  trustStrip: {
+    marginTop: 17,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    alignSelf: 'stretch' as const,
+    paddingVertical: 11,
+    paddingHorizontal: 8,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.78)',
+    borderWidth: 1,
+    borderColor: 'rgba(17, 18, 15, 0.06)',
+  },
+  trustItem: {
+    flex: 1,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    gap: 5,
+  },
+  trustText: {
+    fontSize: 10.5,
+    fontWeight: '800' as const,
+    color: '#11120F',
+    letterSpacing: -0.1,
+  },
+  trustDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: 'rgba(17, 18, 15, 0.10)',
   },
   actionSection: {
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingBottom: 32,
+    paddingBottom: 24,
   },
   scanButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    backgroundColor: '#2E9E34',
-    paddingVertical: 20,
-    paddingHorizontal: 32,
-    borderRadius: 22,
     width: SCREEN_WIDTH - 48,
-    shadowColor: '#2E9E34',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    borderRadius: 24,
+    shadowColor: '#11120F',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.22,
     shadowRadius: 24,
     elevation: 10,
+  },
+  scanButtonGradient: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    gap: 12,
+    minHeight: 66,
+    paddingVertical: 19,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  scanButtonIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: 'rgba(255, 255, 255, 0.13)',
   },
   scanButtonText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '700' as const,
-    letterSpacing: -0.2,
+    fontWeight: '800' as const,
+    letterSpacing: -0.25,
   },
   barcodeButton: {
     flexDirection: 'row' as const,
@@ -600,18 +842,19 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
   },
   scanHint: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    marginTop: 16,
+    fontSize: 13.5,
+    color: '#6F716B',
+    marginTop: 17,
     textAlign: 'center' as const,
     paddingHorizontal: 20,
-    lineHeight: 18,
+    lineHeight: 19,
+    fontWeight: '600' as const,
   },
   scanCounterText: {
     marginTop: 10,
     fontSize: 12,
-    fontWeight: '600' as const,
-    color: '#2E9E34',
+    fontWeight: '800' as const,
+    color: '#A94F05',
     textAlign: 'center' as const,
     paddingHorizontal: 20,
   },
@@ -619,26 +862,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
-    marginTop: 20,
+    marginTop: 18,
     flexWrap: 'wrap' as const,
-    gap: 6,
+    gap: 7,
     paddingHorizontal: 8,
   },
   scanTypeItem: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#F5F3EE',
   },
   scanTypeText: {
     fontSize: 11,
-    color: '#B0B0B0',
-    letterSpacing: 0.1,
+    fontWeight: '700' as const,
+    color: '#777771',
+    letterSpacing: 0.05,
   },
   scanTypeDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#D0D0D0',
+    display: 'none',
+    width: 0,
+    height: 0,
   },
   cardsSection: {
     paddingHorizontal: 20,
