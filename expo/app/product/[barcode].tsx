@@ -8,6 +8,7 @@ import {
   Share,
   Platform,
   ActivityIndicator,
+  Linking,
   Animated,
   Easing,
   Dimensions,
@@ -32,12 +33,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
+import { useQuery } from '@tanstack/react-query';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
-import { PhotoType, HealthyAlternative } from '@/types';
-import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
-import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
+import { PhotoType, HealthyAlternative, ScannedProduct } from '@/types';
+import { getCategoryLabel } from '@/utils/api';
 import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, isEnglish } from '@/utils/i18n';
+import { fetchNearbyHealthyStores, formatStoreDistance, isNearbyStoresError, type NearbyStore } from '@/utils/nearbyStores';
 import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
@@ -107,6 +109,7 @@ function getVerdictAction(level: VerdictLevel): string {
 const CONFETTI_COLORS = ['#2E9E34', '#2E9E34', '#2E9E34', '#2E9E34', '#2E9E34'];
 const CONFETTI_COUNT = 24;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const TOXISCAN_GREEN = '#34C759';
 
 function ConfettiBurst() {
   const pieces = useRef(
@@ -203,22 +206,74 @@ function truncateName(name: string, max: number = 60): string {
   return name.slice(0, max - 1).trimEnd() + '\u2026';
 }
 
-function getRegionDisplayName(region: ReturnType<typeof detectRegion>['region']): string {
-  switch (region) {
-    case 'quebec':       return isEnglish() ? '(Quebec)' : '(Québec)';
-    case 'canada_other': return isEnglish() ? '(Canada)' : '(Canada)';
-    case 'france':       return isEnglish() ? '(France)' : '(France)';
-    case 'usa':          return isEnglish() ? '(USA)' : '(USA)';
-    case 'belgium':      return isEnglish() ? '(Belgium)' : '(Belgique)';
-    case 'switzerland':  return isEnglish() ? '(Switzerland)' : '(Suisse)';
-    default:             return '';
-  }
-}
-
 function shortenText(text: string, maxSentences: number): string {
   const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
   if (sentences.length <= maxSentences) return text;
   return sentences.slice(0, maxSentences).join(' ');
+}
+
+function getProblematicIngredientNames(product: ScannedProduct): string[] {
+  const additiveNames = product.detectedAdditives.map((additive) => additive.name).filter(Boolean);
+  const substanceNames = (product.substances ?? [])
+    .filter((substance) => substance.niveau_risque !== 'aucun')
+    .map((substance) => substance.nom)
+    .filter(Boolean);
+  return Array.from(new Set([...additiveNames, ...substanceNames])).slice(0, 3);
+}
+
+function getDrToxiAlternative(product: ScannedProduct, isNonFood: boolean): HealthyAlternative {
+  const english = isEnglish();
+  const productName = truncateName(product.name || (english ? 'this product' : 'ce produit'), 42);
+  const normalizedName = product.name.toLowerCase();
+  const avoidNames = getProblematicIngredientNames(product);
+  const avoidText = avoidNames.length > 0
+    ? avoidNames.join(', ')
+    : (english ? 'artificial colors, refined syrups, and unnecessary additives' : 'colorants artificiels, sirops raffinés et additifs inutiles');
+
+  let alternative = english
+    ? 'an organic version of the same product with a short, recognizable ingredient list'
+    : 'une version biologique du même produit avec une liste d’ingrédients courte et compréhensible';
+
+  if (isNonFood) {
+    alternative = english
+      ? 'a fragrance-free, certified clean product with simple ingredients'
+      : 'un produit sans parfum, certifié clean, avec des ingrédients simples';
+  } else if (/sour|patch|gummy|gummies|candy|bonbon|skittle|haribo|jelly/.test(normalizedName)) {
+    alternative = english
+      ? 'organic fruit gummies made with fruit pectin and no artificial colors'
+      : 'des bonbons aux fruits biologiques à la pectine, sans colorants artificiels';
+  } else if (/soda|cola|sprite|fanta|boisson gazeuse|energy|énergie/.test(normalizedName)) {
+    alternative = english
+      ? 'sparkling water flavored with real fruit or an organic low-sugar kombucha'
+      : 'une eau pétillante aromatisée aux vrais fruits ou un kombucha biologique peu sucré';
+  } else if (/cereal|céréale|granola|breakfast/.test(normalizedName)) {
+    alternative = english
+      ? 'organic oats or low-sugar granola with nuts, seeds, and no glucose syrup'
+      : 'des flocons d’avoine biologiques ou un granola peu sucré aux noix et graines, sans sirop de glucose';
+  } else if (/chip|crisps|cracker|biscuit apéritif|nacho/.test(normalizedName)) {
+    alternative = english
+      ? 'organic corn chips or seed crackers cooked with avocado or olive oil'
+      : 'des chips de maïs biologiques ou crackers aux graines cuits avec huile d’avocat ou d’olive';
+  } else if (/cookie|biscuit|cake|gâteau|barre|brownie/.test(normalizedName)) {
+    alternative = english
+      ? 'organic oat cookies sweetened moderately, without palm oil or corn syrup'
+      : 'des biscuits biologiques à l’avoine, peu sucrés, sans huile de palme ni sirop de maïs';
+  } else if (/ham|jambon|bacon|sausage|saucisse|charcuterie|salami/.test(normalizedName)) {
+    alternative = english
+      ? 'organic nitrite-free deli meat with only meat, salt, and spices'
+      : 'une charcuterie biologique sans nitrites, avec seulement viande, sel et épices';
+  } else if (/spread|nutella|pâte à tartiner|hazelnut|noisette/.test(normalizedName)) {
+    alternative = english
+      ? 'organic hazelnut-cocoa spread with no palm oil and fewer than 6 ingredients'
+      : 'une pâte noisette-cacao biologique sans huile de palme et avec moins de 6 ingrédients';
+  }
+
+  return {
+    nom: alternative,
+    raison: english
+      ? `Instead of ${productName}, try ${alternative}. Look for a simpler organic option with no ${avoidText}.`
+      : `À la place de ${productName}, essayez ${alternative}. Cherchez une option biologique plus simple, sans ${avoidText}.`,
+  };
 }
 
 export default function ProductScreen() {
@@ -367,18 +422,6 @@ export default function ProductScreen() {
     });
   };
 
-  const healthyAlternatives: HealthyAlternative[] = (() => {
-    if (product.healthyAlternatives && product.healthyAlternatives.length > 0) return product.healthyAlternatives;
-    if (product.riskGroup !== 'none' && product.scanMethod === 'barcode' && product.detectedAdditives.length > 0) {
-      return generateBarcodeAlternatives(product.detectedAdditives);
-    }
-    return [];
-  })();
-
-  const showAlternatives = !isGreen && healthyAlternatives.length > 0;
-  const regionInfo = useMemo(() => detectRegion(), []);
-  const userCountry = regionInfo.region;
-
   const shortAnalysis = useMemo(() => {
     if (!product.analysisSummary) return null;
     return shortenText(product.analysisSummary, 3);
@@ -400,6 +443,38 @@ export default function ProductScreen() {
     [product.productCategory],
   );
   const isNonFood = additiveCategory !== 'food';
+  const drToxiAlternative = useMemo<HealthyAlternative>(() => getDrToxiAlternative(product, isNonFood), [product, isNonFood]);
+  const nearbyStoresQuery = useQuery<NearbyStore[], Error>({
+    queryKey: ['nearby-healthy-stores', product.barcode],
+    queryFn: fetchNearbyHealthyStores,
+    enabled: !isGreen,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const nearbyStoresErrorMessage = useMemo(() => {
+    if (!nearbyStoresQuery.error) return null;
+    if (isNearbyStoresError(nearbyStoresQuery.error)) return nearbyStoresQuery.error.message;
+    return isEnglish()
+      ? 'Unable to load nearby healthy stores right now.'
+      : 'Impossible de charger les magasins santé à proximité pour le moment.';
+  }, [nearbyStoresQuery.error]);
+  const handleRetryNearbyStores = useCallback(() => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void nearbyStoresQuery.refetch();
+  }, [nearbyStoresQuery]);
+  const handleOpenStore = useCallback((store: NearbyStore) => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const query = encodeURIComponent(store.address || store.name);
+    const coordinateQuery = store.latitude !== null && store.longitude !== null
+      ? `${store.latitude},${store.longitude}`
+      : query;
+    const url = Platform.select({
+      ios: `maps:0,0?q=${query}&ll=${coordinateQuery}`,
+      android: `geo:0,0?q=${coordinateQuery}(${query})`,
+      default: `https://www.google.com/maps/search/?api=1&query=${coordinateQuery}`,
+    }) ?? `https://www.google.com/maps/search/?api=1&query=${coordinateQuery}`;
+    void Linking.openURL(url).catch(() => {});
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -552,63 +627,64 @@ export default function ProductScreen() {
         {!isGreen && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
-              <MapPin color={Colors.primary} size={18} />
-              <Text style={styles.sectionTitle}>
-                {t('where_find_alternatives')} {getRegionDisplayName(userCountry)}
-              </Text>
+              <MapPin color={TOXISCAN_GREEN} size={18} />
+              <Text style={styles.sectionTitle}>{t('where_find_alternatives')}</Text>
             </View>
             <View style={styles.bioStoresCard}>
-              <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
+              <View style={styles.drToxiAlternativeCard}>
+                <View style={styles.drToxiAlternativeIcon}>
+                  <RefreshCw color={TOXISCAN_GREEN} size={18} strokeWidth={2.4} />
+                </View>
+                <View style={styles.drToxiAlternativeContent}>
+                  <Text style={styles.drToxiAlternativeLabel}>{t('drtoxi_alternative_label')}</Text>
+                  <Text style={styles.drToxiAlternativeName}>{drToxiAlternative.nom}</Text>
+                  <Text style={styles.drToxiAlternativeReason}>{drToxiAlternative.raison}</Text>
+                </View>
+              </View>
 
-              {getRegionSpecialtyStores(userCountry).length > 0 ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
-                  {getRegionSpecialtyStores(userCountry).map((s, i) => (
-                    <View key={`spec-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2D6A3E" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{s}</Text>
-                    </View>
-                  ))}
-                </>
-              ) : null}
+              <View style={styles.nearbyHeaderRow}>
+                <View>
+                  <Text style={styles.bioStoresSubtitle}>{t('nearby_real_stores')}</Text>
+                  <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
+                </View>
+                {nearbyStoresQuery.isFetching ? <ActivityIndicator color={TOXISCAN_GREEN} size="small" /> : null}
+              </View>
 
-              {getRegionGroceryStores(userCountry).length > 0 ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
-                  {getRegionGroceryStores(userCountry).map((s, i) => (
-                    <View key={`groc-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2D6A3E" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{s}</Text>
-                    </View>
+              {nearbyStoresQuery.isLoading ? (
+                <View style={styles.nearbyStatusCard}>
+                  <ActivityIndicator color={TOXISCAN_GREEN} size="small" />
+                  <Text style={styles.nearbyStatusText}>{t('nearby_stores_loading')}</Text>
+                </View>
+              ) : nearbyStoresErrorMessage ? (
+                <View style={styles.nearbyStatusCard}>
+                  <Text style={styles.nearbyStatusText}>{nearbyStoresErrorMessage}</Text>
+                  <TouchableOpacity style={styles.nearbyRetryButton} onPress={handleRetryNearbyStores} activeOpacity={0.84}>
+                    <Text style={styles.nearbyRetryText}>{t('retry')}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (nearbyStoresQuery.data?.length ?? 0) > 0 ? (
+                <View style={styles.nearbyStoresList}>
+                  {nearbyStoresQuery.data?.map((store) => (
+                    <TouchableOpacity key={store.id} style={styles.nearbyStoreCard} onPress={() => handleOpenStore(store)} activeOpacity={0.84}>
+                      <View style={styles.nearbyStorePin}>
+                        <MapPin color="#FFFFFF" size={16} strokeWidth={2.4} />
+                      </View>
+                      <View style={styles.nearbyStoreTextWrap}>
+                        <Text style={styles.nearbyStoreName} numberOfLines={2}>{store.name}</Text>
+                        {store.address ? <Text style={styles.nearbyStoreAddress} numberOfLines={1}>{store.address}</Text> : null}
+                      </View>
+                      <View style={styles.nearbyDistancePill}>
+                        <Text style={styles.nearbyDistanceText}>{formatStoreDistance(store.distanceMeters)}</Text>
+                      </View>
+                    </TouchableOpacity>
                   ))}
-                </>
-              ) : null}
-
-              {getRegionCleanBrands(userCountry, isNonFood).length > 0 ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>
-                    {isNonFood ? t('clean_brands') : t('organic_brands')}
-                  </Text>
-                  {getRegionCleanBrands(userCountry, isNonFood).map((b, i) => (
-                    <View key={`brand-${i}`} style={styles.bioStoreItem}>
-                      <CheckCircle color="#2D6A3E" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{b}</Text>
-                    </View>
-                  ))}
-                </>
-              ) : null}
-
-              {getRegionLocalMarkets(userCountry).length > 0 ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
-                  {getRegionLocalMarkets(userCountry).map((m, i) => (
-                    <View key={`mkt-${i}`} style={styles.bioStoreItem}>
-                      <MapPin color="#2D6A3E" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{m}</Text>
-                    </View>
-                  ))}
-                </>
-              ) : null}
+                </View>
+              ) : (
+                <View style={styles.nearbyStatusCard}>
+                  <Store color={TOXISCAN_GREEN} size={20} strokeWidth={2.2} />
+                  <Text style={styles.nearbyStatusText}>{t('nearby_stores_empty')}</Text>
+                </View>
+              )}
             </View>
           </View>
         )}
@@ -637,7 +713,7 @@ export default function ProductScreen() {
           </View>
         )}
 
-        {!isGreen && product.saferAlternatives && product.saferAlternatives.length > 0 && !showAlternatives && (
+        {!isGreen && product.saferAlternatives && product.saferAlternatives.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <RefreshCw color={Colors.safe} size={18} />
@@ -754,12 +830,31 @@ const styles = StyleSheet.create({
   healthyAltContent: { flex: 1 },
   healthyAltName: { fontSize: 15, fontWeight: '600' as const, color: '#1A1A1A', marginBottom: 3 },
   healthyAltReason: { fontSize: 13, color: '#4A7C59', lineHeight: 18 },
-  bioStoresCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
-  bioStoresIntro: { fontSize: 14, color: '#3A6B4A', lineHeight: 20, marginBottom: 16 },
-  bioStoresSubtitle: { fontSize: 14, fontWeight: '600' as const, color: '#1A1A1A', marginTop: 14, marginBottom: 6 },
+  bioStoresCard: { backgroundColor: '#F3FFF6', borderRadius: 24, padding: 14, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.22)', shadowColor: TOXISCAN_GREEN, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 22, elevation: 2 },
+  bioStoresIntro: { fontSize: 12, color: '#5F7866', lineHeight: 17, marginTop: 2 },
+  bioStoresSubtitle: { fontSize: 15, fontWeight: '900' as const, color: '#11351D', letterSpacing: -0.15 },
   bioStoreItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 5 },
   bioStoreText: { fontSize: 14, color: '#2D4A35' },
   bioStoresNote: { fontSize: 13, color: '#5A7D65', lineHeight: 19 },
+  drToxiAlternativeCard: { flexDirection: 'row' as const, gap: 12, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.20)', marginBottom: 14 },
+  drToxiAlternativeIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(52, 199, 89, 0.12)', justifyContent: 'center' as const, alignItems: 'center' as const },
+  drToxiAlternativeContent: { flex: 1 },
+  drToxiAlternativeLabel: { fontSize: 11, fontWeight: '900' as const, color: TOXISCAN_GREEN, letterSpacing: 0.8, textTransform: 'uppercase' as const, marginBottom: 5 },
+  drToxiAlternativeName: { fontSize: 16, lineHeight: 20, fontWeight: '900' as const, color: '#102916', letterSpacing: -0.25, marginBottom: 5 },
+  drToxiAlternativeReason: { fontSize: 13, lineHeight: 19, fontWeight: '600' as const, color: '#45614E' },
+  nearbyHeaderRow: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, justifyContent: 'space-between' as const, gap: 12, marginBottom: 10, paddingHorizontal: 2 },
+  nearbyStoresList: { gap: 10 },
+  nearbyStoreCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.16)', minHeight: 72 },
+  nearbyStorePin: { width: 36, height: 36, borderRadius: 18, backgroundColor: TOXISCAN_GREEN, justifyContent: 'center' as const, alignItems: 'center' as const, shadowColor: TOXISCAN_GREEN, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 3 },
+  nearbyStoreTextWrap: { flex: 1, minWidth: 0 },
+  nearbyStoreName: { fontSize: 15, lineHeight: 19, fontWeight: '900' as const, color: '#142116', letterSpacing: -0.2 },
+  nearbyStoreAddress: { fontSize: 12, lineHeight: 16, fontWeight: '600' as const, color: '#7B887E', marginTop: 2 },
+  nearbyDistancePill: { paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: 'rgba(52, 199, 89, 0.12)', borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.18)' },
+  nearbyDistanceText: { fontSize: 12, fontWeight: '900' as const, color: '#23823E' },
+  nearbyStatusCard: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 10, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.16)' },
+  nearbyStatusText: { flex: 1, fontSize: 13, lineHeight: 18, fontWeight: '700' as const, color: '#496B53', textAlign: 'center' as const },
+  nearbyRetryButton: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, backgroundColor: TOXISCAN_GREEN },
+  nearbyRetryText: { fontSize: 13, fontWeight: '900' as const, color: '#FFFFFF' },
   bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
   bigShareButtonGreen: { backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
   bigShareButtonLoading: { opacity: 0.8 },
