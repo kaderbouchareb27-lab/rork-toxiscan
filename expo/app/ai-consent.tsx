@@ -5,12 +5,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Brain } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
+import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import { t, isEnglish } from '@/utils/i18n';
 
@@ -35,7 +36,7 @@ export default function AIConsentScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Brain color={Colors.primary} size={36} strokeWidth={1.5} />
+          <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.avatarImage} resizeMode="contain" />
         </View>
 
         <Text style={styles.title}>{t('ai_consent_title')}</Text>
@@ -96,6 +97,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 28,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 64,
+    height: 64,
   },
   title: {
     fontSize: 24,
