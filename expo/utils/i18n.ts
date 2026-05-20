@@ -38,7 +38,7 @@ const translations = {
 
   // ===== SCANNER =====
   protect_health: { fr: 'Protégez votre santé au quotidien', en: 'Protect your health every day' },
-  photo_product: { fr: 'Photographier un produit', en: 'Photograph a product' },
+  photo_product: { fr: "Photographier l'étiquette", en: 'Photograph the label' },
   scan_barcode: { fr: 'Scanner un code-barres', en: 'Scan a barcode' },
   scan_barcode_hint: { fr: 'Pointez la caméra vers le code-barres du produit', en: 'Point the camera at the product barcode' },
   barcode_not_found_title: { fr: 'Produit introuvable', en: 'Product not found' },
