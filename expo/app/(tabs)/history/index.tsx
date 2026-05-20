@@ -50,14 +50,12 @@ function SkeletonRow() {
 
   return (
     <Animated.View style={[styles.productRow, { opacity }]} testID="skeleton-row">
-      <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#E8EAED' }]} />
+      <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#F0F0EE' }]} />
       <View style={styles.productInfo}>
-        <View style={{ width: 140, height: 14, borderRadius: 7, backgroundColor: '#E8EAED', marginBottom: 8 }} />
-        <View style={{ width: 90, height: 10, borderRadius: 5, backgroundColor: '#F0F1F3' }} />
+        <View style={{ width: 140, height: 14, borderRadius: 7, backgroundColor: '#F0F0EE', marginBottom: 8 }} />
+        <View style={{ width: 90, height: 10, borderRadius: 5, backgroundColor: '#F4F4F2' }} />
       </View>
-      <View style={styles.badgeColumn}>
-        <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: '#E8EAED' }} />
-      </View>
+      <View style={{ width: 70, height: 22, borderRadius: 11, backgroundColor: '#F0F0EE' }} />
     </Animated.View>
   );
 }
