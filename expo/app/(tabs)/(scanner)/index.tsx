@@ -140,10 +140,16 @@ export default function ScannerScreen() {
     },
     onSuccess: (product) => {
       console.log('[Scanner] Analysis success:', product.name, product.riskGroup);
+      const elapsed = analysisStartRef.current ? Date.now() - analysisStartRef.current : 0;
+      if (elapsed > 500) {
+        // EMA of last response durations to better predict next progress speed
+        avgDurationRef.current = Math.round(avgDurationRef.current * 0.6 + elapsed * 0.4);
+      }
+      progressAnim.stopAnimation();
       setProgressPercent(100);
       Animated.timing(progressAnim, {
         toValue: 1,
-        duration: 400,
+        duration: 120,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: false,
       }).start();
@@ -270,6 +276,8 @@ export default function ScannerScreen() {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const spinnerRotation = useRef(new Animated.Value(0)).current;
   const tipFadeAnim = useRef(new Animated.Value(1)).current;
+  const analysisStartRef = useRef<number>(0);
+  const avgDurationRef = useRef<number>(7000);
 
   useEffect(() => {
     if (!isLoading) {
@@ -286,24 +294,32 @@ export default function ScannerScreen() {
       });
     }, 5000);
 
-    let current = 0;
+    // Drive the bar against the real expected response duration (EMA of past calls).
+    // We approach 92% asymptotically over the expected duration so we never stall at 100
+    // before the API actually returns. onSuccess snaps to 100 instantly.
     const startedAt = Date.now();
+    analysisStartRef.current = startedAt;
+    let current = 0;
     const progressInterval = setInterval(() => {
-      const elapsed = (Date.now() - startedAt) / 1000;
-      const target = Math.min(95, 95 * (1 - Math.exp(-elapsed / 4)));
-      const next = Math.min(97, current + Math.max(0.3, (target - current) * 0.18));
-      if (next > current) {
-        current = next;
-        const rounded = Math.floor(current);
+      const elapsed = Date.now() - startedAt;
+      const expected = Math.max(2000, avgDurationRef.current);
+      // Linear up to 85% of expected duration, then ease out toward 95% cap
+      const ratio = elapsed / expected;
+      const target = ratio < 0.85
+        ? ratio * (88 / 0.85)
+        : Math.min(95, 88 + (1 - Math.exp(-(ratio - 0.85) * 1.5)) * 7);
+      if (target > current) {
+        current = target;
+        const rounded = Math.min(95, Math.floor(current));
         setProgressPercent(rounded);
         Animated.timing(progressAnim, {
-          toValue: current / 100,
-          duration: 200,
-          easing: Easing.out(Easing.cubic),
+          toValue: Math.min(0.95, current / 100),
+          duration: 180,
+          easing: Easing.linear,
           useNativeDriver: false,
         }).start();
       }
-    }, 200);
+    }, 120);
 
     const spinLoop = Animated.loop(
       Animated.timing(spinnerRotation, {
