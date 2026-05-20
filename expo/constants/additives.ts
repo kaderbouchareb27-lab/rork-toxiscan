@@ -217,9 +217,9 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
 
   // --- Huiles minérales (cosmetic context) ---
   {
-    code: 'mineral-oil', name: 'Huile minérale (paraffinum, petrolatum)', group: 'group2a', category: 'cosmetic',
-    description: 'Dérivés pétroliers en cosmétique. Versions non raffinées classées CIRC Groupe 2A. Peuvent obstruer les pores. Éviter contact prolongé.',
-    descriptionEn: 'Petroleum-derived cosmetic ingredients. Unrefined versions classified IARC Group 2A. May clog pores. Avoid prolonged contact.',
+    code: 'mineral-oil', name: 'Huile minérale (paraffinum, petrolatum)', group: 'group1', category: 'cosmetic',
+    description: 'Dérivés pétroliers. Versions non raffinées classées CIRC Groupe 1 (cancérogène avéré). MOAH liés à cancers. À éviter.',
+    descriptionEn: 'Petroleum-derived ingredients. Unrefined versions classified IARC Group 1 (confirmed carcinogen). MOAH linked to cancers. Avoid.',
   },
 
   // --- Produits ménagers toxiques ---
@@ -324,7 +324,8 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'glucose-syrup', name: 'Sirop de glucose', group: 'group2b', category: 'food', description: 'Sirop industriel. À modérer.' },
   { code: 'hfcs', name: 'Sirop de glucose-fructose / HFCS', group: 'group2b', category: 'food', description: 'Sirop à teneur élevée en fructose. Lien obésité, stéatose hépatique.' },
   { code: 'dextrose', name: 'Dextrose', group: 'group2b', category: 'food', description: 'Sucre rapide industriel.' },
-  { code: 'corn-syrup', name: 'Sirop de maïs', group: 'group2b', category: 'food', description: 'Sirop industriel sucrant.' },
+  { code: 'corn-syrup', name: 'Sirop de maïs', group: 'group2a', category: 'food', description: 'Sirop industriel issu de maïs souvent OGM. Lié à obésité, stéatose hépatique et syndrome métabolique.' },
+  { code: 'gelatin', name: 'Gélatine', group: 'group2b', category: 'food', description: 'Issue de peaux et os animaux (bovin/porc) traités à l\'acide ou la soude. Procédé industriel, qualité variable.' },
   { code: 'agave-syrup', name: 'Sirop d\'agave', group: 'group2b', category: 'food', description: 'Présenté comme naturel mais très riche en fructose isolé.' },
   { code: 'rice-syrup', name: 'Sirop de riz', group: 'group2b', category: 'food', description: 'Sirop transformé, index glycémique élevé.' },
   { code: 'fructose-added', name: 'Fructose ajouté', group: 'group2b', category: 'food', description: 'Fructose isolé. Lien stéatose hépatique en excès.' },

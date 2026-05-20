@@ -132,7 +132,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['oxybenzone', 'benzophenone-3', 'benzophenone 3'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
   { keywords: ['octinoxate', 'homosalate', 'octisalate'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
   { keywords: ['aluminum chlorohydrate', 'aluminium zirconium', 'chlorhydrate d\'aluminium'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien' },
-  { keywords: ['paraffinum liquidum', 'petrolatum', 'mineral oil', 'huile minérale'], code: null, risk: 'probable', circ: 'Groupe 2A', note: 'Huiles minérales raffinées cancérigènes probables.' },
+  { keywords: ['paraffinum liquidum', 'petrolatum', 'mineral oil', 'huile minérale', 'huiles minérales', 'mineral oils'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Huiles minérales non raffinées classées Groupe 1 CIRC (cancérogène avéré). MOAH (hydrocarbures aromatiques) liés à cancers.' },
 
   // ═══════════════════════════════════════════════════════════════
   // 🟡 JAUNE — MODÉRATION (Groupe 2B IARC ou transformé modéré)
@@ -147,7 +147,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['sucres', 'sugars'], code: null, risk: 'possible', circ: 'Sucre raffiné', note: 'Sucres ajoutés. Consommer avec modération.' },
   { keywords: ['sirop de glucose-fructose', 'glucose-fructose syrup', 'hfcs', 'high fructose corn syrup', 'sirop de glucose fructose'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Lié à l\'obésité et syndrome métabolique.' },
   { keywords: ['sirop de glucose', 'glucose syrup', 'glucose-sirop'], code: null, risk: 'possible', circ: 'Ultra-transformé léger' },
-  { keywords: ['sirop de mais', 'corn syrup', 'sirop de maïs'], code: null, risk: 'possible', circ: 'Ultra-transformé léger' },
+  { keywords: ['sirop de mais', 'corn syrup', 'sirop de maïs'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Sirop industriel issu de maïs souvent OGM. Lié à obésité, stéatose hépatique et syndrome métabolique.' },
+  { keywords: ['gelatine', 'gélatine', 'gelatin'], code: null, risk: 'possible', circ: 'Origine animale industrielle', note: 'Issue de peaux et os animaux (bovin/porc) traités à l\'acide ou la soude. Procédé industriel, qualité variable selon les sources.' },
   { keywords: ['sirop d\'agave', 'agave syrup', 'agave nectar', 'nectar d\'agave'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Riche en fructose isolé.' },
   { keywords: ['sirop de riz', 'rice syrup'], code: null, risk: 'possible', circ: 'Ultra-transformé léger' },
   { keywords: ['maltodextrine', 'maltodextrin'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Index glycémique très élevé.' },
