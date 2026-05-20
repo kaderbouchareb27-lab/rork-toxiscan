@@ -285,7 +285,7 @@ export default function ProductScreen() {
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
   // ✅ Verdict 100% déterministe — basé sur product.riskGroup calculé par api.ts
-  const { verdictLevel, hasCarcinogen, hasControversial } = useMemo(() => {
+  const { verdictLevel } = useMemo(() => {
     let _verdictLevel: VerdictLevel = 'approuve';
     switch (product.riskGroup) {
       case 'group1':  _verdictLevel = 'danger';     break;
@@ -294,10 +294,8 @@ export default function ProductScreen() {
       case 'none':
       default:        _verdictLevel = 'approuve';   break;
     }
-    const hasCarcinogen    = product.riskGroup === 'group1';
-    const hasControversial = product.riskGroup === 'group2a' || product.riskGroup === 'group2b';
     console.log('[Product] Verdict from riskGroup:', product.riskGroup, '→', _verdictLevel);
-    return { verdictLevel: _verdictLevel, hasCarcinogen, hasControversial };
+    return { verdictLevel: _verdictLevel };
   }, [product.riskGroup]);
 
   const isGreen = verdictLevel === 'approuve';
@@ -508,7 +506,7 @@ export default function ProductScreen() {
 
         <DrToxiVerdict level={verdictLevel} />
 
-        {!isGreen && product.productCategory === 'food' && (
+        {!isGreen && (
           <HealthierAlternativesOFF
             category={product.categories}
             problematicIngredients={[
@@ -606,53 +604,6 @@ export default function ProductScreen() {
                   <Text style={styles.alternativeText}>{alt}</Text>
                 </View>
               ))}
-            </View>
-          </View>
-        )}
-
-        {showBioStores && (
-          <View style={styles.section}>
-            <View style={styles.sectionTitleRow}>
-              <MapPin color="#2D8A4E" size={18} />
-              <Text style={styles.sectionTitle}>{t('where_find_alternatives')}</Text>
-            </View>
-            <View style={styles.bioStoresCard}>
-              <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
-              {showAlternatives && (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>{t('recommended_bio_alternatives')}</Text>
-                  <View style={styles.healthyAlternativesCardInner}>
-                    {healthyAlternatives.map((alt, index) => (
-                      <View key={`healthy-alt-${index}`} style={styles.healthyAltItem}>
-                        <View style={styles.healthyAltBadge}><CheckCircle color="#FFFFFF" size={14} /></View>
-                        <View style={styles.healthyAltContent}>
-                          <Text style={styles.healthyAltName}>{alt.nom}</Text>
-                          {alt.raison ? <Text style={styles.healthyAltReason}>{alt.raison}</Text> : null}
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                </>
-              )}
-              <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
-              {getRegionSpecialtyStores(userCountry).map((store, i) => (
-                <View key={`store-spec-${i}`} style={styles.bioStoreItem}>
-                  <Store color="#2D8A4E" size={14} />
-                  <Text style={styles.bioStoreText}>{store}</Text>
-                </View>
-              ))}
-              <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
-              <Text style={styles.bioStoresNote}>{getRegionGroceryStores(userCountry).join(', ')}</Text>
-              {getRegionLocalMarkets(userCountry).length > 0 && (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
-                  <Text style={styles.bioStoresNote}>{getRegionLocalMarkets(userCountry).join(', ')}</Text>
-                </>
-              )}
-              <Text style={styles.bioStoresSubtitle}>
-                {isHouseholdOrCosmetic ? t('clean_brands') : t('organic_brands')}
-              </Text>
-              <Text style={styles.bioStoresNote}>{getRegionCleanBrands(userCountry, isHouseholdOrCosmetic).join(', ')}</Text>
             </View>
           </View>
         )}
