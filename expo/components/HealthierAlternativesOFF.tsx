@@ -19,6 +19,7 @@ interface Props {
   category?: string | null;       // e.g. "en:breakfast-cereals" or raw product.categories
   problematicIngredients: string[]; // names or codes (e.g. ["e102", "palm oil"])
   countryCode?: string;            // 'ca' | 'fr'
+  forceShow?: boolean;             // always render section (used for WARNING / CANCÉRIGÈNE)
 }
 
 function slugify(input: string): string {
@@ -89,24 +90,31 @@ async function fetchOFFAlternatives(
   params.set('json', 'true');
 
   const url = `https://world.openfoodfacts.org/api/v2/search?${params.toString()}`;
-  console.log('[OFF-Alts] Fetching:', url);
+  console.log('[OFF-Alts] cc=' + cc + ' category=' + categoryTag + ' ingredients=', ingredientTokens);
+  console.log('[OFF-Alts] Full URL:', url);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'ToxiScan/1.0 (support@toxiscan.com)' },
+      headers: {
+        'User-Agent': 'ToxiScan/1.0 (support@toxiscan.com)',
+        Accept: 'application/json',
+      },
       signal: controller.signal,
     });
+    console.log('[OFF-Alts] HTTP status:', res.status, 'cc=' + cc);
     if (!res.ok) {
-      console.log('[OFF-Alts] HTTP error:', res.status);
+      console.log('[OFF-Alts] HTTP error body status:', res.status);
       return [];
     }
-    const json = (await res.json()) as { products?: OFFAlt[] };
+    const json = (await res.json()) as { products?: OFFAlt[]; count?: number };
+    console.log('[OFF-Alts] Raw response — count:', json.count, 'products length:', (json.products ?? []).length);
     const products = (json.products ?? []).filter(p => !!p.product_name && !!p.image_url);
+    console.log('[OFF-Alts] Filtered (with name+image):', products.length, 'cc=' + cc);
     return products.slice(0, 3);
   } catch (e) {
-    console.log('[OFF-Alts] Fetch error:', e);
+    console.log('[OFF-Alts] Fetch error (cc=' + cc + '):', e);
     return [];
   } finally {
     clearTimeout(timer);
@@ -121,28 +129,35 @@ function prettifyStoreTag(tag: string): string {
     .join(' ');
 }
 
-export default function HealthierAlternativesOFF({ category, problematicIngredients, countryCode = 'ca' }: Props) {
+export default function HealthierAlternativesOFF({ category, problematicIngredients, countryCode = 'ca', forceShow = false }: Props) {
   const categoryTag = useMemo(() => extractCategoryTag(category), [category]);
   const ingredientTokens = useMemo(
     () => Array.from(new Set(problematicIngredients.map(normalizeIngredientToken).filter(Boolean))).slice(0, 6),
     [problematicIngredients],
   );
 
-  const enabled = !!categoryTag;
+  // Fallback category for forced render when product has no category tag.
+  const effectiveCategory = categoryTag ?? (forceShow ? 'snacks' : null);
+
+  console.log('[OFF-Alts] Component mount — categoryTag:', categoryTag, 'effective:', effectiveCategory, 'forceShow:', forceShow, 'tokens:', ingredientTokens, 'cc:', countryCode);
+
+  const enabled = !!effectiveCategory;
   const primary = useQuery({
-    queryKey: ['off-alternatives', categoryTag, ingredientTokens, countryCode],
-    queryFn: () => fetchOFFAlternatives(categoryTag as string, ingredientTokens, countryCode),
+    queryKey: ['off-alternatives', effectiveCategory, ingredientTokens, countryCode],
+    queryFn: () => fetchOFFAlternatives(effectiveCategory as string, ingredientTokens, countryCode),
     enabled,
     staleTime: 1000 * 60 * 30,
     retry: 1,
   });
 
-  // Fallback to 'fr' if 'ca' returns empty
+  // Fallback to 'fr' if 'ca' returns empty OR errored
+  const primaryDone = primary.isSuccess || primary.isError;
+  const primaryEmpty = (primary.data?.length ?? 0) === 0;
   const fallbackEnabled =
-    enabled && primary.isSuccess && (primary.data?.length ?? 0) === 0 && countryCode !== 'fr';
+    enabled && primaryDone && primaryEmpty && countryCode !== 'fr';
   const fallback = useQuery({
-    queryKey: ['off-alternatives', categoryTag, ingredientTokens, 'fr'],
-    queryFn: () => fetchOFFAlternatives(categoryTag as string, ingredientTokens, 'fr'),
+    queryKey: ['off-alternatives', effectiveCategory, ingredientTokens, 'fr'],
+    queryFn: () => fetchOFFAlternatives(effectiveCategory as string, ingredientTokens, 'fr'),
     enabled: fallbackEnabled,
     staleTime: 1000 * 60 * 30,
     retry: 1,
@@ -151,7 +166,9 @@ export default function HealthierAlternativesOFF({ category, problematicIngredie
   const data = (primary.data && primary.data.length > 0 ? primary.data : fallback.data) ?? [];
   const isLoading = primary.isLoading || (fallbackEnabled && fallback.isLoading);
 
-  if (!enabled) return null;
+  console.log('[OFF-Alts] Render — enabled:', enabled, 'isLoading:', isLoading, 'primary:', primary.data?.length ?? 0, 'fallback:', fallback.data?.length ?? 0, 'final:', data.length);
+
+  if (!enabled && !forceShow) return null;
 
   const title = isEnglish() ? 'Healthier alternatives' : 'Alternatives plus saines';
   const inGrocery = isEnglish() ? 'Available in grocery stores' : 'Disponible en épicerie';

@@ -371,8 +371,6 @@ export default function ProductScreen() {
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
   const regionInfo = useMemo(() => detectRegion(), []);
   const userCountry = regionInfo.region;
-  const showBioStores = !isGreen && (hasCarcinogen || hasControversial || healthyAlternatives.length > 0);
-  const isHouseholdOrCosmetic = product.productCategory === 'cosmetic' || product.productCategory === 'household';
 
   const shortAnalysis = useMemo(() => {
     if (!product.analysisSummary) return null;
@@ -519,6 +517,7 @@ export default function ProductScreen() {
                 .map(s => s.code || s.nom),
             ]}
             countryCode={(userCountry || 'ca').toLowerCase()}
+            forceShow={verdictLevel === 'danger' || verdictLevel === 'warning'}
           />
         )}
 
