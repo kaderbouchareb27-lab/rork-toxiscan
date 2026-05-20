@@ -533,6 +533,51 @@ export default function ProductScreen() {
           />
         )}
 
+        {/* ─── Tous les ingrédients ─── */}
+        {ingredientsList.length > 0 ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t('all_ingredients')}</Text>
+            <View style={styles.allIngredientsCard}>
+              {ingredientsList.map((ing, index) => {
+                // ✅ niveau_risque de la base → couleur correcte
+                // 🔴 danger = CANCÉRIGÈNE
+                // 🟠 probable = ULTRA-TRANSFORMÉ
+                // 🟡 possible = MODÉRATION
+                // 🟢 aucun = APPROUVÉ
+                const level = getDisplayLevel(ing);
+                const color = getLevelBadgeColor(level);
+                // For non-food scans, prefer the category-appropriate description
+                // from the additives database (FR/EN) when we can match the ingredient.
+                const additiveMatch = isNonFood ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
+                const additiveDescription = additiveMatch ? getAdditiveDescription(additiveMatch) : '';
+                const description = additiveDescription.length > 0
+                  ? additiveDescription
+                  : (ing.explication && ing.explication.trim().length > 0)
+                    ? ing.explication
+                    : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
+                return (
+                  <View key={`all-ing-${index}`} testID={`ingredient-row-${index}`}>
+                    <View style={styles.allIngRow}>
+                      <View style={[styles.allIngDot, { backgroundColor: color }]} />
+                      <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
+                      <View style={[styles.allIngBadge, { backgroundColor: color }]}>
+                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
+                      </View>
+                    </View>
+                    {description ? (
+                      <View style={[styles.allIngExplanation, { backgroundColor: color + '18' }]}>
+                        <Text style={[styles.allIngExplanationText, { color }]}>
+                          {description}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+
         {!isGreen && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
@@ -596,51 +641,6 @@ export default function ProductScreen() {
             </View>
           </View>
         )}
-
-        {/* ─── Tous les ingrédients ─── */}
-        {ingredientsList.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('all_ingredients')}</Text>
-            <View style={styles.allIngredientsCard}>
-              {ingredientsList.map((ing, index) => {
-                // ✅ niveau_risque de la base → couleur correcte
-                // 🔴 danger = CANCÉRIGÈNE
-                // 🟠 probable = ULTRA-TRANSFORMÉ
-                // 🟡 possible = MODÉRATION
-                // 🟢 aucun = APPROUVÉ
-                const level = getDisplayLevel(ing);
-                const color = getLevelBadgeColor(level);
-                // For non-food scans, prefer the category-appropriate description
-                // from the additives database (FR/EN) when we can match the ingredient.
-                const additiveMatch = isNonFood ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
-                const additiveDescription = additiveMatch ? getAdditiveDescription(additiveMatch) : '';
-                const description = additiveDescription.length > 0
-                  ? additiveDescription
-                  : (ing.explication && ing.explication.trim().length > 0)
-                    ? ing.explication
-                    : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
-                return (
-                  <View key={`all-ing-${index}`} testID={`ingredient-row-${index}`}>
-                    <View style={styles.allIngRow}>
-                      <View style={[styles.allIngDot, { backgroundColor: color }]} />
-                      <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
-                      <View style={[styles.allIngBadge, { backgroundColor: color }]}>
-                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
-                      </View>
-                    </View>
-                    {description ? (
-                      <View style={[styles.allIngExplanation, { backgroundColor: color + '18' }]}>
-                        <Text style={[styles.allIngExplanationText, { color }]}>
-                          {description}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ) : null}
 
         {isGreen && (
           <View style={styles.approvedFooterCard}>
