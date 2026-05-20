@@ -218,8 +218,8 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // --- Huiles minérales (cosmetic context) ---
   {
     code: 'mineral-oil', name: 'Huile minérale (paraffinum, petrolatum)', group: 'group1', category: 'cosmetic',
-    description: 'Dérivés pétroliers. Versions non raffinées classées CIRC Groupe 1 (cancérogène avéré). MOAH liés à cancers. À éviter.',
-    descriptionEn: 'Petroleum-derived ingredients. Unrefined versions classified IARC Group 1 (confirmed carcinogen). MOAH linked to cancers. Avoid.',
+    description: 'L\'huile minérale est un dérivé pétrolier classé cancérigène par le CIRC (Centre International de Recherche sur le Cancer). Une consommation régulière augmente le risque de développer un cancer. À éviter absolument.',
+    descriptionEn: 'Mineral oil is a petroleum derivative classified as a carcinogen by the IARC (International Agency for Research on Cancer). Regular consumption increases the risk of developing cancer. Avoid completely.',
   },
 
   // --- Produits ménagers toxiques ---
