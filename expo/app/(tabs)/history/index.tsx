@@ -27,10 +27,10 @@ function getFilters(): { key: FilterType; label: string; color?: string }[] {
   return [
     { key: 'all', label: t('filter_all') },
     { key: 'favorites', label: t('filter_favorites'), color: '#FF2D55' },
-    { key: 'group1', label: t('filter_danger'), color: '#FF3B30' },
-    { key: 'group2a', label: t('filter_warning'), color: '#E8640A' },
-    { key: 'group2b', label: t('filter_caution'), color: '#F5C000' },
-    { key: 'none', label: t('filter_approved'), color: '#2E9E34' },
+    { key: 'group1', label: t('filter_danger'), color: '#D0260F' },
+    { key: 'group2a', label: t('filter_warning'), color: '#E8730A' },
+    { key: 'group2b', label: t('filter_caution'), color: '#EAB308' },
+    { key: 'none', label: t('filter_approved'), color: '#22C55E' },
   ];
 }
 

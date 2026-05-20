@@ -29,7 +29,7 @@ function getVerdictConfig(): Record<VerdictLevel, {
       textColor: '#B71C1C',
       title: t('verdict_danger_title'),
       message: t('verdict_danger_msg'),
-      icon: <ShieldX color="#FF3B30" size={24} />,
+      icon: <ShieldX color="#D0260F" size={24} />,
     },
     warning: {
       bgColor: '#FFF3E0',
@@ -38,7 +38,7 @@ function getVerdictConfig(): Record<VerdictLevel, {
       textColor: '#BF360C',
       title: t('verdict_caution_title'),
       message: t('verdict_caution_msg'),
-      icon: <ShieldAlert color="#FF9500" size={24} />,
+      icon: <ShieldAlert color="#E8730A" size={24} />,
     },
     moderation: {
       bgColor: '#FFF9E5',
@@ -47,7 +47,7 @@ function getVerdictConfig(): Record<VerdictLevel, {
       textColor: '#6E5200',
       title: t('verdict_moderation_title'),
       message: t('verdict_moderation_msg'),
-      icon: <AlertTriangle color="#E0B400" size={24} />,
+      icon: <AlertTriangle color="#EAB308" size={24} />,
     },
     approuve: {
       bgColor: '#E8F9ED',
@@ -56,7 +56,7 @@ function getVerdictConfig(): Record<VerdictLevel, {
       textColor: '#3A6B4A',
       title: t('verdict_approved_title'),
       message: t('verdict_approved_msg'),
-      icon: <ThumbsUp color="#2E9E34" size={24} />,
+      icon: <ThumbsUp color="#22C55E" size={24} />,
     },
   };
 }

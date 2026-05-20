@@ -57,10 +57,10 @@ function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
 
 function getLevelBadgeColor(level: DisplayLevel): string {
   switch (level) {
-    case 'danger':   return '#FF3B30'; // 🔴 CANCÉRIGÈNE
-    case 'probable': return '#E8640A'; // 🟠 ULTRA-TRANSFORMÉ
-    case 'possible': return '#F5C000'; // 🟡 MODÉRATION
-    case 'aucun':    return '#2E9E34'; // 🟢 APPROUVÉ
+    case 'danger':   return '#D0260F'; // 🔴 CANCÉRIGÈNE
+    case 'probable': return '#E8730A'; // 🟠 ULTRA-TRANSFORMÉ
+    case 'possible': return '#EAB308'; // 🟡 MODÉRATION
+    case 'aucun':    return '#22C55E'; // 🟢 APPROUVÉ
   }
 }
 
@@ -100,13 +100,13 @@ function getNovaColor(group: number): string {
 function getBannerConfig(level: VerdictLevel): { color: string; label: string; intro: string; icon: React.ReactNode } {
   switch (level) {
     case 'danger':
-      return { color: '#FF3B30', label: t('badge_danger'), intro: t('intro_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
+      return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: <AlertOctagon color="#FFFFFF" size={28} /> };
     case 'warning':
-      return { color: '#E8640A', label: t('badge_caution'), intro: t('intro_warning'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#E8730A', label: t('badge_caution'), intro: t('intro_warning'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'moderation':
-      return { color: '#F5C000', label: t('badge_moderation'), intro: t('intro_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
+      return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'approuve':
-      return { color: '#2E9E34', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
+      return { color: '#22C55E', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
   }
 }
 

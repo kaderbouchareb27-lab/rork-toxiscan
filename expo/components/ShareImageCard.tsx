@@ -39,13 +39,13 @@ interface ShareImageCardProps {
 function getVerdictBadge(level: VerdictLevel): { label: string; sublabel: string; color: string; textColor: string; explanation: string } {
   switch (level) {
     case 'danger':
-      return { label: t('badge_danger'), sublabel: t('share_danger_sub'), color: '#FF3B30', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
+      return { label: t('badge_danger'), sublabel: t('share_danger_sub'), color: '#D0260F', textColor: '#FFFFFF', explanation: t('share_danger_explanation') };
     case 'warning':
-      return { label: t('badge_caution'), sublabel: t('share_caution_sub'), color: '#E8640A', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
+      return { label: t('badge_caution'), sublabel: t('share_caution_sub'), color: '#E8730A', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
     case 'moderation':
-      return { label: t('badge_moderation'), sublabel: t('share_caution_sub'), color: '#F5C000', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
+      return { label: t('badge_moderation'), sublabel: t('share_caution_sub'), color: '#EAB308', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
     case 'approuve':
-      return { label: t('badge_approved'), sublabel: t('share_approved_sub'), color: '#2E9E34', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
+      return { label: t('badge_approved'), sublabel: t('share_approved_sub'), color: '#22C55E', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
   }
 }
 

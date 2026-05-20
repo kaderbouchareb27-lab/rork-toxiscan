@@ -762,10 +762,10 @@ export default function DrToxiScreen() {
   }, []);
 
   const getVerdictDot = (level?: string) => {
-    if (level === 'danger') return '#FF3B30';
-    if (level === 'warning') return '#FF9500';
-    if (level === 'moderation') return '#E0B400';
-    if (level === 'approuve') return '#2E9E34';
+    if (level === 'danger') return '#D0260F';
+    if (level === 'warning') return '#E8730A';
+    if (level === 'moderation') return '#EAB308';
+    if (level === 'approuve') return '#22C55E';
     return null;
   };
 

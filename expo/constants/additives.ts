@@ -641,14 +641,14 @@ export function getRiskBadgeInfo(
   if (category === 'food') {
     switch (group) {
       case 'group1':
-        return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#FF3B30' };
+        return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#D0260F' };
       case 'group2a':
-        return { label: t('risk_warning_label'), sublabel: t('risk_warning_sub'), color: '#E8640A' };
+        return { label: t('risk_warning_label'), sublabel: t('risk_warning_sub'), color: '#E8730A' };
       case 'group2b':
-        return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#F5C000' };
+        return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#EAB308' };
       case 'none':
       default:
-        return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
+        return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#22C55E' };
     }
   }
 
@@ -661,26 +661,26 @@ export function getRiskBadgeInfo(
         return {
           label: en ? 'CARCINOGENIC' : 'CANCÉRIGÈNE',
           sublabel: en ? 'Classified carcinogenic (IARC Group 1) — avoid all contact' : 'Classé cancérigène (CIRC Groupe 1) — éviter tout contact',
-          color: '#FF3B30',
+          color: '#D0260F',
         };
       case 'group2a':
         return {
           label: en ? 'HARMFUL' : 'NOCIF',
           sublabel: en ? 'Known allergen or toxic to skin or respiratory system' : 'Allergène connu ou toxique pour la peau ou les voies respiratoires',
-          color: '#E8640A',
+          color: '#E8730A',
         };
       case 'group2b':
         return {
           label: en ? 'USE WITH CARE' : 'AVEC PRÉCAUTION',
           sublabel: en ? 'May cause skin irritation — avoid prolonged contact' : 'Peut causer une irritation cutanée — éviter contact prolongé',
-          color: '#F5C000',
+          color: '#EAB308',
         };
       case 'none':
       default:
         return {
           label: en ? 'SAFE' : 'SANS RISQUE',
           sublabel: en ? 'Dermatologically tolerated, non-irritating' : 'Dermatologiquement toléré, non irritant',
-          color: '#2E9E34',
+          color: '#22C55E',
         };
     }
   }
@@ -691,26 +691,26 @@ export function getRiskBadgeInfo(
       return {
         label: en ? 'CARCINOGENIC' : 'CANCÉRIGÈNE',
         sublabel: en ? 'Classified carcinogenic by IARC — avoid all contact' : 'Classé cancérigène par le CIRC — éviter tout contact',
-        color: '#FF3B30',
+        color: '#D0260F',
       };
     case 'group2a':
       return {
         label: en ? 'HAZARDOUS' : 'DANGEREUX',
         sublabel: en ? 'Toxic if ingested or inhaled' : 'Toxique en cas d\'ingestion ou d\'inhalation',
-        color: '#E8640A',
+        color: '#E8730A',
       };
     case 'group2b':
       return {
         label: en ? 'CAUTION' : 'PRÉCAUTION',
         sublabel: en ? 'Keep away from children, avoid prolonged contact' : 'Tenir hors de portée des enfants, éviter contact prolongé',
-        color: '#F5C000',
+        color: '#EAB308',
       };
     case 'none':
     default:
       return {
         label: en ? 'SAFE' : 'SÉCURITAIRE',
         sublabel: en ? 'Safe for use' : 'Sûr à l\'usage',
-        color: '#2E9E34',
+        color: '#22C55E',
       };
   }
 }
