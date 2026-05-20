@@ -22,6 +22,7 @@ import {
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
+import HealthierAlternativesOFF from '@/components/HealthierAlternativesOFF';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as StoreReview from 'expo-store-review';
@@ -506,6 +507,22 @@ export default function ProductScreen() {
         </View>
 
         <DrToxiVerdict level={verdictLevel} />
+
+        {!isGreen && product.productCategory === 'food' && (
+          <HealthierAlternativesOFF
+            category={product.categories}
+            problematicIngredients={[
+              ...product.detectedAdditives.map(a => a.code || a.name),
+              ...(product.detectedIngredients ?? [])
+                .filter(i => i.niveau_risque !== 'aucun')
+                .map(i => i.code || i.nom),
+              ...(product.substances ?? [])
+                .filter(s => s.niveau_risque !== 'aucun')
+                .map(s => s.code || s.nom),
+            ]}
+            countryCode={(userCountry || 'ca').toLowerCase()}
+          />
+        )}
 
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (
