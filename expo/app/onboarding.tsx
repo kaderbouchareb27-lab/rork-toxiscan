@@ -63,7 +63,7 @@ const slides: OnboardingSlide[] = [
             <AlertCircle color={Colors.black} size={18} />
             <Text style={[illustrationStyles.badgeText, { color: Colors.black }]} numberOfLines={1}>{t('badge_moderation')}</Text>
           </View>
-          <View style={[illustrationStyles.badgeWide, { backgroundColor: '#2E9E34' }]}>
+          <View style={[illustrationStyles.badgeWide, { backgroundColor: '#34C759' }]}>
             <CheckCircle color={Colors.white} size={18} />
             <Text style={[illustrationStyles.badgeText, { color: Colors.white }]} numberOfLines={1}>{t('badge_approved')}</Text>
           </View>

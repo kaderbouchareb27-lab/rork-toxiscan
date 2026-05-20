@@ -116,7 +116,7 @@ const ebStyles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 16,
-    shadowColor: '#2E7D32',
+    shadowColor: '#34C759',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,

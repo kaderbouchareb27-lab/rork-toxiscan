@@ -4,7 +4,7 @@
  */
 const Colors = {
   primary: '#34C759',
-  primaryDark: '#2E7D32',
+  primaryDark: '#34C759',
   primaryLight: 'rgba(52, 199, 89, 0.08)',
   primaryBorder: 'rgba(52, 199, 89, 0.18)',
   primaryGlow: 'rgba(52, 199, 89, 0.16)',
@@ -23,10 +23,10 @@ const Colors = {
   danger: '#D0260F',
   warning: '#E8730A',
   caution: '#EAB308',
-  safe: '#22C55E',
+  safe: '#34C759',
   cardShadow: 'rgba(0, 0, 0, 0.05)',
   overlay: 'rgba(0, 0, 0, 0.5)',
-  gradientStart: '#3CB85A',
-  gradientEnd: '#2E7D32',
+  gradientStart: '#34C759',
+  gradientEnd: '#34C759',
 };
 export default Colors;

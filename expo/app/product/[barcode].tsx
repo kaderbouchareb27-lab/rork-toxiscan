@@ -60,7 +60,7 @@ function getLevelBadgeColor(level: DisplayLevel): string {
     case 'danger':   return '#D0260F'; // 🔴 CANCÉRIGÈNE
     case 'probable': return '#E8730A'; // 🟠 ULTRA-TRANSFORMÉ
     case 'possible': return '#EAB308'; // 🟡 MODÉRATION
-    case 'aucun':    return '#22C55E'; // 🟢 APPROUVÉ
+    case 'aucun':    return '#34C759'; // 🟢 APPROUVÉ
   }
 }
 
@@ -82,7 +82,7 @@ function getBannerConfig(level: VerdictLevel): { color: string; label: string; i
     case 'moderation':
       return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: <AlertTriangle color="#FFFFFF" size={28} /> };
     case 'approuve':
-      return { color: '#22C55E', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
+      return { color: '#34C759', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} /> };
   }
 }
 
@@ -103,7 +103,7 @@ function getVerdictAction(level: VerdictLevel): string {
 // ─────────────────────────────────────────────
 // Confetti
 // ─────────────────────────────────────────────
-const CONFETTI_COLORS = ['#2E9E34', '#34C759', '#7ED957', '#A8E6A1', '#C4EDC9'];
+const CONFETTI_COLORS = ['#34C759', '#34C759', '#34C759', '#34C759', '#34C759'];
 const CONFETTI_COUNT = 24;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -615,7 +615,7 @@ export default function ProductScreen() {
 
         {isGreen && (
           <View style={styles.approvedFooterCard}>
-            <CheckCircle color="#2E9E34" size={18} />
+            <CheckCircle color={Colors.primary} size={18} />
             <Text style={styles.approvedFooterText}>{t('approved_consume_freely')}</Text>
           </View>
         )}
@@ -743,27 +743,27 @@ const styles = StyleSheet.create({
   recommendationItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   recommendationBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#FF9500', marginTop: 6 },
   recommendationText: { fontSize: 14, color: Colors.text, lineHeight: 20, flex: 1 },
-  alternativesCard: { backgroundColor: '#E8F9ED', borderRadius: 14, padding: 16, gap: 10, borderWidth: 1, borderColor: '#C4EDC9' },
+  alternativesCard: { backgroundColor: '#E8F9ED', borderRadius: 14, padding: 16, gap: 10, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.18)' },
   alternativeItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   alternativeText: { fontSize: 14, color: Colors.text, lineHeight: 20, flex: 1 },
-  healthyAlternativesCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 4, borderWidth: 1, borderColor: '#C4EDC9', overflow: 'hidden' as const },
-  healthyAlternativesCardInner: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#C4EDC9', overflow: 'hidden' as const, marginBottom: 6 },
-  healthyAltItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, padding: 14, gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#C4EDC9' },
-  healthyAltBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#2E9E34', justifyContent: 'center' as const, alignItems: 'center' as const, marginTop: 2 },
+  healthyAlternativesCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 4, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.18)', overflow: 'hidden' as const },
+  healthyAlternativesCardInner: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.18)', overflow: 'hidden' as const, marginBottom: 6 },
+  healthyAltItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, padding: 14, gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(52, 199, 89, 0.18)' },
+  healthyAltBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center' as const, alignItems: 'center' as const, marginTop: 2 },
   healthyAltContent: { flex: 1 },
   healthyAltName: { fontSize: 15, fontWeight: '600' as const, color: '#1A1A1A', marginBottom: 3 },
   healthyAltReason: { fontSize: 13, color: '#4A7C59', lineHeight: 18 },
-  bioStoresCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: '#C4EDC9' },
+  bioStoresCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.18)' },
   bioStoresIntro: { fontSize: 14, color: '#3A6B4A', lineHeight: 20, marginBottom: 16 },
   bioStoresSubtitle: { fontSize: 14, fontWeight: '600' as const, color: '#1A1A1A', marginTop: 14, marginBottom: 6 },
   bioStoreItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 5 },
   bioStoreText: { fontSize: 14, color: '#2D4A35' },
   bioStoresNote: { fontSize: 13, color: '#5A7D65', lineHeight: 19 },
-  bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: '#2E9E34', shadowColor: '#237A28', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
-  bigShareButtonGreen: { backgroundColor: '#2E9E34', shadowColor: '#1B7A20', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
+  bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: Colors.primary, shadowColor: '#34C759', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
+  bigShareButtonGreen: { backgroundColor: Colors.primary, shadowColor: '#34C759', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
   bigShareButtonLoading: { opacity: 0.8 },
   bigShareButtonText: { fontSize: 17, fontWeight: '800' as const, color: Colors.white, letterSpacing: 0.2 },
-  drToxiButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 16, paddingVertical: 16, borderRadius: 18, borderWidth: 1.5, borderColor: 'rgba(46, 158, 52, 0.25)', backgroundColor: Colors.surface, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  drToxiButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 16, paddingVertical: 16, borderRadius: 18, borderWidth: 1.5, borderColor: 'rgba(52, 199, 89, 0.25)', backgroundColor: Colors.surface, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
   drToxiButtonText: { fontSize: 16, fontWeight: '600' as const, color: Colors.primary },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
   emptyText: { fontSize: 17, color: Colors.textSecondary },
@@ -781,7 +781,7 @@ const styles = StyleSheet.create({
   allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25 },
   allIngExplanation: { marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8', backgroundColor: '#FFFFFF' },
   allIngExplanationText: { fontSize: 13, lineHeight: 19, fontWeight: '500' as const, color: '#4E4E49' },
-  approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: '#C4EDC9' },
+  approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: 'rgba(52, 199, 89, 0.18)' },
   approvedFooterText: { flex: 1, fontSize: 14, color: '#2D6A3E', fontWeight: '600' as const, lineHeight: 20 },
   confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },
   confettiPiece: { position: 'absolute' as const, top: 0, borderRadius: 2 },

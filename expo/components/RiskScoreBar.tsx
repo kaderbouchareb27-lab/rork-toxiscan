@@ -10,8 +10,8 @@ interface RiskLevel {
 }
 
 export function getRiskLevel(score: number): RiskLevel {
-  if (score <= 20) return { color: '#22C55E', label: t('risk_low') };
-  if (score <= 40) return { color: '#22C55E', label: t('risk_limited') };
+  if (score <= 20) return { color: '#34C759', label: t('risk_low') };
+  if (score <= 40) return { color: '#34C759', label: t('risk_limited') };
   if (score <= 60) return { color: '#E8730A', label: t('risk_moderate') };
   if (score <= 80) return { color: '#E8730A', label: t('risk_high') };
   return { color: '#D0260F', label: t('risk_very_high') };

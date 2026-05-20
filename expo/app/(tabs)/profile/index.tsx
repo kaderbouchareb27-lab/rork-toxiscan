@@ -167,7 +167,7 @@ export default function ProfileScreen() {
               <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
               <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#E8730A" />
               <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#EAB308" />
-              <StatBar label="Approved" count={stats.safe} max={maxStat} color="#22C55E" />
+              <StatBar label="Approved" count={stats.safe} max={maxStat} color="#34C759" />
             </View>
           )}
         </View>
@@ -326,12 +326,12 @@ const styles = StyleSheet.create({
   },
   proCard: {
     borderWidth: 1.5,
-    borderColor: 'rgba(46, 158, 52, 0.25)',
+    borderColor: 'rgba(52, 199, 89, 0.25)',
     backgroundColor: '#F7FDF9',
   },
   freeCard: {
     borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.12)',
+    borderColor: 'rgba(52, 199, 89, 0.12)',
   },
   subscriptionAvatar: {
     width: 42,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: '#2E9E34',
+    backgroundColor: '#34C759',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700' as const,
     color: Colors.primary,
-    backgroundColor: 'rgba(46, 158, 52, 0.12)',
+    backgroundColor: 'rgba(52, 199, 89, 0.12)',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 10,
@@ -391,11 +391,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#2E9E34',
+    backgroundColor: '#34C759',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 12,
-    shadowColor: '#237A28',
+    shadowColor: '#34C759',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -478,13 +478,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 18,
     marginBottom: 14,
-    shadowColor: '#2E9E34',
+    shadowColor: '#34C759',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
     elevation: 2,
     borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.12)',
+    borderColor: 'rgba(52, 199, 89, 0.12)',
   },
   quizCardLeft: {
     flexDirection: 'row',
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: 'rgba(46, 158, 52, 0.1)',
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
-    backgroundColor: 'rgba(46, 158, 52, 0.08)',
+    backgroundColor: 'rgba(52, 199, 89, 0.08)',
   },
   shareCountChipText: {
     fontSize: 12,

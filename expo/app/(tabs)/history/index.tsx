@@ -49,7 +49,7 @@ function getFilters(): FilterConfig[] {
     { key: 'group1', label: t('filter_danger'), color: '#D0260F' },
     { key: 'group2a', label: t('filter_warning'), color: '#E8730A' },
     { key: 'group2b', label: t('filter_caution'), color: '#EAB308' },
-    { key: 'none', label: t('filter_approved'), color: '#22C55E' },
+    { key: 'none', label: t('filter_approved'), color: '#34C759' },
   ];
 }
 
@@ -78,7 +78,7 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
       return {
         label: t('history_status_approved'),
         description: t('history_status_approved_desc'),
-        color: '#22C55E',
+        color: '#34C759',
       };
   }
 }
@@ -271,7 +271,7 @@ export default function HistoryScreen() {
     return (
       <View style={styles.premiumUpsellCard}>
         <View style={styles.premiumUpsellIcon}>
-          <Lock color="#2E9E34" size={22} />
+          <Lock color={Colors.primary} size={22} />
         </View>
         <Text style={styles.premiumUpsellTitle}>{t('full_history')}</Text>
         <Text style={styles.premiumUpsellText}>
@@ -773,19 +773,19 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     gap: 10,
-    shadowColor: '#2E9E34',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 18,
     elevation: 4,
     borderWidth: 1.5,
-    borderColor: 'rgba(46, 158, 52, 0.2)',
+    borderColor: Colors.primaryBorder,
   },
   premiumUpsellIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(46, 158, 52, 0.1)',
+    backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
@@ -804,12 +804,12 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
   },
   premiumUpsellButton: {
-    backgroundColor: '#2E9E34',
+    backgroundColor: Colors.primary,
     paddingVertical: 13,
     paddingHorizontal: 32,
     borderRadius: 16,
     marginTop: 4,
-    shadowColor: '#237A28',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

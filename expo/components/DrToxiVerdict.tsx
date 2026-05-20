@@ -38,10 +38,10 @@ function getVerdictConfig(): Record<VerdictLevel, {
       icon: <AlertTriangle color="#EAB308" size={22} />,
     },
     approuve: {
-      accentColor: '#22C55E',
+      accentColor: '#34C759',
       title: t('verdict_approved_title'),
       message: t('verdict_approved_msg'),
-      icon: <ThumbsUp color="#22C55E" size={22} />,
+      icon: <ThumbsUp color="#34C759" size={22} />,
     },
   };
 }

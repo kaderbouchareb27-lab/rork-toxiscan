@@ -45,7 +45,7 @@ function getVerdictBadge(level: VerdictLevel): { label: string; sublabel: string
     case 'moderation':
       return { label: t('badge_moderation'), sublabel: t('share_caution_sub'), color: '#EAB308', textColor: '#FFFFFF', explanation: t('share_caution_explanation') };
     case 'approuve':
-      return { label: t('badge_approved'), sublabel: t('share_approved_sub'), color: '#22C55E', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
+      return { label: t('badge_approved'), sublabel: t('share_approved_sub'), color: '#34C759', textColor: '#FFFFFF', explanation: t('share_approved_explanation') };
   }
 }
 
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 42,
     fontWeight: '800',
-    color: '#2E9E34',
+    color: '#34C759',
     marginTop: 16,
     letterSpacing: 1,
   },
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   safeText: {
     fontSize: 28,
-    color: '#2E9E34',
+    color: '#34C759',
     fontWeight: '600',
     textAlign: 'center',
   },
