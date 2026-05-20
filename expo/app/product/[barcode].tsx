@@ -18,7 +18,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Database, AlertOctagon, ChevronDown,
+  Store, Heart, Database, AlertOctagon,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
@@ -384,11 +384,6 @@ export default function ProductScreen() {
     ? product.detectedIngredients
     : product.substances ?? [];
 
-  const [expandedIngredients, setExpandedIngredients] = useState<Record<number, boolean>>({});
-  const toggleIngredient = useCallback((index: number) => {
-    if (Platform.OS !== 'web') void Haptics.selectionAsync();
-    setExpandedIngredients(prev => ({ ...prev, [index]: !prev[index] }));
-  }, []);
 
   const getApprovedDescription = useCallback((name: string): string => {
     return isEnglish()
@@ -525,7 +520,6 @@ export default function ProductScreen() {
                 // 🟢 aucun = APPROUVÉ
                 const level = getDisplayLevel(ing);
                 const color = getLevelBadgeColor(level);
-                const isExpanded = !!expandedIngredients[index];
                 // For non-food scans, prefer the category-appropriate description
                 // from the additives database (FR/EN) when we can match the ingredient.
                 const additiveMatch = isNonFood ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
@@ -536,25 +530,15 @@ export default function ProductScreen() {
                     ? ing.explication
                     : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
                 return (
-                  <View key={`all-ing-${index}`}>
-                    <TouchableOpacity
-                      style={styles.allIngRow}
-                      onPress={() => toggleIngredient(index)}
-                      activeOpacity={0.7}
-                      testID={`ingredient-row-${index}`}
-                    >
+                  <View key={`all-ing-${index}`} testID={`ingredient-row-${index}`}>
+                    <View style={styles.allIngRow}>
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
                       <View style={[styles.allIngBadge, { backgroundColor: color }]}>
                         <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
                       </View>
-                      <ChevronDown
-                        color={Colors.textTertiary}
-                        size={16}
-                        style={isExpanded ? styles.allIngChevronOpen : undefined}
-                      />
-                    </TouchableOpacity>
-                    {isExpanded && description ? (
+                    </View>
+                    {description ? (
                       <View style={[styles.allIngExplanation, { backgroundColor: color + '18' }]}>
                         <Text style={[styles.allIngExplanationText, { color }]}>
                           {description}
