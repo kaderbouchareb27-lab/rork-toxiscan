@@ -18,11 +18,10 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield, AlertTriangle,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Database, AlertOctagon,
+  Store, Heart, AlertOctagon,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
-import HealthierAlternativesOFF from '@/components/HealthierAlternativesOFF';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as StoreReview from 'expo-store-review';
@@ -70,30 +69,6 @@ function getLevelBadgeLabel(level: DisplayLevel): string {
     case 'probable': return t('badge_caution');    // ULTRA-TRANSFORMÉ
     case 'possible': return t('badge_moderation'); // MODÉRATION
     case 'aucun':    return t('badge_approved');   // APPROUVÉ
-  }
-}
-
-// ─────────────────────────────────────────────
-// Helpers Nutri-Score / NOVA
-// ─────────────────────────────────────────────
-function getNutriScoreColor(grade: string): string {
-  switch (grade.toUpperCase()) {
-    case 'A': return '#038141';
-    case 'B': return '#85BB2F';
-    case 'C': return '#FECB02';
-    case 'D': return '#EE8100';
-    case 'E': return '#E63E11';
-    default:  return '#8E8E93';
-  }
-}
-
-function getNovaColor(group: number): string {
-  switch (group) {
-    case 1: return '#038141';
-    case 2: return '#85BB2F';
-    case 3: return '#EE8100';
-    case 4: return '#E63E11';
-    default:return '#8E8E93';
   }
 }
 
@@ -469,29 +444,6 @@ export default function ProductScreen() {
             </View>
           )}
 
-          {product.offSource ? (
-            <View style={styles.offSourceTag}>
-              <Database color="#2D8A4E" size={11} />
-              <Text style={styles.offSourceTagText}>{t('enriched_off')}</Text>
-            </View>
-          ) : null}
-
-          {(product.nutriScore || product.novaGroup) ? (
-            <View style={styles.offScoresRow}>
-              {product.nutriScore ? (
-                <View style={[styles.scoreTag, { backgroundColor: getNutriScoreColor(product.nutriScore) }]}>
-                  <Text style={styles.scoreTagLabel}>Nutri-Score</Text>
-                  <Text style={styles.scoreTagValue}>{product.nutriScore}</Text>
-                </View>
-              ) : null}
-              {product.novaGroup ? (
-                <View style={[styles.scoreTag, { backgroundColor: getNovaColor(product.novaGroup) }]}>
-                  <Text style={styles.scoreTagLabel}>NOVA</Text>
-                  <Text style={styles.scoreTagValue}>{product.novaGroup}</Text>
-                </View>
-              ) : null}
-            </View>
-          ) : null}
         </View>
 
         {showFrontPhotoTip && (
@@ -515,23 +467,6 @@ export default function ProductScreen() {
         </View>
 
         <DrToxiVerdict level={verdictLevel} />
-
-        {!isGreen && (
-          <HealthierAlternativesOFF
-            category={product.categories}
-            problematicIngredients={[
-              ...product.detectedAdditives.map(a => a.code || a.name),
-              ...(product.detectedIngredients ?? [])
-                .filter(i => i.niveau_risque !== 'aucun')
-                .map(i => i.code || i.nom),
-              ...(product.substances ?? [])
-                .filter(s => s.niveau_risque !== 'aucun')
-                .map(s => s.code || s.nom),
-            ]}
-            countryCode={(userCountry || 'ca').toLowerCase()}
-            forceShow={verdictLevel === 'danger' || verdictLevel === 'warning'}
-          />
-        )}
 
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (
@@ -797,10 +732,4 @@ const styles = StyleSheet.create({
   confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },
   confettiPiece: { position: 'absolute' as const, top: 0, borderRadius: 2 },
   offscreenContainer: { position: 'absolute' as const, left: -9999, top: -9999, opacity: 0 },
-  offSourceTag: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, marginTop: 8, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: '#E8F9ED', borderRadius: 10 },
-  offSourceTagText: { fontSize: 12, fontWeight: '500' as const, color: '#2D8A4E' },
-  offScoresRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, marginTop: 8 },
-  scoreTag: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
-  scoreTagLabel: { fontSize: 11, fontWeight: '600' as const, color: '#FFFFFF', opacity: 0.9 },
-  scoreTagValue: { fontSize: 13, fontWeight: '800' as const, color: '#FFFFFF' },
 });

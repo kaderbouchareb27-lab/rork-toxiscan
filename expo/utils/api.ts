@@ -2,7 +2,6 @@ import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCat
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
-import { lookupBarcode, searchByName, formatOpenFactsContext, OpenFactsResult } from '@/utils/openFoodFacts';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t, isEnglish } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY } from '@/constants/ingredientsDatabase';
@@ -392,7 +391,6 @@ const AI_PROMPT = isEnglish() ? AI_PROMPT_EN : AI_PROMPT_FR;
 
 async function callAI(
   imageBase64: string,
-  openFactsContext?: string,
   ocrText?: string,
   ocrIngredientsBlock?: string,
 ): Promise<z.infer<typeof aiAnalysisSchema>> {
@@ -416,15 +414,6 @@ async function callAI(
       systemParts.push(ocrIngredientsBlock.substring(0, 4000));
     }
     systemParts.push('\n--- END OCR ---\n');
-  }
-
-  if (openFactsContext) {
-    systemParts.push('\n\n' + openFactsContext);
-    systemParts.push(
-      isEnglish()
-        ? '\nUse the FULL Open Food Facts ingredient list as PRIMARY source. Set erreur=null.'
-        : '\nUtilise la liste COMPLÈTE Open Food Facts comme source PRINCIPALE. Mets erreur=null.'
-    );
   }
 
   const hasOcrIngredients = !!(ocrIngredientsBlock && ocrIngredientsBlock.length > 30);
@@ -488,66 +477,10 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// HELPERS OCR + Open Food Facts
-// ═══════════════════════════════════════════════════════════════════════
-
-function extractBarcodeFromOcr(text: string): string | null {
-  if (!text) return null;
-  const candidates = text.match(/\b\d{8,14}\b/g);
-  if (!candidates || candidates.length === 0) return null;
-  const valid = candidates.filter(c => c.length === 8 || c.length === 12 || c.length === 13 || c.length === 14);
-  if (valid.length === 0) return null;
-  valid.sort((a, b) => b.length - a.length);
-  return valid[0];
-}
-
-function extractProductNameFromOcr(text: string): string {
-  if (!text) return '';
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
-  const stopWords = /ingr[ée]dients?|nutrition|valeurs?|conserver|fabriqu|produit\s+par|distribu|net\s+weight|poids\s+net|best\s+before|allerg|contient/i;
-  const candidates: string[] = [];
-  for (const line of lines.slice(0, 10)) {
-    if (stopWords.test(line)) continue;
-    if (/^\d+$/.test(line)) continue;
-    if (line.length < 3 || line.length > 60) continue;
-    candidates.push(line);
-    if (candidates.length >= 3) break;
-  }
-  return candidates.join(' ').trim();
-}
-
-async function tryFetchOpenFactsDataFromOcr(ocrText: string): Promise<{ context: string; offResult: OpenFactsResult | null }> {
-  try {
-    const barcode = extractBarcodeFromOcr(ocrText);
-    if (barcode) {
-      console.log('[API] Barcode extracted from OCR:', barcode);
-      const offResult = await lookupBarcode(barcode);
-      if (offResult.found) {
-        return { context: formatOpenFactsContext(offResult), offResult };
-      }
-    }
-
-    const searchQuery = extractProductNameFromOcr(ocrText);
-    if (searchQuery.length >= 3) {
-      console.log('[API] Trying Open Food Facts search by OCR name:', searchQuery);
-      const offResult = await searchByName(searchQuery);
-      if (offResult.found) {
-        return { context: formatOpenFactsContext(offResult), offResult };
-      }
-    }
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.log('[API] Open Food Facts lookup failed (non-blocking):', msg);
-  }
-
-  return { context: '', offResult: null };
-}
-
-// ═══════════════════════════════════════════════════════════════════════
 // CACHE
 // ═══════════════════════════════════════════════════════════════════════
 
-const ANALYSIS_CACHE = new Map<string, UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }>();
+const ANALYSIS_CACHE = new Map<string, UniversalAnalysisResult>();
 const CACHE_MAX = 50;
 
 function hashString(s: string): string {
@@ -560,7 +493,7 @@ function hashString(s: string): string {
 // FONCTION PRINCIPALE
 // ═══════════════════════════════════════════════════════════════════════
 
-export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null }> {
+export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult> {
   const MAX_RETRIES = 2;
 
   let ocrData: { fullText: string; ingredientsBlock: string | null } = { fullText: '', ingredientsBlock: null };
@@ -580,15 +513,12 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
     return ANALYSIS_CACHE.get(cacheKey)!;
   }
 
-  const { context: offContext, offResult } = await tryFetchOpenFactsDataFromOcr(ocrData.fullText);
-
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       console.log('[API] Analysis attempt', attempt);
 
       const aiResult = await callAI(
         imageBase64,
-        offContext || undefined,
         ocrData.fullText || undefined,
         ocrData.ingredientsBlock || undefined,
       );
@@ -607,10 +537,7 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
       const resume = generateResume(badge_global, substances);
       const recommandations = generateRecommendations(badge_global, substances);
 
-      let erreur = aiResult.erreur || '';
-      if (erreur && offResult?.found && offResult.product) {
-        erreur = '';
-      }
+      const erreur = aiResult.erreur || '';
 
       const result: UniversalAnalysisResult = {
         categorie_produit: aiResult.categorie_produit,
@@ -627,15 +554,14 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
 
       console.log('[API] Final:', result.objet_identifie, '— badge:', badge_global, '— substances:', substances.length);
 
-      const finalResult = { ...result, openFactsData: offResult };
       if (cacheKey && !erreur) {
         if (ANALYSIS_CACHE.size >= CACHE_MAX) {
           const firstKey = ANALYSIS_CACHE.keys().next().value;
           if (firstKey) ANALYSIS_CACHE.delete(firstKey);
         }
-        ANALYSIS_CACHE.set(cacheKey, finalResult);
+        ANALYSIS_CACHE.set(cacheKey, result);
       }
-      return finalResult;
+      return result;
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('[API] Error (attempt ' + attempt + '):', errorMsg);
@@ -760,7 +686,7 @@ export function getCategoryLabel(category: ProductCategory): string {
 }
 
 export function universalResultToScannedProduct(
-  result: UniversalAnalysisResult & { openFactsData?: OpenFactsResult | null },
+  result: UniversalAnalysisResult,
   photoUri: string,
 ): ScannedProduct {
   const riskGroup = niveauRisqueToGroup(result.badge_global);
@@ -783,17 +709,10 @@ export function universalResultToScannedProduct(
     explication: s.explication,
   }));
 
-  const off = result.openFactsData;
-  const hasOffData = off?.found && off.product;
-  const offProduct = off?.product;
-
-  const productName = hasOffData && offProduct?.product_name ? offProduct.product_name : result.objet_identifie;
-  const productBrand = hasOffData && offProduct?.brands ? offProduct.brands : '';
-  const imageUrl = hasOffData && offProduct?.image_url ? offProduct.image_url : null;
-  const ingredientsText = hasOffData && offProduct?.ingredients_text
-    ? offProduct.ingredients_text
-    : result.substances_detectees.map((s: SubstanceDetected) => s.nom).join(', ');
-  const offSource = off?.source ?? undefined;
+  const productName = result.objet_identifie;
+  const productBrand = '';
+  const imageUrl = null;
+  const ingredientsText = result.substances_detectees.map((s: SubstanceDetected) => s.nom).join(', ');
 
   return {
     barcode: `universal_${Date.now()}`,
@@ -817,9 +736,6 @@ export function universalResultToScannedProduct(
     recommendations: result.recommandations,
     saferAlternatives: result.alternatives_sures,
     healthyAlternatives: result.alternatives_saines ?? [],
-    nutriScore: undefined,
-    novaGroup: undefined,
-    offSource,
   };
 }
 

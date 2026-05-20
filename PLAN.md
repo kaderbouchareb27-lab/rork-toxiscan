@@ -15,7 +15,6 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - Fiche produit détaillée : photo, nom, marque, badge, substances détectées avec explications
 - Suggestions d'alternatives plus sûres
 - Partage du résultat
-- Données produits via Open Food Facts
 
 ### Historique
 - Liste chronologique de tous les produits scannés

@@ -88,9 +88,6 @@ export interface ScannedProduct {
   saferAlternatives?: string[];
   healthyAlternatives?: HealthyAlternative[];
   isFavorite?: boolean;
-  nutriScore?: string;
-  novaGroup?: number;
-  offSource?: string;
 }
 
 export interface HealthyAlternative {
