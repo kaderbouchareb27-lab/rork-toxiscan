@@ -63,6 +63,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['gras trans', 'trans fat', 'acides gras trans'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
   { keywords: ['graisse interesterifiee', 'interesterified', 'graisse interestérifiée'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
 
+  // --- Huile de coco modifiée/raffinée → ORANGE ---
+  // IMPORTANT : huile de coco VIERGE reste verte (voir section VERT).
+  // Ici on cible uniquement les formes industrielles modifiées.
+  { keywords: ['huile de coco modifiee', 'huile de coco modifiée', 'modified coconut oil', 'huile de coco raffinee', 'huile de coco raffinée', 'refined coconut oil', 'huile de coco hydrogénée', 'hydrogenated coconut oil', 'huile de noix de coco modifiée', 'huile de noix de coco raffinée'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Huile de coco raffinée ou modifiée industriellement — perd les bénéfices de la version vierge et peut contenir des résidus de solvants. Préférer l\'huile de coco vierge pressée à froid.' },
+
   // --- Amidons modifiés → ORANGE ---
   { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1404', 'e1412', 'e1422', 'e1450'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé à fort index glycémique.' },
 
@@ -122,6 +127,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['silicate de sodium', 'sodium silicate', 'e550'], code: 'E550', risk: 'probable', circ: 'Ultra-transformé', note: 'Composé industriel minéral. Données toxicologiques insuffisantes.' },
   { keywords: ['sulfate d\'ammonium', 'ammonium sulfate', 'e517'], code: 'E517', risk: 'probable', circ: 'Sel industriel', note: 'Sel d\'ammonium utilisé comme engrais agricole — présence alimentaire préoccupante.' },
   { keywords: ['phosphate d\'os', 'phosphate d os', 'bone phosphate', 'edible bone phosphate', 'e542'], code: 'E542', risk: 'probable', circ: 'Contamination métaux lourds', note: 'Extrait d\'os industriels. Risque de contamination métaux lourds (plomb, cadmium).' },
+
+  // --- Vanilline synthétique → ORANGE ---
+  // IMPORTANT : "vanille", "extrait de vanille", "gousse de vanille" restent verts (naturels).
+  // Ici on cible uniquement la vanilline de synthèse (dérivée du pétrole ou du bois traité chimiquement).
+  { keywords: ['vanilline', 'vanilline synthétique', 'vanilline de synthese', 'vanilline de synthèse', 'synthetic vanillin', 'ethyl vanillin', 'ethylvanillin', 'éthylvanilline'], code: null, risk: 'probable', circ: 'Synthétique controversé', note: 'Composé synthétique produit chimiquement à partir de p-méthoxyphénol (dérivé du pétrole) ou de bois traité chimiquement. Sa fabrication industrielle est très controversée. Très différent de la vanille naturelle — à limiter.' },
 
   // --- Perturbateurs endocriniens cosmétiques → ORANGE ---
   { keywords: ['parabene', 'paraben', 'methylparaben', 'ethylparaben', 'propylparaben', 'butylparaben', 'méthylparaben', 'propylparaben'], code: null, risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Détectés dans des tumeurs du sein.' },
@@ -203,7 +213,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['rouge 3', 'red 3', 'erythrosine', 'e127'], code: 'E127', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['bleu 2', 'blue 2', 'e132'], code: 'E132', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['vert 3', 'green 3', 'e143'], code: 'E143', risk: 'possible', circ: 'Groupe 2B' },
-  { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171'], code: 'E171', risk: 'possible', circ: 'Groupe 2B', note: 'Interdit en alimentation en UE depuis 2022.' },
+  { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171', 'dioxyde de titane e171', 'ti02', 'tio2'], code: 'E171', risk: 'possible', circ: 'Groupe 2B', note: 'Interdit en alimentation en UE depuis 2022. Nanoparticules pouvant traverser la barrière intestinale.' },
   { keywords: ['cochenille', 'carmine', 'carmin', 'cochineal', 'e120'], code: 'E120', risk: 'possible', circ: 'Allergène', note: 'Allergène fort, chocs anaphylactiques possibles.' },
   { keywords: ['caramel ammoniacal', 'caramel iii', 'e150c'], code: 'E150c', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['silice', 'silicon dioxide', 'gel de silice', 'silica gel', 'dioxyde de silicium', 'e551'], code: 'E551', risk: 'possible', circ: 'Nanoparticules', note: 'Anti-agglomérant en nanoparticules. EFSA 2018 : accumulation hépatique constatée.' },
@@ -218,6 +228,16 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Amplificateurs de goût → JAUNE ---
   { keywords: ['guanylate', 'inosinate', 'guanylate disodique', 'inosinate disodique', 'ribonucleotides', 'ribonucléotides', 'e626', 'e627', 'e628', 'e629', 'e630', 'e631', 'e632', 'e633', 'e634', 'e635'], code: 'E626-E635', risk: 'possible', circ: 'Amplificateur de goût', note: 'Souvent combiné avec MSG pour amplifier le goût umami.' },
+
+  // --- Acide lactique industriel → JAUNE ---
+  // NOTE : l'acide lactique NATUREL (fermentation) reste vert (voir section VERT, E270).
+  // Ici on cible les formulations industrielles avec impuretés potentielles.
+  { keywords: ['acide lactique industriel', 'lactic acid industrial', 'dl-lactic acid', 'dl lactic acid', 'acide dl-lactique'], code: null, risk: 'possible', circ: 'Industriel', note: 'Version industrielle de l\'acide lactique produite artificiellement. Sa fabrication peut contenir des traces d\'impuretés selon la source. Différent de l\'acide lactique naturel issu de la fermentation.' },
+
+  // --- Acide malique industriel → JAUNE ---
+  // NOTE : l'acide malique NATUREL (E296) reste vert (voir section VERT).
+  // Ici on cible les mentions génériques sans précision d'origine.
+  { keywords: ['acide malique industriel', 'dl-malic acid', 'dl malic acid', 'acide dl-malique', 'acide malique synthetique', 'acide malique synthétique'], code: null, risk: 'possible', circ: 'Industriel', note: 'Version industrielle de l\'acide malique produite par synthèse chimique ou fermentation artificielle. Peut contenir des résidus de procédé. Préférer les sources naturelles.' },
 
   // --- NOUVEAUX 🟡 JAUNE ---
   { keywords: ['anthocyanes', 'anthocyanins', 'e163'], code: 'E163', risk: 'possible', circ: 'Naturel transformé', note: 'Naturel mais souvent extrait avec solvants industriels.' },
@@ -263,7 +283,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Huiles saines ---
   { keywords: ['huile d\'olive', 'huile d\'olive extra vierge', 'extra virgin olive oil', 'olive oil'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['huile de coco vierge', 'coconut oil', 'huile de noix de coco', 'virgin coconut oil'], code: null, risk: 'aucun', circ: 'Naturel' },
+  // Huile de coco VIERGE uniquement — la version modifiée/raffinée est en ORANGE ci-dessus
+  { keywords: ['huile de coco vierge', 'virgin coconut oil', 'huile de noix de coco vierge', 'cold pressed coconut oil', 'huile de coco pressée à froid'], code: null, risk: 'aucun', circ: 'Naturel' },
+  // Note : "coconut oil" et "huile de noix de coco" sans précision → classés possible par le fallback
+  // car la version raffinée est plus courante dans l'industrie alimentaire
+  { keywords: ['coconut oil', 'huile de noix de coco', 'huile de coco'], code: null, risk: 'possible', circ: 'Naturel — vérifier source', note: 'Huile de coco sans précision sur le procédé. Vierge et pressée à froid : excellente. Raffinée ou modifiée : problématique. Vérifier la mention "vierge" sur l\'emballage.' },
   { keywords: ['huile d\'avocat', 'avocado oil'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['huile de lin', 'flaxseed oil', 'linseed oil'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['huile de noix', 'walnut oil'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -320,11 +344,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['gingembre', 'ginger'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['curcuma', 'turmeric'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['cannelle', 'cinnamon'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['vanille', 'vanilla', 'extrait de vanille', 'vanilla extract', 'gousse de vanille'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['vanille', 'vanilla', 'extrait de vanille', 'vanilla extract', 'gousse de vanille', 'poudre de vanille', 'vanilla powder', 'vanilla bean'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['poivre', 'pepper', 'paprika', 'extrait de paprika', 'paprika extract', 'cumin', 'origan', 'oregano', 'basilic', 'basil', 'thym', 'thyme', 'romarin', 'rosemary'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['ail', 'garlic', 'oignon', 'onion', 'echalote', 'échalote', 'shallot', 'poudre d\'ail', 'garlic powder'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['epices', 'épices', 'spices', 'herbes', 'herbs', 'fines herbes'], code: null, risk: 'aucun', circ: 'Naturel' },
-  // (Annatto / Rocou / E160b déplacé en ORANGE — voir colorants azoïques)
 
   // --- Sucres naturels ---
   { keywords: ['sucre de coco', 'coconut sugar'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -342,6 +365,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['pectine', 'pectin', 'e440'], code: 'E440', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['lecithine de tournesol', 'sunflower lecithin', 'lécithine de tournesol'], code: 'E322', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['agar agar', 'agar-agar', 'e406'], code: 'E406', risk: 'aucun', circ: 'Naturel' },
+
+  // --- Cire de carnauba → VERT ---
+  { keywords: ['cire de carnauba', 'carnauba wax', 'cire carnauba', 'e903'], code: 'E903', risk: 'aucun', circ: 'Naturel', note: 'Cire naturelle extraite des feuilles du palmier carnauba. Utilisée comme agent de glaçage ou pour donner un aspect brillant aux aliments et confiseries. Considérée sûre par l\'EFSA et la FDA.' },
 
   // --- Sels minéraux sûrs ---
   { keywords: ['citrate de sodium', 'sodium citrate', 'e331'], code: 'E331', risk: 'aucun', circ: 'Naturel' },
