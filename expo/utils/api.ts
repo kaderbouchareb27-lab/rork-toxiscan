@@ -469,7 +469,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       nom: ing.nom,
       code: null,
       classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
-      niveau_risque: 'aucun' as RiskLevel,
+      niveau_risque: 'possible' as RiskLevel,
       explication: ing.explication || (isEnglish() ? 'Ingredient not in database, no identified risk.' : 'Ingrédient non répertorié, sans risque identifié.'),
       source_exposition: null,
     };
