@@ -269,6 +269,13 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['stearate de magnesium', 'stéarate de magnésium', 'magnesium stearate', 'e572'], code: 'E572', risk: 'possible', circ: 'Lubrifiant industriel', note: 'Agent lubrifiant industriel. Peut réduire l\'absorption des nutriments.' },
   { keywords: ['glucono-delta-lactone', 'gdl', 'glucono delta lactone', 'e575'], code: 'E575', risk: 'possible', circ: 'Acidifiant industriel', note: 'Acidifiant industriel par fermentation artificielle. Données long terme limitées.' },
 
+  // --- Soja / lait en poudre / farine enrichie → JAUNE (transformés industriels) ---
+  { keywords: ['soja', 'soy', 'soya'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Soja non spécifié dans un produit industriel = quasi toujours transformé (isolat, protéine texturée, lécithine, farine dégraissée). Souvent OGM (94% aux USA). Préférer le soja entier non transformé (tofu, edamame).' },
+  { keywords: ['proteine de soja', 'protéine de soja', 'soy protein', 'proteines de soja', 'protéines de soja'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Protéine de soja industrielle extraite par solvants chimiques. Souvent OGM. Marqueur de produit ultra-transformé.' },
+  { keywords: ['lait en poudre', 'milk powder', 'lait écrémé en poudre', 'lait ecreme en poudre', 'skimmed milk powder', 'poudre de lait', 'lait entier en poudre', 'whole milk powder'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Lait déshydraté industriellement par atomisation à haute température. Contient des oxystérols (cholestérol oxydé) liés à l\'inflammation cardiovasculaire.' },
+  { keywords: ['farine de ble enrichie', 'farine de blé enrichie', 'enriched wheat flour', 'farine enrichie', 'enriched flour'], code: null, risk: 'possible', circ: 'Industriel', note: 'Farine raffinée appauvrie puis re-fortifiée artificiellement avec des vitamines de synthèse (fer, niacine, B1). Index glycémique élevé, fibres perdues.' },
+  { keywords: ['cheddar deshydrate', 'cheddar déshydraté', 'dehydrated cheddar', 'dried cheese', 'poudre de fromage', 'cheese powder'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Fromage déshydraté industriellement, souvent additionné de sels de fonte, anti-agglomérants et arômes pour la stabilité.' },
+
   // --- Cosmétique modéré → JAUNE ---
   { keywords: ['fragrance', 'parfum'], code: null, risk: 'possible', circ: 'Composition opaque', note: 'Composition non divulguée. Peut contenir des allergènes.' },
   { keywords: ['peg-', 'sles', 'sodium laureth sulfate'], code: null, risk: 'possible', circ: 'Controversé', note: 'Peut contenir du 1,4-dioxane cancérigène.' },
@@ -283,7 +290,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['sel', 'salt', 'sel marin', 'sel de mer', 'fleur de sel', 'sel iode', 'sel iodé'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Minéral essentiel au bon fonctionnement de l\'organisme (équilibre hydrique, transmission nerveuse). Problématique uniquement en excès. / Essential mineral for bodily functions (fluid balance, nerve transmission). Only problematic in excess.' },
 
   // --- Céréales et féculents ---
-  { keywords: ['farine de ble', 'farine de blé', 'farine complete', 'wheat flour', 'whole wheat flour', 'whole flour', 'farine de blé enrichie', 'enriched wheat flour'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['farine de ble', 'farine de blé', 'farine complete', 'wheat flour', 'whole wheat flour', 'whole flour'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['avoine', 'oat', 'flocons d\'avoine'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['riz', 'rice', 'riz complet', 'brown rice', 'vermicelles de riz'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['riz précuit', 'riz precuit', 'pre-cooked rice', 'precooked rice', 'parboiled rice'], code: null, risk: 'possible', circ: 'Céréale transformée', note: 'Céréale transformée aux nutriments réduits et à index glycémique élevé comparé au riz complet. / Processed grain with reduced nutrients and a high glycemic index compared to whole grain rice.' },
@@ -309,9 +316,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['beurre', 'butter'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['creme', 'crème', 'cream', 'creme fraiche', 'crème fraîche'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['lait', 'milk', 'lait entier', 'whole milk'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['lait ecreme', 'lait écrémé', 'skim milk', 'skimmed milk', 'lait en poudre', 'milk powder', 'lait écrémé en poudre', 'skimmed milk powder'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['lait ecreme', 'lait écrémé', 'skim milk', 'skimmed milk'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['yaourt', 'yogurt', 'yoghurt'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['fromage', 'cheese', 'fromage blanc', 'cheddar', 'fromage cheddar', 'cheddar déshydraté'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['fromage', 'cheese', 'fromage blanc', 'cheddar', 'fromage cheddar'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['oeuf', 'oeufs', 'egg', 'eggs', 'œuf', 'œufs'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Levures et ferments ---
@@ -337,7 +344,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['lentilles', 'lentils'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['pois chiches', 'chickpeas', 'pois chiche', 'pois secs'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['haricots', 'beans', 'haricot'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['soja', 'soy', 'tofu', 'fève de soya', 'soya'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Non OGM et non transformé. Modération recommandée.' },
+  { keywords: ['tofu', 'edamame', 'feve de soya', 'fève de soya', 'soya bean', 'soybean whole', 'graines de soja entieres', 'graines de soja entières'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Soja entier non transformé, source de protéines végétales complètes.' },
 
   // --- Fruits et légumes ---
   { keywords: ['fruit', 'legume', 'vegetable'], code: null, risk: 'aucun', circ: 'Naturel' },

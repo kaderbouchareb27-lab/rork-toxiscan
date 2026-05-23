@@ -501,13 +501,19 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     }
 
     const explication = ing.explication || (isEnglish() ? 'Ingredient not in database, no identified risk.' : 'Ingrédient non répertorié, sans risque identifié.');
-    const naturalKeywords = ['natural', 'naturel', 'plant', 'herb', 'spice', 'épice', 'epice', 'herbe', 'vegetable', 'légume', 'legume', 'fruit', 'organic'];
-    const industrialTransformationKeywords = ['chemically', 'industrially', 'synthetic', 'refined', 'imitation', 'modified', 'defatted', 'enriched', 'fortified', 'rehydrated', 'chimiquement', 'industriellement', 'synthétique', 'raffiné', 'modifié', 'déshydraté', 'enrichie', 'fortifié'];
+    // Fallback STRICT : un ingrédient inconnu = JAUNE par défaut (modération).
+    // Un vrai ingrédient sain (eau, sel, œuf, épice…) doit être dans la base. Si on ne le connaît pas,
+    // on ne peut PAS supposer qu'il est sain — surtout dans un produit industriel.
+    // Seuls quelques mots-clés très spécifiques (fruits/légumes/herbes entiers) peuvent rester verts.
     const lowerExplication = explication.toLowerCase();
-    const isNatural = naturalKeywords.some((kw) => lowerExplication.includes(kw));
-    const hasIndustrialTransformation = industrialTransformationKeywords.some((kw) => lowerExplication.includes(kw));
-    const fallbackRisk: RiskLevel = isNatural && !hasIndustrialTransformation ? 'aucun' : 'possible';
-    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (isNatural && !hasIndustrialTransformation ? ' (natural keyword detected)' : ''));
+    const lowerName = normalizeForLookup(ing.nom);
+    const industrialMarkers = ['chemically', 'industrially', 'synthetic', 'refined', 'imitation', 'modified', 'defatted', 'enriched', 'fortified', 'rehydrated', 'processed', 'extract', 'isolate', 'concentrate', 'hydrolyzed', 'chimiquement', 'industriellement', 'synthétique', 'synthetique', 'raffiné', 'raffine', 'modifié', 'modifie', 'déshydraté', 'deshydrate', 'enrichie', 'fortifié', 'fortifie', 'transformé', 'transforme', 'extrait', 'isolat', 'concentré', 'concentre', 'hydrolysé', 'hydrolyse'];
+    const hasIndustrialMarker = industrialMarkers.some((kw) => lowerExplication.includes(kw) || lowerName.includes(kw));
+    // Liste blanche très restrictive — uniquement noms d'ingrédients clairement entiers/bruts
+    const wholeFoodMarkers = ['fresh ', 'frais ', 'entier', 'whole ', 'feuille', 'leaf'];
+    const isObviousWholeFood = wholeFoodMarkers.some((kw) => lowerName.includes(kw)) && !hasIndustrialMarker;
+    const fallbackRisk: RiskLevel = hasIndustrialMarker ? 'probable' : isObviousWholeFood ? 'aucun' : 'possible';
+    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (hasIndustrialMarker ? ' (industrial marker)' : isObviousWholeFood ? ' (whole food)' : ' (default yellow)'));
     return {
       nom: ing.nom,
       code: null,
