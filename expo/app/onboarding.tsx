@@ -10,7 +10,7 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Camera, Shield, Heart, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react-native';
+import { Camera, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -66,23 +66,6 @@ const slides: OnboardingSlide[] = [
           <View style={[illustrationStyles.badgeWide, { backgroundColor: '#2E9E34' }]}>
             <CheckCircle color={Colors.white} size={18} />
             <Text style={[illustrationStyles.badgeText, { color: Colors.white }]} numberOfLines={1}>{t('badge_approved')}</Text>
-          </View>
-        </View>
-      </View>
-    ),
-  },
-  {
-    id: '3',
-    title: t('onboarding_title_3'),
-    subtitle: t('onboarding_sub_3'),
-    renderIllustration: () => (
-      <View style={illustrationStyles.container}>
-        <View style={illustrationStyles.familyContainer}>
-          <Shield color={Colors.primary} size={64} strokeWidth={1.2} />
-          <View style={illustrationStyles.heartRow}>
-            <Heart color={Colors.primary} size={20} fill={Colors.primary} />
-            <Heart color={Colors.primary} size={28} fill={Colors.primary} />
-            <Heart color={Colors.primary} size={20} fill={Colors.primary} />
           </View>
         </View>
       </View>
