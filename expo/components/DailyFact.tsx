@@ -7,11 +7,12 @@ import {
   PanResponder,
   Dimensions,
   Platform,
+  Image,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Lightbulb } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { DAILY_FACTS, getTodayFactIndex } from '@/mocks/scannerContent';
+import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { t } from '@/utils/i18n';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -81,7 +82,11 @@ export default function DailyFact() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.avatarBubble}>
-          <Lightbulb color={Colors.primaryDark} size={22} strokeWidth={2} />
+          <Image
+            source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }}
+            style={styles.avatarImage}
+            resizeMode="cover"
+          />
         </View>
         <Text style={styles.headerTitle}>{t('daily_fact_title')}</Text>
       </View>
@@ -132,9 +137,16 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(45, 106, 79, 0.10)',
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.18)',
+  },
+  avatarImage: {
+    width: 56,
+    height: 56,
   },
   headerTitle: {
     fontSize: 20,
