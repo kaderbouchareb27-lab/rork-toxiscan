@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,10 +21,6 @@ import {
   Heart,
   ChevronRight,
   CheckCircle,
-  CalendarDays,
-  BadgeCheck,
-  AlertTriangle,
-  Sparkles,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -129,13 +125,6 @@ function SkeletonRow() {
         </View>
         <View style={styles.skeletonChevron} />
       </View>
-      <View style={styles.skeletonStatusPanel}>
-        <View style={[styles.statusIconBubble, { backgroundColor: '#E5EFE0' }]} />
-        <View style={styles.statusCopy}>
-          <View style={styles.skeletonStatusTitle} />
-          <View style={styles.skeletonStatusLine} />
-        </View>
-      </View>
     </Animated.View>
   );
 }
@@ -150,24 +139,12 @@ function HistorySkeleton() {
 
 export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { clearHistory, history, isLoading, stats, favorites } = useScanHistory();
+  const { clearHistory, history, isLoading } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
   const totalHistoryCount = history.length;
-  const riskyCount = stats.danger + stats.probable + stats.possible;
   const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
-
-  const lastScanLabel = useMemo(() => {
-    const latestScan = history[0];
-    if (!latestScan?.scannedAt) return t('history_no_scan_yet');
-    const date = new Date(latestScan.scannedAt);
-    if (Number.isNaN(date.getTime())) return t('history_no_scan_yet');
-    return date.toLocaleDateString(getDateLocale(), {
-      day: 'numeric',
-      month: 'short',
-    });
-  }, [history]);
 
   const handleProductPress = useCallback((barcode: string) => {
     console.log('[History] Opening product:', barcode);
@@ -253,15 +230,12 @@ export default function HistoryScreen() {
             </View>
             <Text style={styles.productBrand} numberOfLines={1}>{brandLabel}</Text>
             <View style={styles.metaRow}>
-              <View style={styles.scanMethodChip}>
-                {isPhoto ? (
-                  <Camera color={Colors.textSecondary} size={12} strokeWidth={2.3} />
-                ) : (
-                  <Shield color={Colors.textSecondary} size={12} strokeWidth={2.3} />
-                )}
-                <Text style={styles.scanMethodText}>{isPhoto ? t('history_photo_scan') : t('history_barcode_scan')}</Text>
+              <View style={[styles.riskMiniBadge, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
+
+                <RiskStatusIcon group={item.riskGroup} color={risk.color} size={12} />
+                <Text style={[styles.riskMiniText, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
               </View>
-              <Text style={styles.dateText}>{t('history_saved_label')} {formattedDate}</Text>
+              <Text style={styles.dateText}>{formattedDate}</Text>
             </View>
           </View>
 
@@ -331,48 +305,8 @@ export default function HistoryScreen() {
         )}
       </View>
 
-      <View style={styles.heroCard}>
-        <View style={styles.heroTopRow}>
-          <View style={styles.heroBadge}>
-            <Sparkles color={Colors.primary} size={12} strokeWidth={2.6} />
-            <Text style={styles.heroBadgeText}>{t('history_health_log')}</Text>
-          </View>
-          <View style={styles.heroLastScan}>
-            <CalendarDays color={Colors.textTertiary} size={13} strokeWidth={2.3} />
-            <Text style={styles.heroLastScanText} numberOfLines={1}>{lastScanLabel}</Text>
-          </View>
-        </View>
-
-        <View style={styles.heroCountRow}>
-          <Text style={styles.heroCountNumber}>{totalHistoryCount}</Text>
-          <Text style={styles.heroCountLabel}>{t('history_scan_count')}</Text>
-        </View>
-
-        <View style={styles.heroStatsRow}>
-          <View style={styles.heroMetricCard}>
-            <View style={[styles.heroMetricIcon, { backgroundColor: 'rgba(46, 158, 52, 0.12)' }]}>
-              <BadgeCheck color={Colors.primary} size={15} strokeWidth={2.5} />
-            </View>
-            <Text style={styles.heroMetricValue}>{stats.safe}</Text>
-            <Text style={styles.heroMetricLabel}>{t('history_clean_found')}</Text>
-          </View>
-          <View style={styles.heroMetricDivider} />
-          <View style={styles.heroMetricCard}>
-            <View style={[styles.heroMetricIcon, { backgroundColor: 'rgba(234, 179, 8, 0.14)' }]}>
-              <AlertTriangle color="#CA8A04" size={15} strokeWidth={2.5} />
-            </View>
-            <Text style={styles.heroMetricValue}>{riskyCount}</Text>
-            <Text style={styles.heroMetricLabel}>{t('history_watchlist')}</Text>
-          </View>
-          <View style={styles.heroMetricDivider} />
-          <View style={styles.heroMetricCard}>
-            <View style={[styles.heroMetricIcon, { backgroundColor: 'rgba(255, 45, 85, 0.10)' }]}>
-              <Heart color="#FF2D55" size={15} fill="#FF2D55" strokeWidth={2.5} />
-            </View>
-            <Text style={styles.heroMetricValue}>{favorites.length}</Text>
-            <Text style={styles.heroMetricLabel}>{t('history_favorites_short')}</Text>
-          </View>
-        </View>
+      <View style={styles.summaryRow}>
+        <Text style={styles.summaryText}>{totalHistoryCount} {t('history_scan_count')}</Text>
       </View>
 
       <View style={styles.filtersContainer}>
@@ -517,111 +451,14 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
     elevation: 2,
   },
-  heroCard: {
-    marginHorizontal: 20,
-    borderRadius: 26,
-    padding: 18,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.14)',
-    shadowColor: '#0E2011',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.06,
-    shadowRadius: 22,
-    elevation: 3,
+  summaryRow: {
+    paddingHorizontal: 20,
+    paddingTop: 2,
   },
-  heroTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 10,
-  },
-  heroBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: 'rgba(46, 158, 52, 0.10)',
-  },
-  heroBadgeText: {
-    fontSize: 11,
-    fontWeight: '900' as const,
-    color: Colors.primary,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase' as const,
-  },
-  heroLastScan: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  heroLastScanText: {
-    fontSize: 12,
-    fontWeight: '800' as const,
-    color: Colors.textTertiary,
-  },
-  heroCountRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
-    marginTop: 14,
-  },
-  heroCountNumber: {
-    fontSize: 48,
-    lineHeight: 50,
-    fontWeight: '900' as const,
-    color: Colors.text,
-    letterSpacing: -1.6,
-  },
-  heroCountLabel: {
+  summaryText: {
     fontSize: 13,
     fontWeight: '800' as const,
-    color: Colors.textSecondary,
-    textTransform: 'lowercase' as const,
-  },
-  heroStatsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 16,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.06)',
-  },
-  heroMetricCard: {
-    flex: 1,
-    alignItems: 'flex-start',
-    paddingHorizontal: 2,
-  },
-  heroMetricIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  heroMetricDivider: {
-    width: 1,
-    height: 36,
-    backgroundColor: 'rgba(0,0,0,0.06)',
-  },
-  heroMetricValue: {
-    fontSize: 20,
-    lineHeight: 22,
-    fontWeight: '900' as const,
-    color: Colors.text,
-    letterSpacing: -0.4,
-  },
-  heroMetricLabel: {
-    marginTop: 2,
-    fontSize: 10,
-    lineHeight: 12,
-    fontWeight: '900' as const,
     color: Colors.textTertiary,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.35,
   },
   filtersContainer: {
     paddingVertical: 14,
@@ -782,19 +619,20 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 9,
   },
-  scanMethodChip: {
+  riskMiniBadge: {
+    maxWidth: 160,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     paddingHorizontal: 9,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: '#F1F4EC',
+    borderWidth: 1,
   },
-  scanMethodText: {
+  riskMiniText: {
+    flexShrink: 1,
     fontSize: 11,
     fontWeight: '900' as const,
-    color: Colors.textSecondary,
   },
   dateText: {
     fontSize: 11,
@@ -810,6 +648,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusPanel: {
+    display: 'none',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
