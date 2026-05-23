@@ -34,16 +34,27 @@ function lookupIngredient(ingredientName: string): IngredientEntry | null {
     }
   }
 
-  // Recherche par contenance (le plus long mot-clé matchant gagne)
+  // Recherche par contenance : PRIORITÉ AU RISQUE LE PLUS HAUT (danger > probable > possible > aucun),
+  // puis au mot-clé le plus long. Évite qu'un nom composé comme "Pepperoni (porc et bœuf)"
+  // soit classé vert via le mot "porc" alors qu'il contient le mot dangereux "pepperoni".
+  const RISK_PRIORITY: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
   let bestMatch: IngredientEntry | null = null;
+  let bestRiskPriority = 999;
   let bestMatchLength = 0;
   for (const entry of INGREDIENTS_DATABASE) {
+    const entryPriority = RISK_PRIORITY[entry.risk];
     for (const keyword of entry.keywords) {
       const normKeyword = normalizeForLookup(keyword);
       if (normKeyword.length < 3) continue;
-      if (normalized.includes(normKeyword) && normKeyword.length > bestMatchLength) {
-        bestMatch = entry;
-        bestMatchLength = normKeyword.length;
+      if (normalized.includes(normKeyword)) {
+        if (
+          entryPriority < bestRiskPriority ||
+          (entryPriority === bestRiskPriority && normKeyword.length > bestMatchLength)
+        ) {
+          bestMatch = entry;
+          bestRiskPriority = entryPriority;
+          bestMatchLength = normKeyword.length;
+        }
       }
     }
   }
@@ -201,11 +212,21 @@ Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, T
 
 ⚠️ ADAPTE TON TON À LA NATURE RÉELLE DE L'INGRÉDIENT :
 
-═══ TYPE 1 : INGRÉDIENTS SAINS (eau, sel, fruits, légumes, huile d'olive vierge, miel, épices, vinaigre, lait, œufs, levure naturelle, farine, riz, avoine, etc.) ═══
+═══ TYPE 1 : INGRÉDIENTS SAINS / APPROUVÉS (eau, sel, fruits, légumes, huile d'olive vierge, miel, épices, assaisonnements, herbes aromatiques, vinaigre, lait, œufs, fromage, viande non transformée, poisson, levure naturelle, farine, riz, avoine, légumineuses, etc.) ═══
 
-→ Ton positif, rassurant, court (2-3 phrases suffisent).
-→ Exemple eau : "L'eau est un ingrédient essentiel et neutre. Aucun risque identifié."
-→ Exemple farine de blé : "Ingrédient céréalier de base. Sans risque dans une alimentation équilibrée."
+🟢 RÈGLE ABSOLUE POUR LES INGRÉDIENTS SAINS :
+→ Ton 100% POSITIF, valorisant, court (2-3 phrases).
+→ Mets en avant les BIENFAITS pour la santé (nutriments, vitamines, minéraux, rôle dans le corps).
+→ INTERDIT d'ajouter une mise en garde du type "à consommer avec modération", "en quantité raisonnable", "attention à l'excès", "industriel", "transformé".
+→ INTERDIT de chercher du négatif sur l'eau, le sel naturel, les épices, les herbes, les fruits, les légumes, la viande fraîche, le poisson, le fromage non transformé, les œufs.
+→ Si l'ingrédient est APPROUVÉ, la description doit DONNER ENVIE de le consommer.
+
+→ Exemple eau : "L'eau est essentielle à la vie. Elle hydrate, transporte les nutriments et régule la température corporelle. Excellente pour la santé."
+→ Exemple farine de blé : "Céréale de base riche en glucides complexes et fibres. Apporte de l'énergie durable au corps."
+→ Exemple épices / assaisonnements : "Les épices et herbes aromatiques sont naturelles et bénéfiques. Elles apportent saveur, antioxydants et composés anti-inflammatoires sans calories. Excellentes pour la cuisine maison."
+→ Exemple sel : "Minéral essentiel au bon fonctionnement du corps (équilibre hydrique, transmission nerveuse). Présent naturellement dans de nombreux aliments."
+→ Exemple fromage mozzarella : "Fromage italien traditionnel à pâte filée, source de protéines et de calcium. Apporte du goût et de la satiété."
+→ Exemple poulet : "Viande maigre riche en protéines de qualité, en vitamines du groupe B et en sélénium. Excellent pour la construction musculaire."
 
 ═══ TYPE 2 : INGRÉDIENTS TRANSFORMÉS / CONTROVERSÉS (sucres, sirops, huiles raffinées, arômes, gommes, acide citrique industriel, lécithines, phosphates, sulfites, extrait de levure, gel de silice, etc.) ═══
 
@@ -261,6 +282,7 @@ EXEMPLES OBLIGATOIRES À SUIVRE :
 ❌ JAMAIS inventer une classification Groupe 1/2A/2B
 ❌ JAMAIS écrire "Same as before", "Previously explained", "See previous explanation" ou toute référence à un ingrédient précédent. Chaque ingrédient doit avoir sa propre description complète et unique.
 ❌ Ne mets PAS de champs niveau_risque ou couleur — ils seront ignorés
+❌ JAMAIS écrire de mise en garde sur un ingrédient sain (eau, sel, épices, herbes, fruits, légumes, fromage frais, œufs, viande non transformée, poisson)
 
 ✅ TOUJOURS expliquer le PROCÉDÉ INDUSTRIEL derrière l'ingrédient
 ✅ TOUJOURS citer une donnée concrète (étude, % d'OGM, classification, effet biologique)
@@ -321,10 +343,21 @@ The user downloaded this app BECAUSE THEY WANT THE TRUTH. If you reassure them, 
 
 ⚠️ ADAPT YOUR TONE TO THE REAL NATURE OF THE INGREDIENT:
 
-═══ TYPE 1: HEALTHY INGREDIENTS (water, salt, fruits, vegetables, virgin olive oil, honey, spices, vinegar, milk, eggs, yeast, flour, rice, oats, etc.) ═══
+═══ TYPE 1: HEALTHY / APPROVED INGREDIENTS (water, salt, fruits, vegetables, virgin olive oil, honey, spices, seasonings, herbs, vinegar, milk, eggs, cheese, unprocessed meat, fish, yeast, flour, rice, oats, legumes, etc.) ═══
 
-→ Positive, reassuring tone. Short (2-3 sentences).
-→ Water example: "Water is an essential, neutral ingredient. No identified risk."
+🟢 ABSOLUTE RULE FOR HEALTHY INGREDIENTS:
+→ 100% POSITIVE, valorizing tone. Short (2-3 sentences).
+→ Highlight the HEALTH BENEFITS (nutrients, vitamins, minerals, role in the body).
+→ FORBIDDEN to add warnings like "consume in moderation", "watch quantity", "beware of excess", "industrial", "processed".
+→ FORBIDDEN to search for negatives about water, natural salt, spices, herbs, fruits, vegetables, fresh meat, fish, unprocessed cheese, eggs.
+→ If the ingredient is APPROVED, the description must MAKE THE USER WANT to consume it.
+
+→ Water: "Water is essential to life. It hydrates, transports nutrients, and regulates body temperature. Excellent for health."
+→ Wheat flour: "Staple grain rich in complex carbs and fiber. Provides lasting energy to the body."
+→ Spices / seasonings: "Spices and herbs are natural and beneficial. They add flavor, antioxidants and anti-inflammatory compounds without calories. Great for home cooking."
+→ Salt: "Essential mineral for body function (water balance, nerve transmission). Naturally present in many foods."
+→ Mozzarella cheese: "Traditional Italian pulled-curd cheese, a source of protein and calcium. Adds flavor and satiety."
+→ Chicken: "Lean meat rich in high-quality protein, B vitamins and selenium. Excellent for muscle building."
 
 ═══ TYPE 2: PROCESSED / CONTROVERSIAL INGREDIENTS (sugars, syrups, refined oils, flavors, gums, industrial citric acid, lecithins, phosphates, sulfites, yeast extract, silica gel, etc.) ═══
 
@@ -368,6 +401,7 @@ MANDATORY EXAMPLES TO FOLLOW:
 ❌ NEVER minimize an additive ("simply used to", "just an agent of...")
 ❌ NEVER invent a Group 1/2A/2B classification
 ❌ NEVER write "Same as before", "Previously explained", "See previous explanation" or any reference to a previous ingredient. Every ingredient must have its own complete, unique description.
+❌ NEVER add warnings on a healthy ingredient (water, salt, spices, herbs, fruits, vegetables, fresh cheese, eggs, unprocessed meat, fish)
 
 ✅ ALWAYS explain the INDUSTRIAL PROCESS behind the ingredient
 ✅ ALWAYS cite concrete data (study, % GMO, classification, biological effect)

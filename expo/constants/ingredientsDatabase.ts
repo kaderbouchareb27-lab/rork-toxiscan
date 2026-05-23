@@ -33,7 +33,18 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['coal tar', 'goudron de houille'], code: null, risk: 'danger', circ: 'Groupe 1' },
   { keywords: ['ptfe', 'perfluoro', 'polyfluoro', 'pfas', 'teflon'], code: null, risk: 'danger', circ: 'Groupe 1' },
   { keywords: ['alcool ethylique', 'ethanol boisson', 'alcool'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Dans les boissons alcoolisées uniquement' },
-  { keywords: ['viande transformee', 'viande transformée', 'processed meat', 'charcuterie industrielle'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Cancérogène avéré. 50g/jour = +18% risque cancer colorectal.' },
+  { keywords: ['viande transformee', 'viande transformée', 'processed meat', 'charcuterie industrielle', 'charcuterie'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Cancérogène avéré. 50g/jour = +18% risque cancer colorectal.' },
+  // Charcuteries spécifiques — toutes classées Groupe 1 IARC (cancérogène avéré)
+  { keywords: ['pepperoni', 'pepperonis'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie industrielle (porc/bœuf fermenté + nitrites). Classée cancérogène avéré Groupe 1 par l\'OMS. Riche en sodium et nitrates.' },
+  { keywords: ['salami', 'salamis'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie fermentée avec nitrites. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['saucisson', 'saucisson sec', 'dry sausage', 'cured sausage'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie séchée aux nitrites. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['chorizo'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie espagnole aux nitrites. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['mortadelle', 'mortadella'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie industrielle. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['bacon', 'lardons', 'lardon', 'pancetta', 'poitrine fumee', 'poitrine fumée'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie fumée aux nitrites. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['jambon', 'jambon cuit', 'jambon cru', 'jambon sec', 'jambon de paris', 'ham', 'cured ham', 'cooked ham', 'prosciutto', 'serrano'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie aux nitrites (sauf mention "sans nitrites"). Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['saucisse', 'saucisses', 'sausage', 'sausages', 'merguez', 'chipolata', 'hot dog', 'hot dogs', 'hotdog', 'frankfurter', 'wiener'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Saucisse industrielle avec conservateurs nitrites. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['pastrami', 'corned beef', 'viande des grisons', 'bresaola'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Viande séchée/fumée aux nitrites. Cancérogène avéré Groupe 1 OMS.' },
+  { keywords: ['jerky', 'beef jerky', 'boeuf seche', 'bœuf séché'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Viande séchée industrielle (souvent avec nitrites). Cancérogène avéré Groupe 1 OMS.' },
   { keywords: ['nitrosamine', 'nitrosamines'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Cancérigène avéré formé par cuisson nitrites + viande.' },
   { keywords: ['hydroquinone'], code: null, risk: 'danger', circ: 'Interdit UE' },
 
@@ -212,6 +223,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['modified whey', 'whey modified', 'lactosérum modifié'], code: null, risk: 'possible', circ: 'Transformé', note: 'Protéine de lactosérum modifiée industriellement.' },
   { keywords: ['defatted soy flour', 'soy flour defatted', 'farine de soja dégraissée'], code: null, risk: 'possible', circ: 'Transformé', note: 'Farine de soja dégraissée industriellement, souvent OGM.' },
   { keywords: ['imitation mozzarella', 'imitation cheese', 'fromage imitation', 'rehydrated mozzarella', 'rehydrated cheese'], code: null, risk: 'possible', circ: 'Ultra-transformé', note: 'Fromage imitation ultra-transformé.' },
+  // Fromages allégés / transformés / fondus → JAUNE (procédé industriel qui dénature)
+  { keywords: ['fromage allege', 'fromage allégé', 'fromage faible en gras', 'fromage maigre', 'reduced fat cheese', 'low fat cheese', 'light cheese', 'mozzarella allegee', 'mozzarella allégée', 'mozzarella allege', 'mozzarella allégé', 'mozzarella a teneur reduite', 'mozzarella à teneur réduite', 'reduced fat mozzarella', 'part skim mozzarella'], code: null, risk: 'possible', circ: 'Transformé', note: 'Fromage à teneur réduite en matières grasses obtenu par procédé industriel qui modifie sa structure naturelle. Souvent additionné de stabilisants pour compenser la texture.' },
+  { keywords: ['fromage fondu', 'fromage fondus', 'fromages fondus', 'processed cheese', 'cheese product', 'fromage transforme', 'fromage transformé', 'preparation fromagere', 'préparation fromagère'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Fromage fondu industriel avec sels de fonte (phosphates), émulsifiants et additifs. Marqueur d\'ultra-transformation.' },
 
   // --- Conservateurs modérés → JAUNE ---
   { keywords: ['sodium benzoate', 'benzoate de sodium', 'e211'], code: 'E211', risk: 'possible', circ: 'Controversé', note: 'Forme du benzène avec vitamine C dans certaines boissons.' },
@@ -345,7 +359,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['vanille', 'vanilla', 'extrait de vanille', 'vanilla extract', 'gousse de vanille'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['poivre', 'pepper', 'paprika', 'extrait de paprika', 'paprika extract', 'cumin', 'origan', 'oregano', 'basilic', 'basil', 'thym', 'thyme', 'romarin', 'rosemary'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['ail', 'garlic', 'oignon', 'onion', 'echalote', 'échalote', 'shallot', 'poudre d\'ail', 'garlic powder'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['epices', 'épices', 'spices', 'herbes', 'herbs', 'fines herbes'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['epices', 'épices', 'spices', 'herbes', 'herbs', 'fines herbes', 'assaisonnement', 'assaisonnements', 'seasoning', 'seasonings', 'melange d epices', 'mélange d\'épices', 'spice mix', 'spice blend', 'spice mixture', 'epices mixtes', 'épices mixtes', 'mixed spices', 'aromates', 'condiments', 'condiment'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Les épices, herbes et assaisonnements naturels sont sains et riches en antioxydants. Aucun risque identifié à doses culinaires normales.' },
   // (Annatto / Rocou / E160b déplacé en ORANGE — voir colorants azoïques)
 
   // --- Sucres naturels ---
