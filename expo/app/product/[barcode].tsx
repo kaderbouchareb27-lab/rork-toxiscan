@@ -493,13 +493,6 @@ export default function ProductScreen() {
           </View>
           <Text style={styles.verdictAction}>{verdictAction}</Text>
           <Text style={styles.verdictIntro}>{bannerConfig.intro}</Text>
-          <Text style={styles.riskMeterLabel}>ToxiScore</Text>
-          <View style={styles.riskMeterRow}>
-            <View style={styles.riskTrack}>
-              <View style={[styles.riskFill, { width: verdictProgress }]} />
-            </View>
-            <Text style={styles.riskMeterValue}>{displayedRiskScore}%</Text>
-          </View>
         </View>
 
         <DrToxiVerdict level={verdictLevel} />

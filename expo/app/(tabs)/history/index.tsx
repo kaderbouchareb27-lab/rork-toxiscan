@@ -250,10 +250,6 @@ export default function HistoryScreen() {
             <Text style={[styles.statusLabel, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
             <Text style={styles.statusDescription} numberOfLines={2}>{risk.description}</Text>
           </View>
-          <View style={[styles.statusScorePill, { borderColor: risk.color }]}>
-            <Text style={[styles.statusScoreValue, { color: risk.color }]}>{displayedRiskScore}%</Text>
-            <Text style={styles.statusScoreLabel}>ToxiScore</Text>
-          </View>
         </View>
       </TouchableOpacity>
     );
