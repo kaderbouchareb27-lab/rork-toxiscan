@@ -331,50 +331,49 @@ export default function HistoryScreen() {
         )}
       </View>
 
-      <LinearGradient
-        colors={['#0F3D21', '#1C7C2B', Colors.primary] as const}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.heroCard}
-      >
+      <View style={styles.heroCard}>
         <View style={styles.heroTopRow}>
           <View style={styles.heroBadge}>
-            <Sparkles color={Colors.white} size={14} strokeWidth={2.5} />
+            <Sparkles color={Colors.primary} size={12} strokeWidth={2.6} />
             <Text style={styles.heroBadgeText}>{t('history_health_log')}</Text>
           </View>
-          <View style={styles.heroCountBubble}>
-            <Text style={styles.heroCountNumber}>{totalHistoryCount}</Text>
-            <Text style={styles.heroCountLabel}>{t('history_scan_count')}</Text>
+          <View style={styles.heroLastScan}>
+            <CalendarDays color={Colors.textTertiary} size={13} strokeWidth={2.3} />
+            <Text style={styles.heroLastScanText} numberOfLines={1}>{lastScanLabel}</Text>
           </View>
         </View>
 
-        <Text style={styles.heroTitle}>{t('history_insight_title')}</Text>
-        <Text style={styles.heroSubtitle}>{t('history_insight_subtitle')}</Text>
+        <View style={styles.heroCountRow}>
+          <Text style={styles.heroCountNumber}>{totalHistoryCount}</Text>
+          <Text style={styles.heroCountLabel}>{t('history_scan_count')}</Text>
+        </View>
 
         <View style={styles.heroStatsRow}>
           <View style={styles.heroMetricCard}>
-            <BadgeCheck color="#CFF7D1" size={18} strokeWidth={2.4} />
+            <View style={[styles.heroMetricIcon, { backgroundColor: 'rgba(46, 158, 52, 0.12)' }]}>
+              <BadgeCheck color={Colors.primary} size={15} strokeWidth={2.5} />
+            </View>
             <Text style={styles.heroMetricValue}>{stats.safe}</Text>
             <Text style={styles.heroMetricLabel}>{t('history_clean_found')}</Text>
           </View>
+          <View style={styles.heroMetricDivider} />
           <View style={styles.heroMetricCard}>
-            <AlertTriangle color="#FFE3A3" size={18} strokeWidth={2.4} />
+            <View style={[styles.heroMetricIcon, { backgroundColor: 'rgba(234, 179, 8, 0.14)' }]}>
+              <AlertTriangle color="#CA8A04" size={15} strokeWidth={2.5} />
+            </View>
             <Text style={styles.heroMetricValue}>{riskyCount}</Text>
             <Text style={styles.heroMetricLabel}>{t('history_watchlist')}</Text>
           </View>
+          <View style={styles.heroMetricDivider} />
           <View style={styles.heroMetricCard}>
-            <Heart color="#FFD1DC" size={18} fill="#FFD1DC" strokeWidth={2.4} />
+            <View style={[styles.heroMetricIcon, { backgroundColor: 'rgba(255, 45, 85, 0.10)' }]}>
+              <Heart color="#FF2D55" size={15} fill="#FF2D55" strokeWidth={2.5} />
+            </View>
             <Text style={styles.heroMetricValue}>{favorites.length}</Text>
             <Text style={styles.heroMetricLabel}>{t('history_favorites_short')}</Text>
           </View>
         </View>
-
-        <View style={styles.lastScanPanel}>
-          <CalendarDays color="rgba(255,255,255,0.86)" size={16} strokeWidth={2.3} />
-          <Text style={styles.lastScanLabel}>{t('history_last_scan')}</Text>
-          <Text style={styles.lastScanValue} numberOfLines={1}>{lastScanLabel}</Text>
-        </View>
-      </LinearGradient>
+      </View>
 
       <View style={styles.filtersContainer}>
         <FlatList
@@ -520,131 +519,109 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     marginHorizontal: 20,
-    borderRadius: 30,
+    borderRadius: 26,
     padding: 18,
-    overflow: 'hidden',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.24,
-    shadowRadius: 28,
-    elevation: 7,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.14)',
+    shadowColor: '#0E2011',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.06,
+    shadowRadius: 22,
+    elevation: 3,
   },
   heroTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   heroBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
   },
   heroBadgeText: {
-    fontSize: 12,
-    fontWeight: '900' as const,
-    color: Colors.white,
-    letterSpacing: 0.25,
-    textTransform: 'uppercase' as const,
-  },
-  heroCountBubble: {
-    minWidth: 58,
-    height: 58,
-    borderRadius: 20,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-  },
-  heroCountNumber: {
-    fontSize: 22,
-    lineHeight: 24,
+    fontSize: 11,
     fontWeight: '900' as const,
     color: Colors.primary,
-    letterSpacing: -0.5,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase' as const,
+  },
+  heroLastScan: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  heroLastScanText: {
+    fontSize: 12,
+    fontWeight: '800' as const,
+    color: Colors.textTertiary,
+  },
+  heroCountRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+    marginTop: 14,
+  },
+  heroCountNumber: {
+    fontSize: 48,
+    lineHeight: 50,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    letterSpacing: -1.6,
   },
   heroCountLabel: {
-    fontSize: 9,
-    lineHeight: 11,
-    fontWeight: '900' as const,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.35,
-  },
-  heroTitle: {
-    marginTop: 18,
-    fontSize: 25,
-    lineHeight: 29,
-    fontWeight: '900' as const,
-    color: Colors.white,
-    letterSpacing: -0.7,
-  },
-  heroSubtitle: {
-    marginTop: 8,
     fontSize: 13,
-    lineHeight: 19,
-    fontWeight: '700' as const,
-    color: 'rgba(255,255,255,0.82)',
+    fontWeight: '800' as const,
+    color: Colors.textSecondary,
+    textTransform: 'lowercase' as const,
   },
   heroStatsRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 18,
+    alignItems: 'center',
+    marginTop: 16,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
   },
   heroMetricCard: {
     flex: 1,
-    minHeight: 82,
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 11,
-    backgroundColor: 'rgba(255,255,255,0.13)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'flex-start',
+    paddingHorizontal: 2,
+  },
+  heroMetricIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  heroMetricDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: 'rgba(0,0,0,0.06)',
   },
   heroMetricValue: {
-    marginTop: 6,
     fontSize: 20,
     lineHeight: 22,
     fontWeight: '900' as const,
-    color: Colors.white,
-    letterSpacing: -0.35,
+    color: Colors.text,
+    letterSpacing: -0.4,
   },
   heroMetricLabel: {
     marginTop: 2,
     fontSize: 10,
     lineHeight: 12,
     fontWeight: '900' as const,
-    color: 'rgba(255,255,255,0.72)',
+    color: Colors.textTertiary,
     textTransform: 'uppercase' as const,
-    letterSpacing: 0.25,
-  },
-  lastScanPanel: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.14)',
-  },
-  lastScanLabel: {
-    fontSize: 12,
-    fontWeight: '800' as const,
-    color: 'rgba(255,255,255,0.72)',
-  },
-  lastScanValue: {
-    flex: 1,
-    textAlign: 'right',
-    fontSize: 12,
-    fontWeight: '900' as const,
-    color: Colors.white,
+    letterSpacing: 0.35,
   },
   filtersContainer: {
     paddingVertical: 14,
