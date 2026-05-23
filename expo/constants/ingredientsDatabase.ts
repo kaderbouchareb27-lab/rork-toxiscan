@@ -64,7 +64,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['graisse interesterifiee', 'interesterified', 'graisse interestérifiée'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
 
   // --- Amidons modifiés → ORANGE ---
-  { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1404', 'e1412', 'e1422', 'e1450'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé à fort index glycémique.' },
+  { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1404', 'e1412', 'e1422', 'e1450', 'modified cornstarch', 'modified corn starch', 'modified tapioca starch', 'modified potato starch', 'modified wheat starch', 'modified rice starch', 'corn starch modified'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé à fort index glycémique.' },
 
   // --- Protéines industrielles → ORANGE ---
   { keywords: ['proteines hydrolysees', 'hydrolyzed protein', 'hydrolyse', 'hydrolyzed', 'protéines hydrolysées'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
