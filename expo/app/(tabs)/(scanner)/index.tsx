@@ -453,11 +453,6 @@ export default function ScannerScreen() {
                 end={{ x: 1, y: 1 }}
                 style={styles.heroCard}
               >
-                <View style={styles.brandPill}>
-                  <Sparkles color="#2D6A4F" size={13} strokeWidth={2.2} />
-                  <Text style={styles.brandPillText}>{t('home_premium_label')}</Text>
-                </View>
-
                 <View style={styles.heroMainRow}>
                   <View style={styles.heroCopy}>
                     <Text style={styles.brandTitle}>Dr. Toxi</Text>
