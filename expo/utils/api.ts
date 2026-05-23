@@ -259,6 +259,7 @@ EXEMPLES OBLIGATOIRES À SUIVRE :
 ❌ JAMAIS dire que l'acide citrique vient des agrumes (il est industriel à 99%)
 ❌ JAMAIS minimiser un additif ("simplement utilisé pour", "juste un agent de...")
 ❌ JAMAIS inventer une classification Groupe 1/2A/2B
+❌ JAMAIS écrire "Same as before", "Previously explained", "See previous explanation" ou toute référence à un ingrédient précédent. Chaque ingrédient doit avoir sa propre description complète et unique.
 ❌ Ne mets PAS de champs niveau_risque ou couleur — ils seront ignorés
 
 ✅ TOUJOURS expliquer le PROCÉDÉ INDUSTRIEL derrière l'ingrédient
@@ -366,6 +367,7 @@ MANDATORY EXAMPLES TO FOLLOW:
 ❌ NEVER say citric acid comes from citrus (it's 99% industrial)
 ❌ NEVER minimize an additive ("simply used to", "just an agent of...")
 ❌ NEVER invent a Group 1/2A/2B classification
+❌ NEVER write "Same as before", "Previously explained", "See previous explanation" or any reference to a previous ingredient. Every ingredient must have its own complete, unique description.
 
 ✅ ALWAYS explain the INDUSTRIAL PROCESS behind the ingredient
 ✅ ALWAYS cite concrete data (study, % GMO, classification, biological effect)
@@ -466,10 +468,12 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
 
     const explication = ing.explication || (isEnglish() ? 'Ingredient not in database, no identified risk.' : 'Ingrédient non répertorié, sans risque identifié.');
     const naturalKeywords = ['natural', 'naturel', 'plant', 'herb', 'spice', 'épice', 'epice', 'herbe', 'vegetable', 'légume', 'legume', 'fruit', 'organic'];
+    const industrialTransformationKeywords = ['chemically', 'industrially', 'synthetic', 'refined', 'imitation', 'modified', 'defatted', 'enriched', 'fortified', 'rehydrated', 'chimiquement', 'industriellement', 'synthétique', 'raffiné', 'modifié', 'déshydraté', 'enrichie', 'fortifié'];
     const lowerExplication = explication.toLowerCase();
     const isNatural = naturalKeywords.some((kw) => lowerExplication.includes(kw));
-    const fallbackRisk: RiskLevel = isNatural ? 'aucun' : 'possible';
-    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (isNatural ? ' (natural keyword detected)' : ''));
+    const hasIndustrialTransformation = industrialTransformationKeywords.some((kw) => lowerExplication.includes(kw));
+    const fallbackRisk: RiskLevel = isNatural && !hasIndustrialTransformation ? 'aucun' : 'possible';
+    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (isNatural && !hasIndustrialTransformation ? ' (natural keyword detected)' : ''));
     return {
       nom: ing.nom,
       code: null,

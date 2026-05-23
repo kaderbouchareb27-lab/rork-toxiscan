@@ -209,6 +209,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['acide malique', 'malic acid', 'e296'], code: 'E296', risk: 'possible', circ: 'Souvent synthétique', note: 'Industriellement synthétisé pour usage alimentaire (rarement extrait des fruits).' },
   { keywords: ['spiruline', 'spirulina', 'spirulina extract', 'extrait de spiruline'], code: null, risk: 'possible', circ: 'Extraction industrielle', note: 'Algue naturelle mais procédé d\'extraction et de séchage industriel lourd. Risque de contamination métaux lourds selon la source.' },
   { keywords: ['bouillon', 'broth', 'bouillon de porc', 'bouillon de poulet', 'bouillon de boeuf', 'bouillon de bœuf', 'bouillon de legumes', 'bouillon de légumes', 'chicken broth', 'pork broth', 'beef broth', 'vegetable broth', 'bouillon compose', 'bouillon composé'], code: null, risk: 'possible', circ: 'Transformé', note: 'Ingrédient composite transformé. Contient souvent du sel, des exhausteurs et des arômes ajoutés.' },
+  { keywords: ['modified whey', 'whey modified', 'lactosérum modifié'], code: null, risk: 'possible', circ: 'Transformé', note: 'Protéine de lactosérum modifiée industriellement.' },
+  { keywords: ['defatted soy flour', 'soy flour defatted', 'farine de soja dégraissée'], code: null, risk: 'possible', circ: 'Transformé', note: 'Farine de soja dégraissée industriellement, souvent OGM.' },
+  { keywords: ['imitation mozzarella', 'imitation cheese', 'fromage imitation', 'rehydrated mozzarella', 'rehydrated cheese'], code: null, risk: 'possible', circ: 'Ultra-transformé', note: 'Fromage imitation ultra-transformé.' },
 
   // --- Conservateurs modérés → JAUNE ---
   { keywords: ['sodium benzoate', 'benzoate de sodium', 'e211'], code: 'E211', risk: 'possible', circ: 'Controversé', note: 'Forme du benzène avec vitamine C dans certaines boissons.' },
