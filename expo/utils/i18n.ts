@@ -77,6 +77,16 @@ const translations = {
 
   // ===== HISTORY =====
   history_title: { fr: 'Historique', en: 'History' },
+  history_health_log: { fr: 'Carnet santé', en: 'Health log' },
+  history_insight_title: { fr: 'Vos choix passés au scanner', en: 'Your choices under review' },
+  history_insight_subtitle: { fr: 'Retrouvez vos analyses, repérez les produits à éviter et gardez vos meilleures alternatives sous la main.', en: 'Review your scans, spot products to avoid, and keep safer alternatives close.' },
+  history_clean_found: { fr: 'clean', en: 'clean' },
+  history_watchlist: { fr: 'à surveiller', en: 'watchlist' },
+  history_favorites_short: { fr: 'favoris', en: 'favorites' },
+  history_last_scan: { fr: 'Dernier scan', en: 'Last scan' },
+  history_no_scan_yet: { fr: 'Aucun scan pour le moment', en: 'No scan yet' },
+  history_analysis_cta: { fr: 'Voir analyse', en: 'View analysis' },
+  history_risk_signal: { fr: 'Signal risque', en: 'Risk signal' },
   filter_all: { fr: 'Tous', en: 'All' },
   filter_favorites: { fr: 'Favoris', en: 'Favorites' },
   filter_danger: { fr: 'Cancérigène', en: 'Carcinogenic' },

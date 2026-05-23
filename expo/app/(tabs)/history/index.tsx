@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import {
   Shield,
@@ -20,6 +21,10 @@ import {
   Heart,
   ChevronRight,
   CheckCircle,
+  CalendarDays,
+  BadgeCheck,
+  AlertTriangle,
+  Sparkles,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -37,16 +42,18 @@ type HistoryRiskPresentation = {
   label: string;
   description: string;
   color: string;
+  tint: string;
+  borderColor: string;
 };
 
 function getFilters(): FilterConfig[] {
   return [
-    { key: 'all', label: t('filter_all') },
+    { key: 'all', label: t('filter_all'), color: Colors.primary },
     { key: 'favorites', label: t('filter_favorites'), color: '#FF2D55' },
     { key: 'group1', label: t('filter_danger'), color: '#D0260F' },
     { key: 'group2a', label: t('filter_warning'), color: '#E8730A' },
     { key: 'group2b', label: t('filter_caution'), color: '#EAB308' },
-    { key: 'none', label: t('filter_approved'), color: '#2E9E34' },
+    { key: 'none', label: t('filter_approved'), color: Colors.primary },
   ];
 }
 
@@ -57,25 +64,33 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
         label: t('history_status_carcinogenic'),
         description: t('history_status_carcinogenic_desc'),
         color: '#D0260F',
+        tint: 'rgba(208, 38, 15, 0.10)',
+        borderColor: 'rgba(208, 38, 15, 0.22)',
       };
     case 'group2a':
       return {
         label: t('history_status_ultra_processed'),
         description: t('history_status_ultra_processed_desc'),
         color: '#E8730A',
+        tint: 'rgba(232, 115, 10, 0.11)',
+        borderColor: 'rgba(232, 115, 10, 0.24)',
       };
     case 'group2b':
       return {
         label: t('history_status_caution'),
         description: t('history_status_caution_desc'),
         color: '#EAB308',
+        tint: 'rgba(234, 179, 8, 0.13)',
+        borderColor: 'rgba(234, 179, 8, 0.28)',
       };
     case 'none':
     default:
       return {
         label: t('history_status_approved'),
         description: t('history_status_approved_desc'),
-        color: '#2E9E34',
+        color: Colors.primary,
+        tint: 'rgba(46, 158, 52, 0.12)',
+        borderColor: 'rgba(46, 158, 52, 0.24)',
       };
   }
 }
@@ -83,20 +98,20 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
 function RiskStatusIcon({ group, color, size = 16 }: { group: RiskGroup; color: string; size?: number }) {
   const avatarUri = getDrToxiBadgeAvatarForRiskGroup(group);
   if (avatarUri) {
-    const avatarSize = Math.max(size + 10, 24);
+    const avatarSize = Math.max(size + 12, 26);
     return <Image source={{ uri: avatarUri }} style={{ width: avatarSize, height: avatarSize }} contentFit="contain" />;
   }
   return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
 }
 
 function SkeletonRow() {
-  const opacity = useRef(new Animated.Value(0.3)).current;
+  const opacity = useRef(new Animated.Value(0.35)).current;
 
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.35, duration: 800, useNativeDriver: true }),
       ])
     );
     loop.start();
@@ -106,7 +121,7 @@ function SkeletonRow() {
   return (
     <Animated.View style={[styles.productCard, styles.skeletonCard, { opacity }]} testID="skeleton-row">
       <View style={styles.cardTopRow}>
-        <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#F0F0EE' }]} />
+        <View style={[styles.thumbnailPlaceholder, { backgroundColor: '#F0F4EC' }]} />
         <View style={styles.productInfo}>
           <View style={styles.skeletonTitle} />
           <View style={styles.skeletonBrand} />
@@ -114,8 +129,8 @@ function SkeletonRow() {
         </View>
         <View style={styles.skeletonChevron} />
       </View>
-      <View style={styles.statusPanel}>
-        <View style={[styles.statusIconBubble, { backgroundColor: '#E6E6E2' }]} />
+      <View style={styles.skeletonStatusPanel}>
+        <View style={[styles.statusIconBubble, { backgroundColor: '#E5EFE0' }]} />
         <View style={styles.statusCopy}>
           <View style={styles.skeletonStatusTitle} />
           <View style={styles.skeletonStatusLine} />
@@ -135,12 +150,24 @@ function HistorySkeleton() {
 
 export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { clearHistory, history, isLoading } = useScanHistory();
+  const { clearHistory, history, isLoading, stats, favorites } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
   const totalHistoryCount = history.length;
+  const riskyCount = stats.danger + stats.probable + stats.possible;
   const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
+
+  const lastScanLabel = useMemo(() => {
+    const latestScan = history[0];
+    if (!latestScan?.scannedAt) return t('history_no_scan_yet');
+    const date = new Date(latestScan.scannedAt);
+    if (Number.isNaN(date.getTime())) return t('history_no_scan_yet');
+    return date.toLocaleDateString(getDateLocale(), {
+      day: 'numeric',
+      month: 'short',
+    });
+  }, [history]);
 
   const handleProductPress = useCallback((barcode: string) => {
     console.log('[History] Opening product:', barcode);
@@ -190,13 +217,14 @@ export default function HistoryScreen() {
 
     return (
       <TouchableOpacity
-        style={[styles.productCard, { borderLeftColor: risk.color }]}
+        style={[styles.productCard, { borderColor: risk.borderColor, shadowColor: risk.color }]}
         onPress={() => handleProductPress(item.barcode)}
-        activeOpacity={0.76}
+        activeOpacity={0.78}
         testID={`history-item-${item.barcode}`}
       >
+        <View style={[styles.riskRail, { backgroundColor: risk.color }]} />
         <View style={styles.cardTopRow}>
-          <View style={styles.thumbnailShell}>
+          <View style={[styles.thumbnailShell, { borderColor: risk.borderColor }]}>
             {isPhoto && item.thumbnailBase64 ? (
               <Image source={{ uri: item.thumbnailBase64 }} style={styles.thumbnail} contentFit="cover" />
             ) : isPhoto && item.photoUri ? (
@@ -206,9 +234,9 @@ export default function HistoryScreen() {
             ) : (
               <View style={styles.thumbnailPlaceholder}>
                 {isPhoto ? (
-                  <Camera color={Colors.textTertiary} size={21} strokeWidth={2.2} />
+                  <Camera color={Colors.textTertiary} size={22} strokeWidth={2.2} />
                 ) : (
-                  <Shield color={Colors.textTertiary} size={21} strokeWidth={2.2} />
+                  <Shield color={Colors.textTertiary} size={22} strokeWidth={2.2} />
                 )}
               </View>
             )}
@@ -237,15 +265,22 @@ export default function HistoryScreen() {
             </View>
           </View>
 
-          <ChevronRight color={Colors.textTertiary} size={18} strokeWidth={2.2} />
+          <View style={styles.chevronCircle}>
+            <ChevronRight color={Colors.textSecondary} size={17} strokeWidth={2.4} />
+          </View>
         </View>
 
-        <View style={styles.statusPanel}>
-          <View style={[styles.statusIconBubble, { backgroundColor: item.riskGroup === 'none' ? risk.color : Colors.surface }]}>
-            <RiskStatusIcon group={item.riskGroup} color={Colors.white} size={18} />
+        <View style={[styles.statusPanel, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
+          <View style={[styles.statusIconBubble, { backgroundColor: Colors.surface, borderColor: risk.borderColor }]}>
+            <RiskStatusIcon group={item.riskGroup} color={risk.color} size={18} />
           </View>
           <View style={styles.statusCopy}>
-            <Text style={[styles.statusLabel, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
+            <View style={styles.statusHeaderRow}>
+              <Text style={[styles.statusLabel, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
+              <View style={[styles.signalPill, { backgroundColor: risk.color }]}>
+                <Text style={styles.signalPillText}>{t('history_risk_signal')}</Text>
+              </View>
+            </View>
             <Text style={styles.statusDescription} numberOfLines={2}>{risk.description}</Text>
           </View>
         </View>
@@ -256,14 +291,17 @@ export default function HistoryScreen() {
   const renderFooter = useCallback(() => {
     if (!showPremiumUpsell) return null;
     return (
-      <View style={styles.premiumUpsellCard}>
+      <LinearGradient
+        colors={['#F1FFF2', '#FFFFFF'] as const}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.premiumUpsellCard}
+      >
         <View style={styles.premiumUpsellIcon}>
           <Lock color={Colors.primary} size={22} />
         </View>
         <Text style={styles.premiumUpsellTitle}>{t('full_history')}</Text>
-        <Text style={styles.premiumUpsellText}>
-          {t('full_history_desc')}
-        </Text>
+        <Text style={styles.premiumUpsellText}>{t('full_history_desc')}</Text>
         <TouchableOpacity
           style={styles.premiumUpsellButton}
           onPress={() => router.push('/paywall?source=history')}
@@ -272,29 +310,71 @@ export default function HistoryScreen() {
         >
           <Text style={styles.premiumUpsellButtonText}>{t('see_offers')}</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
     );
   }, [showPremiumUpsell]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.backgroundOrb} />
+      <View style={styles.backgroundOrbSecondary} />
+
       <View style={styles.header}>
         <View style={styles.headerTextBlock}>
           <Text style={styles.title}>{t('history_title')}</Text>
           <Text style={styles.subtitle}>{t('history_saved_subtitle')}</Text>
         </View>
-        <View style={styles.headerActions}>
-          <View style={styles.scanCountPill}>
-            <Text style={styles.scanCountNumber}>{totalHistoryCount}</Text>
-            <Text style={styles.scanCountLabel}>{t('history_scan_count')}</Text>
-          </View>
-          {filteredHistory.length > 0 && (
-            <TouchableOpacity onPress={handleClearHistory} style={styles.clearButton} testID="clear-history">
-              <Trash2 color={Colors.textSecondary} size={18} strokeWidth={2.2} />
-            </TouchableOpacity>
-          )}
-        </View>
+        {history.length > 0 && (
+          <TouchableOpacity onPress={handleClearHistory} style={styles.clearButton} testID="clear-history" activeOpacity={0.82}>
+            <Trash2 color={Colors.textSecondary} size={18} strokeWidth={2.2} />
+          </TouchableOpacity>
+        )}
       </View>
+
+      <LinearGradient
+        colors={['#0F3D21', '#1C7C2B', Colors.primary] as const}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroCard}
+      >
+        <View style={styles.heroTopRow}>
+          <View style={styles.heroBadge}>
+            <Sparkles color={Colors.white} size={14} strokeWidth={2.5} />
+            <Text style={styles.heroBadgeText}>{t('history_health_log')}</Text>
+          </View>
+          <View style={styles.heroCountBubble}>
+            <Text style={styles.heroCountNumber}>{totalHistoryCount}</Text>
+            <Text style={styles.heroCountLabel}>{t('history_scan_count')}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.heroTitle}>{t('history_insight_title')}</Text>
+        <Text style={styles.heroSubtitle}>{t('history_insight_subtitle')}</Text>
+
+        <View style={styles.heroStatsRow}>
+          <View style={styles.heroMetricCard}>
+            <BadgeCheck color="#CFF7D1" size={18} strokeWidth={2.4} />
+            <Text style={styles.heroMetricValue}>{stats.safe}</Text>
+            <Text style={styles.heroMetricLabel}>{t('history_clean_found')}</Text>
+          </View>
+          <View style={styles.heroMetricCard}>
+            <AlertTriangle color="#FFE3A3" size={18} strokeWidth={2.4} />
+            <Text style={styles.heroMetricValue}>{riskyCount}</Text>
+            <Text style={styles.heroMetricLabel}>{t('history_watchlist')}</Text>
+          </View>
+          <View style={styles.heroMetricCard}>
+            <Heart color="#FFD1DC" size={18} fill="#FFD1DC" strokeWidth={2.4} />
+            <Text style={styles.heroMetricValue}>{favorites.length}</Text>
+            <Text style={styles.heroMetricLabel}>{t('history_favorites_short')}</Text>
+          </View>
+        </View>
+
+        <View style={styles.lastScanPanel}>
+          <CalendarDays color="rgba(255,255,255,0.86)" size={16} strokeWidth={2.3} />
+          <Text style={styles.lastScanLabel}>{t('history_last_scan')}</Text>
+          <Text style={styles.lastScanValue} numberOfLines={1}>{lastScanLabel}</Text>
+        </View>
+      </LinearGradient>
 
       <View style={styles.filtersContainer}>
         <FlatList
@@ -306,15 +386,17 @@ export default function HistoryScreen() {
           renderItem={({ item: filter }) => {
             const isActive = activeFilter === filter.key;
             const isRiskFilter = filter.key !== 'all' && filter.key !== 'favorites';
+            const activeColor = filter.color ?? Colors.primary;
             return (
               <TouchableOpacity
                 style={[
                   styles.filterChip,
                   isActive && styles.filterChipActive,
-                  isActive && filter.color ? { backgroundColor: filter.color } : undefined,
+                  isActive ? { backgroundColor: activeColor, borderColor: activeColor } : undefined,
                   filter.key === 'favorites' && !isPro ? styles.filterChipLocked : undefined,
                 ]}
                 onPress={() => handleFilterPress(filter.key)}
+                activeOpacity={0.82}
                 testID={`filter-${filter.key}`}
               >
                 {filter.key === 'favorites' ? (
@@ -322,16 +404,11 @@ export default function HistoryScreen() {
                 ) : isRiskFilter && filter.color ? (
                   <RiskStatusIcon group={filter.key as RiskGroup} color={isActive ? Colors.white : filter.color} size={13} />
                 ) : null}
-                <Text
-                  style={[
-                    styles.filterChipText,
-                    isActive && styles.filterChipTextActive,
-                  ]}
-                >
+                <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
                   {filter.label}
                 </Text>
                 {filter.key === 'favorites' && !isPro && (
-                  <Lock color={Colors.textTertiary} size={10} />
+                  <Lock color={isActive ? Colors.white : Colors.textTertiary} size={10} />
                 )}
               </TouchableOpacity>
             );
@@ -341,9 +418,8 @@ export default function HistoryScreen() {
 
       {!isPro && activeFilter === 'all' && (
         <View style={styles.historyInfoBanner}>
-          <Text style={styles.historyInfoText}>
-            {t('history_limit_banner')}
-          </Text>
+          <Lock color={Colors.primary} size={14} strokeWidth={2.4} />
+          <Text style={styles.historyInfoText}>{t('history_limit_banner')}</Text>
         </View>
       )}
 
@@ -351,9 +427,12 @@ export default function HistoryScreen() {
         <HistorySkeleton />
       ) : filteredHistory.length === 0 ? (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIconCircle}>
-            <Shield color={Colors.textTertiary} size={46} strokeWidth={1.4} />
-          </View>
+          <LinearGradient
+            colors={['#FFFFFF', '#ECF9EE'] as const}
+            style={styles.emptyIconCircle}
+          >
+            <Shield color={Colors.primary} size={46} strokeWidth={1.6} />
+          </LinearGradient>
           <Text style={styles.emptyTitle}>
             {activeFilter === 'favorites' ? t('no_favorites') : t('no_products')}
           </Text>
@@ -380,15 +459,33 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#F7FAF3',
+  },
+  backgroundOrb: {
+    position: 'absolute',
+    top: -90,
+    right: -80,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(46, 158, 52, 0.14)',
+  },
+  backgroundOrbSecondary: {
+    position: 'absolute',
+    top: 210,
+    left: -120,
+    width: 210,
+    height: 210,
+    borderRadius: 105,
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingTop: 14,
+    paddingBottom: 10,
     gap: 14,
   },
   headerTextBlock: {
@@ -398,142 +495,249 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: '900' as const,
     color: Colors.text,
-    letterSpacing: -0.8,
+    letterSpacing: -0.9,
   },
   subtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
     marginTop: 3,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
   },
-  headerActions: {
+  clearButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    shadowColor: '#0E2011',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    elevation: 2,
+  },
+  heroCard: {
+    marginHorizontal: 20,
+    borderRadius: 30,
+    padding: 18,
+    overflow: 'hidden',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.24,
+    shadowRadius: 28,
+    elevation: 7,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+  },
+  heroBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+  },
+  heroBadgeText: {
+    fontSize: 12,
+    fontWeight: '900' as const,
+    color: Colors.white,
+    letterSpacing: 0.25,
+    textTransform: 'uppercase' as const,
+  },
+  heroCountBubble: {
+    minWidth: 58,
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  heroCountNumber: {
+    fontSize: 22,
+    lineHeight: 24,
+    fontWeight: '900' as const,
+    color: Colors.primary,
+    letterSpacing: -0.5,
+  },
+  heroCountLabel: {
+    fontSize: 9,
+    lineHeight: 11,
+    fontWeight: '900' as const,
+    color: Colors.textSecondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.35,
+  },
+  heroTitle: {
+    marginTop: 18,
+    fontSize: 25,
+    lineHeight: 29,
+    fontWeight: '900' as const,
+    color: Colors.white,
+    letterSpacing: -0.7,
+  },
+  heroSubtitle: {
+    marginTop: 8,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '700' as const,
+    color: 'rgba(255,255,255,0.82)',
+  },
+  heroStatsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 18,
+  },
+  heroMetricCard: {
+    flex: 1,
+    minHeight: 82,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 11,
+    backgroundColor: 'rgba(255,255,255,0.13)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
+  heroMetricValue: {
+    marginTop: 6,
+    fontSize: 20,
+    lineHeight: 22,
+    fontWeight: '900' as const,
+    color: Colors.white,
+    letterSpacing: -0.35,
+  },
+  heroMetricLabel: {
+    marginTop: 2,
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: '900' as const,
+    color: 'rgba(255,255,255,0.72)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.25,
+  },
+  lastScanPanel: {
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.14)',
   },
-  scanCountPill: {
-    minWidth: 58,
-    height: 38,
-    paddingHorizontal: 10,
-    borderRadius: 19,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  scanCountNumber: {
-    fontSize: 14,
-    fontWeight: '900' as const,
-    color: Colors.text,
-    lineHeight: 15,
-  },
-  scanCountLabel: {
-    fontSize: 9,
+  lastScanLabel: {
+    fontSize: 12,
     fontWeight: '800' as const,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.3,
-    lineHeight: 11,
+    color: 'rgba(255,255,255,0.72)',
   },
-  clearButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+  lastScanValue: {
+    flex: 1,
+    textAlign: 'right',
+    fontSize: 12,
+    fontWeight: '900' as const,
+    color: Colors.white,
   },
   filtersContainer: {
-    paddingVertical: 10,
+    paddingVertical: 14,
   },
   filtersList: {
     paddingHorizontal: 20,
     gap: 8,
   },
   filterChip: {
+    minHeight: 42,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
+    paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 24,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(255,255,255,0.92)',
     borderWidth: 1,
     borderColor: Colors.borderLight,
     gap: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 5,
+    shadowColor: '#0E2011',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
     elevation: 1,
   },
   filterChipActive: {
-    backgroundColor: Colors.text,
-    borderColor: 'transparent',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
+    transform: [{ translateY: -1 }],
   },
   filterChipLocked: {
-    opacity: 0.6,
+    opacity: 0.62,
   },
   filterChipText: {
     fontSize: 13,
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
     color: Colors.textSecondary,
   },
   filterChipTextActive: {
     color: Colors.white,
   },
   historyInfoBanner: {
-    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
     marginHorizontal: 20,
-    borderRadius: 16,
-    marginBottom: 4,
+    borderRadius: 18,
+    marginBottom: 6,
     borderWidth: 1,
-    borderColor: '#E8730A',
+    borderColor: 'rgba(46, 158, 52, 0.20)',
   },
   historyInfoText: {
+    flexShrink: 1,
     fontSize: 12,
-    color: '#E8730A',
+    color: Colors.primary,
     textAlign: 'center',
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
   },
   listContent: {
     paddingHorizontal: 20,
     paddingTop: 8,
-    paddingBottom: 22,
+    paddingBottom: 24,
   },
   productCard: {
+    position: 'relative',
     paddingVertical: 14,
     paddingHorizontal: 14,
-    marginBottom: 12,
-    backgroundColor: Colors.surface,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderLeftWidth: 5,
-    borderColor: Colors.borderLight,
+    marginBottom: 13,
+    backgroundColor: 'rgba(255,255,255,0.97)',
+    borderRadius: 26,
+    borderWidth: 1.5,
     gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 22,
     elevation: 3,
   },
+  riskRail: {
+    position: 'absolute',
+    left: 0,
+    top: 18,
+    bottom: 18,
+    width: 5,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
   skeletonCard: {
-    borderLeftColor: Colors.borderLight,
+    borderColor: Colors.borderLight,
+    shadowColor: '#0E2011',
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -541,26 +745,25 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   thumbnailShell: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
+    width: 66,
+    height: 66,
+    borderRadius: 21,
     backgroundColor: Colors.surfaceSecondary,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
   thumbnail: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
+    width: 66,
+    height: 66,
+    borderRadius: 21,
     backgroundColor: Colors.surfaceSecondary,
   },
   thumbnailPlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
+    width: 66,
+    height: 66,
+    borderRadius: 21,
     backgroundColor: Colors.surfaceSecondary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -577,9 +780,9 @@ const styles = StyleSheet.create({
   productName: {
     flex: 1,
     fontSize: 17,
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
     color: Colors.text,
-    letterSpacing: -0.25,
+    letterSpacing: -0.3,
   },
   favoriteBadge: {
     width: 22,
@@ -593,133 +796,143 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: 3,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 8,
+    marginTop: 9,
   },
   scanMethodChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: Colors.surfaceSecondary,
+    backgroundColor: '#F1F4EC',
   },
   scanMethodText: {
     fontSize: 11,
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
     color: Colors.textSecondary,
   },
   dateText: {
     fontSize: 11,
     color: Colors.textTertiary,
-    fontWeight: '700' as const,
+    fontWeight: '800' as const,
+  },
+  chevronCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#F5F7F1',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   statusPanel: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     padding: 12,
-    borderRadius: 18,
-    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  skeletonStatusPanel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 20,
+    backgroundColor: '#F1F4EC',
     borderWidth: 1,
     borderColor: Colors.borderLight,
   },
   statusIconBubble: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.borderLight,
   },
   statusCopy: {
     flex: 1,
     minWidth: 0,
   },
-  statusScorePill: {
-    minWidth: 66,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    backgroundColor: Colors.surface,
+  statusHeaderRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statusScoreValue: {
-    fontSize: 16,
-    lineHeight: 18,
-    fontWeight: '900' as const,
-    letterSpacing: -0.35,
-  },
-  statusScoreLabel: {
-    fontSize: 8,
-    lineHeight: 10,
-    fontWeight: '900' as const,
-    color: Colors.textTertiary,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.25,
+    gap: 8,
   },
   statusLabel: {
-    fontSize: 13,
+    flex: 1,
+    fontSize: 12,
     fontWeight: '900' as const,
     letterSpacing: 0.2,
     textTransform: 'uppercase' as const,
+  },
+  signalPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  signalPillText: {
+    fontSize: 8,
+    lineHeight: 10,
+    color: Colors.white,
+    fontWeight: '900' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.25,
   },
   statusDescription: {
     fontSize: 12,
     lineHeight: 16,
     color: Colors.textSecondary,
-    fontWeight: '600' as const,
-    marginTop: 2,
+    fontWeight: '700' as const,
+    marginTop: 3,
   },
   skeletonTitle: {
     width: 150,
     height: 15,
     borderRadius: 8,
-    backgroundColor: '#F0F0EE',
+    backgroundColor: '#E9EEE4',
     marginBottom: 7,
   },
   skeletonBrand: {
     width: 92,
     height: 11,
     borderRadius: 6,
-    backgroundColor: '#F4F4F2',
+    backgroundColor: '#F0F3EC',
     marginBottom: 10,
   },
   skeletonMeta: {
     width: 126,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#F0F0EE',
+    backgroundColor: '#E9EEE4',
   },
   skeletonChevron: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#F0F0EE',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#E9EEE4',
   },
   skeletonStatusTitle: {
     width: 128,
     height: 13,
     borderRadius: 7,
-    backgroundColor: '#E9E9E5',
+    backgroundColor: '#E2EBDD',
     marginBottom: 6,
   },
   skeletonStatusLine: {
     width: '84%',
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#EDEDE9',
+    backgroundColor: '#E7EFE3',
   },
   emptyState: {
     flex: 1,
@@ -729,60 +942,58 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   emptyIconCircle: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: Colors.surface,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.borderLight,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.05,
-    shadowRadius: 18,
-    elevation: 2,
+    borderColor: 'rgba(46, 158, 52, 0.18)',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 22,
+    elevation: 3,
   },
   emptyTitle: {
-    fontSize: 19,
-    fontWeight: '800' as const,
+    fontSize: 20,
+    fontWeight: '900' as const,
     color: Colors.text,
-    letterSpacing: -0.2,
+    letterSpacing: -0.25,
   },
   emptySubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
   },
   premiumUpsellCard: {
     marginTop: 12,
-    backgroundColor: Colors.surface,
-    borderRadius: 22,
+    borderRadius: 26,
     padding: 24,
     alignItems: 'center',
     gap: 10,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 22,
     elevation: 4,
     borderWidth: 1.5,
-    borderColor: Colors.primaryBorder,
+    borderColor: 'rgba(46, 158, 52, 0.22)',
   },
   premiumUpsellIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.primaryLight,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
   },
   premiumUpsellTitle: {
     fontSize: 18,
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
     color: Colors.text,
     letterSpacing: -0.2,
   },
@@ -791,23 +1002,23 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
   },
   premiumUpsellButton: {
     backgroundColor: Colors.primary,
     paddingVertical: 13,
     paddingHorizontal: 32,
-    borderRadius: 16,
+    borderRadius: 17,
     marginTop: 4,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
     elevation: 4,
   },
   premiumUpsellButtonText: {
     fontSize: 15,
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
     color: Colors.white,
   },
 });
