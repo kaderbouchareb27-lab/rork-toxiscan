@@ -464,13 +464,18 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       };
     }
 
-    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → aucun');
+    const explication = ing.explication || (isEnglish() ? 'Ingredient not in database, no identified risk.' : 'Ingrédient non répertorié, sans risque identifié.');
+    const naturalKeywords = ['natural', 'naturel', 'plant', 'herb', 'spice', 'épice', 'epice', 'herbe', 'vegetable', 'légume', 'legume', 'fruit', 'organic'];
+    const lowerExplication = explication.toLowerCase();
+    const isNatural = naturalKeywords.some((kw) => lowerExplication.includes(kw));
+    const fallbackRisk: RiskLevel = isNatural ? 'aucun' : 'possible';
+    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (isNatural ? ' (natural keyword detected)' : ''));
     return {
       nom: ing.nom,
       code: null,
       classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
-      niveau_risque: 'possible' as RiskLevel,
-      explication: ing.explication || (isEnglish() ? 'Ingredient not in database, no identified risk.' : 'Ingrédient non répertorié, sans risque identifié.'),
+      niveau_risque: fallbackRisk,
+      explication,
       source_exposition: null,
     };
   });

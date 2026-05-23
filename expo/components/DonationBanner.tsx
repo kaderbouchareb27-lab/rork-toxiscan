@@ -12,7 +12,7 @@ export default function DonationBanner() {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <HeartHandshake color={Colors.primary} size={16} strokeWidth={2} />
+        <HeartHandshake color={Colors.primaryDark} size={17} strokeWidth={1.9} />
       </View>
       <Text style={styles.text}>
         {t('donation_text')}
@@ -27,27 +27,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 22,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    borderWidth: 1,
+    borderColor: '#F0ECE4',
+    shadowColor: '#2F281F',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.04,
-    shadowRadius: 8,
+    shadowRadius: 18,
     elevation: 2,
   },
   iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.primaryBorder,
   },
   text: {
     flex: 1,
     fontSize: 13,
     color: Colors.textSecondary,
     lineHeight: 19,
-    fontWeight: '500' as const,
+    fontWeight: '400' as const,
   },
 });

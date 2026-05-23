@@ -15,20 +15,20 @@ function TabBarBackground() {
       />
     );
   }
-  return <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(250,250,250,0.96)' }]} />;
+  return <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(250,250,248,0.96)' }]} />;
 }
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#2E9E34",
-        tabBarInactiveTintColor: "#B8B8B3",
+        tabBarActiveTintColor: "#2D6A4F",
+        tabBarInactiveTintColor: "#8C8F88",
         headerShown: false,
         tabBarBackground: () => <TabBarBackground />,
         tabBarStyle: {
-          backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(250,250,250,0.96)',
-          borderTopColor: '#E8E8E6',
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(250,250,248,0.96)',
+          borderTopColor: '#E8E1D6',
           borderTopWidth: StyleSheet.hairlineWidth,
           elevation: 0,
           shadowColor: 'transparent',

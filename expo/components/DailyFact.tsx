@@ -8,8 +8,8 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import { Image as RNImage } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { Lightbulb } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { DAILY_FACTS, getTodayFactIndex } from '@/mocks/scannerContent';
 import { t } from '@/utils/i18n';
@@ -81,11 +81,7 @@ export default function DailyFact() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.avatarBubble}>
-          <RNImage
-            source={{ uri: 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png' }}
-            style={styles.avatarImage}
-            resizeMode="contain"
-          />
+          <Lightbulb color={Colors.primaryDark} size={22} strokeWidth={2} />
         </View>
         <Text style={styles.headerTitle}>{t('daily_fact_title')}</Text>
       </View>
@@ -115,64 +111,63 @@ export default function DailyFact() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: 26,
+    padding: 22,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
+    borderWidth: 1,
+    borderColor: '#F0ECE4',
+    shadowColor: '#2F281F',
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.06,
-    shadowRadius: 12,
+    shadowRadius: 24,
     elevation: 3,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
+    gap: 16,
+    marginBottom: 8,
   },
   avatarBubble: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: Colors.primaryLight,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(45, 106, 79, 0.10)',
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
-  },
-  avatarImage: {
-    width: 26,
-    height: 26,
   },
   headerTitle: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: '700' as const,
     color: Colors.text,
-    letterSpacing: -0.2,
+    letterSpacing: -0.45,
   },
   factContent: {
-    minHeight: 44,
+    minHeight: 52,
     justifyContent: 'center',
+    paddingLeft: 72,
   },
   factText: {
-    fontSize: 14,
-    color: '#4B5563',
-    lineHeight: 21,
+    fontSize: 15,
+    color: '#4D5350',
+    lineHeight: 22,
+    fontWeight: '400' as const,
   },
   dotsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 5,
-    marginTop: 14,
+    gap: 8,
+    marginTop: 18,
   },
   dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#E0E0E5',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#DDD8CE',
   },
   dotActive: {
     backgroundColor: Colors.primary,
-    width: 16,
-    borderRadius: 3,
+    width: 18,
+    borderRadius: 4,
   },
 });
