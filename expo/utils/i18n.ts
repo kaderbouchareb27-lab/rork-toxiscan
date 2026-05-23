@@ -428,14 +428,6 @@ const translations = {
   // ===== DAILY FACT =====
   daily_fact_title: { fr: 'Le saviez-vous ?', en: 'Did you know?' },
 
-  // ===== RISK SCORE BAR =====
-  risk_score_title: { fr: 'Score de risque Dr.Toxi', en: 'Dr.Toxi risk score' },
-  risk_low: { fr: 'Risque faible — Bon choix', en: 'Low risk — Good choice' },
-  risk_limited: { fr: 'Risque limité — Acceptable', en: 'Limited risk — Acceptable' },
-  risk_moderate: { fr: 'Risque modéré — À limiter', en: 'Moderate risk — To be limited' },
-  risk_high: { fr: 'Risque élevé — À éviter si possible', en: 'High risk — Avoid if possible' },
-  risk_very_high: { fr: 'Risque très élevé — Déconseillé', en: 'Very high risk — Not recommended' },
-
   // ===== CATEGORY LABELS (api.ts) =====
   cat_label_food: { fr: 'Aliment', en: 'Food' },
   cat_label_beverage: { fr: 'Boisson', en: 'Beverage' },
