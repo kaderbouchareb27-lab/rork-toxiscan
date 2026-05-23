@@ -501,7 +501,7 @@ export default function ScannerScreen() {
                   testID="photo-button"
                 >
                   <LinearGradient
-                    colors={['#2F7D55', '#168039', '#006B26']}
+                    colors={['#2E9E34', '#2E9E34', '#2E9E34']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.scanButtonGradient}

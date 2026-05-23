@@ -3,7 +3,7 @@
  * Keys preserved for backwards compatibility with existing screens.
  */
 const Colors = {
-  primary: '#2D6A4F',
+  primary: '#2E9E34',
   primaryDark: '#1B4332',
   primaryLight: 'rgba(45, 106, 79, 0.08)',
   primaryBorder: 'rgba(45, 106, 79, 0.18)',
@@ -23,7 +23,7 @@ const Colors = {
   danger: '#D0260F',
   warning: '#E8730A',
   caution: '#EAB308',
-  safe: '#2D6A4F',
+  safe: '#2E9E34',
   cardShadow: 'rgba(0, 0, 0, 0.05)',
   overlay: 'rgba(0, 0, 0, 0.5)',
   gradientStart: '#2F7D55',
