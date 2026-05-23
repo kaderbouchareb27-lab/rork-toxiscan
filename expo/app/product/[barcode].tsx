@@ -204,14 +204,179 @@ function truncateName(name: string, max: number = 60): string {
 
 function getRegionDisplayName(region: ReturnType<typeof detectRegion>['region']): string {
   switch (region) {
-    case 'quebec':       return isEnglish() ? '(Quebec)' : '(Québec)';
-    case 'canada_other': return isEnglish() ? '(Canada)' : '(Canada)';
-    case 'france':       return isEnglish() ? '(France)' : '(France)';
-    case 'usa':          return isEnglish() ? '(USA)' : '(USA)';
-    case 'belgium':      return isEnglish() ? '(Belgium)' : '(Belgique)';
-    case 'switzerland':  return isEnglish() ? '(Switzerland)' : '(Suisse)';
+    case 'quebec':       return isEnglish() ? 'Quebec' : 'Québec';
+    case 'canada_other': return 'Canada';
+    case 'france':       return 'France';
+    case 'usa':          return 'USA';
+    case 'belgium':      return isEnglish() ? 'Belgium' : 'Belgique';
+    case 'switzerland':  return isEnglish() ? 'Switzerland' : 'Suisse';
     default:             return '';
   }
+}
+
+// ─────────────────────────────────────────────
+// Product-specific real-world advice
+// Returns concrete, actionable guidance based on the product type
+// (e.g. candy → organic candy without artificial dyes / aspartame)
+// (e.g. charcuterie → nitrite-free deli from a real butcher)
+// ─────────────────────────────────────────────
+function getProductSpecificAdvice(
+  productName: string,
+  productCategory: string | undefined,
+  detectedAdditiveNames: string[],
+): string[] {
+  const english = isEnglish();
+  const name = (productName ?? '').toLowerCase();
+  const additives = detectedAdditiveNames.map(a => a.toLowerCase()).join(' ');
+  const cat = (productCategory ?? '').toLowerCase();
+  const haystack = `${name} ${additives}`;
+
+  const has = (...kws: string[]) => kws.some(k => haystack.includes(k));
+
+  // Charcuterie / processed meat
+  if (has('jambon', 'ham', 'salami', 'saucisson', 'bacon', 'charcuterie', 'deli', 'sausage', 'saucisse', 'hot dog', 'pepperoni', 'nitrit', 'nitrate', 'e249', 'e250', 'e251', 'e252')) {
+    return english
+      ? [
+          'Choose nitrite-free deli meat from your local butcher (look for "uncured", "no added nitrites", "sans nitrites").',
+          'Pick organic certified brands like Applegate Naturals or Pederson\'s in the US, Maison du Jambon or Aoste Bio in France, or Charcuteries Parizeau (sans nitrite) in Quebec.',
+          'Or replace processed meat with roasted chicken, fresh turkey breast, or homemade slow-cooked pork.',
+        ]
+      : [
+          'Va chez ton boucher local et demande de la charcuterie sans nitrite de sodium (mention « sans nitrite » ou « zéro nitrite » sur l\'étiquette).',
+          'Privilégie des marques bio certifiées comme Charcuteries Parizeau ou Viandes Biologiques des Cantons (Québec), Maison Loste Sans Nitrite ou Aoste Bio (France), Applegate Naturals (USA).',
+          'Ou remplace la charcuterie par du poulet rôti, de la dinde fraîche tranchée, ou du porc effiloché maison.',
+        ];
+  }
+
+  // Candy / bonbons
+  if (has('bonbon', 'candy', 'gummy', 'gomme', 'haribo', 'jelly', 'lollipop', 'sucette', 'dragibus', 'm&m', 'skittles')) {
+    return english
+      ? [
+          'Switch to organic candy without artificial dyes (no Red 40, Yellow 5, Blue 1) and no aspartame.',
+          'Try brands like YumEarth, Surf Sweets, Torie & Howard or Smart Sweets — sold at Whole Foods, Sprouts, Target.',
+          'For a gummy fix: dried mango, dates stuffed with peanut butter, or homemade fruit gummies with real juice + gelatin.',
+        ]
+      : [
+          'Passe à des bonbons biologiques sans colorants artificiels (pas de E102, E110, E122, E129) et sans aspartame.',
+          'Marques recommandées : Bonbons Vrai (FR, Biocoop), Sula bio, Lovechock, ou les bonbons aux fruits Jardin Bio Étic.',
+          'Pour une envie de mâcher : dattes Medjool, mangue séchée bio, fruits secs ou pâtes de fruits artisanales sans additif.',
+        ];
+  }
+
+  // Soda / sugary drinks
+  if (has('soda', 'cola', 'pepsi', 'fanta', 'sprite', 'energy drink', 'soft drink', 'limonade', 'aspartame', 'e951', 'e950', 'acésulfame')) {
+    return english
+      ? [
+          'Drop sodas with aspartame, acesulfame-K or artificial colors — they\'re classified as possibly carcinogenic.',
+          'Healthier swaps: Olipop, Poppi, Spindrift, San Pellegrino + lemon, or kombucha (GT\'s, Health-Ade).',
+          'Best of all: filtered water + fresh fruit slices, sparkling water with lime, or homemade iced herbal tea.',
+        ]
+      : [
+          'Évite les sodas contenant de l\'aspartame (E951), de l\'acésulfame-K (E950) ou des colorants artificiels — classés possiblement cancérigènes.',
+          'Alternatives plus saines : kombucha (Rise, Karma), eaux pétillantes aromatisées naturellement (Perrier + citron, San Pellegrino), Olipop ou Poppi.',
+          'Le mieux : eau filtrée avec rondelles de fruits frais, ou infusion glacée maison non sucrée.',
+        ];
+  }
+
+  // Chips / snacks
+  if (has('chips', 'crisp', 'doritos', 'lays', 'pringles', 'tortilla')) {
+    return english
+      ? [
+          'Choose chips with a short ingredient list: potato, oil, salt — nothing else. No MSG, no flavor enhancers (E621), no TBHQ.',
+          'Good brands: Siete Foods, Jackson\'s Honest, Late July Organic, or Kettle Brand Organic — at Whole Foods, Sprouts, Target.',
+          'Or make your own: thinly sliced sweet potato or kale, olive oil, sea salt, baked at 180°C / 350°F.',
+        ]
+      : [
+          'Choisis des chips à liste courte : pomme de terre, huile, sel — rien d\'autre. Évite le glutamate (E621), les exhausteurs de goût et le TBHQ.',
+          'Bonnes marques : Belsia bio, Brets Bio, Vico Bio, ou les chips Jardin Bio Étic — chez Biocoop, Naturalia, Carrefour Bio.',
+          'Ou fais-les maison : patate douce ou chou kale en fines tranches, huile d\'olive, sel, au four à 180°C.',
+        ];
+  }
+
+  // Breakfast cereals
+  if (has('cereal', 'céréale', 'corn flakes', 'frosted', 'kellogg', 'nesquik')) {
+    return english
+      ? [
+          'Skip cereals with BHT (E321), BHA (E320), artificial colors or more than 8g of added sugar per serving.',
+          'Cleaner picks: One Degree Organic, Nature\'s Path Organic, Cascadian Farm Organic, Three Wishes — at Whole Foods, Sprouts.',
+          'Best breakfast: plain oats with fresh fruit, nuts and a drizzle of honey or maple syrup.',
+        ]
+      : [
+          'Évite les céréales contenant du BHT (E321), BHA (E320), colorants artificiels ou plus de 8g de sucre ajouté par portion.',
+          'Meilleures options : Jordans, Bjorg, Favrichon, Priméal — chez Biocoop, Naturalia, Carrefour Bio.',
+          'Encore mieux : flocons d\'avoine nature avec fruits frais, noix et un filet de miel ou sirop d\'érable.',
+        ];
+  }
+
+  // Dairy yogurt
+  if (has('yogurt', 'yaourt', 'yoghurt', 'danone', 'activia', 'oikos')) {
+    return english
+      ? [
+          'Avoid yogurts with aspartame, sucralose, artificial colors, or carrageenan (E407) — pick plain whole-milk yogurt instead.',
+          'Good options: Stonyfield Organic, Maple Hill Grass-fed, Siggi\'s, or Straus Family Creamery.',
+          'Add your own fresh fruit, raw honey, or pure maple syrup — way less sugar than flavored yogurts.',
+        ]
+      : [
+          'Évite les yaourts contenant aspartame, sucralose, colorants ou carraghénane (E407) — préfère un yaourt nature au lait entier.',
+          'Bonnes options : Yaourts La Laitière nature, Les 2 Vaches bio, Bjorg, Vrai bio, ou Liberté bio (Québec).',
+          'Ajoute toi-même fruits frais, miel cru ou sirop d\'érable — bien moins de sucre que les yaourts aromatisés.',
+        ];
+  }
+
+  // Cosmetics / skincare
+  if (cat.includes('cosmetic') || has('shampoo', 'shampooing', 'cream', 'crème', 'lotion', 'deodorant', 'déodorant', 'paraben', 'sulfate', 'phthalate')) {
+    return english
+      ? [
+          'Pick products without parabens, phthalates, SLS/SLES sulfates, formaldehyde-releasers, or synthetic fragrance.',
+          'Trusted clean brands: Attitude (EWG Verified), The Honest Company, Beautycounter, Dr. Bronner\'s, Weleda.',
+          'Check the INCI list on the EWG Skin Deep or Yuka app before buying anything new.',
+        ]
+      : [
+          'Choisis des produits sans parabens, phtalates, sulfates (SLS/SLES), formaldéhyde ou parfum synthétique.',
+          'Marques clean fiables : Attitude (Québec), Weleda, Cattier, Druide, Coslys, Centifolia — chez Biocoop, Naturalia, Jean Coutu (section bio).',
+          'Scanne la liste INCI avec l\'app Yuka ou INCI Beauty avant tout achat.',
+        ];
+  }
+
+  // Household cleaning
+  if (cat.includes('household')) {
+    return english
+      ? [
+          'Avoid cleaners with quaternary ammonium compounds, synthetic fragrance, dyes, or "caution / danger" labels.',
+          'Safer brands: Branch Basics, Attitude, Seventh Generation, Method, Mrs. Meyer\'s, or Dr. Bronner\'s castile soap.',
+          'DIY all-purpose cleaner: white vinegar + water + 10 drops of tea tree or lemon essential oil — works for almost everything.',
+        ]
+      : [
+          'Évite les nettoyants contenant des ammoniums quaternaires, parfums synthétiques, colorants ou mentions « attention / danger ».',
+          'Marques plus sûres : Attitude, L\'Arbre Vert, Ecover, Etamine du Lys, Druide — chez Biocoop, Naturalia, ou en grande surface bio.',
+          'Recette maison universelle : vinaigre blanc + eau + 10 gouttes d\'huile essentielle de tea tree ou citron — efficace partout.',
+        ];
+  }
+
+  // Default — food / beverage / other
+  if (cat.includes('beverage') || cat.includes('food') || cat === '') {
+    return english
+      ? [
+          'Look for the shortest possible ingredient list — if you can\'t pronounce it, you probably shouldn\'t eat it.',
+          'Prefer organic certified versions (USDA Organic, EU Bio leaf) of the same product, sold at Whole Foods, Sprouts, Biocoop, Naturalia, IGA bio section.',
+          'When possible, replace the product with a fresh, whole-food version made from scratch.',
+        ]
+      : [
+          'Cherche la liste d\'ingrédients la plus courte possible — si tu ne sais pas prononcer un mot, c\'est probablement à éviter.',
+          'Préfère la version bio certifiée (label AB, Eurofeuille, USDA Organic) du même produit — en magasin spécialisé (Biocoop, Naturalia, Avril) ou en rayon bio des supermarchés.',
+          'Quand c\'est possible, remplace le produit transformé par une version maison à base d\'ingrédients frais et bruts.',
+        ];
+  }
+
+  return english
+    ? [
+        'Choose certified clean alternatives (organic, EWG Verified, Made Safe) of the same product type.',
+        'Check the ingredient list carefully and avoid the substances flagged above.',
+      ]
+    : [
+        'Choisis une alternative certifiée propre (bio, écolabel, Nature & Progrès) du même type de produit.',
+        'Lis attentivement la liste d\'ingrédients et évite les substances signalées plus haut.',
+      ];
 }
 
 function shortenText(text: string, maxSentences: number): string {
@@ -550,12 +715,26 @@ export default function ProductScreen() {
             <View style={styles.bioStoresCard}>
               <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
 
+              <Text style={styles.bioStoresSubtitle}>
+                {isEnglish() ? 'Real advice for this product' : 'Conseils concrets pour ce produit'}
+              </Text>
+              {getProductSpecificAdvice(
+                product.name,
+                product.productCategory,
+                product.detectedAdditives.map(a => a.name),
+              ).map((tip, i) => (
+                <View key={`tip-${i}`} style={styles.adviceItem}>
+                  <View style={styles.adviceBullet} />
+                  <Text style={styles.adviceText}>{tip}</Text>
+                </View>
+              ))}
+
               {getRegionSpecialtyStores(userCountry).length > 0 ? (
                 <>
                   <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
                   {getRegionSpecialtyStores(userCountry).map((s, i) => (
                     <View key={`spec-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2D6A3E" size={14} strokeWidth={2} />
+                      <Store color="#2E9E34" size={14} strokeWidth={2} />
                       <Text style={styles.bioStoreText}>{s}</Text>
                     </View>
                   ))}
@@ -567,7 +746,7 @@ export default function ProductScreen() {
                   <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
                   {getRegionGroceryStores(userCountry).map((s, i) => (
                     <View key={`groc-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2D6A3E" size={14} strokeWidth={2} />
+                      <Store color="#2E9E34" size={14} strokeWidth={2} />
                       <Text style={styles.bioStoreText}>{s}</Text>
                     </View>
                   ))}
@@ -581,7 +760,7 @@ export default function ProductScreen() {
                   </Text>
                   {getRegionCleanBrands(userCountry, isNonFood).map((b, i) => (
                     <View key={`brand-${i}`} style={styles.bioStoreItem}>
-                      <CheckCircle color="#2D6A3E" size={14} strokeWidth={2} />
+                      <CheckCircle color="#2E9E34" size={14} strokeWidth={2} />
                       <Text style={styles.bioStoreText}>{b}</Text>
                     </View>
                   ))}
@@ -593,7 +772,7 @@ export default function ProductScreen() {
                   <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
                   {getRegionLocalMarkets(userCountry).map((m, i) => (
                     <View key={`mkt-${i}`} style={styles.bioStoreItem}>
-                      <MapPin color="#2D6A3E" size={14} strokeWidth={2} />
+                      <MapPin color="#2E9E34" size={14} strokeWidth={2} />
                       <Text style={styles.bioStoreText}>{m}</Text>
                     </View>
                   ))}
@@ -744,12 +923,15 @@ const styles = StyleSheet.create({
   healthyAltContent: { flex: 1 },
   healthyAltName: { fontSize: 15, fontWeight: '600' as const, color: '#1A1A1A', marginBottom: 3 },
   healthyAltReason: { fontSize: 13, color: '#4A7C59', lineHeight: 18 },
-  bioStoresCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
-  bioStoresIntro: { fontSize: 14, color: '#3A6B4A', lineHeight: 20, marginBottom: 16 },
-  bioStoresSubtitle: { fontSize: 14, fontWeight: '600' as const, color: '#1A1A1A', marginTop: 14, marginBottom: 6 },
+  bioStoresCard: { backgroundColor: '#E8F9ED', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.25)' },
+  bioStoresIntro: { fontSize: 14, color: '#1F5A28', lineHeight: 20, marginBottom: 6 },
+  bioStoresSubtitle: { fontSize: 14, fontWeight: '700' as const, color: '#1A1A1A', marginTop: 16, marginBottom: 8 },
   bioStoreItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 5 },
-  bioStoreText: { fontSize: 14, color: '#2D4A35' },
-  bioStoresNote: { fontSize: 13, color: '#5A7D65', lineHeight: 19 },
+  bioStoreText: { fontSize: 14, color: '#1A1A1A' },
+  bioStoresNote: { fontSize: 13, color: '#1F5A28', lineHeight: 19 },
+  adviceItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, gap: 10, paddingVertical: 6 },
+  adviceBullet: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#2E9E34', marginTop: 7 },
+  adviceText: { flex: 1, fontSize: 14, color: '#1A1A1A', lineHeight: 20 },
   bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
   bigShareButtonGreen: { backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
   bigShareButtonLoading: { opacity: 0.8 },
