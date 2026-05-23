@@ -391,6 +391,14 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // --- Thés et plantes ---
   { keywords: ['the vert', 'thé vert', 'green tea', 'extrait de the vert', 'extrait de thé vert'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['the noir', 'thé noir', 'black tea', 'rooibos'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['cafe', 'café', 'coffee', 'grains de cafe', 'grains de café', 'coffee beans', 'extrait de cafe', 'extrait de café', 'coffee extract'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Boisson naturelle obtenue à partir de grains torréfiés. Riche en antioxydants (polyphénols). Aucun risque de cancer identifié — le CIRC a retiré le café de sa liste de cancérogènes possibles en 2016.' },
+
+  // --- Stimulants naturels — JAUNE (sains mais à modérer) ---
+  { keywords: ['cafeine', 'caféine', 'caffeine', 'cafeine anhydre', 'caféine anhydre', 'anhydrous caffeine', 'caffeine anhydrous'], code: null, risk: 'possible', circ: 'Naturel — à modérer', note: 'Stimulant naturel présent dans le café, le thé, le cacao et le guarana. Aucun lien avéré avec le cancer. Bénéfices : vigilance, performance cognitive et sportive, antioxydants. À modérer : max 400 mg/jour pour un adulte (≈ 4 cafés), 200 mg/jour pendant la grossesse.' },
+  { keywords: ['guarana', 'extrait de guarana', 'guarana extract'], code: null, risk: 'possible', circ: 'Naturel — à modérer', note: 'Plante amazonienne riche en caféine naturelle. Effet stimulant prolongé. Sans danger en quantité raisonnable mais à éviter chez les enfants et femmes enceintes.' },
+  { keywords: ['theine', 'théine', 'theobromine', 'théobromine'], code: null, risk: 'possible', circ: 'Naturel — à modérer', note: 'Alcaloïdes naturels du thé et du cacao, proches de la caféine. Effet stimulant doux. À modérer en cas de sensibilité.' },
+  { keywords: ['taurine'], code: null, risk: 'possible', circ: 'Acide aminé', note: 'Acide aminé naturellement présent dans le corps et certains aliments (viande, poisson). Dans les boissons énergisantes, il est produit par synthèse. Sans danger aux doses usuelles selon l\'EFSA, mais à modérer en combinaison avec la caféine.' },
+  { keywords: ['ginseng', 'extrait de ginseng', 'ginseng extract'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Plante adaptogène traditionnelle. Soutient la vitalité et la concentration.' },
 
   // --- Protéines et poissons naturels ---
   { keywords: ['saumon sauvage', 'wild salmon', 'sardine', 'sardines', 'maquereau', 'mackerel', 'anchois', 'anchovy'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Riche en oméga-3.' },

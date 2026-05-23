@@ -249,6 +249,21 @@ function getProductSpecificAdvice(
         ];
   }
 
+  // Caffeine / energy drinks / coffee / pre-workout (BEFORE candy to avoid 'gomme' matching caffeine gum)
+  if (has('caffeine', 'caféine', 'cafeine', 'guarana', 'taurine', 'energy drink', 'energy shot', 'red bull', 'monster', 'rockstar', 'celsius', 'bang', 'reign', 'prime energy', 'pre-workout', 'pre workout', 'coffee', 'café', 'cafe', 'espresso', 'nespresso', 'starbucks')) {
+    return english
+      ? [
+          'Caffeine itself is natural and safe in moderation — limit total intake to ~400 mg/day (about 4 coffees) and avoid after 2pm.',
+          'Prefer simple sources: plain coffee, black or green tea, yerba mate. Skip energy drinks loaded with sugar, artificial colors or sweeteners (aspartame, sucralose).',
+          'Cleaner options: cold-brew coffee, matcha, Guayaki yerba mate, or sparkling water with a shot of espresso. Avoid drinks aimed at kids/teens (AMA guidance).',
+        ]
+      : [
+          'La caféine est naturelle et sans danger avec modération — vise max 400 mg/jour (≈ 4 cafés) et évite après 14h.',
+          'Privilégie les sources simples : café noir, thé vert ou noir, maté. Évite les boissons énergisantes chargées en sucre, colorants ou édulcorants (aspartame, sucralose).',
+          'Meilleures options : café filtre ou expresso, matcha, maté Guayaki, ou eau pétillante + shot d\'expresso. À éviter chez les enfants et adolescents (recommandation AMA).',
+        ];
+  }
+
   // Candy / bonbons
   if (has('bonbon', 'candy', 'gummy', 'gomme', 'haribo', 'jelly', 'lollipop', 'sucette', 'dragibus', 'm&m', 'skittles')) {
     return english
