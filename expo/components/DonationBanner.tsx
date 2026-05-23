@@ -12,7 +12,7 @@ export default function DonationBanner() {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <HeartHandshake color={Colors.primaryDark} size={17} strokeWidth={1.9} />
+        <HeartHandshake color={Colors.primary} size={17} strokeWidth={1.9} />
       </View>
       <Text style={styles.text}>
         {t('donation_text')}
@@ -41,11 +41,11 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.primaryBorder,
+    borderColor: 'rgba(46, 158, 52, 0.22)',
   },
   text: {
     flex: 1,
