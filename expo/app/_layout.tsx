@@ -37,6 +37,7 @@ import { ScanHistoryProvider } from "@/providers/ScanHistoryProvider";
 import { BadgesProvider } from "@/providers/BadgesProvider";
 import { OnboardingProvider } from "@/providers/OnboardingProvider";
 import { QuizProvider } from "@/providers/QuizProvider";
+import { LocationProvider } from "@/providers/LocationProvider";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -180,7 +181,9 @@ export default function RootLayout() {
                 <BadgesProvider>
                   <OnboardingProvider>
                     <QuizProvider>
-                      <RootLayoutNav />
+                      <LocationProvider>
+                        <RootLayoutNav />
+                      </LocationProvider>
                     </QuizProvider>
                   </OnboardingProvider>
                 </BadgesProvider>

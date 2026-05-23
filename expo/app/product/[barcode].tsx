@@ -36,6 +36,7 @@ import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName
 import { PhotoType, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
+import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
@@ -540,6 +541,20 @@ export default function ProductScreen() {
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
   const regionInfo = useMemo(() => detectRegion(), []);
   const userCountry = regionInfo.region;
+  const { location, isResolving, requestAndResolve } = useLocation();
+
+  const handleEnableLocation = useCallback(async () => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await requestAndResolve();
+  }, [requestAndResolve]);
+
+  const locationLabel = useMemo(() => {
+    if (!location) return null;
+    const parts: string[] = [];
+    if (location.city) parts.push(location.city);
+    if (location.subregion && location.subregion !== location.city) parts.push(location.subregion);
+    return parts.join(', ');
+  }, [location]);
 
   const shortAnalysis = useMemo(() => {
     if (!product.analysisSummary) return null;
@@ -709,10 +724,33 @@ export default function ProductScreen() {
             <View style={styles.sectionTitleRow}>
               <MapPin color={Colors.primary} size={18} />
               <Text style={styles.sectionTitle}>
-                {t('where_find_alternatives')} {getRegionDisplayName(userCountry)}
+                {t('where_find_alternatives')} {locationLabel ?? getRegionDisplayName(userCountry)}
               </Text>
             </View>
             <View style={styles.bioStoresCard}>
+              {locationLabel ? (
+                <View style={styles.locationPill}>
+                  <MapPin color="#2E9E34" size={13} />
+                  <Text style={styles.locationPillText} numberOfLines={1}>
+                    {isEnglish() ? 'Suggestions near' : 'Suggestions proches de'} {locationLabel}
+                  </Text>
+                </View>
+              ) : Platform.OS !== 'web' ? (
+                <TouchableOpacity
+                  style={styles.enableLocationButton}
+                  onPress={handleEnableLocation}
+                  activeOpacity={0.85}
+                  disabled={isResolving}
+                  testID="enable-location"
+                >
+                  <MapPin color="#FFFFFF" size={15} />
+                  <Text style={styles.enableLocationText}>
+                    {isResolving
+                      ? (isEnglish() ? 'Locating…' : 'Localisation…')
+                      : (isEnglish() ? 'Suggest stores near me' : 'Magasins près de chez moi')}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
               <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
 
               <Text style={styles.bioStoresSubtitle}>
@@ -855,6 +893,10 @@ export default function ProductScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFAF8' },
+  locationPill: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, alignSelf: 'flex-start' as const, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#E8F9ED', borderRadius: 999, marginBottom: 10, borderWidth: 1, borderColor: '#C7EBD0' },
+  locationPillText: { fontSize: 12, fontWeight: '700' as const, color: '#1F6B2A', letterSpacing: -0.1 },
+  enableLocationButton: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 7, alignSelf: 'flex-start' as const, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: '#2E9E34', borderRadius: 999, marginBottom: 12, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 8, elevation: 3 },
+  enableLocationText: { fontSize: 12.5, fontWeight: '800' as const, color: '#FFFFFF', letterSpacing: -0.1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#FAFAF8' },
   backButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   headerTitle: { fontSize: 17, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.2, flex: 1, textAlign: 'center' as const, marginHorizontal: 8 },
