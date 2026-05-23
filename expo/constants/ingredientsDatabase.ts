@@ -109,6 +109,18 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['azodicarbonamide', 'e927a'], code: 'E927a', risk: 'probable', circ: 'Interdit UE' },
   { keywords: ['potassium bromate', 'e924'], code: 'E924', risk: 'probable', circ: 'Groupe 2B', note: 'Interdit en UE, Canada, Royaume-Uni.' },
 
+  // --- Sels et minéraux industriels → ORANGE ---
+  { keywords: ['citrate de sodium', 'sodium citrate', 'e331'], code: 'E331', risk: 'probable', circ: 'Ultra-transformé', note: 'Sel synthétisé industriellement, aucune forme naturelle. Marqueur d\'ultra-transformation.' },
+  { keywords: ['carbonate de calcium', 'calcium carbonate', 'e170'], code: 'E170', risk: 'probable', circ: 'Ultra-transformé', note: 'Extraction et raffinage industriels lourds (mines). Procédé minier intensif.' },
+
+  // --- Ingrédients industriels ultra-transformés → ORANGE ---
+  { keywords: ['vinaigre en poudre', 'powdered vinegar', 'vinegar powder', 'poudre de vinaigre'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Procédé industriel avec agents épaississants (maltodextrine ou amidons). Loin du vinaigre liquide naturel.' },
+  { keywords: ['tapioca dextrin', 'dextrine de tapioca', 'tapioca dextrine'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé issu du manioc par hydrolyse acide ou enzymatique.' },
+  { keywords: ['cire de carnauba', 'carnauba wax', 'e903'], code: 'E903', risk: 'probable', circ: 'Ultra-transformé', note: 'Cire végétale fortement raffinée industriellement, traitements solvants.' },
+  { keywords: ['extrait d\'epices', 'extrait d\'épices', 'extraits d\'epices', 'extraits d\'épices', 'spice extract', 'spice extracts', 'oleoresins'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Extraction industrielle aux solvants (hexane, éthanol). Très éloigné de l\'épice entière.' },
+  { keywords: ['concentre de fruits', 'concentré de fruits', 'concentres de fruits', 'concentrés de fruits', 'fruit concentrate', 'fruit concentrates', 'concentre de legumes', 'concentré de légumes', 'concentres de legumes', 'concentrés de légumes', 'vegetable concentrate', 'vegetable concentrates', 'concentres de fruits et legumes', 'concentrés de fruits et légumes'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Extraction industrielle par solvants ou centrifugation. Sucres concentrés, fibres perdues.' },
+  { keywords: ['fumee naturelle', 'fumée naturelle', 'natural smoke', 'fumee', 'fumée', 'smoke flavor', 'smoke flavoring', 'arome de fumee', 'arôme de fumée'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Contient des HAP (hydrocarbures aromatiques polycycliques) issus de la combustion. Procédé industriel.' },
+
   // --- NOUVEAUX ADDITIFS 🟠 ORANGE ---
   { keywords: ['argent', 'silver', 'e174'], code: 'E174', risk: 'probable', circ: 'Nanoparticules métalliques', note: 'Nanoparticules métalliques, accumulation organes, argyrie irréversible.' },
   { keywords: ['edta', 'ethylenediaminetetraacetate', 'éthylènediaminetétraacétate', 'edta calcium disodique', 'calcium disodium edta', 'e385'], code: 'E385', risk: 'probable', circ: 'Chélateur industriel', note: 'Chélateur industriel qui perturbe l\'absorption des minéraux essentiels (zinc, fer, magnésium).' },
@@ -190,6 +202,13 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['tripolyphosphate', 'e451'], code: 'E451', risk: 'possible', circ: 'Excès phosphates' },
   { keywords: ['polyphosphate', 'e452'], code: 'E452', risk: 'possible', circ: 'Excès phosphates' },
   { keywords: ['phosphate de sodium', 'phosphate de potassium', 'phosphate de calcium', 'sodium phosphate', 'e339', 'e340', 'e341'], code: 'E339/E340/E341', risk: 'possible', circ: 'Excès phosphates', note: 'Excès lié à calcification artères et troubles rénaux.' },
+
+  // --- Sels et acides industriels → JAUNE ---
+  { keywords: ['chlorure de potassium', 'potassium chloride', 'e508'], code: 'E508', risk: 'possible', circ: 'Substitut de sel industriel', note: 'Minéral mais utilisé comme substitut de sel industriel. Procédé de raffinage. À modérer chez les personnes avec insuffisance rénale.' },
+  { keywords: ['acide lactique', 'lactic acid', 'e270'], code: 'E270', risk: 'possible', circ: 'Souvent synthétique', note: 'Souvent produit par fermentation industrielle ou synthèse chimique, et non issu naturellement du lait.' },
+  { keywords: ['acide malique', 'malic acid', 'e296'], code: 'E296', risk: 'possible', circ: 'Souvent synthétique', note: 'Industriellement synthétisé pour usage alimentaire (rarement extrait des fruits).' },
+  { keywords: ['spiruline', 'spirulina', 'spirulina extract', 'extrait de spiruline'], code: null, risk: 'possible', circ: 'Extraction industrielle', note: 'Algue naturelle mais procédé d\'extraction et de séchage industriel lourd. Risque de contamination métaux lourds selon la source.' },
+  { keywords: ['bouillon', 'broth', 'bouillon de porc', 'bouillon de poulet', 'bouillon de boeuf', 'bouillon de bœuf', 'bouillon de legumes', 'bouillon de légumes', 'chicken broth', 'pork broth', 'beef broth', 'vegetable broth', 'bouillon compose', 'bouillon composé'], code: null, risk: 'possible', circ: 'Transformé', note: 'Ingrédient composite transformé. Contient souvent du sel, des exhausteurs et des arômes ajoutés.' },
 
   // --- Conservateurs modérés → JAUNE ---
   { keywords: ['sodium benzoate', 'benzoate de sodium', 'e211'], code: 'E211', risk: 'possible', circ: 'Controversé', note: 'Forme du benzène avec vitamine C dans certaines boissons.' },
@@ -337,17 +356,12 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Acides et antioxydants naturels ---
   { keywords: ['vitamine c', 'acide ascorbique', 'ascorbic acid', 'e300'], code: 'E300', risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['acide lactique', 'lactic acid', 'e270'], code: 'E270', risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['acide malique', 'malic acid', 'e296'], code: 'E296', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['pectine', 'pectin', 'e440'], code: 'E440', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['lecithine de tournesol', 'sunflower lecithin', 'lécithine de tournesol'], code: 'E322', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['agar agar', 'agar-agar', 'e406'], code: 'E406', risk: 'aucun', circ: 'Naturel' },
 
   // --- Sels minéraux sûrs ---
-  { keywords: ['citrate de sodium', 'sodium citrate', 'e331'], code: 'E331', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['citrate de potassium', 'potassium citrate', 'e332'], code: 'E332', risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['chlorure de potassium', 'potassium chloride', 'e508'], code: 'E508', risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['carbonate de calcium', 'calcium carbonate', 'e170'], code: 'E170', risk: 'aucun', circ: 'Naturel' },
   { keywords: ['carbonate de sodium', 'sodium carbonate', 'e500'], code: 'E500', risk: 'aucun', circ: 'Naturel' },
 
   // --- Thés et plantes ---
@@ -357,7 +371,6 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // --- Protéines et poissons naturels ---
   { keywords: ['saumon sauvage', 'wild salmon', 'sardine', 'sardines', 'maquereau', 'mackerel', 'anchois', 'anchovy'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Riche en oméga-3.' },
   { keywords: ['porc', 'pork', 'bœuf', 'boeuf', 'beef', 'poulet', 'chicken', 'dinde', 'turkey'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['fumée', 'smoke', 'fumée naturelle', 'natural smoke'], code: null, risk: 'aucun', circ: 'Naturel' },
 
 ] as const;
 
