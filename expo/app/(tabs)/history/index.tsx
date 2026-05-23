@@ -26,7 +26,6 @@ import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { RiskGroup, ScannedProduct } from '@/types';
-import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, getDateLocale } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForRiskGroup } from '@/constants/drToxiAvatars';
 
@@ -181,7 +180,6 @@ export default function HistoryScreen() {
 
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
     const risk = getHistoryRiskPresentation(item.riskGroup);
-    const displayedRiskScore = getDisplayedRiskScore(item);
     const date = new Date(item.scannedAt);
     const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',

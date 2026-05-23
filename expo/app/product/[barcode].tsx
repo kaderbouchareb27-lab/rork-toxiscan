@@ -36,7 +36,6 @@ import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName
 import { PhotoType, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
-import { getDisplayedRiskScore } from '@/utils/riskScore';
 import { t, isEnglish } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
@@ -304,8 +303,6 @@ export default function ProductScreen() {
   const isGreen = verdictLevel === 'approuve';
   const bannerConfig = getBannerConfig(verdictLevel);
   const verdictAction = getVerdictAction(verdictLevel);
-  const displayedRiskScore = getDisplayedRiskScore(product);
-  const verdictProgress = `${displayedRiskScore}%` as `${number}%`;
   const categoryLabel = product.productCategory ? getCategoryLabel(product.productCategory) : getCategoryLabel('food');
 
   const handleFavorite = () => {
