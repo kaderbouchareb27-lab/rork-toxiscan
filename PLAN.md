@@ -81,5 +81,5 @@ Barre d'onglets en bas avec 4 onglets :
 ---
 
 ## Icône de l'app
-- Fond blanc/vert clair avec un symbole de bouclier protecteur et un code-barres stylisé
+- Fond beige doré #F5F0E8 avec le logo brocoli + loupe conservé à l'identique
 - Style clean et médical, inspirant confiance
