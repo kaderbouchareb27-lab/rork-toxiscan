@@ -31,7 +31,8 @@ if (Platform.OS !== 'web') {
 
 type PlanType = 'annual' | 'monthly';
 
-const ICON_URL = 'https://r2-pub.rork.com/generated-images/3e815a64-7d01-4c73-af0a-f66395fbf225.png';
+const ICON_SOURCE = require('../assets/images/icon.png');
+const PAYWALL_BG = '#F5F0E8';
 const FALLBACK_MONTHLY_PRICE = '2,99 CA$';
 const FALLBACK_ANNUAL_PRICE = '29,99 CA$';
 const FALLBACK_ANNUAL_MONTHLY = '2,50 CA$';
@@ -236,7 +237,7 @@ export default function PaywallScreen() {
         bounces={false}
       >
         <View style={styles.iconContainer}>
-          <Image source={{ uri: ICON_URL }} style={styles.appIcon} contentFit="contain" />
+          <Image source={ICON_SOURCE} style={styles.appIcon} contentFit="cover" />
         </View>
 
         <Text style={styles.title}>{getContextTitle()}</Text>
@@ -370,7 +371,7 @@ function BenefitRow({ text }: { text: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: PAYWALL_BG,
   },
   closeButton: {
     position: 'absolute',
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 6,
-    backgroundColor: Colors.white,
+    backgroundColor: PAYWALL_BG,
   },
   appIcon: {
     width: 88,
