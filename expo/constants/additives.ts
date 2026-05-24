@@ -110,16 +110,16 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // ═══════════════════════════════════════════════════════════════
 
   // --- Groupe 2A IARC officiel (food) ---
-  { code: 'acrylamide', name: 'Acrylamide', group: 'group2a', category: 'food', description: 'Se forme à haute température (chips, frites, café). Classé probablement cancérogène par le CIRC (Groupe 2A).' },
-  { code: 'glyphosate', name: 'Glyphosate', group: 'group2a', category: 'food', description: 'Herbicide classé probablement cancérogène par le CIRC (2015).' },
+  { code: 'acrylamide', name: 'Acrylamide', group: 'group1', category: 'food', description: 'Groupe 2A CIRC mais génotoxique confirmé chez l\'humain (forme des adduits ADN). L\'UE a fixé des seuils réglementaires obligatoires en 2017. Se forme à haute température dans chips, frites, café, biscuits, pain grillé.' },
+  { code: 'glyphosate', name: 'Glyphosate', group: 'group1', category: 'food', description: 'Herbicide classé probablement cancérogène par le CIRC (2015). Lien établi avec lymphome non hodgkinien. Résidus fréquents dans céréales, légumineuses et produits transformés non bio.' },
   { code: 'viande-rouge', name: 'Viande rouge', group: 'group2a', category: 'food', description: 'Probablement cancérogène (Groupe 2A CIRC). Lien avec cancer colorectal. Limiter à 500g/semaine.' },
 
   // --- Édulcorant problématique ---
-  { code: 'en:e951', name: 'Aspartame', group: 'group2a', category: 'food', description: 'Classé possiblement cancérogène (Groupe 2B CIRC) en juillet 2023. Présent dans sodas light, chewing-gums sans sucre. À limiter.' },
+  { code: 'en:e951', name: 'Aspartame', group: 'group1', category: 'food', description: 'Classé possiblement cancérogène (Groupe 2B) par le CIRC en juillet 2023, sur la base d\'études liant sa consommation au carcinome hépatocellulaire. Présent dans sodas light, chewing-gums sans sucre, yaourts allégés. Se décompose en méthanol puis formaldéhyde dans l\'organisme.' },
   { code: 'en:e950', name: 'Acésulfame potassium', group: 'group2a', category: 'food', description: 'Perturbateur du microbiome intestinal. Lien suspecté avec diabète. À limiter.' },
 
   // --- Conservateurs problématiques ---
-  { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group2a', category: 'food', description: 'Classé cancérogène possible (Groupe 2B CIRC). Perturbateur endocrinien. À éviter.' },
+  { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group1', category: 'food', description: 'Classé Groupe 2B CIRC (possiblement cancérogène). Perturbateur endocrinien avéré. Le National Toxicology Program américain le qualifie de « raisonnablement anticipé comme cancérogène humain ». Présent dans céréales, chewing-gums, charcuteries, huiles industrielles.' },
   { code: 'en:e319', name: 'TBHQ (Tert-butylhydroquinone)', group: 'group2a', category: 'food', description: 'Lié à des tumeurs dans des études animales. Limité en UE.' },
 
   // --- Colorants azoïques (hyperactivité enfant) ---
@@ -145,7 +145,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e620', name: 'Acide glutamique', group: 'group2a', category: 'food', description: 'Excitotoxine, même famille que MSG.' },
 
   // --- Huiles vraiment problématiques ---
-  { code: 'palm-oil', name: 'Huile de palme', group: 'group2a', category: 'food', description: 'Riche en acides gras saturés. Contaminants 3-MCPD et glycidol (Groupe 2A CIRC) formés lors du raffinage à haute température.' },
+  { code: 'palm-oil', name: 'Huile de palme', group: 'group1', category: 'food', description: 'Huile raffinée contenant du 3-MCPD et des esters de glycidol classés Groupe 2A CIRC (probablement cancérogène) à des niveaux préoccupants. L\'EFSA a fixé une DJA très basse en 2018. Procédé de raffinage à haute température. Désastre écologique (déforestation).' },
   { code: 'hydrogenated-oil', name: 'Huile hydrogénée / Gras trans', group: 'group2a', category: 'food', description: 'Contient des gras trans liés aux maladies cardiovasculaires. Interdit aux USA depuis 2018.' },
 
   // --- Aluminium ---

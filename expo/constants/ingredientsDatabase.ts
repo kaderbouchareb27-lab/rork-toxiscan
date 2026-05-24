@@ -58,13 +58,13 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // ═══════════════════════════════════════════════════════════════
 
   // --- Groupe 2A IARC officiel ---
-  { keywords: ['acrylamide'], code: null, risk: 'probable', circ: 'Groupe 2A' },
-  { keywords: ['glyphosate'], code: null, risk: 'probable', circ: 'Groupe 2A' },
+  { keywords: ['acrylamide'], code: null, risk: 'danger', circ: 'Groupe 2A', note: 'Groupe 2A CIRC (probablement cancérogène) mais génotoxique confirmé chez l\'humain (forme des adduits ADN). L\'UE a fixé des seuils réglementaires obligatoires en 2017. Se forme à haute température dans chips, frites, café, biscuits, pain grillé.' },
+  { keywords: ['glyphosate'], code: null, risk: 'danger', circ: 'Groupe 2A', note: 'Herbicide classé probablement cancérogène par le CIRC (2015). Lien établi avec lymphome non hodgkinien. Résidus fréquents dans céréales, légumineuses et produits transformés non bio.' },
   { keywords: ['viande rouge', 'red meat'], code: null, risk: 'probable', circ: 'Groupe 2A' },
   { keywords: ['hijiki'], code: null, risk: 'probable', circ: 'Groupe 1 (arsenic)', note: 'Algue brune japonaise contenant des niveaux élevés d\'arsenic inorganique (Groupe 1 CIRC, cancérogène avéré). Sa vente est déconseillée ou interdite au Canada, Royaume-Uni, Nouvelle-Zélande et Australie. Préférer wakame, nori ou kombu.' },
 
   // --- Huiles ultra-transformées → ORANGE ---
-  { keywords: ['huile de palme', 'palm oil', 'graisses de palme', 'graisses vegetales', 'graisse de palme'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Contient du 3-MCPD et glycidol cancérigènes.' },
+  { keywords: ['huile de palme', 'palm oil', 'graisses de palme', 'graisses vegetales', 'graisse de palme', 'huile de palme raffinee', 'huile de palme raffinée', 'refined palm oil'], code: null, risk: 'danger', circ: 'Groupe 2A (3-MCPD/glycidol)', note: 'Huile raffinée contenant du 3-MCPD et des esters de glycidol classés Groupe 2A CIRC (probablement cancérogène) à des niveaux préoccupants. L\'EFSA a fixé une DJA très basse en 2018. Procédé de raffinage à haute température. Désastre écologique (déforestation).' },
   { keywords: ['huile de colza', 'canola oil', 'rapeseed oil', 'huile de canola'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Huile raffinée industriellement. Préférer pressée à froid.' },
   { keywords: ['huile de tournesol', 'sunflower oil', 'huile de tournesol raffinee', 'huile de tournesol à haute teneur en acide oléique', 'high oleic sunflower oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Riche en oméga-6 pro-inflammatoires. Déséquilibre omega-6/omega-3.' },
   { keywords: ['huile de soja', 'soybean oil', 'soy oil'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Excès oméga-6. Souvent OGM.' },
@@ -86,10 +86,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Édulcorants problématiques → ORANGE ---
   { keywords: ['acesulfame', 'acesulfame k', 'acesulfame potassium', 'e950'], code: 'E950', risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Dégrade le microbiome intestinal. Perturbateur endocrinien.' },
-  { keywords: ['aspartame', 'e951'], code: 'E951', risk: 'probable', circ: 'Groupe 2B', note: 'Classé possiblement cancérigène par le CIRC en 2023.' },
+  { keywords: ['aspartame', 'e951'], code: 'E951', risk: 'danger', circ: 'Groupe 2B', note: 'Classé possiblement cancérigène (Groupe 2B) par le CIRC en juillet 2023, sur la base d\'études liant sa consommation au carcinome hépatocellulaire. Présent dans sodas light, chewing-gums sans sucre, yaourts allégés. Se décompose en méthanol puis formaldéhyde dans l\'organisme.' },
 
   // --- Conservateurs dangereux → ORANGE ---
-  { keywords: ['bha', 'butylhydroxyanisole', 'e320'], code: 'E320', risk: 'probable', circ: 'Groupe 2B', note: 'Perturbateur endocrinien, cancérigène possible.' },
+  { keywords: ['bha', 'butylhydroxyanisole', 'e320'], code: 'E320', risk: 'danger', circ: 'Groupe 2B', note: 'Classé Groupe 2B CIRC (possiblement cancérogène). Perturbateur endocrinien avéré. Le National Toxicology Program américain le qualifie de « raisonnablement anticipé comme cancérogène humain ». Présent dans céréales, chewing-gums, charcuteries, huiles industrielles.' },
   { keywords: ['tbhq', 'e319'], code: 'E319', risk: 'probable', circ: 'Ultra-transformé', note: 'Lié à tumeurs dans études animales.' },
 
   // --- Colorants azoïques et colorants jaunes/oranges → ORANGE ---
@@ -121,8 +121,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['phosphate aluminium sodium', 'sodium aluminum phosphate', 'phosphate acide d\'aluminium et de sodium', 'e541'], code: 'E541', risk: 'probable', circ: 'Neurotoxique', note: 'Aluminium neurotoxique lié à Alzheimer.' },
 
   // --- Additifs interdits → ORANGE ---
-  { keywords: ['azodicarbonamide', 'e927a'], code: 'E927a', risk: 'probable', circ: 'Interdit UE' },
-  { keywords: ['potassium bromate', 'e924'], code: 'E924', risk: 'probable', circ: 'Groupe 2B', note: 'Interdit en UE, Canada, Royaume-Uni.' },
+  { keywords: ['azodicarbonamide', 'e927a'], code: 'E927a', risk: 'danger', circ: 'Interdit UE/Australie/Singapour', note: 'Interdit dans l\'UE, Australie et Singapour (amende prison à Singapour). Se dégrade à la cuisson en semicarbazide et uréthane, tous deux classés cancérigènes possibles (Groupe 2B). Surnommé "le chimique du tapis de yoga" car utilisé dans la fabrication de mousses plastiques.' },
+  { keywords: ['potassium bromate', 'bromate de potassium', 'e924'], code: 'E924', risk: 'danger', circ: 'Groupe 2B — interdit mondial', note: 'Classé Groupe 2B par le CIRC, mais interdit en UE, Canada, Royaume-Uni, Chine, Brésil, Pérou et Nigéria pour cancers rénaux et thyroïdiens confirmés en études animales. Plus interdit que toléré dans le monde — son usage encore autorisé aux USA est très contesté.' },
 
   // --- Sels et minéraux industriels → ORANGE ---
   { keywords: ['citrate de sodium', 'sodium citrate', 'e331'], code: 'E331', risk: 'probable', circ: 'Ultra-transformé', note: 'Sel synthétisé industriellement, aucune forme naturelle. Marqueur d\'ultra-transformation.' },
