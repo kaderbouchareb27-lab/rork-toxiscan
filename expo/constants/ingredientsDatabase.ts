@@ -229,6 +229,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Conservateurs modérés → JAUNE ---
   { keywords: ['sodium benzoate', 'benzoate de sodium', 'e211'], code: 'E211', risk: 'possible', circ: 'Controversé', note: 'Forme du benzène avec vitamine C dans certaines boissons.' },
+  { keywords: ['benzoate de potassium', 'potassium benzoate', 'e212'], code: 'E212', risk: 'possible', circ: 'Controversé', note: 'Conservateur industriel synthétique. Peut former du benzène cancérigène (Groupe 1 CIRC) au contact de l\'acide ascorbique (vitamine C) — fréquent dans les sodas. Lié à hyperactivité chez l\'enfant.' },
+  { keywords: ['citrate de potassium', 'potassium citrate', 'e332'], code: 'E332', risk: 'possible', circ: 'Sel industriel', note: 'Sel synthétisé industriellement (réaction acide citrique + hydroxyde de potassium). Aucune forme naturelle dans l\'alimentation. Marqueur d\'ultra-transformation. Effet laxatif en excès.' },
+  { keywords: ['extrait de stevia', 'extrait de stévia', 'stevia extract', 'rebaudioside', 'rebaudioside a', 'reb-a', 'steviol glycosides', 'glycosides de stéviol', 'glycosides de steviol', 'e960'], code: 'E960', risk: 'possible', circ: 'Édulcorant purifié', note: 'Extrait industriel ultra-purifié de la feuille de stévia (rebaudioside A à 95%+) obtenu par solvants (éthanol, méthanol). Très différent de la feuille brute. Peut perturber le microbiome intestinal. Arrière-goût réglissé.' },
   { keywords: ['bht', 'butylhydroxytoluene', 'e321'], code: 'E321', risk: 'possible', circ: 'Controversé' },
   { keywords: ['sulfite', 'sulphite', 'dioxyde de soufre', 'sulfur dioxide', 'e220', 'e221', 'e222', 'e223', 'e224', 'e225', 'e226', 'e227', 'e228'], code: 'E220-E228', risk: 'possible', circ: 'Allergène', note: 'Provoque des crises d\'asthme et réactions allergiques.' },
   { keywords: ['sorbate de potassium', 'potassium sorbate', 'e202'], code: 'E202', risk: 'possible', circ: 'Conservateur', note: 'Conservateur synthétique généralement bien toléré mais controversé.' },
@@ -374,7 +377,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['miel', 'honey'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['sirop d\'erable', 'sirop d\'érable', 'maple syrup'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['erythritol', 'érythritol'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Édulcorant naturel fermenté. Sûr selon EFSA et FDA.' },
-  { keywords: ['stevia', 'stévia', 'stevia leaf', 'extrait de stevia', 'extrait de stévia', 'extrait de feuilles de stevia', 'extrait de feuilles de stévia', 'rebaudioside', 'steviol', 'e960'], code: 'E960', risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['stevia leaf', 'feuilles de stevia', 'feuilles de stévia', 'stévia entière', 'stevia entiere', 'poudre de stévia', 'poudre de stevia'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Feuille de stévia entière ou en poudre — édulcorant naturel sans calories.' },
   { keywords: ['xylitol'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Sûr pour humains. TOXIQUE pour chiens.' },
   { keywords: ['monk fruit', 'luo han guo', 'fruit du moine'], code: null, risk: 'aucun', circ: 'Naturel' },
 
@@ -385,7 +388,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['agar agar', 'agar-agar', 'e406'], code: 'E406', risk: 'aucun', circ: 'Naturel' },
 
   // --- Sels minéraux sûrs ---
-  { keywords: ['citrate de potassium', 'potassium citrate', 'e332'], code: 'E332', risk: 'aucun', circ: 'Naturel' },
+
   { keywords: ['carbonate de sodium', 'sodium carbonate', 'e500'], code: 'E500', risk: 'aucun', circ: 'Naturel' },
 
   // --- Thés et plantes ---

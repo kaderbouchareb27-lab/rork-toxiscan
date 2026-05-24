@@ -300,6 +300,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
 
   // --- Conservateurs courants ---
   { code: 'en:e211', name: 'Benzoate de sodium', group: 'group2b', category: 'food', description: 'Conservateur courant. Peut former du benzène cancérogène avec vitamine C dans certaines boissons.' },
+  { code: 'en:e212', name: 'Benzoate de potassium', group: 'group2b', category: 'food', description: 'Conservateur industriel synthétique. Peut former du benzène cancérigène (Groupe 1 CIRC) au contact de l\'acide ascorbique (vitamine C) — fréquent dans les sodas. Lié à hyperactivité chez l\'enfant.' },
   { code: 'en:e210', name: 'Acide benzoïque', group: 'group2b', category: 'food', description: 'Conservateur, peut former du benzène avec vitamine C.' },
   { code: 'en:e321', name: 'BHT (Butylhydroxytoluène)', group: 'group2b', category: 'food', description: 'Antioxydant synthétique. Effets hépatiques à fortes doses. Classé Groupe 3 IARC (preuves insuffisantes).' },
 
@@ -496,7 +497,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e306', name: 'Vitamine E naturelle (tocophérol)', group: 'none', category: 'food', description: 'Antioxydant naturel sûr.' },
   { code: 'en:e330', name: 'Acide citrique', group: 'none', category: 'food', description: 'Acide naturel, sûr pour la plupart. Très courant.' },
   { code: 'en:e331', name: 'Citrate de sodium', group: 'group2a', category: 'food', description: 'Sel synthétisé industriellement, aucune forme naturelle. Marqueur d\'ultra-transformation.' },
-  { code: 'en:e332', name: 'Citrate de potassium', group: 'none', category: 'food', description: 'Sel d\'acide citrique, sûr.' },
+  { code: 'en:e332', name: 'Citrate de potassium', group: 'group2b', category: 'food', description: 'Sel synthétisé industriellement (acide citrique + hydroxyde de potassium). Aucune forme naturelle. Marqueur d\'ultra-transformation. Effet laxatif en excès.' },
   { code: 'en:e270', name: 'Acide lactique', group: 'group2b', category: 'food', description: 'Souvent produit par fermentation industrielle ou synthèse chimique, non issu naturellement du lait.' },
   { code: 'en:e296', name: 'Acide malique', group: 'group2b', category: 'food', description: 'Industriellement synthétisé pour usage alimentaire, rarement extrait des fruits.' },
   { code: 'en:e334', name: 'Acide tartrique', group: 'none', category: 'food', description: 'Acide naturel du raisin, sûr.' },
@@ -510,7 +511,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e504', name: 'Carbonate de magnésium', group: 'none', category: 'food', description: 'Sel minéral naturel, sûr.' },
   { code: 'en:e508', name: 'Chlorure de potassium', group: 'group2b', category: 'food', description: 'Minéral mais utilisé comme substitut de sel industriel. À modérer chez les personnes avec insuffisance rénale.' },
   { code: 'en:e322-sunflower', name: 'Lécithine de tournesol', group: 'none', category: 'food', description: 'Émulsifiant naturel sans OGM, sûr.' },
-  { code: 'en:e960', name: 'Stévia / Steviol glycosides', group: 'none', category: 'food', description: 'Édulcorant naturel issu de la stévia, sûr.' },
+  { code: 'en:e960', name: 'Stévia / Steviol glycosides', group: 'group2b', category: 'food', description: 'Extrait industriel ultra-purifié de la feuille de stévia (rebaudioside A à 95%+) obtenu par solvants. Très différent de la feuille brute. Peut perturber le microbiome intestinal.' },
   { code: 'erythritol', name: 'Érythritol', group: 'none', category: 'food', description: 'Édulcorant naturel fermenté, considéré sûr par EFSA et FDA.' },
   { code: 'monk-fruit', name: 'Fruit du moine / Monk fruit', group: 'none', category: 'food', description: 'Édulcorant naturel, sûr.' },
   { code: 'allulose', name: 'Allulose', group: 'none', category: 'food', description: 'Sucre rare naturel, faible impact glycémique.' },
