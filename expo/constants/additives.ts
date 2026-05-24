@@ -129,7 +129,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e129', name: 'Rouge allura / Red 40', group: 'group2a', category: 'food', description: 'Colorant alimentaire synthétique (E129 / Allura Red) lié à l\'hyperactivité chez l\'enfant. Études Oxford 2024 : dommages ADN documentés. Préoccupations cancérigènes possibles.' },
   { code: 'orange-b', name: 'Orange B', group: 'group2a', category: 'food', description: 'Colorant azoïque synthétique lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
   { code: 'en:e122', name: 'Azorubine / Carmoisine', group: 'group2a', category: 'food', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant.' },
-  { code: 'en:e150d', name: 'Caramel ammoniaqué sulfite (Caramel IV)', group: 'group2a', category: 'food', description: 'Contient du 4-MEI classé possiblement cancérogène (Groupe 2B CIRC). Présent dans sodas colas.' },
+  { code: 'en:e150d', name: 'Caramel ammoniaqué sulfite (Caramel IV)', group: 'group2a', category: 'food', description: 'Colorant caramel ultra-transformé obtenu par chauffage de sucres avec ammoniaque et sulfites. Contient du 4-MEI classé Groupe 2B CIRC (possiblement cancérogène). Présent dans les colas. À éviter.' },
 
   // --- Émulsifiants nocifs pour le microbiome ---
   { code: 'en:e407', name: 'Carraghénane / Carraghénine', group: 'group2a', category: 'food', description: 'Lié à l\'inflammation intestinale et au syndrome du côlon irritable. Études récentes alarmantes.' },
@@ -295,8 +295,9 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   },
 
   // --- Caramels colorants ---
-  { code: 'en:e150c', name: 'Caramel ammoniaqué (III)', group: 'group2b', category: 'food', description: 'Contient 4-MEI. À modérer.' },
-  { code: 'en:e150b', name: 'Caramel de sulfite caustique', group: 'group2b', category: 'food', description: 'Sous-produits controversés.' },
+  { code: 'en:e150c', name: 'Caramel ammoniaqué (III)', group: 'group2a', category: 'food', description: 'Colorant caramel ultra-transformé produit avec ammoniaque. Contient du 4-MEI classé Groupe 2B CIRC (possiblement cancérogène). À éviter.' },
+  { code: 'en:e150b', name: 'Caramel de sulfite caustique', group: 'group2a', category: 'food', description: 'Colorant caramel ultra-transformé produit avec sulfites. Sous-produits controversés. À éviter.' },
+  { code: 'caramel-colour', name: 'Colorant caramel', group: 'group2a', category: 'food', description: 'Colorant caramel industriel. Sans précision (b/c/d), il est généralement obtenu par procédés chimiques (ammoniaque/sulfites) générant du 4-MEI possiblement cancérogène (Groupe 2B CIRC). À éviter.' },
 
   // --- Conservateurs courants ---
   { code: 'en:e211', name: 'Benzoate de sodium', group: 'group2b', category: 'food', description: 'Conservateur courant. Peut former du benzène cancérogène avec vitamine C dans certaines boissons.' },
@@ -322,8 +323,8 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
 
   // --- Sucres et sirops (MODÉRATION, pas alarmant) ---
   { code: 'maltodextrine', name: 'Maltodextrine', group: 'group2b', category: 'food', description: 'Glucide ultra-transformé, index glycémique élevé. À modérer.' },
-  { code: 'glucose-syrup', name: 'Sirop de glucose', group: 'group2b', category: 'food', description: 'Sirop industriel. À modérer.' },
-  { code: 'hfcs', name: 'Sirop de glucose-fructose / HFCS', group: 'group2b', category: 'food', description: 'Sirop à teneur élevée en fructose. Lien obésité, stéatose hépatique.' },
+  { code: 'glucose-syrup', name: 'Sirop de glucose', group: 'group2a', category: 'food', description: 'Sucre raffiné industriel issu d\'hydrolyse enzymatique de l\'amidon. Provoque des pics glycémiques rapides, favorise prise de poids et résistance à l\'insuline. À éviter.' },
+  { code: 'hfcs', name: 'Sirop de glucose-fructose / HFCS', group: 'group2a', category: 'food', description: 'Édulcorant industriel ultra-transformé extrait du maïs (souvent OGM). Fortement lié à l\'obésité, au diabète de type 2, à la stéatose hépatique non alcoolique et au syndrome métabolique. À éviter.' },
   { code: 'dextrose', name: 'Dextrose', group: 'group2b', category: 'food', description: 'Sucre rapide industriel.' },
   { code: 'corn-syrup', name: 'Sirop de maïs', group: 'group2a', category: 'food', description: 'Sirop industriel issu de maïs souvent OGM. Lié à obésité, stéatose hépatique et syndrome métabolique.' },
   { code: 'gelatin', name: 'Gélatine', group: 'group2b', category: 'food', description: 'Issue de peaux et os animaux (bovin/porc) traités à l\'acide ou la soude. Procédé industriel, qualité variable.' },

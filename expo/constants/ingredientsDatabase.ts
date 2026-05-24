@@ -100,7 +100,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['orange b'], code: null, risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque synthétique lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
   { keywords: ['azorubine', 'carmoisine', 'rouge azo', 'e122'], code: 'E122', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant azoïque lié hyperactivité enfant. Interdit dans plusieurs pays.' },
   { keywords: ['bleu 1', 'blue 1', 'bleu brillant', 'bleu brillant fcf', 'brilliant blue', 'brilliant blue fcf', 'fd&c blue 1', 'fd c blue 1', 'fcf', 'e133'], code: 'E133', risk: 'probable', circ: 'Hyperactivité', note: 'Colorant synthétique pétrolier. Lié à hyperactivité, interdit dans plusieurs pays européens.' },
-  { keywords: ['caramel ammoniacal sulfite', 'sulfite ammonia caramel', 'caramel iv', 'e150d'], code: 'E150d', risk: 'probable', circ: 'Groupe 2B', note: 'Contient du 4-MEI classé Groupe 2B.' },
+  { keywords: ['caramel ammoniacal sulfite', 'sulfite ammonia caramel', 'caramel iv', 'e150d'], code: 'E150d', risk: 'probable', circ: 'Groupe 2B', note: 'Colorant ultra-transformé obtenu par chauffage de sucres avec ammoniaque et sulfites. Contient du 4-MEI classé Groupe 2B CIRC (possiblement cancérogène). Présent dans les colas.' },
+  { keywords: ['caramel ammoniacal', 'caramel iii', 'e150c'], code: 'E150c', risk: 'probable', circ: 'Groupe 2B', note: 'Colorant caramel ultra-transformé produit avec ammoniaque. Contient du 4-MEI (Groupe 2B CIRC).' },
+  { keywords: ['caramel sulfite caustique', 'caustic sulfite caramel', 'caramel ii', 'e150b'], code: 'E150b', risk: 'probable', circ: 'Ultra-transformé', note: 'Colorant caramel ultra-transformé produit avec sulfites. Sous-produits controversés.' },
+  { keywords: ['colorant caramel', 'caramel colour', 'caramel color', 'colour caramel'], code: 'E150', risk: 'probable', circ: 'Ultra-transformé', note: 'Colorant caramel industriel. Sans précision (b/c/d), il est généralement obtenu par procédés chimiques (ammoniaque/sulfites) générant du 4-MEI possiblement cancérogène (Groupe 2B CIRC).' },
 
   // --- Émulsifiants perturbateurs microbiome → ORANGE ---
   { keywords: ['carraghenane', 'carrageenan', 'carraghénane', 'e407'], code: 'E407', risk: 'probable', circ: 'Inflammation intestinale', note: 'Lié à l\'inflammation intestinale et aux maladies inflammatoires.' },
@@ -168,8 +171,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['sucre', 'sugar', 'saccharose', 'sucre blanc', 'sucre raffiné', 'sucre raffine'], code: null, risk: 'possible', circ: 'Sucre raffiné', note: 'Lié à obésité, diabète type 2 et inflammation chronique.' },
   { keywords: ['sucre de canne', 'cane sugar', 'sucre de canne roux', 'raw cane sugar'], code: null, risk: 'possible', circ: 'Sucre raffiné' },
   { keywords: ['sucres', 'sugars'], code: null, risk: 'possible', circ: 'Sucre raffiné', note: 'Sucres ajoutés. Consommer avec modération.' },
-  { keywords: ['sirop de glucose-fructose', 'glucose-fructose syrup', 'hfcs', 'high fructose corn syrup', 'sirop de glucose fructose'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Lié à l\'obésité et syndrome métabolique.' },
-  { keywords: ['sirop de glucose', 'glucose syrup', 'glucose-sirop'], code: null, risk: 'possible', circ: 'Ultra-transformé léger' },
+  { keywords: ['sirop de glucose-fructose', 'glucose-fructose syrup', 'hfcs', 'high fructose corn syrup', 'sirop de glucose fructose', 'sirop de maïs à haute teneur en fructose', 'sirop de mais haute fructose'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Édulcorant industriel extrait du maïs (souvent OGM). Fortement lié à l\'obésité, au diabète de type 2, à la stéatose hépatique non alcoolique et au syndrome métabolique. À éviter.' },
+  { keywords: ['sirop de glucose', 'glucose syrup', 'glucose-sirop', 'sirop de maïs', 'corn syrup'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Sucre raffiné industriel issu d\'hydrolyse enzymatique de l\'amidon. Provoque des pics glycémiques rapides, favorise prise de poids et résistance à l\'insuline.' },
   { keywords: ['sirop de mais', 'corn syrup', 'sirop de maïs'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Sirop industriel issu de maïs souvent OGM. Lié à obésité, stéatose hépatique et syndrome métabolique.' },
   { keywords: ['gelatine', 'gélatine', 'gelatin'], code: null, risk: 'possible', circ: 'Origine animale industrielle', note: 'Issue de peaux et os animaux (bovin/porc) traités à l\'acide ou la soude. Procédé industriel, qualité variable selon les sources.' },
   { keywords: ['sirop d\'agave', 'agave syrup', 'agave nectar', 'nectar d\'agave'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Riche en fructose isolé.' },
@@ -244,7 +247,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['vert 3', 'green 3', 'e143'], code: 'E143', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171'], code: 'E171', risk: 'possible', circ: 'Groupe 2B', note: 'Interdit en alimentation en UE depuis 2022.' },
   { keywords: ['cochenille', 'carmine', 'carmin', 'cochineal', 'e120'], code: 'E120', risk: 'possible', circ: 'Allergène', note: 'Allergène fort, chocs anaphylactiques possibles.' },
-  { keywords: ['caramel ammoniacal', 'caramel iii', 'e150c'], code: 'E150c', risk: 'possible', circ: 'Groupe 2B' },
+
   { keywords: ['silice', 'silicon dioxide', 'gel de silice', 'silica gel', 'dioxyde de silicium', 'e551'], code: 'E551', risk: 'possible', circ: 'Nanoparticules', note: 'Anti-agglomérant en nanoparticules. EFSA 2018 : accumulation hépatique constatée.' },
 
   // --- Édulcorants Groupe 2B → JAUNE ---
