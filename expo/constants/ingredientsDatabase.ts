@@ -61,6 +61,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['acrylamide'], code: null, risk: 'probable', circ: 'Groupe 2A' },
   { keywords: ['glyphosate'], code: null, risk: 'probable', circ: 'Groupe 2A' },
   { keywords: ['viande rouge', 'red meat'], code: null, risk: 'probable', circ: 'Groupe 2A' },
+  { keywords: ['hijiki'], code: null, risk: 'probable', circ: 'Groupe 1 (arsenic)', note: 'Algue brune japonaise contenant des niveaux élevés d\'arsenic inorganique (Groupe 1 CIRC, cancérogène avéré). Sa vente est déconseillée ou interdite au Canada, Royaume-Uni, Nouvelle-Zélande et Australie. Préférer wakame, nori ou kombu.' },
 
   // --- Huiles ultra-transformées → ORANGE ---
   { keywords: ['huile de palme', 'palm oil', 'graisses de palme', 'graisses vegetales', 'graisse de palme'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Contient du 3-MCPD et glycidol cancérigènes.' },
@@ -275,6 +276,21 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['stearate de magnesium', 'stéarate de magnésium', 'magnesium stearate', 'e572'], code: 'E572', risk: 'possible', circ: 'Lubrifiant industriel', note: 'Agent lubrifiant industriel. Peut réduire l\'absorption des nutriments.' },
   { keywords: ['glucono-delta-lactone', 'gdl', 'glucono delta lactone', 'e575'], code: 'E575', risk: 'possible', circ: 'Acidifiant industriel', note: 'Acidifiant industriel par fermentation artificielle. Données long terme limitées.' },
 
+  // --- Viandes rouges → JAUNE (modération, Groupe 2A CIRC) ---
+  { keywords: ['bœuf', 'boeuf', 'beef', 'porc', 'pork'], code: null, risk: 'possible', circ: 'Viande rouge — modération', note: 'Viande rouge classée Groupe 2A par le CIRC (probablement cancérogène en excès). Source de protéines complètes, fer héminique et B12. Recommandation OMS : max 500 g/semaine. Préférer les morceaux non transformés et les cuissons douces (éviter grillade très noircie).' },
+
+  // --- Poissons à modérer → JAUNE ---
+  { keywords: ['thon', 'tuna'], code: null, risk: 'possible', circ: 'Contamination mercure', note: 'Poisson prédateur accumulant le mercure (méthylmercure neurotoxique). Riche en omaéga-3 et protéines, mais à modérer : max 1×/semaine pour un adulte, déconseillé aux femmes enceintes et jeunes enfants. Préférer les petits poissons gras (sardine, maquereau).' },
+  { keywords: ['tilapia', 'pangasius'], code: null, risk: 'possible', circ: 'Élevage industriel', note: 'Poissons d\'élevage intensif (Asie du Sud-Est principalement) souvent nourris avec des déchets et traités aux antibiotiques. Faible teneur en oméga-3, ratio oméga-6/oméga-3 défavorable. Préférer poissons sauvages ou élevage bio européen.' },
+  { keywords: ['tarama', 'taramasalata'], code: null, risk: 'possible', circ: 'Ultra-transformé', note: 'Préparation industrielle à base d\'œufs de poisson, huile, colorants (E124 rouge cochenille ou betterave) et conservateurs. Loin du produit traditionnel grec.' },
+  { keywords: ['tobiko', 'masago'], code: null, risk: 'possible', circ: 'Coloré artificiellement', note: 'Œufs de poisson volant souvent teintés artificiellement (E102 jaune, E124 rouge, vert chlorophylle ou encre de seiche industrielle). Le produit nature reste correct mais rare.' },
+
+  // --- Sucres complets → JAUNE (moins raffinés mais restent du sucre) ---
+  { keywords: ['sucre de canne complet', 'rapadura', 'panela', 'muscovado', 'sucanat', 'jaggery', 'gur', 'sucre de palme', 'palm sugar', 'mélasse', 'melasse', 'molasses', 'mélasse noire', 'blackstrap molasses', 'sirop de sorgho', 'sorghum syrup'], code: null, risk: 'possible', circ: 'Sucre complet', note: 'Sucres non raffinés contenant encore des minéraux (fer, calcium, potassium), mais restent composés à 70-90% de saccharose. Mêmes effets métaboliques que le sucre blanc en quantité équivalente. À consommer avec modération.' },
+
+  // --- Carbonate de sodium → JAUNE (additif industriel) ---
+  { keywords: ['carbonate de sodium', 'sodium carbonate', 'e500'], code: 'E500', risk: 'possible', circ: 'Sel industriel', note: 'Sel alcalin obtenu par le procédé Solvay (saumure + ammoniaque + calcaire). Différent du bicarbonate de sodium naturel. Utilisé comme régulateur d\'acidité et agent levant industriel.' },
+
   // --- Soja / lait en poudre / farine enrichie → JAUNE (transformés industriels) ---
   { keywords: ['soja', 'soy', 'soya'], code: null, risk: 'possible', circ: 'Ultra-transformé léger', note: 'Soja non spécifié dans un produit industriel = quasi toujours transformé (isolat, protéine texturée, lécithine, farine dégraissée). Souvent OGM (94% aux USA). Préférer le soja entier non transformé (tofu, edamame).' },
   { keywords: ['proteine de soja', 'protéine de soja', 'soy protein', 'proteines de soja', 'protéines de soja'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Protéine de soja industrielle extraite par solvants chimiques. Souvent OGM. Marqueur de produit ultra-transformé.' },
@@ -324,7 +340,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['lait', 'milk', 'lait entier', 'whole milk'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['lait ecreme', 'lait écrémé', 'skim milk', 'skimmed milk'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['yaourt', 'yogurt', 'yoghurt'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['fromage', 'cheese', 'fromage blanc', 'cheddar', 'fromage cheddar'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['fromage', 'cheese', 'fromage blanc'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['oeuf', 'oeufs', 'egg', 'eggs', 'œuf', 'œufs'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Levures et ferments ---
@@ -392,7 +408,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Sels minéraux sûrs ---
 
-  { keywords: ['carbonate de sodium', 'sodium carbonate', 'e500'], code: 'E500', risk: 'aucun', circ: 'Naturel' },
+
 
   // --- Thés et plantes ---
   { keywords: ['the vert', 'thé vert', 'green tea', 'extrait de the vert', 'extrait de thé vert'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -408,7 +424,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Protéines et poissons naturels ---
   { keywords: ['saumon sauvage', 'wild salmon', 'sardine', 'sardines', 'maquereau', 'mackerel', 'anchois', 'anchovy'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Riche en oméga-3.' },
-  { keywords: ['porc', 'pork', 'bœuf', 'boeuf', 'beef', 'poulet', 'chicken', 'dinde', 'turkey'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['poulet', 'chicken', 'dinde', 'turkey'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Volailles maigres, sources de protéines de qualité. Non classées par l\'OMS.' },
 
   // ═══════════════════════════════════════════════════════════════
   // 🟢 EXPANSION MONDIALE — Aliments naturels du monde entier
@@ -445,9 +461,9 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // --- Viandes et poissons ---
   { keywords: ['agneau', 'lamb', 'mouton', 'mutton', 'chevre', 'chèvre', 'goat', 'veau', 'veal', 'lapin', 'rabbit', 'canard', 'duck', 'oie', 'goose', 'pintade', 'guinea fowl', 'caille', 'quail', 'pigeon', 'faisan', 'pheasant', 'gibier', 'venison', 'cerf', 'chevreuil', 'sanglier', 'wild boar', 'bison', 'autruche', 'ostrich', 'kangourou', 'kangaroo'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['foie', 'liver', 'foie de volaille', 'rognon', 'rognons', 'kidney', 'cœur', 'coeur', 'heart', 'abats', 'offal', 'langue', 'tongue'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Abats riches en fer, vitamine B12 et vitamine A.' },
-  { keywords: ['thon', 'tuna', 'cabillaud', 'morue', 'cod', 'lieu', 'pollock', 'haddock', 'eglefin', 'églefin', 'merlu', 'hake', 'sole', 'bar', 'sea bass', 'loup', 'dorade', 'bream', 'rouget', 'red mullet', 'lotte', 'monkfish', 'turbot', 'flétan', 'fletan', 'halibut', 'truite', 'trout', 'omble', 'hareng', 'herring', 'esturgeon', 'sturgeon', 'tilapia', 'pangasius', 'merlan', 'whiting', 'saint-pierre', 'john dory'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['crevette', 'shrimp', 'prawn', 'crevettes', 'gambas', 'langoustine', 'langouste', 'lobster', 'homard', 'crabe', 'crab', 'tourteau', 'araignée de mer', 'ecrevisse', 'écrevisse', 'crayfish', 'huitre', 'huître', 'oyster', 'oysters', 'moule', 'moules', 'mussel', 'mussels', 'palourde', 'clam', 'clams', 'coque', 'cockle', 'saint-jacques', 'coquille saint-jacques', 'scallop', 'scallops', 'bulot', 'bigorneau', 'whelk', 'oursin', 'sea urchin', 'poulpe', 'pieuvre', 'octopus', 'calamar', 'calmar', 'squid', 'encornet', 'seiche', 'cuttlefish', 'algue', 'algues', 'seaweed', 'nori', 'kombu', 'wakame', 'dulse', 'agar', 'hijiki'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['caviar', 'oeufs de poisson', 'œufs de poisson', 'fish roe', 'roe', 'oeufs de saumon', 'œufs de saumon', 'salmon roe', 'tarama', 'taramasalata', 'tobiko', 'masago'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['cabillaud', 'morue', 'cod', 'lieu', 'pollock', 'haddock', 'eglefin', 'églefin', 'merlu', 'hake', 'sole', 'bar', 'sea bass', 'loup', 'dorade', 'bream', 'rouget', 'red mullet', 'lotte', 'monkfish', 'turbot', 'flétan', 'fletan', 'halibut', 'truite', 'trout', 'omble', 'hareng', 'herring', 'esturgeon', 'sturgeon', 'merlan', 'whiting', 'saint-pierre', 'john dory'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['crevette', 'shrimp', 'prawn', 'crevettes', 'gambas', 'langoustine', 'langouste', 'lobster', 'homard', 'crabe', 'crab', 'tourteau', 'araignée de mer', 'ecrevisse', 'écrevisse', 'crayfish', 'huitre', 'huître', 'oyster', 'oysters', 'moule', 'moules', 'mussel', 'mussels', 'palourde', 'clam', 'clams', 'coque', 'cockle', 'saint-jacques', 'coquille saint-jacques', 'scallop', 'scallops', 'bulot', 'bigorneau', 'whelk', 'oursin', 'sea urchin', 'poulpe', 'pieuvre', 'octopus', 'calamar', 'calmar', 'squid', 'encornet', 'seiche', 'cuttlefish', 'algue', 'algues', 'seaweed', 'nori', 'kombu', 'wakame', 'dulse', 'agar'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['caviar', 'oeufs de poisson', 'œufs de poisson', 'fish roe', 'roe', 'oeufs de saumon', 'œufs de saumon', 'salmon roe'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Produits laitiers du monde ---
   { keywords: ['ricotta', 'mozzarella', 'parmesan', 'parmigiano', 'pecorino', 'grana padano', 'mascarpone', 'gorgonzola', 'taleggio', 'asiago', 'provolone', 'burrata', 'stracciatella', 'scamorza'], code: null, risk: 'aucun', circ: 'Naturel' },
@@ -475,7 +491,7 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['cornichon naturel', 'pickle naturel', 'légumes lacto-fermentés', 'lacto-fermented vegetables', 'kombucha', 'kvass'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Aliments fermentés probiotiques traditionnels.' },
 
   // --- Sucres et édulcorants naturels ---
-  { keywords: ['sucre de canne complet', 'rapadura', 'panela', 'muscovado', 'sucanat', 'jaggery', 'gur', 'sucre de palme', 'palm sugar', 'mélasse', 'melasse', 'molasses', 'mélasse noire', 'blackstrap molasses', 'sirop de yacon', 'yacon syrup', 'sirop de dattes', 'date syrup', 'sirop de sorgho', 'sorghum syrup'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['sirop de yacon', 'yacon syrup', 'sirop de dattes', 'date syrup'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['allulose', 'tagatose', 'fruit du moine en poudre', 'monk fruit extract', 'inuline de chicoree', 'inuline de chicorée'], code: null, risk: 'aucun', circ: 'Naturel' },
 
   // --- Cuisines du monde — ingrédients ---
