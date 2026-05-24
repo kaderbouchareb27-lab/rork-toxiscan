@@ -242,13 +242,14 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['propionate de calcium', 'calcium propionate', 'e282'], code: 'E282', risk: 'possible', circ: 'Conservateur', note: 'Lié à irritabilité et troubles du comportement chez l\'enfant.' },
   { keywords: ['erythorbate de sodium', 'érythorbate de sodium', 'sodium erythorbate', 'e316'], code: 'E316', risk: 'possible', circ: 'Antioxydant industriel', note: 'Antioxydant synthétique utilisé dans les charcuteries pour fixer les nitrites.' },
 
-  // Red 3 / Érythrosine — cancérigène (interdit FDA 2024 pour cancers thyroïdiens)
-  { keywords: ['rouge 3', 'red 3', 'red no. 3', 'red no 3', 'fd&c red 3', 'fd&c red no. 3', 'erythrosine', 'érythrosine', 'erythrosin', 'e127'], code: 'E127', risk: 'danger', circ: 'Cancérigène', note: 'Colorant rouge classé cancérigène — interdit par la FDA aux USA en janvier 2024 pour cancers thyroïdiens prouvés en études animales. Présent dans bonbons, cerises confites, gâteaux industriels, sirops, certains médicaments. À éviter absolument.' },
+  // Red 3 / Érythrosine — colorant à éviter (interdit FDA 2024 pour cancers thyroïdiens)
+  { keywords: ['rouge 3', 'red 3', 'red no. 3', 'red no 3', 'fd&c red 3', 'fd&c red no. 3', 'erythrosine', 'érythrosine', 'erythrosin', 'e127'], code: 'E127', risk: 'probable', circ: 'Colorant à éviter', note: 'Colorant rouge synthétique — interdit par la FDA aux USA en janvier 2024 pour cancers thyroïdiens prouvés en études animales. Présent dans bonbons, cerises confites, gâteaux industriels, sirops, certains médicaments.' },
 
-  // --- Colorants Groupe 2B → JAUNE ---
-  { keywords: ['bleu 2', 'blue 2', 'e132'], code: 'E132', risk: 'possible', circ: 'Groupe 2B' },
+  // --- Colorants synthétiques à éviter → ORANGE ---
+  { keywords: ['bleu 2', 'blue 2', 'indigotine', 'indigo carmine', 'fd&c blue 2', 'e132'], code: 'E132', risk: 'probable', circ: 'Colorant à éviter', note: 'Colorant synthétique pétrolier lié à hyperactivité et réactions allergiques. À éviter.' },
+  { keywords: ['jaune de quinoléine', 'jaune quinoléine', 'quinoline yellow', 'quinoléine yellow', 'e104'], code: 'E104', risk: 'probable', circ: 'Colorant à éviter', note: 'Colorant synthétique lié à hyperactivité chez l\'enfant. Interdit aux USA, Norvège, Japon. Avertissement obligatoire en UE.' },
   { keywords: ['vert 3', 'green 3', 'e143'], code: 'E143', risk: 'possible', circ: 'Groupe 2B' },
-  { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171'], code: 'E171', risk: 'possible', circ: 'Groupe 2B', note: 'Interdit en alimentation en UE depuis 2022.' },
+  { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171'], code: 'E171', risk: 'probable', circ: 'Nanoparticules', note: 'Interdit en alimentation en UE depuis 2022. EFSA 2021 : génotoxicité ne peut être exclue. À éviter.' },
   { keywords: ['cochenille', 'carmine', 'carmin', 'cochineal', 'e120'], code: 'E120', risk: 'possible', circ: 'Allergène', note: 'Allergène fort, chocs anaphylactiques possibles.' },
 
   { keywords: ['silice', 'silicon dioxide', 'gel de silice', 'silica gel', 'dioxyde de silicium', 'e551'], code: 'E551', risk: 'possible', circ: 'Nanoparticules', note: 'Anti-agglomérant en nanoparticules. EFSA 2018 : accumulation hépatique constatée.' },
