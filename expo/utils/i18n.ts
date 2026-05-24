@@ -298,8 +298,8 @@ const translations = {
   ai_consent_title: { fr: "Dr.Toxi utilise l'intelligence artificielle", en: 'Dr.Toxi uses artificial intelligence' },
   ai_consent_desc: { fr: "Dr. Toxi, ton expert en ingrédients, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.", en: "Dr. Toxi, your ingredient expert, is powered by an AI specially trained to detect toxic substances in your everyday products. It analyzes labels, advises you in real time, and accompanies you with every purchase to help you make the best choices." },
   tech_used: { fr: 'Technologies utilisées :', en: 'Technologies used:' },
-  ai_disclaimer_1: { fr: "Les analyses sont basées sur des données publiques et des classifications d'organismes reconnus (OMS, EFSA, Santé Canada), mais ne remplacent pas un avis médical.", en: 'Analyses are based on public data and classifications from recognized organizations (WHO, EFSA, Health Canada), but do not replace medical advice.' },
-  ai_disclaimer_2: { fr: "Dr.Toxi fournit des informations à titre informatif uniquement.", en: 'Dr.Toxi provides information for informational purposes only.' },
+  ai_disclaimer_1: { fr: "Basé sur les classifications d'organismes reconnus (OMS, EFSA). Ne remplace pas un avis médical.", en: 'Based on classifications from recognized organizations (WHO, EFSA). Not a substitute for medical advice.' },
+  ai_disclaimer_2: { fr: "Informations à titre informatif uniquement.", en: 'For informational purposes only.' },
   understood: { fr: 'Compris', en: 'Understood' },
   ai_privacy_note: { fr: "Vos photos et messages sont traités de manière sécurisée. Aucune donnée personnelle n'est conservée.", en: 'Your photos and messages are processed securely. No personal data is retained.' },
 
