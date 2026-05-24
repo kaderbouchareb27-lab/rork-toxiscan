@@ -242,8 +242,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['propionate de calcium', 'calcium propionate', 'e282'], code: 'E282', risk: 'possible', circ: 'Conservateur', note: 'Lié à irritabilité et troubles du comportement chez l\'enfant.' },
   { keywords: ['erythorbate de sodium', 'érythorbate de sodium', 'sodium erythorbate', 'e316'], code: 'E316', risk: 'possible', circ: 'Antioxydant industriel', note: 'Antioxydant synthétique utilisé dans les charcuteries pour fixer les nitrites.' },
 
+  // Red 3 / Érythrosine — cancérigène (interdit FDA 2024 pour cancers thyroïdiens)
+  { keywords: ['rouge 3', 'red 3', 'red no. 3', 'red no 3', 'fd&c red 3', 'fd&c red no. 3', 'erythrosine', 'érythrosine', 'erythrosin', 'e127'], code: 'E127', risk: 'danger', circ: 'Cancérigène', note: 'Colorant rouge classé cancérigène — interdit par la FDA aux USA en janvier 2024 pour cancers thyroïdiens prouvés en études animales. Présent dans bonbons, cerises confites, gâteaux industriels, sirops, certains médicaments. À éviter absolument.' },
+
   // --- Colorants Groupe 2B → JAUNE ---
-  { keywords: ['rouge 3', 'red 3', 'erythrosine', 'e127'], code: 'E127', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['bleu 2', 'blue 2', 'e132'], code: 'E132', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['vert 3', 'green 3', 'e143'], code: 'E143', risk: 'possible', circ: 'Groupe 2B' },
   { keywords: ['dioxyde de titane', 'titanium dioxide', 'e171'], code: 'E171', risk: 'possible', circ: 'Groupe 2B', note: 'Interdit en alimentation en UE depuis 2022.' },
