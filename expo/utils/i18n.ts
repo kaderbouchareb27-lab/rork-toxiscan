@@ -296,7 +296,7 @@ const translations = {
 
   // ===== AI CONSENT =====
   ai_consent_title: { fr: "Dr.Toxi utilise l'intelligence artificielle", en: 'Dr.Toxi uses artificial intelligence' },
-  ai_consent_desc: { fr: "Dr. Toxi, ton expert en ingrédients, est propulsé par une IA spécialement entraînée pour détecter les substances toxiques dans tes produits du quotidien. Il analyse les étiquettes, te conseille en temps réel et t'accompagne à chaque achat pour t'aider à faire les meilleurs choix.", en: "Dr. Toxi, your ingredient expert, is powered by an AI specially trained to detect toxic substances in your everyday products. It analyzes labels, advises you in real time, and accompanies you with every purchase to help you make the best choices." },
+  ai_consent_desc: { fr: "Dr. Toxi est une IA entraînée pour repérer les substances cancérigènes dans tes produits. Il analyse, t'alerte et te guide vers les meilleurs choix.", en: "Dr. Toxi is an AI trained to spot carcinogenic substances in your products. It analyzes, alerts you, and guides you toward the best choices." },
   tech_used: { fr: 'Technologies utilisées :', en: 'Technologies used:' },
   ai_disclaimer_1: { fr: "Basé sur les classifications d'organismes reconnus (OMS, EFSA). Ne remplace pas un avis médical.", en: 'Based on classifications from recognized organizations (WHO, EFSA). Not a substitute for medical advice.' },
   ai_disclaimer_2: { fr: "Informations à titre informatif uniquement.", en: 'For informational purposes only.' },
