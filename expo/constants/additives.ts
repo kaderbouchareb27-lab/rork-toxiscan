@@ -642,13 +642,14 @@ export function getRiskBadgeInfo(
 ): { label: string; sublabel: string; color: string } {
   // Food — preserve existing labels (handled via i18n)
   if (category === 'food') {
+    const enFood = isEnglish();
     switch (group) {
       case 'group1':
         return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#D0260F' };
       case 'group2a':
-        return { label: t('risk_warning_label'), sublabel: t('risk_warning_sub'), color: '#E8730A' };
+        return { label: enFood ? 'HARMFUL' : 'NOCIF', sublabel: t('risk_warning_sub'), color: '#E8730A' };
       case 'group2b':
-        return { label: t('risk_moderation_label'), sublabel: t('risk_caution_sub'), color: '#EAB308' };
+        return { label: enFood ? 'AVOID' : 'À ÉVITER', sublabel: t('risk_caution_sub'), color: '#EAB308' };
       case 'none':
       default:
         return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
