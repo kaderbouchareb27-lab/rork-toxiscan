@@ -321,7 +321,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['orge', 'barley'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['sarrasin', 'buckwheat'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['epeautre', 'épeautre', 'spelt'], code: null, risk: 'aucun', circ: 'Naturel' },
-  { keywords: ['amidon de ble', 'amidon de blé', 'wheat starch', 'fécule de pomme de terre', 'potato starch', 'fécule de maïs', 'cornstarch', 'amidon de mais', 'amidon de maïs', 'farine de mais', 'farine de maïs', 'farine de riz'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Amidon naturel non modifié.' },
+  { keywords: ['amidon de ble', 'amidon de blé', 'wheat starch', 'fécule de pomme de terre', 'potato starch', 'farine de riz', 'rice flour', 'amidon de riz', 'rice starch', 'amidon de pomme de terre', 'tapioca starch', 'amidon de tapioca', 'fécule de tapioca'], code: null, risk: 'possible', circ: 'Transformé', note: 'Amidon extrait par procédé industriel. Glucide raffiné à index glycémique élevé, peu de nutriments. À modérer (le grain entier reste préférable).' },
+  { keywords: ['fécule de maïs', 'fecule de mais', 'cornstarch', 'corn starch', 'amidon de mais', 'amidon de maïs', 'farine de mais', 'farine de maïs'], code: null, risk: 'possible', circ: 'Transformé', note: 'Amidon extrait du maïs (souvent OGM hors UE) via procédé industriel. Glucide raffiné à index glycémique élevé, peu de nutriments. À modérer.' },
 
   // --- Vinaigres ---
   { keywords: ['vinaigre', 'vinegar', 'vinaigre de cidre', 'vinaigre de cidre de pomme', 'apple cider vinegar', 'vinaigre balsamique', 'vinaigre de vin'], code: null, risk: 'aucun', circ: 'Naturel' },
