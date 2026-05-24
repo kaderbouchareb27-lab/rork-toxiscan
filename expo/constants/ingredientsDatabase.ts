@@ -76,7 +76,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['graisse interesterifiee', 'interesterified', 'graisse interestérifiée'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
 
   // --- Amidons modifiés → ORANGE ---
-  { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1404', 'e1412', 'e1422', 'e1450', 'modified cornstarch', 'modified corn starch', 'modified tapioca starch', 'modified potato starch', 'modified wheat starch', 'modified rice starch', 'corn starch modified'], code: 'E1404/E1412/E1422/E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Glucide industriel ultra-transformé à fort index glycémique.' },
+  // Amidon modifié — 4 entrées séparées (E1404/E1412/E1422/E1450) pour que chaque code soit findable individuellement.
+  { keywords: ['amidon modifie', 'amidon modifié', 'modified starch', 'fécule modifiée', 'fecula modifiee', 'modified cornstarch', 'modified corn starch', 'modified wheat starch', 'modified rice starch', 'modified tapioca starch', 'corn starch modified', 'amidon de mais oxyde', 'oxidized starch', 'e1404'], code: 'E1404', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon oxydé industriellement. Glucide ultra-transformé à fort index glycémique.' },
+  { keywords: ['phosphate de diamidon', 'distarch phosphate', 'e1412'], code: 'E1412', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon réticulé par phosphate. Glucide ultra-transformé à fort index glycémique.' },
+  { keywords: ['phosphate de diamidon acetyle', 'acetylated distarch phosphate', 'amidon modifié acétylé', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1422'], code: 'E1422', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon acétylé industriellement. Glucide ultra-transformé à fort index glycémique.' },
+  { keywords: ['amidon hydroxypropyl', 'hydroxypropyl starch', 'hydroxypropyl distarch phosphate', 'e1450'], code: 'E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon hydroxypropylé industriel. Glucide ultra-transformé à fort index glycémique.' },
 
   // --- Protéines industrielles → ORANGE ---
   { keywords: ['proteines hydrolysees', 'hydrolyzed protein', 'hydrolyse', 'hydrolyzed', 'protéines hydrolysées'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
@@ -86,10 +90,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // --- Édulcorants problématiques → ORANGE ---
   { keywords: ['acesulfame', 'acesulfame k', 'acesulfame potassium', 'e950'], code: 'E950', risk: 'probable', circ: 'Perturbateur endocrinien', note: 'Dégrade le microbiome intestinal. Perturbateur endocrinien.' },
-  { keywords: ['aspartame', 'e951'], code: 'E951', risk: 'danger', circ: 'Groupe 2B', note: 'Classé possiblement cancérigène (Groupe 2B) par le CIRC en juillet 2023, sur la base d\'études liant sa consommation au carcinome hépatocellulaire. Présent dans sodas light, chewing-gums sans sucre, yaourts allégés. Se décompose en méthanol puis formaldéhyde dans l\'organisme.' },
+  { keywords: ['aspartame', 'e951'], code: 'E951', risk: 'probable', circ: 'Groupe 2B', note: 'Interdit dans certains pays. Considéré cancérigène possible par le CIRC (Groupe 2B). À éviter.' },
 
   // --- Conservateurs dangereux → ORANGE ---
-  { keywords: ['bha', 'butylhydroxyanisole', 'e320'], code: 'E320', risk: 'danger', circ: 'Groupe 2B', note: 'Classé Groupe 2B CIRC (possiblement cancérogène). Perturbateur endocrinien avéré. Le National Toxicology Program américain le qualifie de « raisonnablement anticipé comme cancérogène humain ». Présent dans céréales, chewing-gums, charcuteries, huiles industrielles.' },
+  { keywords: ['bha', 'butylhydroxyanisole', 'e320'], code: 'E320', risk: 'probable', circ: 'Groupe 2B', note: 'Interdit dans certains pays. Considéré cancérigène possible par le CIRC (Groupe 2B). À éviter.' },
   { keywords: ['tbhq', 'e319'], code: 'E319', risk: 'probable', circ: 'Ultra-transformé', note: 'Lié à tumeurs dans études animales.' },
 
   // --- Colorants azoïques et colorants jaunes/oranges → ORANGE ---
@@ -110,13 +114,22 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['carraghenane', 'carrageenan', 'carraghénane', 'e407'], code: 'E407', risk: 'probable', circ: 'Inflammation intestinale', note: 'Lié à l\'inflammation intestinale et aux maladies inflammatoires.' },
   { keywords: ['cmc', 'carboxymethylcellulose', 'e466'], code: 'E466', risk: 'probable', circ: 'Perturbateur microbiome', note: 'Perturbe le microbiome intestinal.' },
   { keywords: ['polysorbate 80', 'polysorbate80', 'e433'], code: 'E433', risk: 'probable', circ: 'Perturbateur microbiome', note: 'Perturbe le microbiome, favorise l\'inflammation chronique.' },
-  { keywords: ['polysorbate 60', 'polysorbate 65', 'polysorbate 40', 'polysorbate 20', 'e432', 'e434', 'e435', 'e436'], code: 'E432-E436', risk: 'probable', circ: 'Perturbateur microbiome' },
+  // Polysorbates — entrées individuelles pour que chaque code soit findable.
+  { keywords: ['polysorbate 20', 'e432'], code: 'E432', risk: 'probable', circ: 'Perturbateur microbiome' },
+  { keywords: ['polysorbate 40', 'e434'], code: 'E434', risk: 'probable', circ: 'Perturbateur microbiome' },
+  { keywords: ['polysorbate 60', 'e435'], code: 'E435', risk: 'probable', circ: 'Perturbateur microbiome' },
+  { keywords: ['polysorbate 65', 'e436'], code: 'E436', risk: 'probable', circ: 'Perturbateur microbiome' },
 
   // --- Exhausteurs excitotoxiques → ORANGE ---
-  { keywords: ['msg', 'glutamate monosodique', 'monosodium glutamate', 'acide glutamique', 'e620', 'e621'], code: 'E620-E621', risk: 'probable', circ: 'Excitotoxine', note: 'Excitotoxine qui stimule excessivement les neurones.' },
+  // MSG / acide glutamique — entrées individuelles.
+  { keywords: ['acide glutamique', 'glutamic acid', 'e620'], code: 'E620', risk: 'probable', circ: 'Excitotoxine', note: 'Excitotoxine, même famille que MSG.' },
+  { keywords: ['msg', 'glutamate monosodique', 'monosodium glutamate', 'e621'], code: 'E621', risk: 'probable', circ: 'Excitotoxine', note: 'Excitotoxine qui stimule excessivement les neurones.' },
 
   // --- Aluminium → ORANGE ---
-  { keywords: ['silicate aluminium', 'aluminum silicate', 'silicate alumino-sodique', 'silicate alumino-potassique', 'silicate alumino-calcique', 'e554', 'e555', 'e556'], code: 'E554-E556', risk: 'probable', circ: 'Neurotoxique', note: 'Accumulation aluminium liée à Alzheimer.' },
+  // Silicates d'aluminium — entrées individuelles par code.
+  { keywords: ['silicate alumino-sodique', 'sodium aluminosilicate', 'e554'], code: 'E554', risk: 'probable', circ: 'Neurotoxique', note: 'Accumulation aluminium liée à Alzheimer.' },
+  { keywords: ['silicate alumino-potassique', 'potassium aluminosilicate', 'e555'], code: 'E555', risk: 'probable', circ: 'Neurotoxique', note: 'Accumulation aluminium liée à Alzheimer.' },
+  { keywords: ['silicate alumino-calcique', 'calcium aluminosilicate', 'silicate aluminium', 'aluminum silicate', 'e556'], code: 'E556', risk: 'probable', circ: 'Neurotoxique', note: 'Accumulation aluminium liée à Alzheimer.' },
   { keywords: ['ferrocyanure de sodium', 'sodium ferrocyanide', 'e535'], code: 'E535', risk: 'probable', circ: 'Toxique' },
   { keywords: ['phosphate aluminium sodium', 'sodium aluminum phosphate', 'phosphate acide d\'aluminium et de sodium', 'e541'], code: 'E541', risk: 'probable', circ: 'Neurotoxique', note: 'Aluminium neurotoxique lié à Alzheimer.' },
 
@@ -207,7 +220,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['gomme konjac', 'konjac gum', 'e425'], code: 'E425', risk: 'possible', circ: 'Controversé', note: 'Risque de blocage intestinal.' },
   { keywords: ['gomme tara', 'tara gum', 'e417'], code: 'E417', risk: 'possible', circ: 'Controversé' },
   { keywords: ['gomme gellane', 'gellan gum', 'e418'], code: 'E418', risk: 'possible', circ: 'Controversé' },
-  { keywords: ['alginate', 'alginate de potassium', 'potassium alginate', 'alginate d\'ammonium', 'ammonium alginate', 'alginate de calcium', 'calcium alginate', 'e401', 'e402', 'e403', 'e404'], code: 'E401-E404', risk: 'possible', circ: 'Gélifiant marin', note: 'Gélifiant industriel marin. Marqueur d\'ultra-transformation.' },
+  // Alginates — entrées individuelles par code.
+  { keywords: ['alginate', 'alginate de sodium', 'sodium alginate', 'e401'], code: 'E401', risk: 'possible', circ: 'Gélifiant marin', note: 'Gélifiant industriel marin. Marqueur d\'ultra-transformation.' },
+  { keywords: ['alginate de potassium', 'potassium alginate', 'e402'], code: 'E402', risk: 'possible', circ: 'Gélifiant marin', note: 'Gélifiant industriel marin. Marqueur d\'ultra-transformation.' },
+  { keywords: ['alginate d\'ammonium', 'ammonium alginate', 'e403'], code: 'E403', risk: 'possible', circ: 'Gélifiant marin', note: 'Gélifiant industriel marin. Marqueur d\'ultra-transformation.' },
+  { keywords: ['alginate de calcium', 'calcium alginate', 'e404'], code: 'E404', risk: 'possible', circ: 'Gélifiant marin', note: 'Gélifiant industriel marin. Marqueur d\'ultra-transformation.' },
 
   // --- Acide citrique → JAUNE ---
   { keywords: ['acide citrique', 'citric acid', 'e330', 'acidifiant acide citrique', 'acidifiant (acide citrique)', 'acidifiant: acide citrique'], code: 'E330', risk: 'possible', circ: 'Industriel', note: 'Produit par fermentation fongique. Peut éroder l\'émail dentaire.' },
@@ -216,7 +233,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['diphosphate', 'e450'], code: 'E450', risk: 'possible', circ: 'Excès phosphates' },
   { keywords: ['tripolyphosphate', 'e451'], code: 'E451', risk: 'possible', circ: 'Excès phosphates' },
   { keywords: ['polyphosphate', 'e452'], code: 'E452', risk: 'possible', circ: 'Excès phosphates' },
-  { keywords: ['phosphate de sodium', 'phosphate de potassium', 'phosphate de calcium', 'sodium phosphate', 'e339', 'e340', 'e341'], code: 'E339/E340/E341', risk: 'possible', circ: 'Excès phosphates', note: 'Excès lié à calcification artères et troubles rénaux.' },
+  // Phosphates de sodium/potassium/calcium — entrées individuelles par code.
+  { keywords: ['phosphate de sodium', 'sodium phosphate', 'e339'], code: 'E339', risk: 'possible', circ: 'Excès phosphates', note: 'Excès lié à calcification artères et troubles rénaux.' },
+  { keywords: ['phosphate de potassium', 'potassium phosphate', 'e340'], code: 'E340', risk: 'possible', circ: 'Excès phosphates', note: 'Excès lié à calcification artères et troubles rénaux.' },
+  { keywords: ['phosphate de calcium', 'calcium phosphate', 'e341'], code: 'E341', risk: 'possible', circ: 'Excès phosphates', note: 'Excès lié à calcification artères et troubles rénaux.' },
 
   // --- Sels et acides industriels → JAUNE ---
   { keywords: ['chlorure de potassium', 'potassium chloride', 'e508'], code: 'E508', risk: 'possible', circ: 'Substitut de sel industriel', note: 'Minéral mais utilisé comme substitut de sel industriel. Procédé de raffinage. À modérer chez les personnes avec insuffisance rénale.' },
@@ -237,7 +257,16 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['citrate de potassium', 'potassium citrate', 'e332'], code: 'E332', risk: 'possible', circ: 'Sel industriel', note: 'Sel synthétisé industriellement (réaction acide citrique + hydroxyde de potassium). Aucune forme naturelle dans l\'alimentation. Marqueur d\'ultra-transformation. Effet laxatif en excès.' },
   { keywords: ['extrait de stevia', 'extrait de stévia', 'stevia extract', 'rebaudioside', 'rebaudioside a', 'reb-a', 'steviol glycosides', 'glycosides de stéviol', 'glycosides de steviol', 'e960'], code: 'E960', risk: 'possible', circ: 'Édulcorant purifié', note: 'Extrait industriel ultra-purifié de la feuille de stévia (rebaudioside A à 95%+) obtenu par solvants (éthanol, méthanol). Très différent de la feuille brute. Peut perturber le microbiome intestinal. Arrière-goût réglissé.' },
   { keywords: ['bht', 'butylhydroxytoluene', 'e321'], code: 'E321', risk: 'possible', circ: 'Controversé' },
-  { keywords: ['sulfite', 'sulphite', 'dioxyde de soufre', 'sulfur dioxide', 'e220', 'e221', 'e222', 'e223', 'e224', 'e225', 'e226', 'e227', 'e228'], code: 'E220-E228', risk: 'possible', circ: 'Allergène', note: 'Provoque des crises d\'asthme et réactions allergiques.' },
+  // Sulfites — entrées individuelles par code (E220 à E228).
+  { keywords: ['dioxyde de soufre', 'sulfur dioxide', 'sulfite', 'sulphite', 'e220'], code: 'E220', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Provoque crises d\'asthme et réactions allergiques.' },
+  { keywords: ['sulfite de sodium', 'sodium sulphite', 'sodium sulfite', 'e221'], code: 'E221', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Allergène, déclenche crises d\'asthme.' },
+  { keywords: ['bisulfite de sodium', 'sodium bisulphite', 'sodium bisulfite', 'e222'], code: 'E222', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { keywords: ['metabisulfite de sodium', 'sodium metabisulphite', 'sodium metabisulfite', 'e223'], code: 'E223', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { keywords: ['metabisulfite de potassium', 'potassium metabisulphite', 'potassium metabisulfite', 'e224'], code: 'E224', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { keywords: ['sulfite de potassium', 'potassium sulphite', 'potassium sulfite', 'e225'], code: 'E225', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { keywords: ['sulfite de calcium', 'calcium sulphite', 'calcium sulfite', 'e226'], code: 'E226', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { keywords: ['bisulfite de calcium', 'calcium bisulphite', 'calcium bisulfite', 'e227'], code: 'E227', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
+  { keywords: ['bisulfite de potassium', 'potassium bisulphite', 'potassium bisulfite', 'e228'], code: 'E228', risk: 'possible', circ: 'Allergène', note: 'Sulfite. Réactions allergiques et asthme possibles.' },
   { keywords: ['sorbate de potassium', 'potassium sorbate', 'e202'], code: 'E202', risk: 'possible', circ: 'Conservateur', note: 'Conservateur synthétique généralement bien toléré mais controversé.' },
   { keywords: ['propionate de calcium', 'calcium propionate', 'e282'], code: 'E282', risk: 'possible', circ: 'Conservateur', note: 'Lié à irritabilité et troubles du comportement chez l\'enfant.' },
   { keywords: ['erythorbate de sodium', 'érythorbate de sodium', 'sodium erythorbate', 'e316'], code: 'E316', risk: 'possible', circ: 'Antioxydant industriel', note: 'Antioxydant synthétique utilisé dans les charcuteries pour fixer les nitrites.' },
@@ -263,7 +292,17 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['extrait de levure', 'yeast extract', 'extraits de levure'], code: null, risk: 'possible', circ: 'Glutamate caché', note: 'Contient du glutamate naturel — MSG caché.' },
 
   // --- Amplificateurs de goût → JAUNE ---
-  { keywords: ['guanylate', 'inosinate', 'guanylate disodique', 'inosinate disodique', 'ribonucleotides', 'ribonucléotides', 'e626', 'e627', 'e628', 'e629', 'e630', 'e631', 'e632', 'e633', 'e634', 'e635'], code: 'E626-E635', risk: 'possible', circ: 'Amplificateur de goût', note: 'Souvent combiné avec MSG pour amplifier le goût umami.' },
+  // Ribonucléotides amplificateurs de goût — entrées individuelles par code (E626 à E635).
+  { keywords: ['acide guanylique', 'guanylic acid', 'e626'], code: 'E626', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide, souvent combiné avec MSG.' },
+  { keywords: ['guanylate disodique', 'disodium guanylate', 'e627'], code: 'E627', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide, souvent combiné avec MSG.' },
+  { keywords: ['guanylate dipotassique', 'dipotassium guanylate', 'e628'], code: 'E628', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide.' },
+  { keywords: ['guanylate de calcium', 'calcium guanylate', 'e629'], code: 'E629', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide.' },
+  { keywords: ['acide inosinique', 'inosinic acid', 'e630'], code: 'E630', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide.' },
+  { keywords: ['inosinate disodique', 'disodium inosinate', 'e631'], code: 'E631', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide, souvent combiné avec MSG.' },
+  { keywords: ['inosinate dipotassique', 'dipotassium inosinate', 'e632'], code: 'E632', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide.' },
+  { keywords: ['inosinate de calcium', 'calcium inosinate', 'e633'], code: 'E633', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide.' },
+  { keywords: ['ribonucléotides calciques', 'calcium ribonucleotides', 'e634'], code: 'E634', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide.' },
+  { keywords: ['ribonucleotides', 'ribonucléotides', 'ribonucléotides disodiques', 'disodium ribonucleotides', 'guanylate', 'inosinate', 'e635'], code: 'E635', risk: 'possible', circ: 'Amplificateur de goût', note: 'Amplificateur ribonucléotide, mélange E627 + E631. Souvent combiné avec MSG.' },
 
   // --- NOUVEAUX 🟡 JAUNE ---
   { keywords: ['anthocyanes', 'anthocyanins', 'e163'], code: 'E163', risk: 'possible', circ: 'Naturel transformé', note: 'Naturel mais souvent extrait avec solvants industriels.' },
@@ -536,27 +575,3 @@ export const DANGER_PREGNANCY: readonly string[] = [
   'sulfate de cuivre',
 ] as const;
 
-export function renderIngredientsDatabaseForPrompt(): string {
-  const byRisk: Record<RiskLevel, IngredientEntry[]> = {
-    danger: [], probable: [], possible: [], aucun: [],
-  };
-  for (const e of INGREDIENTS_DATABASE) byRisk[e.risk].push(e as IngredientEntry);
-
-  const renderGroup = (label: string, entries: IngredientEntry[]): string => {
-    const lines = entries.map((e) => {
-      const kw = e.keywords.join(' | ');
-      const code = e.code ? ` [${e.code}]` : '';
-      const note = e.note ? ` — ${e.note}` : '';
-      return `  • ${kw}${code} → ${e.circ}${note}`;
-    });
-    return `${label}\n${lines.join('\n')}`;
-  };
-
-  return [
-    renderGroup('🔴 ROUGE (danger — Cancérigène avéré Groupe 1 IARC) :', byRisk.danger),
-    renderGroup('🟠 ORANGE (probable — Ultra-transformé sévère / Groupe 2A IARC) :', byRisk.probable),
-    renderGroup('🟡 JAUNE (possible — Modération / Groupe 2B IARC) :', byRisk.possible),
-    renderGroup('🟢 VERT (aucun — Naturel sain) :', byRisk.aucun),
-    `⚠️ DANGER GROSSESSE : ${DANGER_PREGNANCY.join(', ')}`,
-  ].join('\n\n');
-}

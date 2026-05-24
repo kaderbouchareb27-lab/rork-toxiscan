@@ -21,40 +21,82 @@ function normalizeForLookup(s: string): string {
     .trim();
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// INDEX DES MOTS-CLÉS — construit une seule fois au boot.
+// Map de "keyword normalisé" → entry, plus une liste triée par longueur
+// décroissante pour scanner rapidement les correspondances partielles.
+// ─────────────────────────────────────────────────────────────────────
+
+interface IndexedKeyword {
+  readonly key: string;
+  readonly entry: IngredientEntry;
+}
+
+const EXACT_KEYWORD_INDEX: Map<string, IngredientEntry> = (() => {
+  const map = new Map<string, IngredientEntry>();
+  const RISK_PRIORITY: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
+  for (const entry of INGREDIENTS_DATABASE) {
+    for (const keyword of entry.keywords) {
+      const norm = normalizeForLookup(keyword);
+      if (!norm) continue;
+      const existing = map.get(norm);
+      if (!existing || RISK_PRIORITY[entry.risk] < RISK_PRIORITY[existing.risk]) {
+        map.set(norm, entry);
+      }
+    }
+  }
+  return map;
+})();
+
+const SORTED_KEYWORDS: readonly IndexedKeyword[] = (() => {
+  const list: IndexedKeyword[] = [];
+  const seen = new Set<string>();
+  for (const entry of INGREDIENTS_DATABASE) {
+    for (const keyword of entry.keywords) {
+      const norm = normalizeForLookup(keyword);
+      if (!norm || norm.length < 3) continue;
+      const dedupKey = `${norm}::${entry.risk}`;
+      if (seen.has(dedupKey)) continue;
+      seen.add(dedupKey);
+      list.push({ key: norm, entry });
+    }
+  }
+  // Tri par longueur décroissante pour que le mot-clé le plus spécifique
+  // (ex. "sucre de canne") soit testé avant le plus générique ("sucre").
+  list.sort((a, b) => b.key.length - a.key.length);
+  return list;
+})();
+
 function lookupIngredient(ingredientName: string): IngredientEntry | null {
   const normalized = normalizeForLookup(ingredientName);
   if (!normalized) return null;
 
-  // Recherche exacte d'abord
-  for (const entry of INGREDIENTS_DATABASE) {
-    for (const keyword of entry.keywords) {
-      if (normalizeForLookup(keyword) === normalized) {
-        return entry;
-      }
-    }
-  }
+  // 1) Match exact — O(1) via Map
+  const exact = EXACT_KEYWORD_INDEX.get(normalized);
+  if (exact) return exact;
 
-  // Recherche par contenance : PRIORITÉ AU RISQUE LE PLUS HAUT (danger > probable > possible > aucun),
-  // puis au mot-clé le plus long. Évite qu'un nom composé comme "Pepperoni (porc et bœuf)"
-  // soit classé vert via le mot "porc" alors qu'il contient le mot dangereux "pepperoni".
+  // 2) Recherche par contenance : PRIORITÉ AU MOT-CLÉ LE PLUS LONG (le plus spécifique),
+  //    puis au risque le plus élevé en cas d'égalité de longueur.
+  //    Évite que "sucre de canne" soit classé via "sucre" (probable) au lieu de
+  //    "sucre de canne" (possible), et que "lait de soja" soit classé via "soja"
+  //    au lieu de "lait de soja".
   const RISK_PRIORITY: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
   let bestMatch: IngredientEntry | null = null;
-  let bestRiskPriority = 999;
   let bestMatchLength = 0;
-  for (const entry of INGREDIENTS_DATABASE) {
-    const entryPriority = RISK_PRIORITY[entry.risk];
-    for (const keyword of entry.keywords) {
-      const normKeyword = normalizeForLookup(keyword);
-      if (normKeyword.length < 3) continue;
-      if (normalized.includes(normKeyword)) {
-        if (
-          entryPriority < bestRiskPriority ||
-          (entryPriority === bestRiskPriority && normKeyword.length > bestMatchLength)
-        ) {
-          bestMatch = entry;
-          bestRiskPriority = entryPriority;
-          bestMatchLength = normKeyword.length;
-        }
+  let bestRiskPriority = 999;
+  for (const { key, entry } of SORTED_KEYWORDS) {
+    // Comme la liste est triée par longueur décroissante, dès qu'on a un match
+    // et que les keywords suivants sont plus courts, ils ne peuvent plus battre.
+    if (bestMatch && key.length < bestMatchLength) break;
+    if (normalized.includes(key)) {
+      const entryPriority = RISK_PRIORITY[entry.risk];
+      if (
+        key.length > bestMatchLength ||
+        (key.length === bestMatchLength && entryPriority < bestRiskPriority)
+      ) {
+        bestMatch = entry;
+        bestMatchLength = key.length;
+        bestRiskPriority = entryPriority;
       }
     }
   }

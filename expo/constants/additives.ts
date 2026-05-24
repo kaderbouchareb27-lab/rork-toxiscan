@@ -115,11 +115,11 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'viande-rouge', name: 'Viande rouge', group: 'group2a', category: 'food', description: 'Probablement cancérogène (Groupe 2A CIRC). Lien avec cancer colorectal. Limiter à 500g/semaine.' },
 
   // --- Édulcorant problématique ---
-  { code: 'en:e951', name: 'Aspartame', group: 'group1', category: 'food', description: 'Classé possiblement cancérogène (Groupe 2B) par le CIRC en juillet 2023, sur la base d\'études liant sa consommation au carcinome hépatocellulaire. Présent dans sodas light, chewing-gums sans sucre, yaourts allégés. Se décompose en méthanol puis formaldéhyde dans l\'organisme.' },
+  { code: 'en:e951', name: 'Aspartame', group: 'group2a', category: 'food', description: 'Interdit dans certains pays. Considéré cancérigène possible par le CIRC (Groupe 2B). À éviter.' },
   { code: 'en:e950', name: 'Acésulfame potassium', group: 'group2a', category: 'food', description: 'Perturbateur du microbiome intestinal. Lien suspecté avec diabète. À limiter.' },
 
   // --- Conservateurs problématiques ---
-  { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group1', category: 'food', description: 'Classé Groupe 2B CIRC (possiblement cancérogène). Perturbateur endocrinien avéré. Le National Toxicology Program américain le qualifie de « raisonnablement anticipé comme cancérogène humain ». Présent dans céréales, chewing-gums, charcuteries, huiles industrielles.' },
+  { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group2a', category: 'food', description: 'Interdit dans certains pays. Considéré cancérigène possible par le CIRC (Groupe 2B). À éviter.' },
   { code: 'en:e319', name: 'TBHQ (Tert-butylhydroquinone)', group: 'group2a', category: 'food', description: 'Lié à des tumeurs dans des études animales. Limité en UE.' },
 
   // --- Colorants azoïques (hyperactivité enfant) ---
