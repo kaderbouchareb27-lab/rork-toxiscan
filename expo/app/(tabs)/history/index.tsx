@@ -392,7 +392,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAF3',
+    backgroundColor: '#FAFAF8',
   },
   backgroundOrb: {
     position: 'absolute',
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(46, 158, 52, 0.14)',
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
   },
   backgroundOrbSecondary: {
     position: 'absolute',
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     width: 210,
     height: 210,
     borderRadius: 105,
-    backgroundColor: 'rgba(46, 158, 52, 0.08)',
+    backgroundColor: 'rgba(232, 115, 10, 0.06)',
   },
   header: {
     flexDirection: 'row',

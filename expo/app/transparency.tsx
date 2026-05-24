@@ -19,6 +19,11 @@ export default function TransparencyScreen() {
         <Text style={styles.highlightText}>{isEnglish() ? 'Dr.Toxi believes in total transparency. You deserve to know how each feature works.' : 'Dr.Toxi croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.'}</Text>
       </View>
 
+      <View style={styles.providerCard}>
+        <Text style={styles.providerLabel}>{isEnglish() ? 'AI providers used' : "Modèles d'IA utilisés"}</Text>
+        <Text style={styles.providerValue}>{isEnglish() ? 'OpenAI GPT-4o (vision + text) and GPT-4o-mini, accessed via the Rork AI Toolkit. Used only for photo analysis and Dr. Toxi chat responses.' : "OpenAI GPT-4o (vision + texte) et GPT-4o-mini, accédés via le Rork AI Toolkit. Utilisés uniquement pour l'analyse photo et les réponses du chat Dr. Toxi."}</Text>
+      </View>
+
       <Text style={styles.heading}>{isEnglish() ? 'Dr.Toxi uses AI in two areas:' : "Dr.Toxi utilise l'IA à deux endroits :"}</Text>
 
       <View style={styles.featureCard}>
@@ -109,6 +114,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 30,
     letterSpacing: -0.3,
+  },
+  providerCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  providerLabel: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: Colors.text,
+    marginBottom: 6,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  },
+  providerValue: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
   },
   highlightCard: {
     backgroundColor: 'rgba(46, 158, 52, 0.08)',
