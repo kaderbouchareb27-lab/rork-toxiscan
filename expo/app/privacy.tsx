@@ -39,7 +39,7 @@ export default function PrivacyScreen() {
 
       <Text style={styles.heading}>{isEnglish() ? 'Product database' : 'Base de données produits'}</Text>
       <Text style={styles.body}>
-        {isEnglish() ? 'Product information comes from Open Food Facts, a collaborative and open database. Risk classifications are based on public data from the IARC/WHO (International Agency for Research on Cancer).' : "Les informations sur les produits proviennent d'Open Food Facts, une base de données collaborative et ouverte. Les classifications de risque sont basées sur les données publiques du CIRC/OMS (Centre International de Recherche sur le Cancer)."}
+        {isEnglish() ? 'Product analysis is powered by the Dr.Toxi proprietary database, enriched with global cancer research from international authorities (IARC/WHO, EFSA, FDA, NTP, INSERM). The database is updated continuously each time a new ingredient is declared carcinogenic or ultra-processed anywhere in the world.' : "L'analyse des produits est propulsée par la base de données propriétaire Dr.Toxi, enrichie par les recherches mondiales sur le cancer issues des autorités internationales (CIRC/OMS, EFSA, FDA, NTP, INSERM). La base est mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde."}
       </Text>
 
       <Text style={styles.heading}>{isEnglish() ? 'Local storage' : 'Stockage local'}</Text>

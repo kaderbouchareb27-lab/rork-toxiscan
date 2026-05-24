@@ -36,7 +36,7 @@ export default function TermsScreen() {
 
       <Text style={styles.heading}>{isEnglish() ? '4. Data Sources' : '4. Sources de données'}</Text>
       <Text style={styles.body}>
-        {isEnglish() ? "Product information comes from Open Food Facts, a collaborative and open database. Risk classifications are based on public data from the IARC/WHO. Dr.Toxi does not guarantee the completeness or accuracy of this data." : "Les informations sur les produits proviennent d'Open Food Facts, une base de données collaborative et ouverte. Les classifications de risque sont basées sur les données publiques du CIRC/OMS. Dr.Toxi ne garantit pas l'exhaustivité ou l'exactitude de ces données."}
+        {isEnglish() ? 'Product analysis relies on the Dr.Toxi proprietary database, enriched with global cancer research (IARC/WHO, EFSA, FDA, NTP, INSERM) and updated continuously each time a new ingredient is declared carcinogenic or ultra-processed worldwide. Dr.Toxi does not guarantee the completeness or accuracy of this data.' : "L'analyse des produits repose sur la base de données propriétaire Dr.Toxi, enrichie par les recherches mondiales sur le cancer (CIRC/OMS, EFSA, FDA, NTP, INSERM) et mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde. Dr.Toxi ne garantit pas l'exhaustivité ou l'exactitude de ces données."}
       </Text>
 
       <Text style={styles.heading}>{isEnglish() ? '5. Artificial Intelligence' : '5. Intelligence artificielle'}</Text>

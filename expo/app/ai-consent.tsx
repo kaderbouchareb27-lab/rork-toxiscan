@@ -47,8 +47,8 @@ export default function AIConsentScreen() {
 
         <View style={styles.techCard}>
           <Text style={styles.techLabel}>{t('tech_used')}</Text>
-          <Text style={styles.techValue}>{isEnglish() ? 'OpenAI GPT-4o (text and vision)' : 'OpenAI GPT-4o (texte et vision)'}</Text>
-          <Text style={styles.techValue}>{isEnglish() ? 'Open Food Facts (product data)' : 'Open Food Facts (données produits)'}</Text>
+          <Text style={styles.techValue}>{isEnglish() ? 'Advanced AI (text + vision analysis)' : 'IA avancée (analyse texte + vision)'}</Text>
+          <Text style={styles.techValue}>{isEnglish() ? 'Dr.Toxi proprietary database — enriched with global cancer research (IARC/WHO, EFSA, FDA, NTP, INSERM) and continuously updated each time a new ingredient is declared carcinogenic or ultra-processed worldwide.' : "Base de données propriétaire Dr.Toxi — enrichie par les recherches mondiales sur le cancer (CIRC/OMS, EFSA, FDA, NTP, INSERM) et mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde."}</Text>
         </View>
 
         <Text style={styles.disclaimerText}>
