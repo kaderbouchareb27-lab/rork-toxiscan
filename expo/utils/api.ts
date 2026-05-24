@@ -484,18 +484,62 @@ async function callAI(
 // CLASSIFICATION DÉTERMINISTE
 // ═══════════════════════════════════════════════════════════════════════
 
+// Marqueurs de ton NÉGATIF — si on les trouve dans la description d'un ingrédient classé VERT,
+// c'est que l'IA a halluciné du négatif sur un ingrédient sain. On remplace alors l'explication.
+const NEGATIVE_MARKERS_FOR_GREEN = [
+  'industriel', 'industrielle', 'industriellement', 'industrial', 'industrially',
+  'raffiné', 'raffine', 'raffinée', 'raffinee', 'refined',
+  'solvant', 'solvants', 'solvent', 'solvents',
+  'chimique', 'chimiques', 'chemical', 'chemicals', 'chemically',
+  'dépourvu', 'depourvu', 'dépourvue', 'depourvue', 'devoid', 'stripped',
+  'ultra-transformé', 'ultra-transforme', 'ultra-processed',
+  'hexane',
+  'ogm', 'gmo',
+  'cancér', 'cancer', 'cancéro', 'cancero', 'carcinogen',
+  'hypertension', 'cardiovasculaire', 'cardiovascular',
+  'inflammation', 'inflammatoire', 'inflammatory',
+  'à limiter', 'a limiter', 'limit consumption', 'à éviter', 'a eviter', 'avoid',
+  'marqueur de produit', 'marker of', 'marker of ultra',
+  'consommation excessive', 'excessive consumption',
+  'préférer une alternative', 'preferer une alternative', 'prefer a natural', 'prefer an alternative',
+  'inconvénient pour la santé', 'inconvenient pour la sante',
+];
+
+function hasNegativeTone(text: string): boolean {
+  const lower = text.toLowerCase();
+  return NEGATIVE_MARKERS_FOR_GREEN.some((kw) => lower.includes(kw));
+}
+
+function buildPositiveFallback(name: string, note: string | undefined): string {
+  if (note && note.trim() && !hasNegativeTone(note)) return note;
+  const en = isEnglish();
+  return en
+    ? `${name} is a natural, approved ingredient. It contributes flavor, texture, or nutrients to the product without health concerns.`
+    : `${name} est un ingrédient naturel et approuvé. Il apporte saveur, texture ou nutriments au produit sans problème pour la santé.`;
+}
+
 function classifyIngredients(aiIngredients: { nom: string; explication: string }[]): SubstanceDetected[] {
   return aiIngredients.map((ing) => {
     const entry = lookupIngredient(ing.nom);
 
     if (entry) {
       console.log('[Classify] "' + ing.nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
+
+      let explication = ing.explication || (entry.note ?? '');
+      // 🟢 Anti-contradiction : si l'ingrédient est VERT mais l'IA a écrit du négatif,
+      // on remplace par la note de la base (si positive) ou un texte positif générique.
+      if (entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
+        const original = explication;
+        explication = buildPositiveFallback(ing.nom, entry.note);
+        console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced. Was: "' + original.substring(0, 80) + '..."');
+      }
+
       return {
         nom: ing.nom,
         code: entry.code,
         classification_circ: entry.circ,
         niveau_risque: entry.risk,
-        explication: ing.explication || (entry.note ?? ''),
+        explication,
         source_exposition: null,
       };
     }
