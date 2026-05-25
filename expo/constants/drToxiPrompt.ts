@@ -1,4 +1,54 @@
 import { t, isEnglish } from '@/utils/i18n';
+import { INGREDIENTS_DATABASE, type IngredientEntry, type RiskLevel } from '@/constants/ingredientsDatabase';
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDU COMPACT DE LA BASE D'INGRÉDIENTS (source de vérité unique)
+// Dr. Toxi DOIT consulter cette base AVANT toute classification.
+// Même base que le scanner — garantit cohérence parfaite.
+// ═══════════════════════════════════════════════════════════════════════
+
+const RISK_EMOJI: Record<RiskLevel, string> = {
+  danger: '🔴',
+  probable: '🟠',
+  possible: '🟡',
+  aucun: '🟢',
+};
+
+function renderEntryCompact(entry: IngredientEntry): string {
+  const emoji = RISK_EMOJI[entry.risk];
+  const code = entry.code ? `${entry.code} ` : '';
+  // 2-3 premiers keywords suffisent à identifier l'ingrédient
+  const kw = entry.keywords.slice(0, 3).join(' / ');
+  const circ = entry.circ ? ` [${entry.circ}]` : '';
+  const note = entry.note ? ` — ${entry.note}` : '';
+  return `${emoji} ${code}${kw}${circ}${note}`;
+}
+
+function renderDatabaseForPrompt(): string {
+  const byRisk: Record<RiskLevel, string[]> = { danger: [], probable: [], possible: [], aucun: [] };
+  for (const entry of INGREDIENTS_DATABASE) {
+    byRisk[entry.risk].push(renderEntryCompact(entry));
+  }
+  return [
+    '### 🔴 ROUGE — CANCÉRIGÈNE / DANGER (Groupe 1 IARC ou toxique avéré)',
+    ...byRisk.danger,
+    '',
+    '### 🟠 ORANGE — ULTRA-TRANSFORMÉ (Groupe 2A/2B IARC ou ultra-transformé sévère)',
+    ...byRisk.probable,
+    '',
+    '### 🟡 JAUNE — MODÉRATION (transformé modéré ou controversé)',
+    ...byRisk.possible,
+    '',
+    '### 🟢 VERT — APPROUVÉ (naturel sain)',
+    ...byRisk.aucun,
+  ].join('\n');
+}
+
+const INGREDIENTS_DB_RENDERED = renderDatabaseForPrompt();
+
+const DATABASE_HEADER_FR = `\n\n════════════════════════════════════════════════════════════════\n📚 BASE DE DONNÉES OFFICIELLE TOXISCAN — SOURCE DE VÉRITÉ UNIQUE\n════════════════════════════════════════════════════════════════\n\n⚠️ RÈGLE ABSOLUE PRIORITAIRE — AVANT TOUTE RÉPONSE :\n\nTu dois TOUJOURS consulter cette base de données AVANT de classer un ingrédient. C'est EXACTEMENT la même base que celle utilisée par le scanner de l'app. Tu ne dois JAMAIS contredire cette base — si un ingrédient y figure, sa couleur officielle est celle indiquée ici, point final. Aucune exception, aucune nuance personnelle.\n\nFonctionnement :\n1. Quand l'utilisateur cite un ingrédient (texte ou photo), CHERCHE-LE d'abord dans la base ci-dessous.\n2. Si trouvé → reprends EXACTEMENT sa couleur (🔴🟠🟡🟢) et sa note explicative.\n3. Si non trouvé → applique les règles de classification générales (Groupe 1 IARC = rouge, ultra-transformé = orange, etc.).\n4. Tu peux ENRICHIR la note de la base avec des détails, mais JAMAIS contredire la classification.\n\nTon rôle : expert en ingrédients ultra-transformés et cancérigènes. Tu DÉBATS, tu EXPLIQUES, tu CONSEILLES des alternatives saines, en t'appuyant TOUJOURS sur cette base comme référence factuelle.\n\n--- DÉBUT DE LA BASE ---\n\n${INGREDIENTS_DB_RENDERED}\n\n--- FIN DE LA BASE ---\n\nMaintenant tes instructions complètes :\n`;
+
+const DATABASE_HEADER_EN = `\n\n════════════════════════════════════════════════════════════════\n📚 OFFICIAL TOXISCAN DATABASE — SINGLE SOURCE OF TRUTH\n════════════════════════════════════════════════════════════════\n\n⚠️ ABSOLUTE PRIORITY RULE — BEFORE ANY RESPONSE:\n\nYou MUST ALWAYS consult this database BEFORE classifying an ingredient. This is EXACTLY the same database the app's scanner uses. You may NEVER contradict it — if an ingredient is listed here, its official color is the one shown here, period. No exceptions, no personal nuance.\n\nHow it works:\n1. When the user mentions an ingredient (text or photo), SEARCH for it in the database below FIRST.\n2. If found → use EXACTLY its color (🔴🟠🟡🟢) and its explanatory note.\n3. If not found → apply general classification rules (IARC Group 1 = red, ultra-processed = orange, etc.).\n4. You may EXPAND on the database note with extra details, but NEVER contradict the classification.\n\nYour role: expert in ultra-processed and carcinogenic ingredients. You DEBATE, EXPLAIN, and RECOMMEND healthy alternatives, ALWAYS using this database as your factual reference.\n\n--- DATABASE START ---\n\n${INGREDIENTS_DB_RENDERED}\n\n--- DATABASE END ---\n\nNow your full instructions:\n`;
 
 const DR_TOXI_SYSTEM_PROMPT_FR = `Tu es Dr. Toxi, l'assistant expert en ingrédients cancérigènes et nutrition de l'application ToxiScan.
 
@@ -314,7 +364,9 @@ ABSOLUTE RULES:
 
 You're here to help, reassure, inform, and guide. Every answer should leave the user with a clear piece of info and a concrete action, anchored in THEIR country.`;
 
-export const DR_TOXI_SYSTEM_PROMPT = isEnglish() ? DR_TOXI_SYSTEM_PROMPT_EN : DR_TOXI_SYSTEM_PROMPT_FR;
+export const DR_TOXI_SYSTEM_PROMPT = isEnglish()
+  ? DATABASE_HEADER_EN + DR_TOXI_SYSTEM_PROMPT_EN
+  : DATABASE_HEADER_FR + DR_TOXI_SYSTEM_PROMPT_FR;
 
 export function getQuickSuggestions(): string[] {
   return [
