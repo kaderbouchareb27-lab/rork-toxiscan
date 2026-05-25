@@ -413,6 +413,11 @@ const translations = {
   verdict_approved_msg: { fr: "Excellent choix ! La grande majorité des ingrédients sont naturels et sains. Tu peux consommer ce produit sans inquiétude.", en: "Excellent choice! The vast majority of ingredients are natural and healthy. You can consume this product without worry." },
 
   // ===== SHARE IMAGE CARD =====
+  share_card_kicker: { fr: 'Analyse santé premium', en: 'Premium health scan' },
+  share_verdict_eyebrow_danger: { fr: 'Verdict Dr. Toxi', en: 'Dr. Toxi verdict' },
+  share_verdict_eyebrow_warning: { fr: 'Verdict Dr. Toxi', en: 'Dr. Toxi verdict' },
+  share_verdict_eyebrow_moderation: { fr: 'Verdict Dr. Toxi', en: 'Dr. Toxi verdict' },
+  share_verdict_eyebrow_approved: { fr: 'Verdict Dr. Toxi', en: 'Dr. Toxi verdict' },
   share_approved_label: { fr: 'APPROUVE', en: 'APPROVED' },
   share_approved_sub: { fr: 'Aucune substance cancérigène', en: 'No carcinogenic substances' },
   share_approved_explanation: { fr: 'Dr.Toxi confirme : ce produit ne contient aucune substance cancérigène connue. Vous pouvez le consommer en toute tranquillité.', en: 'Dr.Toxi confirms: this product contains no known carcinogenic substances. You can consume it safely.' },
@@ -424,6 +429,8 @@ const translations = {
   share_danger_explanation: { fr: 'Dr.Toxi déconseille ce produit : il contient des substances classées cancérigènes par le CIRC. Évitez sa consommation régulière.', en: 'Dr.Toxi advises against this product: it contains substances classified as carcinogenic by the IARC. Avoid regular consumption.' },
   no_dangerous_substance: { fr: 'Aucune substance dangereuse détectée', en: 'No dangerous substances detected' },
   available_app_store: { fr: "Disponible sur l'App Store", en: 'Available on the App Store' },
+  share_promo_title: { fr: "Scannez vos produits avec Dr.Toxi", en: 'Scan your products with Dr.Toxi' },
+  share_promo_subtitle: { fr: "ToxiScan disponible sur l'App Store", en: 'ToxiScan available on the App Store' },
 
   // ===== DAILY FACT =====
   daily_fact_title: { fr: 'Le saviez-vous ?', en: 'Did you know?' },
