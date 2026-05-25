@@ -276,15 +276,15 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // ═══════════════════════════════════════════════════════════════
 
   // --- Édulcorants Groupe 2B (food) ---
-  { code: 'en:e954', name: 'Saccharine', group: 'group2b', category: 'food', description: 'Anciennement Groupe 2B IARC (déclassé en 1999 mais reste controversé).' },
-  { code: 'en:e955', name: 'Sucralose', group: 'group2b', category: 'food', description: 'Effets sur le microbiome intestinal. À modérer.' },
-  { code: 'en:e952', name: 'Cyclamate', group: 'group2b', category: 'food', description: 'Interdit aux USA depuis 1969. Autorisé en UE avec limites.' },
+  { code: 'en:e954', name: 'Saccharine', group: 'group2a', category: 'food', description: 'Édulcorant synthétique classé Groupe 2B IARC (possiblement cancérogène) puis déclassé en 1999, mais reste controversé. Perturbe le microbiome intestinal et favorise l\'intolérance au glucose. À éviter.' },
+  { code: 'en:e955', name: 'Sucralose', group: 'group2a', category: 'food', description: 'Édulcorant synthétique chloré (dérivé chimique du sucre). Perturbe le microbiome intestinal et libère des composés génotoxiques à la cuisson selon des études récentes. À éviter.' },
+  { code: 'en:e952', name: 'Cyclamate', group: 'group2a', category: 'food', description: 'Édulcorant synthétique interdit aux USA depuis 1969 pour suspicion de cancer de la vessie en études animales. Classé Groupe 2B IARC (possiblement cancérogène). À éviter.' },
 
   // --- Colorants Groupe 2B (food) ---
   { code: 'en:e127', name: 'Érythrosine / Red 3', group: 'group2b', category: 'food', description: 'Interdit dans les produits topiques aux USA depuis 1990. Études animales montrent tumeurs thyroïdiennes.' },
   { code: 'en:e133', name: 'Bleu brillant / Blue 1', group: 'group2b', category: 'food', description: 'Colorant artificiel. Allergies possibles. À limiter.' },
   { code: 'en:e132', name: 'Indigotine / Blue 2', group: 'group2b', category: 'food', description: 'Colorant artificiel. Allergies possibles.' },
-  { code: 'en:e143', name: 'Vert solide FCF / Green 3', group: 'group2b', category: 'food', description: 'Colorant artificiel interdit en UE.' },
+  { code: 'en:e143', name: 'Vert solide FCF / Green 3', group: 'group2a', category: 'food', description: 'Colorant synthétique pétrolier interdit dans toute l\'Union européenne pour preuves de cancérogénicité en études animales. Classé Groupe 2B IARC. À éviter absolument.' },
   { code: 'en:e171', name: 'Dioxyde de titane', group: 'group2b', category: 'food', description: 'Interdit comme additif alimentaire en UE depuis 2022. Nanoparticules suspectes (Groupe 2B CIRC).' },
   { code: 'en:e160b', name: 'Annatto / Rocou', group: 'group2a', category: 'food', description: 'Colorant semi-synthétique jaune/orange (E160b) lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.' },
   { code: 'en:e120', name: 'Cochenille / Carmin', group: 'group2b', category: 'food', description: 'Colorant rouge naturel mais allergène fort, chocs anaphylactiques possibles.' },
@@ -303,7 +303,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e211', name: 'Benzoate de sodium', group: 'group2b', category: 'food', description: 'Conservateur courant. Peut former du benzène cancérogène avec vitamine C dans certaines boissons.' },
   { code: 'en:e212', name: 'Benzoate de potassium', group: 'group2b', category: 'food', description: 'Conservateur industriel synthétique. Peut former du benzène cancérigène (Groupe 1 CIRC) au contact de l\'acide ascorbique (vitamine C) — fréquent dans les sodas. Lié à hyperactivité chez l\'enfant.' },
   { code: 'en:e210', name: 'Acide benzoïque', group: 'group2b', category: 'food', description: 'Conservateur, peut former du benzène avec vitamine C.' },
-  { code: 'en:e321', name: 'BHT (Butylhydroxytoluène)', group: 'group2b', category: 'food', description: 'Antioxydant synthétique. Effets hépatiques à fortes doses. Classé Groupe 3 IARC (preuves insuffisantes).' },
+  { code: 'en:e321', name: 'BHT (Butylhydroxytoluène)', group: 'group2b', category: 'food', description: 'Antioxydant synthétique controversé pouvant provoquer des effets hépatiques et thyroïdiens à fortes doses (études animales). Classé Groupe 3 IARC (preuves insuffisantes), mais soupçonné perturbateur endocrinien. À éviter chez les enfants.' },
 
   // --- Sulfites (modération) ---
   { code: 'en:e220', name: 'Dioxyde de soufre', group: 'group2b', category: 'food', description: 'Sulfite. Provoque crises d\'asthme et réactions allergiques sévères.' },
@@ -322,20 +322,20 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e635', name: '5\'-Ribonucléotide disodique', group: 'group2b', category: 'food', description: 'Amplificateur MSG.' },
 
   // --- Sucres et sirops (MODÉRATION, pas alarmant) ---
-  { code: 'maltodextrine', name: 'Maltodextrine', group: 'group2b', category: 'food', description: 'Glucide ultra-transformé, index glycémique élevé. À modérer.' },
+  { code: 'maltodextrine', name: 'Maltodextrine', group: 'group2a', category: 'food', description: 'Glucide ultra-transformé issu d\'hydrolyse industrielle de l\'amidon (souvent maïs OGM). Index glycémique très élevé (110, plus que le sucre blanc à 65). Perturbe le microbiome intestinal et favorise l\'inflammation.' },
   { code: 'glucose-syrup', name: 'Sirop de glucose', group: 'group2a', category: 'food', description: 'Sucre raffiné industriel issu d\'hydrolyse enzymatique de l\'amidon. Provoque des pics glycémiques rapides, favorise prise de poids et résistance à l\'insuline. À éviter.' },
   { code: 'hfcs', name: 'Sirop de glucose-fructose / HFCS', group: 'group2a', category: 'food', description: 'Édulcorant industriel ultra-transformé extrait du maïs (souvent OGM). Fortement lié à l\'obésité, au diabète de type 2, à la stéatose hépatique non alcoolique et au syndrome métabolique. À éviter.' },
-  { code: 'dextrose', name: 'Dextrose', group: 'group2b', category: 'food', description: 'Sucre rapide industriel.' },
+  { code: 'dextrose', name: 'Dextrose', group: 'group2b', category: 'food', description: 'Glucose isolé extrait industriellement de l\'amidon de maïs (souvent OGM). Provoque des pics glycémiques rapides et favorise la prise de poids et la résistance à l\'insuline.' },
   { code: 'corn-syrup', name: 'Sirop de maïs', group: 'group2a', category: 'food', description: 'Sirop industriel issu de maïs souvent OGM. Lié à obésité, stéatose hépatique et syndrome métabolique.' },
-  { code: 'gelatin', name: 'Gélatine', group: 'group2b', category: 'food', description: 'Issue de peaux et os animaux (bovin/porc) traités à l\'acide ou la soude. Procédé industriel, qualité variable.' },
-  { code: 'agave-syrup', name: 'Sirop d\'agave', group: 'group2b', category: 'food', description: 'Présenté comme naturel mais très riche en fructose isolé.' },
-  { code: 'rice-syrup', name: 'Sirop de riz', group: 'group2b', category: 'food', description: 'Sirop transformé, index glycémique élevé.' },
-  { code: 'fructose-added', name: 'Fructose ajouté', group: 'group2b', category: 'food', description: 'Fructose isolé. Lien stéatose hépatique en excès.' },
+  { code: 'gelatin', name: 'Gélatine', group: 'group2b', category: 'food', description: 'Issue de peaux et os animaux (bovin/porc) traités industriellement à l\'acide ou à la soude. Procédé chimique dénaturant, qualité variable selon les sources.' },
+  { code: 'agave-syrup', name: 'Sirop d\'agave', group: 'group2b', category: 'food', description: 'Présenté comme naturel mais ultra-raffiné industriellement. Composé à 70-90% de fructose isolé qui surcharge le foie et favorise la stéatose hépatique non alcoolique. À modérer.' },
+  { code: 'rice-syrup', name: 'Sirop de riz', group: 'group2b', category: 'food', description: 'Sirop industriel obtenu par hydrolyse enzymatique du riz. Index glycémique très élevé (98), provoque des pics de glycémie rapides. À modérer.' },
+  { code: 'fructose-added', name: 'Fructose ajouté', group: 'group2b', category: 'food', description: 'Fructose isolé extrait industriellement, très différent du fructose des fruits entiers (sans fibres ni nutriments). Métabolisé uniquement par le foie, favorise la stéatose hépatique et le syndrome métabolique en excès.' },
   { code: 'refined-sugar', name: 'Sucre blanc raffiné', group: 'group2b', category: 'food', description: 'Consommer avec modération. Lié à obésité, diabète, inflammation.' },
 
   // --- Arômes ---
-  { code: 'natural-flavor', name: 'Arôme naturel', group: 'group2b', category: 'food', description: 'Composition non détaillée. Souvent extrait chimiquement malgré "naturel". Manque de transparence.' },
-  { code: 'artificial-flavor', name: 'Arôme artificiel', group: 'group2b', category: 'food', description: 'Molécules synthétiques. Marqueur de produit ultra-transformé.' },
+  { code: 'natural-flavor', name: 'Arôme naturel', group: 'group2b', category: 'food', description: 'Composition non divulguée. Souvent extrait avec solvants industriels (hexane, éthanol) malgré la mention « naturel ». Marque généralement un produit transformé.' },
+  { code: 'artificial-flavor', name: 'Arôme artificiel', group: 'group2a', category: 'food', description: 'Molécules entièrement synthétiques issues de la pétrochimie pour imiter des goûts naturels. Marqueur indiscutable de produit ultra-transformé (NOVA 4). Composition non divulguée, allergènes possibles cachés.' },
 
   // --- Huiles raffinées (modération) ---
   { code: 'sunflower-oil', name: 'Huile de tournesol raffinée', group: 'group2b', category: 'food', description: 'Excès oméga-6 pro-inflammatoire. Préférer pressée à froid ou huile d\'olive.' },
@@ -353,26 +353,26 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'sodium-caseinate', name: 'Caséinate de sodium', group: 'group2b', category: 'food', description: 'Protéine de lait industrielle.' },
 
   // --- Émulsifiants modérés ---
-  { code: 'en:e471', name: 'Mono- et diglycérides E471', group: 'group2b', category: 'food', description: 'Émulsifiant industriel. Peut contenir traces de gras trans cachées.' },
-  { code: 'en:e476', name: 'PGPR (Polyglycerol polyricinoleate)', group: 'group2b', category: 'food', description: 'Émulsifiant dans chocolat industriel.' },
-  { code: 'en:e322', name: 'Lécithine de soja', group: 'group2b', category: 'food', description: 'Émulsifiant courant. Souvent OGM. Préférer lécithine de tournesol.' },
+  { code: 'en:e471', name: 'Mono- et diglycérides E471', group: 'group2b', category: 'food', description: 'Émulsifiant industriel pouvant contenir des traces cachées de gras trans. Marqueur de produit transformé.' },
+  { code: 'en:e476', name: 'PGPR (Polyglycerol polyricinoleate)', group: 'group2a', category: 'food', description: 'Émulsifiant industriel obtenu par estérification d\'huile de ricin avec polyglycérol. Utilisé dans le chocolat industriel pour réduire la quantité de beurre de cacao. Marqueur d\'ultra-transformation, peut causer des troubles digestifs.' },
+  { code: 'en:e322', name: 'Lécithine de soja', group: 'group2b', category: 'food', description: 'Émulsifiant courant souvent issu de soja OGM, extrait avec solvants comme l\'hexane. Préférer la lécithine de tournesol non OGM.' },
   { code: 'en:e463', name: 'Hydroxypropyl cellulose', group: 'group2b', category: 'food', description: 'Dérivé industriel de la cellulose.' },
   { code: 'en:e464', name: 'Hydroxypropyl méthylcellulose', group: 'group2b', category: 'food', description: 'Dérivé industriel de la cellulose.' },
   { code: 'en:e465', name: 'Méthyl éthyl cellulose', group: 'group2b', category: 'food', description: 'Dérivé industriel de la cellulose.' },
 
   // --- Phosphates ---
-  { code: 'en:e450', name: 'Diphosphates', group: 'group2b', category: 'food', description: 'Excès de phosphates lié à problèmes cardiaques et osseux.' },
-  { code: 'en:e451', name: 'Triphosphates', group: 'group2b', category: 'food', description: 'Excès de phosphates dans l\'alimentation moderne.' },
-  { code: 'en:e452', name: 'Polyphosphates', group: 'group2b', category: 'food', description: 'Excès de phosphates.' },
-  { code: 'en:e339', name: 'Phosphate de sodium', group: 'group2b', category: 'food', description: 'Sel phosphaté, modération.' },
-  { code: 'en:e340', name: 'Phosphate de potassium', group: 'group2b', category: 'food', description: 'Sel phosphaté, modération.' },
-  { code: 'en:e341', name: 'Phosphate de calcium', group: 'group2b', category: 'food', description: 'Sel phosphaté, modération.' },
+  { code: 'en:e450', name: 'Diphosphates', group: 'group2b', category: 'food', description: 'Phosphate industriel utilisé comme stabilisant. L\'excès de phosphates est lié à la calcification des artères, aux troubles rénaux et à la fragilité osseuse. À modérer.' },
+  { code: 'en:e451', name: 'Triphosphates', group: 'group2b', category: 'food', description: 'Phosphate industriel utilisé comme stabilisant. L\'excès est lié à la calcification artérielle, aux troubles rénaux et à la fragilité osseuse. À modérer.' },
+  { code: 'en:e452', name: 'Polyphosphates', group: 'group2b', category: 'food', description: 'Phosphate industriel utilisé comme rétenteur d\'eau dans la charcuterie. L\'excès est lié à la calcification artérielle et aux troubles rénaux. À modérer.' },
+  { code: 'en:e339', name: 'Phosphate de sodium', group: 'group2b', category: 'food', description: 'Sel phosphaté industriel. L\'excès de phosphates est lié à la calcification artérielle et aux troubles rénaux. À modérer.' },
+  { code: 'en:e340', name: 'Phosphate de potassium', group: 'group2b', category: 'food', description: 'Sel phosphaté industriel. L\'excès est lié à la calcification artérielle et aux troubles rénaux. À modérer.' },
+  { code: 'en:e341', name: 'Phosphate de calcium', group: 'group2b', category: 'food', description: 'Sel phosphaté industriel. L\'excès est lié à la calcification artérielle et aux troubles rénaux. À modérer.' },
 
   // --- Gommes (généralement OK mais modération) ---
-  { code: 'en:e415', name: 'Gomme xanthane', group: 'group2b', category: 'food', description: 'Épaississant industriel. Effets digestifs à haute dose.' },
-  { code: 'en:e412', name: 'Gomme de guar', group: 'group2b', category: 'food', description: 'Épaississant, effets digestifs possibles.' },
-  { code: 'en:e417', name: 'Gomme tara', group: 'group2b', category: 'food', description: 'Peu étudiée, effets digestifs possibles.' },
-  { code: 'en:e418', name: 'Gomme gellane', group: 'group2b', category: 'food', description: 'Effets digestifs à haute dose.' },
+  { code: 'en:e415', name: 'Gomme xanthane', group: 'group2b', category: 'food', description: 'Épaississant industriel produit par fermentation bactérienne. Peut perturber la digestion (ballonnements, gaz) chez les personnes sensibles. Marqueur de produit transformé.' },
+  { code: 'en:e412', name: 'Gomme de guar', group: 'group2b', category: 'food', description: 'Gélifiant industriel pouvant causer ballonnements, gaz et inconforts digestifs en excès. Marqueur de produit transformé.' },
+  { code: 'en:e417', name: 'Gomme tara', group: 'group2b', category: 'food', description: 'Épaississant industriel peu étudié à long terme. Peut causer troubles digestifs. Présence dans un produit indique une transformation industrielle.' },
+  { code: 'en:e418', name: 'Gomme gellane', group: 'group2b', category: 'food', description: 'Gélifiant industriel produit par fermentation bactérienne en bioréacteur. Effets digestifs à haute dose. Marqueur de produit ultra-transformé.' },
   { code: 'en:e425', name: 'Gomme konjac', group: 'group2b', category: 'food', description: 'Risque de blocage intestinal et étouffement chez les enfants.' },
   { code: 'en:e416', name: 'Gomme karaya', group: 'group2b', category: 'food', description: 'Allergène pouvant provoquer des réactions.' },
 
