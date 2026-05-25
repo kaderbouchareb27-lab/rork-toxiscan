@@ -34,8 +34,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['ptfe', 'perfluoro', 'polyfluoro', 'pfas', 'teflon'], code: null, risk: 'danger', circ: 'Groupe 1' },
   { keywords: ['alcool ethylique', 'ethanol boisson', 'alcool'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Dans les boissons alcoolisées uniquement' },
   { keywords: ['viande transformee', 'viande transformée', 'processed meat', 'charcuterie industrielle', 'charcuterie'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Cancérogène avéré. 50g/jour = +18% risque cancer colorectal.' },
-  // Charcuteries spécifiques — toutes classées Groupe 1 IARC (cancérogène avéré)
-  { keywords: ['pepperoni', 'pepperonis'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie industrielle (porc/bœuf fermenté + nitrites). Classée cancérogène avéré Groupe 1 par l\'OMS. Riche en sodium et nitrates.' },
+  // Charcuteries spécifiques — Groupe 1 IARC (cancérogène avéré), sauf pepperoni traité comme ultra-transformé
+  // (Pepperoni a été déplacé en ORANGE — voir section ultra-transformés)
   { keywords: ['salami', 'salamis'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie fermentée avec nitrites. Cancérogène avéré Groupe 1 OMS.' },
   { keywords: ['saucisson', 'saucisson sec', 'dry sausage', 'cured sausage'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie séchée aux nitrites. Cancérogène avéré Groupe 1 OMS.' },
   { keywords: ['chorizo'], code: null, risk: 'danger', circ: 'Groupe 1', note: 'Charcuterie espagnole aux nitrites. Cancérogène avéré Groupe 1 OMS.' },
@@ -81,6 +81,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['phosphate de diamidon', 'distarch phosphate', 'e1412'], code: 'E1412', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon réticulé par phosphate. Glucide ultra-transformé à fort index glycémique.' },
   { keywords: ['phosphate de diamidon acetyle', 'acetylated distarch phosphate', 'amidon modifié acétylé', 'fécule de pomme de terre modifiée', 'fecule de pomme de terre modifiee', 'modified potato starch', 'fécule modifiée de pomme de terre', 'e1422'], code: 'E1422', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon acétylé industriellement. Glucide ultra-transformé à fort index glycémique.' },
   { keywords: ['amidon hydroxypropyl', 'hydroxypropyl starch', 'hydroxypropyl distarch phosphate', 'e1450'], code: 'E1450', risk: 'probable', circ: 'Ultra-transformé', note: 'Amidon hydroxypropylé industriel. Glucide ultra-transformé à fort index glycémique.' },
+
+  // --- Charcuteries / viandes transformées → ORANGE ---
+  // Pepperoni, classé comme ultra-transformé (porc/bœuf fermenté + nitrites + additifs).
+  { keywords: ['pepperoni', 'pepperonis'], code: null, risk: 'probable', circ: 'Ultra-transformé', note: 'Charcuterie ultra-transformée à base de viande fermentée, sel nitrité et additifs industriels. Riche en sodium, gras saturés et conservateurs. À éviter ou consommer très rarement.' },
 
   // --- Protéines industrielles → ORANGE ---
   { keywords: ['proteines hydrolysees', 'hydrolyzed protein', 'hydrolyse', 'hydrolyzed', 'protéines hydrolysées'], code: null, risk: 'probable', circ: 'Ultra-transformé' },
@@ -318,9 +322,6 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['stearate de magnesium', 'stéarate de magnésium', 'magnesium stearate', 'e572'], code: 'E572', risk: 'possible', circ: 'Lubrifiant industriel', note: 'Agent lubrifiant industriel. Peut réduire l\'absorption des nutriments.' },
   { keywords: ['glucono-delta-lactone', 'gdl', 'glucono delta lactone', 'e575'], code: 'E575', risk: 'possible', circ: 'Acidifiant industriel', note: 'Acidifiant industriel par fermentation artificielle. Données long terme limitées.' },
 
-  // --- Viandes rouges → JAUNE (modération, Groupe 2A CIRC) ---
-  { keywords: ['bœuf', 'boeuf', 'beef', 'porc', 'pork'], code: null, risk: 'possible', circ: 'Viande rouge — modération', note: 'Viande rouge classée Groupe 2A par le CIRC (probablement cancérogène en excès) — lien établi avec le cancer colorectal. Source de protéines complètes, fer héminique et B12. Recommandation OMS : max 500 g/semaine, préférer les morceaux non transformés et les cuissons douces.' },
-
   // --- Poissons à modérer → JAUNE ---
   { keywords: ['thon', 'tuna'], code: null, risk: 'possible', circ: 'Contamination mercure', note: 'Poisson prédateur accumulant le mercure (méthylmercure neurotoxique). Riche en omaéga-3 et protéines, mais à modérer : max 1×/semaine pour un adulte, déconseillé aux femmes enceintes et jeunes enfants. Préférer les petits poissons gras (sardine, maquereau).' },
   { keywords: ['tilapia', 'pangasius'], code: null, risk: 'possible', circ: 'Élevage industriel', note: 'Poissons d\'élevage intensif (Asie du Sud-Est principalement) souvent nourris avec des déchets et traités aux antibiotiques. Faible teneur en oméga-3, ratio oméga-6/oméga-3 défavorable. Préférer poissons sauvages ou élevage bio européen.' },
@@ -387,6 +388,11 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['yaourt', 'yogurt', 'yoghurt'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['fromage', 'cheese', 'fromage blanc'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['oeuf', 'oeufs', 'egg', 'eggs', 'œuf', 'œufs'], code: null, risk: 'aucun', circ: 'Naturel' },
+
+  // --- Viandes fraîches non transformées ---
+  // Viande brute (non charcutée, sans nitrites/additifs) — source de protéines, fer héminique et B12.
+  { keywords: ['bœuf', 'boeuf', 'beef', 'porc', 'pork', 'agneau', 'lamb', 'veau', 'veal'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Viande non transformée, source de protéines complètes, fer héminique et vitamine B12. Préférer les morceaux frais (steak, rôti, escalope) cuisinés simplement à la viande transformée (charcuterie).' },
+  { keywords: ['poulet', 'chicken', 'volaille', 'poultry', 'dinde', 'turkey', 'canard', 'duck'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Volaille fraîche non transformée, source de protéines maigres, vitamines B et minéraux.' },
 
   // --- Levures et ferments ---
   { keywords: ['levure', 'yeast', 'levure seche', 'levure sèche', 'dried yeast', 'levure boulangere', 'levure boulangère'], code: null, risk: 'aucun', circ: 'Naturel' },
