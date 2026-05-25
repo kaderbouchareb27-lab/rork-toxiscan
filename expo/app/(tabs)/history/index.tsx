@@ -290,9 +290,6 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.backgroundOrb} />
-      <View style={styles.backgroundOrbSecondary} />
-
       <View style={styles.header}>
         <View style={styles.headerTextBlock}>
           <Text style={styles.title}>{t('history_title')}</Text>
@@ -393,24 +390,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFAF8',
-  },
-  backgroundOrb: {
-    position: 'absolute',
-    top: -32,
-    right: -38,
-    width: 190,
-    height: 190,
-    borderRadius: 95,
-    backgroundColor: 'rgba(232, 115, 10, 0.10)',
-  },
-  backgroundOrbSecondary: {
-    position: 'absolute',
-    top: 240,
-    left: -54,
-    width: 168,
-    height: 168,
-    borderRadius: 84,
-    backgroundColor: 'rgba(17, 18, 15, 0.05)',
   },
   header: {
     flexDirection: 'row',
