@@ -193,7 +193,7 @@ const translations = {
   enriched_off: { fr: 'Enrichi par Open Food Facts', en: 'Enriched by Open Food Facts' },
   photo_tip: { fr: "Pour un résultat plus précis, photographiez la liste d'ingrédients au dos du produit", en: 'For a more accurate result, photograph the ingredient list on the back of the product' },
   badge_danger: { fr: 'CANCÉRIGÈNE', en: 'CARCINOGENIC' },
-  badge_caution: { fr: 'ULTRA-TRANSFORMÉ ', en: 'WARNING' },
+  badge_caution: { fr: 'ULTRA-TRANSFORMÉ', en: 'ULTRA-PROCESSED' },
   badge_moderation: { fr: 'MODÉRATION', en: 'CAUTION' },
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED' },
   intro_danger: { fr: 'Ce produit contient des substances cancérigènes.', en: 'This product contains carcinogenic substances.' },

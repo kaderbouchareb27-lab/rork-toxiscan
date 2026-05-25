@@ -16,7 +16,6 @@ type VerdictBadge = {
   softColor: string;
   glowColor: string;
   textColor: string;
-  explanation: string;
 };
 
 /**
@@ -62,7 +61,6 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
         softColor: '#FFF0ED',
         glowColor: 'rgba(208, 38, 15, 0.20)',
         textColor: '#FFFFFF',
-        explanation: t('share_danger_explanation'),
       };
     case 'warning':
       return {
@@ -73,7 +71,6 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
         softColor: '#FFF3E7',
         glowColor: 'rgba(232, 115, 10, 0.22)',
         textColor: '#FFFFFF',
-        explanation: t('share_caution_explanation'),
       };
     case 'moderation':
       return {
@@ -84,7 +81,6 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
         softColor: '#FFF8DB',
         glowColor: 'rgba(234, 179, 8, 0.25)',
         textColor: '#1D1703',
-        explanation: t('share_caution_explanation'),
       };
     case 'approuve':
       return {
@@ -95,85 +91,121 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
         softColor: '#EAF8EC',
         glowColor: 'rgba(46, 158, 52, 0.22)',
         textColor: '#FFFFFF',
-        explanation: t('share_approved_explanation'),
       };
   }
 }
 
-/**
- * Order risk levels from most to least concerning so that when there are more
- * than 5 problematic items we surface the worst offenders first.
- */
-const RISK_ORDER: Record<string, number> = {
-  eleve: 0,
-  élevé: 0,
-  high: 0,
-  danger: 0,
-  probable: 1,
-  modere: 2,
-  modéré: 2,
-  moderate: 2,
-  possible: 2,
-  faible: 3,
-  low: 3,
+type IngredientRiskLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
+
+type SubstanceItem = {
+  name: string;
+  level: IngredientRiskLevel;
 };
 
-function riskRank(level: string | undefined): number {
-  if (!level) return 99;
-  const normalized = level.toLowerCase();
-  return RISK_ORDER[normalized] ?? 50;
+/**
+ * Map a raw ingredient/substance niveau_risque value to the share-card risk level.
+ */
+function mapNiveauRisqueToLevel(niveau: string | undefined): IngredientRiskLevel {
+  switch (niveau) {
+    case 'danger':
+      return 'danger';
+    case 'probable':
+      return 'warning';
+    case 'possible':
+      return 'moderation';
+    default:
+      return 'approuve';
+  }
 }
 
-const MAX_SUBSTANCES = 4;
-
-function getTopSubstances(props: ShareImageCardProps): string[] {
-  const results: string[] = [];
-
-  const dangerousSubstances = (props.substances ?? [])
-    .filter((s: SubstanceDetected) => s.niveau_risque !== 'aucun')
-    .slice()
-    .sort((a: SubstanceDetected, b: SubstanceDetected) => riskRank(a.niveau_risque) - riskRank(b.niveau_risque));
-  if (dangerousSubstances.length > 0) {
-    for (const s of dangerousSubstances.slice(0, MAX_SUBSTANCES)) {
-      results.push(s.nom);
-    }
-    return results;
-  }
-
-  const dangerousIngredients = (props.detectedIngredients ?? [])
-    .filter((i: DetectedIngredient) => i.niveau_risque !== 'aucun')
-    .slice()
-    .sort((a: DetectedIngredient, b: DetectedIngredient) => riskRank(a.niveau_risque) - riskRank(b.niveau_risque));
-  if (dangerousIngredients.length > 0) {
-    for (const i of dangerousIngredients.slice(0, MAX_SUBSTANCES)) {
-      results.push(i.nom);
-    }
-    return results;
-  }
-
-  if (props.detectedAdditives && props.detectedAdditives.length > 0) {
-    const sortedAdditives = props.detectedAdditives
-      .slice()
-      .sort((a: AdditiveInfo, b: AdditiveInfo) => riskGroupRank(a.group) - riskGroupRank(b.group));
-    for (const a of sortedAdditives.slice(0, MAX_SUBSTANCES)) {
-      results.push(a.name);
-    }
-    return results;
-  }
-
-  return results;
-}
-
-function riskGroupRank(group: RiskGroup): number {
+/**
+ * Map an additive group to the share-card risk level.
+ */
+function mapAdditiveGroupToLevel(group: RiskGroup): IngredientRiskLevel {
   switch (group) {
     case 'group1':
-      return 0;
+      return 'danger';
     case 'group2a':
-      return 1;
+      return 'warning';
     case 'group2b':
-      return 2;
+      return 'moderation';
     case 'none':
-      return 99;
+    default:
+      return 'approuve';
+  }
+}
+
+function ingredientLevelRank(level: IngredientRiskLevel): number {
+  switch (level) {
+    case 'danger':
+      return 0;
+    case 'warning':
+      return 1;
+    case 'moderation':
+      return 2;
+    case 'approuve':
+      return 3;
+  }
+}
+
+const MAX_INGREDIENTS = 5;
+
+/**
+ * Returns up to 5 ingredients ordered worst-first, each with its individual risk level.
+ * Picks substances first (richest data), then detectedIngredients, then detectedAdditives.
+ */
+function getTopItems(props: ShareImageCardProps): SubstanceItem[] {
+  const items: SubstanceItem[] = [];
+  const seen = new Set<string>();
+
+  const pushUnique = (name: string, level: IngredientRiskLevel) => {
+    const key = name.trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    items.push({ name, level });
+  };
+
+  if (props.substances && props.substances.length > 0) {
+    for (const s of props.substances) {
+      if (s.niveau_risque === 'aucun') continue;
+      pushUnique(s.nom, mapNiveauRisqueToLevel(s.niveau_risque));
+    }
+  }
+
+  if (items.length < MAX_INGREDIENTS && props.detectedIngredients && props.detectedIngredients.length > 0) {
+    for (const i of props.detectedIngredients) {
+      if (i.niveau_risque === 'aucun') continue;
+      pushUnique(i.nom, mapNiveauRisqueToLevel(i.niveau_risque));
+    }
+  }
+
+  if (items.length < MAX_INGREDIENTS && props.detectedAdditives && props.detectedAdditives.length > 0) {
+    for (const a of props.detectedAdditives) {
+      if (a.group === 'none') continue;
+      pushUnique(a.name, mapAdditiveGroupToLevel(a.group));
+    }
+  }
+
+  items.sort((a, b) => ingredientLevelRank(a.level) - ingredientLevelRank(b.level));
+  return items.slice(0, MAX_INGREDIENTS);
+}
+
+type RiskRowStyle = {
+  color: string;
+  softColor: string;
+  label: string;
+};
+
+function getRiskRowStyle(level: IngredientRiskLevel): RiskRowStyle {
+  switch (level) {
+    case 'danger':
+      return { color: Colors.danger, softColor: '#FFF0ED', label: t('badge_danger') };
+    case 'warning':
+      return { color: Colors.warning, softColor: '#FFF3E7', label: t('badge_caution') };
+    case 'moderation':
+      return { color: Colors.caution, softColor: '#FFF8DB', label: t('badge_moderation') };
+    case 'approuve':
+      return { color: Colors.safe, softColor: '#EAF8EC', label: t('badge_approved') };
   }
 }
 
@@ -183,25 +215,15 @@ export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
   const verdictLevel = computeVerdictLevel(riskGroup);
   const badge = getVerdictBadge(verdictLevel);
-  const substances = getTopSubstances(props);
+  const items = getTopItems(props);
   const productImageUri = thumbnailBase64 ?? photoUri ?? imageUrl ?? null;
   const drToxiAvatarUri = getDrToxiBadgeAvatarForVerdict(verdictLevel);
-  const hasRiskSignals = substances.length > 0;
+  const hasItems = items.length > 0;
 
   return (
     <View style={styles.card}>
       <View style={[styles.backgroundOrb, styles.backgroundOrbTop, { backgroundColor: badge.softColor }]} />
       <View style={[styles.backgroundOrb, styles.backgroundOrbBottom, { backgroundColor: badge.glowColor }]} />
-
-      <View style={styles.topSection}>
-        <View style={styles.logoWrap}>
-          <Image source={TOXISCAN_LOGO} style={styles.logo} />
-        </View>
-        <View style={styles.topTextBlock}>
-          <Text style={styles.appKicker}>{t('share_card_kicker')}</Text>
-          <Text style={styles.appName}>ToxiScan</Text>
-        </View>
-      </View>
 
       <View style={styles.heroSection}>
         <View style={[styles.verdictAura, { backgroundColor: badge.glowColor }]} />
@@ -238,25 +260,32 @@ export default function ShareImageCard(props: ShareImageCardProps) {
         <Text style={[styles.badgeSublabel, { color: badge.textColor }]} numberOfLines={1}>{badge.sublabel}</Text>
       </LinearGradient>
 
-      <View style={[styles.explanationSection, { borderColor: badge.color, backgroundColor: badge.softColor }]}>
-        <Text style={[styles.explanationText, { color: badge.color }]} numberOfLines={3}>{badge.explanation}</Text>
-      </View>
-
       <View style={styles.substancesSection}>
-        {hasRiskSignals ? (
+        {hasItems ? (
           <>
             <Text style={styles.substancesTitle}>{t('substances_detected')}</Text>
-            <View style={styles.substanceGrid}>
-              {substances.map((substance: string, index: number) => (
-                <View key={`${substance}-${index}`} style={styles.substanceChip}>
-                  <View style={[styles.substanceDot, { backgroundColor: badge.color }]} />
-                  <Text style={styles.substanceText} numberOfLines={1}>{substance}</Text>
-                </View>
-              ))}
+            <View style={styles.substanceList}>
+              {items.map((item: SubstanceItem, index: number) => {
+                const rowStyle = getRiskRowStyle(item.level);
+                return (
+                  <View
+                    key={`${item.name}-${index}`}
+                    style={[styles.substanceRow, { backgroundColor: rowStyle.softColor }]}
+                  >
+                    <View style={[styles.substanceRowBar, { backgroundColor: rowStyle.color }]} />
+                    <View style={styles.substanceRowContent}>
+                      <Text style={styles.substanceRowName} numberOfLines={1}>{item.name}</Text>
+                      <Text style={[styles.substanceRowLabel, { color: rowStyle.color }]} numberOfLines={1}>
+                        {rowStyle.label}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
             </View>
           </>
         ) : riskGroup === 'none' ? (
-          <View style={[styles.safeCard, { backgroundColor: badge.softColor }]}> 
+          <View style={[styles.safeCard, { backgroundColor: badge.softColor }]}>
             <View style={[styles.safeDot, { backgroundColor: badge.color }]} />
             <Text style={styles.safeText}>{t('no_dangerous_substance')}</Text>
           </View>
@@ -304,65 +333,23 @@ const styles = StyleSheet.create({
     bottom: -320,
     left: -250,
   },
-  topSection: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 26,
-    marginBottom: 66,
-  },
-  logoWrap: {
-    width: 118,
-    height: 118,
-    borderRadius: 34,
-    backgroundColor: '#F5F0E8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.10,
-    shadowRadius: 28,
-    elevation: 8,
-  },
-  logo: {
-    width: 118,
-    height: 118,
-    borderRadius: 34,
-  },
-  topTextBlock: {
-    flex: 1,
-  },
-  appKicker: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#6D736B',
-    letterSpacing: 2.8,
-    textTransform: 'uppercase',
-    marginBottom: 7,
-  },
-  appName: {
-    fontSize: 64,
-    fontWeight: '900',
-    color: '#111814',
-    letterSpacing: -2,
-  },
   heroSection: {
     width: '100%',
-    height: 520,
+    height: 500,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 52,
+    marginBottom: 36,
   },
   verdictAura: {
     position: 'absolute',
-    width: 560,
-    height: 560,
-    borderRadius: 280,
+    width: 540,
+    height: 540,
+    borderRadius: 270,
     opacity: 1,
   },
   productImageShadow: {
-    width: 460,
-    height: 460,
+    width: 440,
+    height: 440,
     borderRadius: 60,
     backgroundColor: '#FFFFFF',
     overflow: 'hidden',
@@ -392,11 +379,11 @@ const styles = StyleSheet.create({
   },
   drToxiBubble: {
     position: 'absolute',
-    right: 110,
-    bottom: 22,
-    width: 178,
-    height: 178,
-    borderRadius: 89,
+    right: 90,
+    bottom: 14,
+    width: 188,
+    height: 188,
+    borderRadius: 94,
     borderWidth: 8,
     overflow: 'hidden',
     shadowColor: '#000000',
@@ -412,19 +399,19 @@ const styles = StyleSheet.create({
   productBlock: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 38,
+    marginBottom: 28,
   },
   productName: {
-    fontSize: 58,
+    fontSize: 56,
     fontWeight: '900',
     color: '#111814',
     textAlign: 'center',
-    lineHeight: 66,
+    lineHeight: 64,
     letterSpacing: -1.5,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   brand: {
-    fontSize: 31,
+    fontSize: 30,
     color: '#626760',
     textAlign: 'center',
     fontWeight: '700',
@@ -433,7 +420,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 42,
     paddingHorizontal: 56,
-    paddingVertical: 34,
+    paddingVertical: 28,
     alignItems: 'center',
     marginBottom: 28,
     shadowOffset: { width: 0, height: 18 },
@@ -447,77 +434,71 @@ const styles = StyleSheet.create({
     letterSpacing: 3.6,
     opacity: 0.78,
     textTransform: 'uppercase',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   badgeLabel: {
-    fontSize: 62,
+    fontSize: 58,
     fontWeight: '900',
     letterSpacing: 1.2,
     textAlign: 'center',
   },
   badgeSublabel: {
-    fontSize: 27,
+    fontSize: 26,
     fontWeight: '800',
-    marginTop: 10,
+    marginTop: 8,
     opacity: 0.88,
     textAlign: 'center',
   },
-  explanationSection: {
-    width: '100%',
-    borderRadius: 34,
-    borderWidth: 2,
-    paddingHorizontal: 36,
-    paddingVertical: 27,
-    marginBottom: 30,
-  },
-  explanationText: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    lineHeight: 39,
-  },
   substancesSection: {
     width: '100%',
-    minHeight: 180,
     marginBottom: 18,
   },
   substancesTitle: {
-    fontSize: 27,
+    fontSize: 28,
     fontWeight: '900',
     color: '#111814',
     marginBottom: 18,
-    textAlign: 'center',
+    textAlign: 'left',
     letterSpacing: -0.2,
   },
-  substanceGrid: {
+  substanceList: {
+    width: '100%',
+    gap: 12,
+  },
+  substanceRow: {
     width: '100%',
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 14,
-  },
-  substanceChip: {
-    maxWidth: 430,
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    borderRadius: 24,
+    overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    borderRadius: 999,
-    paddingHorizontal: 22,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: '#E8E1D6',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  substanceDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+  substanceRowBar: {
+    width: 10,
+    alignSelf: 'stretch',
   },
-  substanceText: {
-    fontSize: 25,
+  substanceRowContent: {
+    flex: 1,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+  },
+  substanceRowName: {
+    fontSize: 32,
+    fontWeight: '900',
     color: '#111814',
-    fontWeight: '800',
-    maxWidth: 345,
+    letterSpacing: -0.4,
+    marginBottom: 4,
+  },
+  substanceRowLabel: {
+    fontSize: 20,
+    fontWeight: '900',
+    letterSpacing: 2.4,
+    textTransform: 'uppercase',
   },
   safeCard: {
     alignSelf: 'center',
