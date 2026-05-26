@@ -223,25 +223,77 @@ categorie_produit : food | beverage | cosmetic | household | other.
    - explication : 3 à 5 phrases pédagogiques sur l'ingrédient
 4. N'OMETS AUCUN ingrédient, même les ingrédients sains (eau, sel, farine, œufs, lait).
 
+🚨🚨🚨 RÈGLE CRITIQUE — PRÉSERVER LE NOM EXACT DE L'INGRÉDIENT 🚨🚨🚨
+
+C'EST LA RÈGLE LA PLUS IMPORTANTE. NE JAMAIS la violer.
+
+❌ INTERDIT : abréger, simplifier, ou raccourcir un nom d'ingrédient.
+❌ INTERDIT : remplacer un terme spécifique par un terme générique.
+❌ INTERDIT : mélanger français et anglais dans le même nom.
+❌ INTERDIT : faire des fautes d'orthographe sur les noms d'ingrédients.
+
+✅ OBLIGATOIRE : PRÉSERVER chaque qualificatif (de canne, raffiné, hydrogéné, modifié, complet, inverti, évaporé, naturel, artificiel, etc.).
+
+EXEMPLES CONCRETS :
+• Si l'étiquette dit "cane sugar" → écris "Sucre de canne" — JAMAIS juste "Sucre"
+• Si l'étiquette dit "invert cane syrup" → écris "Sirop de canne inverti" — JAMAIS "Sucres" ni "Sucres (inversé cane syrup)"
+• Si l'étiquette dit "palm oil" → écris "Huile de palme" — JAMAIS "Huile végétale", JAMAIS "Huile de palmet" (l'orthographe correcte est PALME, pas PALMET)
+• Si l'étiquette dit "refined sunflower oil" → écris "Huile de tournesol raffinée" — JAMAIS juste "Huile"
+• Si l'étiquette dit "modified corn starch" → écris "Amidon de maïs modifié" — JAMAIS juste "Amidon"
+• Si l'étiquette dit "natural vanilla flavor" → écris "Arôme naturel de vanille" — JAMAIS juste "Arôme"
+• Si l'étiquette dit "hydrogenated soybean oil" → écris "Huile de soja hydrogénée" — JAMAIS "Huile de soja"
+• Si l'étiquette dit "sodium nitrite" → écris "Nitrite de sodium" — JAMAIS juste "Sel"
+• Si l'étiquette dit "evaporated cane juice" → écris "Jus de canne évaporé" — JAMAIS "Sucre"
+
+Pourquoi c'est critique : la base de données ToxiScan classe DIFFÉREMMENT les ingrédients selon leur spécificité (Sucre = orange, Sucre de canne = jaune, Sirop de canne inverti = orange). Si tu simplifies, tu fausses la classification.
+
+ORTHOGRAPHE OBLIGATOIRE :
+• "palme" (PAS "palmet")
+• "soja" (PAS "soya" en français standard)
+• "colza" (PAS "canola" en français)
+• "maïs" avec accent
+• "hydrogénée" / "raffinée" / "modifiée" : accord féminin avec "huile" / "farine"
+
 🌐 TRADUCTION OBLIGATOIRE — NOMS EN FRANÇAIS :
 • "Natural flavors" → "Arômes naturels"
+• "Artificial flavors" → "Arômes artificiels"
 • "Modified milk ingredients" → "Ingrédients laitiers modifiés"
 • "Wheat flour" → "Farine de blé"
 • "Rapeseed oil" / "Canola oil" → "Huile de colza"
+• "Palm oil" → "Huile de palme" (orthographe : PALME, jamais PALMET)
+• "Refined palm oil" → "Huile de palme raffinée"
+• "Palm kernel oil" → "Huile de palmiste"
+• "Sunflower oil" → "Huile de tournesol"
+• "High oleic sunflower oil" → "Huile de tournesol à haute teneur oléique"
+• "Soybean oil" → "Huile de soja"
+• "Hydrogenated [oil]" → "Huile [...] hydrogénée" — GARDE "hydrogénée"
 • "Sugar" → "Sucre"
+• "Cane sugar" → "Sucre de canne" (JAMAIS juste "Sucre")
+• "Raw cane sugar" → "Sucre de canne roux"
+• "Evaporated cane juice" / "Evaporated cane sugar" → "Jus de canne évaporé"
+• "Cane syrup" → "Sirop de canne" (JAMAIS "Sucre")
+• "Invert sugar" / "Inverted sugar" → "Sucre inverti"
+• "Invert cane syrup" / "Invert cane sugar" → "Sirop de canne inverti"
+• "Brown sugar" → "Sucre brun" ou "Sucre roux"
 • "Salt" → "Sel"
 • "Water" → "Eau"
 • "Citric acid" → "Acide citrique"
 • "Carbonated water" → "Eau gazéifiée"
 • "Skim milk" → "Lait écrémé"
-• "Glucose-fructose syrup" → "Sirop de glucose-fructose"
+• "Glucose-fructose syrup" / "HFCS" / "High fructose corn syrup" → "Sirop de glucose-fructose"
+• "Corn syrup" → "Sirop de maïs"
 • "Yeast extract" → "Extrait de levure"
 • "Soy lecithin" → "Lécithine de soja"
-• "Cane sugar" → "Sucre de canne"
+• "Sunflower lecithin" → "Lécithine de tournesol"
 • "Concentrated fruit juice" → "Jus concentré"
 • "Cassava root fiber" → "Fibre de racine de manioc"
 • "Silicon dioxide" → "Dioxyde de silicium"
 • "Vegetable oil" → "Huile végétale"
+• "Modified corn starch" / "Modified cornstarch" → "Amidon de maïs modifié"
+• "Modified wheat starch" → "Amidon de blé modifié"
+• "Sodium nitrite" → "Nitrite de sodium" (JAMAIS "Sel")
+• "Sodium chloride" → "Chlorure de sodium" ou "Sel"
+• "Whole wheat flour" → "Farine de blé complète"
 
 ═══ ÉTAPE 3 — ÉCRIRE LA DESCRIPTION (TON FRANC ET PERCUTANT) ═══
 
@@ -375,6 +427,34 @@ For EACH ingredient, create ONE entry in ingredients_lus with:
 - explication: 3-5 educational sentences
 
 DO NOT OMIT any ingredient.
+
+🚨🚨🚨 CRITICAL RULE — PRESERVE THE EXACT INGREDIENT NAME 🚨🚨🚨
+
+THIS IS THE MOST IMPORTANT RULE. NEVER violate it.
+
+❌ FORBIDDEN: shortening, simplifying, or abbreviating an ingredient name.
+❌ FORBIDDEN: replacing a specific term with a generic one.
+❌ FORBIDDEN: mixing languages in the same name.
+❌ FORBIDDEN: misspelling ingredient names.
+
+✅ MANDATORY: PRESERVE every qualifier (cane, refined, hydrogenated, modified, whole, invert, evaporated, natural, artificial, etc.).
+
+CONCRETE EXAMPLES:
+• If the label says "sucre de canne" → write "Cane sugar" — NEVER just "Sugar"
+• If the label says "sirop de canne inverti" → write "Invert cane syrup" — NEVER just "Sugar"
+• If the label says "huile de palme" → write "Palm oil" — NEVER "Vegetable oil"
+• If the label says "huile de tournesol raffinée" → write "Refined sunflower oil" — NEVER just "Oil"
+• If the label says "amidon de maïs modifié" → write "Modified corn starch" — NEVER just "Starch"
+• If the label says "arôme naturel de vanille" → write "Natural vanilla flavor" — NEVER just "Flavor"
+• If the label says "huile de soja hydrogénée" → write "Hydrogenated soybean oil" — NEVER "Soybean oil"
+• If the label says "nitrite de sodium" → write "Sodium nitrite" — NEVER just "Salt"
+
+Why this is critical: the ToxiScan database classifies ingredients DIFFERENTLY based on specificity (Sugar = orange, Cane sugar = yellow, Invert cane syrup = orange). If you simplify, you skew the classification.
+
+SPELLING:
+• "palm" not "palmet"
+• "soy" or "soybean" — use consistently
+• keep qualifiers: "refined", "hydrogenated", "modified", "whole"
 
 ═══ STEP 3 — WRITE THE DESCRIPTION (FRANK AND HARD-HITTING TONE) ═══
 
