@@ -216,6 +216,8 @@ categorie_produit : food | beverage | cosmetic | household | other.
 
 ═══ ÉTAPE 2 — LIRE CHAQUE INGRÉDIENT EXHAUSTIVEMENT ═══
 
+🚨 BUG FIX — LIGNES "Contient:" : Les lignes qui commencent par "Contient:" ou "Contains:" sont des DÉCLARATIONS D'ALLERGÈNES RÉGLEMENTAIRES, PAS des ingrédients. Ne les inclus JAMAIS dans ingredients_lus. Ignore-les complètement.
+
 1. Trouve le bloc "Ingrédients :" / "INGREDIENTS:"
 2. Découpe à chaque virgule/point-virgule → chaque segment = 1 ingrédient
 3. Pour CHAQUE ingrédient, crée UNE entrée dans ingredients_lus avec :
@@ -377,6 +379,8 @@ EXEMPLES OBLIGATOIRES À SUIVRE :
 ❌ JAMAIS écrire "Same as before", "Previously explained", "See previous explanation" ou toute référence à un ingrédient précédent. Chaque ingrédient doit avoir sa propre description complète et unique.
 ❌ Ne mets PAS de champs niveau_risque ou couleur — ils seront ignorés
 ❌ JAMAIS écrire de mise en garde sur un ingrédient sain (eau, sel, épices, herbes, fruits, légumes, fromage frais, œufs, viande non transformée, poisson)
+❌ 🚨 BUG FIX — JAMAIS écrire de description GÉNÉRIQUE comme "X est un ingrédient naturel qui apporte saveur et texture". Chaque description doit être SPÉCIFIQUE à l'ingrédient — mentionne ce qu'il EST, d'où il vient, et son rôle ou effet concret.
+❌ 🚨 BUG FIX — JAMAIS mélanger le français et l'anglais dans la même réponse. TOUS les noms d'ingrédients (nom) et TOUTES les descriptions (explication) doivent être EN FRANÇAIS UNIQUEMENT. Si l'OCR contient des noms anglais, TRADUIS-LES en français.
 
 ✅ TOUJOURS expliquer le PROCÉDÉ INDUSTRIEL derrière l'ingrédient
 ✅ TOUJOURS citer une donnée concrète (étude, % d'OGM, classification, effet biologique)
@@ -421,6 +425,8 @@ objet_identifie = brand + product name. NEVER "Unknown object" if text is readab
 categorie_produit: food | beverage | cosmetic | household | other.
 
 ═══ STEP 2 — READ EVERY INGREDIENT EXHAUSTIVELY ═══
+
+🚨 BUG FIX — "Contains:" LINES: Lines starting with "Contains:" or "Contient:" are REGULATORY ALLERGEN DECLARATIONS, NOT ingredients. NEVER include them in ingredients_lus. Ignore them completely.
 
 For EACH ingredient, create ONE entry in ingredients_lus with:
 - nom: ingredient name IN ENGLISH (translate if French label)
@@ -524,6 +530,8 @@ MANDATORY EXAMPLES TO FOLLOW:
 ❌ NEVER invent a Group 1/2A/2B classification
 ❌ NEVER write "Same as before", "Previously explained", "See previous explanation" or any reference to a previous ingredient. Every ingredient must have its own complete, unique description.
 ❌ NEVER add warnings on a healthy ingredient (water, salt, spices, herbs, fruits, vegetables, fresh cheese, eggs, unprocessed meat, fish)
+❌ 🚨 BUG FIX — NEVER write a GENERIC description like "X is a natural ingredient that contributes flavor and texture." Every description must be SPECIFIC to the ingredient — mention what it IS, where it comes from, and its specific role or effect.
+❌ 🚨 BUG FIX — NEVER mix French and English in the same response. ALL ingredient names (nom) and ALL descriptions (explication) must be in ENGLISH ONLY. If the OCR contains French names, TRANSLATE them to English.
 
 ✅ ALWAYS explain the INDUSTRIAL PROCESS behind the ingredient
 ✅ ALWAYS cite concrete data (study, % GMO, classification, biological effect)
@@ -558,18 +566,30 @@ async function callAI(
   const systemParts: string[] = [AI_PROMPT, regionPrompt];
 
   if (ocrText) {
+    // BUG 4 FIX — Strip "Contains:" allergen lines from OCR before sending to AI.
+    const cleanedOcr = ocrText
+      .split('\n')
+      .filter(line => !/^(contains|contient)\s*:/i.test(line.trim()))
+      .join('\n');
+    const cleanedBlock = ocrIngredientsBlock
+      ? ocrIngredientsBlock
+          .split('\n')
+          .filter(line => !/^(contains|contient)\s*:/i.test(line.trim()))
+          .join('\n')
+      : null;
+
     const ocrHeader = isEnglish()
       ? '\n\n═══ GOOGLE VISION OCR — RAW TEXT ═══\nPRIMARY source for the ingredient list. NEVER omit an ingredient that appears in the OCR.\n--- FULL OCR TEXT ---\n'
       : '\n\n═══ OCR GOOGLE VISION — TEXTE BRUT ═══\nSource PRINCIPALE pour les ingrédients. N\'omets JAMAIS un ingrédient de l\'OCR.\n--- TEXTE OCR COMPLET ---\n';
     systemParts.push(ocrHeader);
-    systemParts.push(ocrText.substring(0, 8000));
-    if (ocrIngredientsBlock) {
+    systemParts.push(cleanedOcr.substring(0, 8000));
+    if (cleanedBlock && cleanedBlock.length > 10) {
       systemParts.push(
         isEnglish()
           ? '\n--- INGREDIENTS BLOCK (highest priority) ---\n'
           : '\n--- BLOC INGRÉDIENTS (priorité max) ---\n',
       );
-      systemParts.push(ocrIngredientsBlock.substring(0, 4000));
+      systemParts.push(cleanedBlock.substring(0, 4000));
     }
     systemParts.push('\n--- END OCR ---\n');
   }
@@ -632,28 +652,144 @@ function hasNegativeTone(text: string): boolean {
   return NEGATIVE_MARKERS_FOR_GREEN.some((kw) => lower.includes(kw));
 }
 
-function buildPositiveFallback(name: string, note: string | undefined): string {
-  if (note && note.trim() && !hasNegativeTone(note)) return note;
+// BUG 3 FIX — Marqueurs de ton POSITIF qui n'ont pas leur place sur un ingredient rouge/orange.
+const POSITIVE_SPIN_MARKERS = [
+  'natural', 'naturel', 'naturelle',
+  'healthy', 'sain', 'saine', 'bienfait', 'benefique', 'beneficial',
+  'safe', 'inoffensif', 'inoffensive', 'harmless',
+  'approved', 'approuve', 'approuvee',
+  'no concern', 'no risk', 'no health', 'pas de risque', 'pas de danger', 'sans danger', 'sans risque',
+  'good for', 'bon pour', 'bonne pour', 'excellent', 'excellente',
+  'generally recognized as safe', 'generally regarded as safe',
+  'recommended', 'recommande', 'recommandee',
+  'widely used', 'largement utilise', 'commonly used', 'couramment utilise',
+  'essential nutrient', 'nutriment essentiel', 'essential mineral',
+  'part of a balanced', 'balanced diet',
+  'source of', 'source de', 'rich in', 'riche en',
+];
+
+function hasPositiveSpin(text: string): boolean {
+  const lower = text.toLowerCase();
+  return POSITIVE_SPIN_MARKERS.some((kw) => lower.includes(kw));
+}
+
+// BUG 3 FIX — Force une description negative pour les ingredients rouges/oranges.
+function buildNegativeDescription(name: string, risk: RiskLevel, entry: IngredientEntry | null): string {
   const en = isEnglish();
+  const circInfo = entry?.circ ? ' (' + entry.circ + ')' : '';
+  if (risk === 'danger') {
+    return en
+      ? name + ' is classified as a confirmed carcinogen' + circInfo + ' by the WHO/IARC. It is dangerous to health and should be avoided — especially for children and pregnant women. This ingredient has no health benefits and is only used by the food industry for preservation, color, or texture at the expense of consumer safety.'
+      : name + ' est classe cancerigene avere' + circInfo + ' par l\'OMS/CIRC. C\'est un ingredient dangereux pour la sante, a eviter absolument — surtout chez les enfants et les femmes enceintes. Cet ingredient n\'a aucun benefice sante et n\'est utilise que par l\'industrie pour la conservation, la couleur ou la texture au detriment de la securite du consommateur.';
+  }
   return en
-    ? `${name} is a natural, approved ingredient. It contributes flavor, texture, or nutrients to the product without health concerns.`
-    : `${name} est un ingrédient naturel et approuvé. Il apporte saveur, texture ou nutriments au produit sans problème pour la santé.`;
+    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. Its manufacturing involves chemical processes (refining, solvents, high heat) that create potentially harmful compounds. This ingredient is a marker of ultra-processed food (NOVA 4) — it should not be part of a daily diet.'
+    : name + ' est un ingredient industriel ultra-transformé' + circInfo + '. Sa fabrication implique des procedes chimiques (raffinage, solvants, haute temperature) qui generent des composes potentiellement nocifs. Cet ingredient est un marqueur d\'aliment ultra-transformé (NOVA 4) — il ne devrait pas faire partie d\'une alimentation quotidienne.';
+}
+
+// BUG 1 FIX — No more generic fallback. Every description must be specific.
+function buildPositiveFallback(name: string, note: string | undefined): string {
+  const en = isEnglish();
+  if (note && note.trim() && !hasNegativeTone(note)) return note;
+  // Use the specific ingredient name to craft a real description.
+  const lowerName = name.toLowerCase();
+  if (lowerName.includes('eau') || lowerName.includes('water')) {
+    return en ? 'Water is essential to life. It hydrates, transports nutrients, and regulates body temperature. Excellent for health.' : "L'eau est essentielle à la vie. Elle hydrate, transporte les nutriments et régule la température corporelle. Excellente pour la santé.";
+  }
+  if (lowerName.includes('sel') || lowerName.includes('salt')) {
+    return en ? 'Natural mineral essential for body function (water balance, nerve transmission). Healthy when consumed in moderation.' : 'Minéral essentiel au bon fonctionnement du corps (équilibre hydrique, transmission nerveuse). Sain consommé avec modération.';
+  }
+  if (lowerName.includes('huile') && (lowerName.includes('olive') || lowerName.includes('vierge'))) {
+    return en ? 'Cold-pressed virgin olive oil rich in monounsaturated fats and antioxidants. Excellent for heart health.' : "Huile d'olive vierge pressée à froid, riche en graisses mono-insaturées et antioxydants. Excellente pour la santé cardiovasculaire.";
+  }
+  if (lowerName.includes('épice') || lowerName.includes('spice') || lowerName.includes('herb') || lowerName.includes('herbe') || lowerName.includes('poivre') || lowerName.includes('pepper') || lowerName.includes('cumin') || lowerName.includes('curcuma') || lowerName.includes('gingembre') || lowerName.includes('cannelle') || lowerName.includes('paprika') || lowerName.includes('piment') || lowerName.includes('basilic') || lowerName.includes('origan') || lowerName.includes('thym') || lowerName.includes('romarin')) {
+    return en ? 'Natural spice/herb with antioxidants and anti-inflammatory compounds. Adds flavor without calories. Excellent for home cooking.' : 'Épice ou herbe aromatique naturelle riche en antioxydants et composés anti-inflammatoires. Apporte saveur sans calories. Excellente pour la cuisine maison.';
+  }
+  if (lowerName.includes('farine') && (lowerName.includes('complète') || lowerName.includes('whole'))) {
+    return en ? 'Whole grain flour rich in fiber, B vitamins, and minerals. Provides lasting energy and supports digestive health.' : 'Farine complète riche en fibres, vitamines B et minéraux. Apporte énergie durable et soutient la santé digestive.';
+  }
+  if (lowerName.includes('farine') || lowerName.includes('flour')) {
+    return en ? 'Staple grain rich in complex carbohydrates and fiber. Provides lasting energy to the body.' : 'Céréale de base riche en glucides complexes et fibres. Apporte de l\'énergie durable au corps.';
+  }
+  if (lowerName.includes('lait') || lowerName.includes('milk')) {
+    return en ? 'Natural source of calcium, protein, and vitamin D. Supports bone health and muscle function.' : 'Source naturelle de calcium, protéines et vitamine D. Soutient la santé osseuse et musculaire.';
+  }
+  if (lowerName.includes('œuf') || lowerName.includes('oeuf') || lowerName.includes('egg')) {
+    return en ? 'Whole eggs are a complete protein source rich in choline and B vitamins. Excellent nutritional value.' : 'Œuf entier, source de protéines complètes riche en choline et vitamines B. Excellente valeur nutritionnelle.';
+  }
+  if (lowerName.includes('fromage') || lowerName.includes('cheese') || lowerName.includes('mozzarella') || lowerName.includes('parmesan') || lowerName.includes('cheddar') || lowerName.includes('gouda') || lowerName.includes('emmental')) {
+    return en ? 'Traditional cheese, a source of protein and calcium. Contributes flavor and satiety.' : 'Fromage traditionnel, source de protéines et de calcium. Apporte goût et satiété.';
+  }
+  if (lowerName.includes('poulet') || lowerName.includes('chicken') || lowerName.includes('dinde') || lowerName.includes('turkey') || lowerName.includes('canard') || lowerName.includes('duck')) {
+    return en ? 'Lean poultry rich in high-quality protein, B vitamins, and selenium. Excellent for muscle building.' : 'Volaille maigre riche en protéines de qualité, vitamines B et sélénium. Excellent pour la construction musculaire.';
+  }
+  if (lowerName.includes('bœuf') || lowerName.includes('boeuf') || lowerName.includes('beef') || lowerName.includes('porc') || lowerName.includes('pork') || lowerName.includes('agneau') || lowerName.includes('lamb') || lowerName.includes('veau') || lowerName.includes('veal')) {
+    return en ? 'Fresh unprocessed meat, a source of complete proteins, heme iron, and B12. Choose fresh cuts cooked simply.' : 'Viande fraîche non transformée, source de protéines complètes, fer héminique et B12. Préférer les morceaux frais cuisinés simplement.';
+  }
+  if (lowerName.includes('poisson') || lowerName.includes('fish') || lowerName.includes('saumon') || lowerName.includes('salmon') || lowerName.includes('thon') || lowerName.includes('tuna') || lowerName.includes('cabillaud') || lowerName.includes('cod')) {
+    return en ? 'Fresh fish, rich in high-quality protein and omega-3 fatty acids. Excellent for cardiovascular and brain health.' : 'Poisson frais riche en protéines de qualité et oméga-3. Excellent pour la santé cardiovasculaire et cérébrale.';
+  }
+  if (lowerName.includes('fruit') || lowerName.includes('légume') || lowerName.includes('legume') || lowerName.includes('vegetable') || lowerName.includes('pomme') || lowerName.includes('apple') || lowerName.includes('banane') || lowerName.includes('carotte') || lowerName.includes('carrot') || lowerName.includes('tomate') || lowerName.includes('tomato')) {
+    return en ? 'Whole fruit or vegetable, rich in fiber, vitamins, minerals, and antioxidants. Essential for a balanced diet.' : 'Fruit ou légume entier, riche en fibres, vitamines, minéraux et antioxydants. Essentiel pour une alimentation équilibrée.';
+  }
+  if (lowerName.includes('vinaigre') || lowerName.includes('vinegar')) {
+    return en ? 'Natural vinegar from fermentation. Low-calorie flavor enhancer, beneficial for digestion.' : 'Vinaigre naturel issu de fermentation. Rehausseur de goût peu calorique, bénéfique pour la digestion.';
+  }
+  if (lowerName.includes('miel') || lowerName.includes('honey')) {
+    return en ? 'Natural honey, rich in antioxidants and enzymes. A healthier sweetener than refined sugar when used in moderation.' : 'Miel naturel riche en antioxydants et enzymes. Édulcorant plus sain que le sucre raffiné, à utiliser avec modération.';
+  }
+  if (lowerName.includes('levure') || lowerName.includes('yeast') || lowerName.includes('ferment') || lowerName.includes('culture')) {
+    return en ? 'Natural fermentation agent. Essential for bread and fermented foods. Beneficial for gut health.' : 'Agent de fermentation naturel. Essentiel pour le pain et les aliments fermentés. Bénéfique pour la flore intestinale.';
+  }
+  if (lowerName.includes('cacao') || lowerName.includes('cocoa') || lowerName.includes('chocolat') || lowerName.includes('chocolate')) {
+    return en ? 'Cocoa is rich in flavonoids and magnesium. Natural source of antioxidants with cardiovascular benefits.' : 'Cacao riche en flavonoïdes et magnésium. Source naturelle d\'antioxydants aux bénéfices cardiovasculaires.';
+  }
+  if (lowerName.includes('riz') || lowerName.includes('rice') || lowerName.includes('avoine') || lowerName.includes('oats') || lowerName.includes('quinoa') || lowerName.includes('céréale') || lowerName.includes('cereal') || lowerName.includes('grain')) {
+    return en ? 'Whole grain, a healthy source of complex carbohydrates and fiber. Provides slow-release energy.' : 'Céréale complète, source saine de glucides complexes et fibres. Fournit une énergie à libération lente.';
+  }
+  if (lowerName.includes('noix') || lowerName.includes('nut') || lowerName.includes('amande') || lowerName.includes('almond') || lowerName.includes('noisette') || lowerName.includes('hazelnut') || lowerName.includes('cajou') || lowerName.includes('cashew') || lowerName.includes('pistache') || lowerName.includes('graine') || lowerName.includes('seed')) {
+    return en ? 'Nuts and seeds are rich in healthy fats, protein, fiber, and minerals. Excellent for heart health and satiety.' : 'Noix et graines riches en bonnes graisses, protéines, fibres et minéraux. Excellentes pour la santé cardiovasculaire et la satiété.';
+  }
+  // Fallback descriptions must still be specific, not generic.
+  return en
+    ? `${name} is a natural ingredient. It is a source of nutrients that contributes to the nutritional value of this product.`
+    : `${name} est un ingrédient naturel. C\'est une source de nutriments qui contribue à la valeur nutritionnelle de ce produit.`;
 }
 
 function classifyIngredients(aiIngredients: { nom: string; explication: string }[]): SubstanceDetected[] {
-  return aiIngredients.map((ing) => {
+  // BUG 4 FIX — Skip "Contains:" allergen declaration lines that the AI might still parse.
+  const filtered = aiIngredients.filter((ing) => {
+    const name = ing.nom.trim();
+    if (/^(contains|contient)\s*:/i.test(name)) {
+      console.log('[Classify] SKIP allergen line: "' + name + '"');
+      return false;
+    }
+    if (name.length < 2) {
+      console.log('[Classify] SKIP empty/short name: "' + name + '"');
+      return false;
+    }
+    return true;
+  });
+  return filtered.map((ing) => {
     const entry = lookupIngredient(ing.nom);
 
     if (entry) {
       console.log('[Classify] "' + ing.nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
 
       let explication = ing.explication || (entry.note ?? '');
-      // 🟢 Anti-contradiction : si l'ingrédient est VERT mais l'IA a écrit du négatif,
-      // on remplace par la note de la base (si positive) ou un texte positif générique.
+
+      // 🟢 Anti-contradiction : si l'ingredient est VERT mais l'IA a ecrit du negatif.
       if (entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
         const original = explication;
         explication = buildPositiveFallback(ing.nom, entry.note);
-        console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced. Was: "' + original.substring(0, 80) + '..."');
+        console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced.');
+      }
+
+      // 🔴🟠 BUG 3 FIX — Reverse contradiction : si ROUGE/ORANGE mais description positive.
+      if ((entry.risk === 'danger' || entry.risk === 'probable') && explication && hasPositiveSpin(explication)) {
+        const original = explication;
+        explication = buildNegativeDescription(ing.nom, entry.risk, entry);
+        console.log('[Classify] BADGE override — "' + ing.nom + '" (' + entry.risk + ') : positive spin replaced.');
       }
 
       return {
@@ -666,7 +802,10 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       };
     }
 
-    const explication = ing.explication || (isEnglish() ? 'Ingredient not in database, no identified risk.' : 'Ingrédient non répertorié, sans risque identifié.');
+    // BUG 1 FIX — No more generic fallback for unknown ingredients.
+    const explication = ing.explication || (isEnglish()
+      ? `${ing.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`
+      : `${ing.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`);
     // Fallback STRICT : un ingrédient inconnu = JAUNE par défaut (modération).
     // Un vrai ingrédient sain (eau, sel, œuf, épice…) doit être dans la base. Si on ne le connaît pas,
     // on ne peut PAS supposer qu'il est sain — surtout dans un produit industriel.
@@ -824,14 +963,14 @@ function generateResume(badge: RiskLevel, substances: SubstanceDetected[]): stri
   if (badge === 'danger') {
     const names = dangerSubst.slice(0, 2).map(s => s.nom).join(', ');
     return en
-      ? `Warning! This product contains ingredient(s) classified as carcinogenic by the WHO (${names}). I strongly advise against regular consumption.`
-      : `Attention ! Ce produit contient des ingrédients classés cancérigènes par l'OMS (${names}). Je te déconseille fortement d'en consommer régulièrement.`;
+      ? `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic (${names}). I strongly advise against consuming it — look for a healthier alternative.`
+      : `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes (${names}). Je te deconseille fortement d'en consommer — cherche une alternative plus saine.`;
   }
 
   if (badge === 'probable') {
     return en
-      ? `This product contains several controversial or ultra-processed substances. Consume it only occasionally.`
-      : `Ce produit contient plusieurs substances controversées ou ultra-transformées. Consomme-le très occasionnellement et cherche une alternative plus naturelle.`;
+      ? `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic. Consume it very occasionally and prefer a natural alternative.`
+      : `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes. Consomme-le tres occasionnellement et prefere une alternative naturelle.`;
   }
 
   if (badge === 'possible') {
