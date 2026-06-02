@@ -912,6 +912,115 @@ function buildPositiveFallback(name: string, note: string | undefined): string {
     : `${name} est un ingrédient naturel. C\'est une source de nutriments qui contribue à la valeur nutritionnelle de ce produit.`;
 }
 
+// Markers used to classify UNKNOWN ingredients (not in the database). Shared between the
+// AI path (classifyIngredients) and the instant local OCR path (classifyLocal) so the
+// classification logic stays identical.
+const INDUSTRIAL_MARKERS = ['chemically', 'industrially', 'synthetic', 'refined', 'imitation', 'modified', 'defatted', 'enriched', 'fortified', 'rehydrated', 'processed', 'extract', 'isolate', 'concentrate', 'hydrolyzed', 'chimiquement', 'industriellement', 'synthétique', 'synthetique', 'raffiné', 'raffine', 'modifié', 'modifie', 'déshydraté', 'deshydrate', 'enrichie', 'fortifié', 'fortifie', 'transformé', 'transforme', 'extrait', 'isolat', 'concentré', 'concentre', 'hydrolysé', 'hydrolyse'];
+const WHOLE_FOOD_MARKERS = ['fresh ', 'frais ', 'entier', 'whole ', 'feuille', 'leaf'];
+
+/** Deterministic risk for an ingredient absent from the database (unchanged heuristic). */
+function classifyUnknownRisk(name: string, explication: string): RiskLevel {
+  const lowerExplication = explication.toLowerCase();
+  const lowerName = normalizeForLookup(name);
+  const hasIndustrialMarker = INDUSTRIAL_MARKERS.some((kw) => lowerExplication.includes(kw) || lowerName.includes(kw));
+  const isObviousWholeFood = WHOLE_FOOD_MARKERS.some((kw) => lowerName.includes(kw)) && !hasIndustrialMarker;
+  return hasIndustrialMarker ? 'probable' : isObviousWholeFood ? 'aucun' : 'possible';
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// INSTANT LOCAL CLASSIFICATION — parses the OCR ingredient text directly and
+// classifies it via the database WITHOUT waiting for the AI. Descriptions for
+// known ingredients come straight from the database; unknown ingredients are
+// marked `descriptionPending` so the AI can fill them in the background.
+// ─────────────────────────────────────────────────────────────────────
+
+/** Split the raw OCR ingredient block into individual ingredient names. */
+function splitOcrIngredients(block: string): string[] {
+  if (!block) return [];
+  let text = block.replace(/\r/g, ' ');
+  // Drop a leading "Ingrédients :" / "Ingredients:" header if present.
+  const headerMatch = text.match(/ingr[ée]dien\w*\s*[:\-]?/i);
+  if (headerMatch && headerMatch.index !== undefined) {
+    text = text.substring(headerMatch.index + headerMatch[0].length);
+  }
+  // Split on commas / semicolons / newlines that are NOT inside parentheses or brackets.
+  const segments: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const ch of text) {
+    if (ch === '(' || ch === '[' || ch === '{') { depth++; current += ch; continue; }
+    if (ch === ')' || ch === ']' || ch === '}') { depth = Math.max(0, depth - 1); current += ch; continue; }
+    if (depth === 0 && (ch === ',' || ch === ';' || ch === '\n' || ch === '•' || ch === '|')) {
+      if (current.trim()) segments.push(current.trim());
+      current = '';
+      continue;
+    }
+    current += ch;
+  }
+  if (current.trim()) segments.push(current.trim());
+
+  const cleaned: string[] = [];
+  const seen = new Set<string>();
+  for (const seg of segments) {
+    let s = seg
+      .replace(/\.+$/, '')
+      .replace(/^[\s\-•*:]+/, '')
+      .replace(/\b\d+([.,]\d+)?\s*%/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!s || s.length < 2) continue;
+    if (/^(contient|contains|peut contenir|may contain|traces)/i.test(s)) continue;
+    if (/^[\d\s.,%*]+$/.test(s)) continue;
+    const key = s.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cleaned.push(s);
+  }
+  return cleaned;
+}
+
+/** Classify ingredient names parsed locally from OCR. Known → DB description now; unknown → pending. */
+function classifyLocal(names: string[]): SubstanceDetected[] {
+  return names
+    .map((raw) => raw.trim())
+    .filter((name) => name.length >= 2 && !/^(contains|contient)\s*:/i.test(name))
+    .map((name) => {
+      const entry = lookupIngredient(name);
+      if (entry) {
+        let explication = getLocalizedNote(entry) ?? '';
+        if (entry.risk === 'aucun') {
+          if (!explication || hasNegativeTone(explication)) {
+            explication = buildPositiveFallback(name, getLocalizedNote(entry));
+          }
+        } else if (entry.risk === 'danger' || entry.risk === 'probable') {
+          if (!explication || hasPositiveSpin(explication) || !hasNegativeTone(explication)) {
+            explication = buildNegativeDescription(name, entry.risk, entry);
+          }
+        }
+        return {
+          nom: name,
+          code: entry.code,
+          classification_circ: entry.circ,
+          niveau_risque: entry.risk,
+          explication,
+          source_exposition: null,
+          descriptionPending: false,
+        };
+      }
+      // Unknown ingredient → deterministic risk now, description filled later by the AI.
+      const fallbackRisk = classifyUnknownRisk(name, '');
+      return {
+        nom: name,
+        code: null,
+        classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
+        niveau_risque: fallbackRisk,
+        explication: '',
+        source_exposition: null,
+        descriptionPending: true,
+      };
+    });
+}
+
 function classifyIngredients(aiIngredients: { nom: string; explication: string }[]): SubstanceDetected[] {
   // BUG 4 FIX — Skip "Contains:" allergen declaration lines that the AI might still parse.
   const filtered = aiIngredients.filter((ing) => {
@@ -970,15 +1079,8 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     // Un vrai ingrédient sain (eau, sel, œuf, épice…) doit être dans la base. Si on ne le connaît pas,
     // on ne peut PAS supposer qu'il est sain — surtout dans un produit industriel.
     // Seuls quelques mots-clés très spécifiques (fruits/légumes/herbes entiers) peuvent rester verts.
-    const lowerExplication = explication.toLowerCase();
-    const lowerName = normalizeForLookup(ing.nom);
-    const industrialMarkers = ['chemically', 'industrially', 'synthetic', 'refined', 'imitation', 'modified', 'defatted', 'enriched', 'fortified', 'rehydrated', 'processed', 'extract', 'isolate', 'concentrate', 'hydrolyzed', 'chimiquement', 'industriellement', 'synthétique', 'synthetique', 'raffiné', 'raffine', 'modifié', 'modifie', 'déshydraté', 'deshydrate', 'enrichie', 'fortifié', 'fortifie', 'transformé', 'transforme', 'extrait', 'isolat', 'concentré', 'concentre', 'hydrolysé', 'hydrolyse'];
-    const hasIndustrialMarker = industrialMarkers.some((kw) => lowerExplication.includes(kw) || lowerName.includes(kw));
-    // Liste blanche très restrictive — uniquement noms d'ingrédients clairement entiers/bruts
-    const wholeFoodMarkers = ['fresh ', 'frais ', 'entier', 'whole ', 'feuille', 'leaf'];
-    const isObviousWholeFood = wholeFoodMarkers.some((kw) => lowerName.includes(kw)) && !hasIndustrialMarker;
-    const fallbackRisk: RiskLevel = hasIndustrialMarker ? 'probable' : isObviousWholeFood ? 'aucun' : 'possible';
-    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (hasIndustrialMarker ? ' (industrial marker)' : isObviousWholeFood ? ' (whole food)' : ' (default yellow)'));
+    const fallbackRisk: RiskLevel = classifyUnknownRisk(ing.nom, explication);
+    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk);
     // Even for unknown ingredients, an ULTRA-PROCESSED classification must carry a specific,
     // negative description — never a positive/neutral or generic "not listed" fallback.
     const finalExplication =
@@ -1013,101 +1115,45 @@ function hashString(s: string): string {
 // FONCTION PRINCIPALE
 // ═══════════════════════════════════════════════════════════════════════
 
-export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult> {
-  const MAX_RETRIES = 2;
+export interface OcrData {
+  fullText: string;
+  ingredientsBlock: string | null;
+}
 
-  let ocrData: { fullText: string; ingredientsBlock: string | null } = { fullText: '', ingredientsBlock: null };
-  try {
-    const ocr = await runGoogleVisionOcr(imageBase64);
-    ocrData = { fullText: ocr.fullText, ingredientsBlock: extractIngredientsBlock(ocr.fullText) };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn('[API] OCR failed (non-blocking):', msg);
-  }
+export interface InstantScan {
+  /** Instant result built locally from OCR (or the cached full result). */
+  result: UniversalAnalysisResult;
+  ocrData: OcrData;
+  cacheKey: string | null;
+  /** True when the result is the cached/final result — no AI enrichment needed. */
+  cached: boolean;
+  /** True when a usable instant local verdict was produced (at least one ingredient parsed). */
+  instant: boolean;
+}
 
-  const cacheKey = ocrData.ingredientsBlock
-    ? hashString(ocrData.ingredientsBlock.toLowerCase().replace(/\s+/g, ' ').trim())
-    : null;
-  if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
-    console.log('[API] Cache hit');
-    return ANALYSIS_CACHE.get(cacheKey)!;
-  }
+/** Assemble a full UniversalAnalysisResult from classified substances + product meta. */
+function assembleResult(
+  meta: { categorie_produit: ProductCategory; objet_identifie: string; materiau_detecte: string; erreur?: string },
+  substances: SubstanceDetected[],
+): UniversalAnalysisResult {
+  const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
+  const sorted = [...substances].sort((a, b) => riskOrder[a.niveau_risque] - riskOrder[b.niveau_risque]);
+  const badge_global = computeBadgeGlobal(sorted);
+  return {
+    categorie_produit: meta.categorie_produit,
+    objet_identifie: meta.objet_identifie,
+    materiau_detecte: meta.materiau_detecte || '',
+    substances_detectees: sorted,
+    badge_global,
+    resume: generateResume(badge_global, sorted),
+    recommandations: generateRecommendations(badge_global, sorted),
+    alternatives_sures: [],
+    alternatives_saines: [],
+    erreur: meta.erreur || '',
+  };
+}
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      console.log('[API] Analysis attempt', attempt);
-
-      const aiResult = await callAI(
-        imageBase64,
-        ocrData.fullText || undefined,
-        ocrData.ingredientsBlock || undefined,
-      );
-
-      if (!aiResult || !aiResult.categorie_produit) {
-        throw new Error(isEnglish() ? 'Invalid AI result' : 'Résultat IA invalide');
-      }
-
-      const substances = classifyIngredients(aiResult.ingredients_lus);
-
-      // 🌐 Langue garantie en amont : descriptions servies directement depuis la base
-      // (note/noteEn) dans la langue de l'app. Aucun second appel IA de traduction.
-
-      const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
-      substances.sort((a, b) => riskOrder[a.niveau_risque] - riskOrder[b.niveau_risque]);
-
-      const badge_global = computeBadgeGlobal(substances);
-
-      const resume = generateResume(badge_global, substances);
-      const recommandations = generateRecommendations(badge_global, substances);
-
-      const erreur = aiResult.erreur || '';
-
-      const result: UniversalAnalysisResult = {
-        categorie_produit: aiResult.categorie_produit,
-        objet_identifie: aiResult.objet_identifie,
-        materiau_detecte: aiResult.materiau_detecte || '',
-        substances_detectees: substances,
-        badge_global,
-        resume,
-        recommandations,
-        alternatives_sures: [],
-        alternatives_saines: [],
-        erreur,
-      };
-
-      console.log('[API] Final:', result.objet_identifie, '— badge:', badge_global, '— substances:', substances.length);
-
-      if (cacheKey && !erreur) {
-        if (ANALYSIS_CACHE.size >= CACHE_MAX) {
-          const firstKey = ANALYSIS_CACHE.keys().next().value;
-          if (firstKey) ANALYSIS_CACHE.delete(firstKey);
-        }
-        ANALYSIS_CACHE.set(cacheKey, result);
-      }
-      return result;
-    } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error('[API] Error (attempt ' + attempt + '):', errorMsg);
-
-      if (attempt < MAX_RETRIES) {
-        await new Promise(resolve => setTimeout(resolve, 250));
-        continue;
-      }
-
-      return {
-        categorie_produit: 'other',
-        objet_identifie: 'Unknown object',
-        materiau_detecte: '',
-        substances_detectees: [],
-        badge_global: 'aucun',
-        resume: '',
-        recommandations: [],
-        alternatives_sures: [],
-        erreur: t('error_analyze_product'),
-      };
-    }
-  }
-
+function buildErrorResult(messageKey: 'error_analyze_product' | 'error_process_photo'): UniversalAnalysisResult {
   return {
     categorie_produit: 'other',
     objet_identifie: 'Unknown object',
@@ -1117,8 +1163,152 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
     resume: '',
     recommandations: [],
     alternatives_sures: [],
-    erreur: t('error_process_photo'),
+    erreur: t(messageKey),
   };
+}
+
+/** Rough product-name guess from raw OCR text, shown instantly until the AI returns the real name. */
+function guessProductName(fullText: string): string | null {
+  const lines = fullText.split('\n').map((l) => l.trim()).filter(Boolean);
+  for (const line of lines) {
+    if (/ingr[ée]dien/i.test(line)) continue;
+    if (line.length < 3 || line.length > 40) continue;
+    if (/^[\d\s.,%*]+$/.test(line)) continue;
+    return line;
+  }
+  return null;
+}
+
+/** Fill any still-pending descriptions (used when the AI enrichment fails, to stop loading spinners). */
+function finalizeInstant(result: UniversalAnalysisResult): UniversalAnalysisResult {
+  const substances = result.substances_detectees.map((s) => {
+    if (!s.descriptionPending) return s;
+    let explication = s.explication?.trim() ?? '';
+    if (!explication) {
+      explication = s.niveau_risque === 'danger' || s.niveau_risque === 'probable'
+        ? buildNegativeDescription(s.nom, s.niveau_risque, lookupIngredient(s.nom))
+        : isEnglish()
+          ? `${s.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`
+          : `${s.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`;
+    }
+    return { ...s, explication, descriptionPending: false };
+  });
+  return { ...result, substances_detectees: substances };
+}
+
+async function runOcrStep(imageBase64: string): Promise<{ ocrData: OcrData; cacheKey: string | null }> {
+  let ocrData: OcrData = { fullText: '', ingredientsBlock: null };
+  try {
+    const ocr = await runGoogleVisionOcr(imageBase64);
+    ocrData = { fullText: ocr.fullText, ingredientsBlock: extractIngredientsBlock(ocr.fullText) };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn('[API] OCR failed (non-blocking):', msg);
+  }
+  const cacheKey = ocrData.ingredientsBlock
+    ? hashString(ocrData.ingredientsBlock.toLowerCase().replace(/\s+/g, ' ').trim())
+    : null;
+  return { ocrData, cacheKey };
+}
+
+/**
+ * STEP 1 — Runs OCR then classifies the label locally via the database, producing an
+ * INSTANT verdict (~1s) without waiting for the AI. Known ingredients carry their database
+ * description immediately; unknown ones are flagged `descriptionPending` for the AI to fill.
+ */
+export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> {
+  const { ocrData, cacheKey } = await runOcrStep(imageBase64);
+
+  if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
+    console.log('[API] Cache hit (instant)');
+    return { result: ANALYSIS_CACHE.get(cacheKey)!, ocrData, cacheKey, cached: true, instant: true };
+  }
+
+  const source = ocrData.ingredientsBlock || ocrData.fullText;
+  const names = splitOcrIngredients(source);
+  const substances = classifyLocal(names);
+  console.log('[API] Instant local classification —', substances.length, 'ingredients parsed from OCR');
+
+  const guessedName = guessProductName(ocrData.fullText) ?? (isEnglish() ? 'Analyzing…' : 'Analyse…');
+  const result = assembleResult(
+    {
+      categorie_produit: 'food',
+      objet_identifie: guessedName,
+      materiau_detecte: '',
+    },
+    substances,
+  );
+
+  return { result, ocrData, cacheKey, cached: false, instant: substances.length > 0 };
+}
+
+/**
+ * STEP 2 — Full AI analysis (runs in the background after the instant verdict). Reads the
+ * label, writes descriptions for every ingredient, then classifies via the same database
+ * logic. This is the authoritative final result and replaces the instant one.
+ */
+export async function scanAiEnrich(
+  imageBase64: string,
+  ocrData: OcrData,
+  cacheKey: string | null,
+  instantResult?: UniversalAnalysisResult,
+): Promise<UniversalAnalysisResult> {
+  const MAX_RETRIES = 2;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log('[API] AI enrich attempt', attempt);
+      const aiResult = await callAI(
+        imageBase64,
+        ocrData.fullText || undefined,
+        ocrData.ingredientsBlock || undefined,
+      );
+      if (!aiResult || !aiResult.categorie_produit) {
+        throw new Error(isEnglish() ? 'Invalid AI result' : 'Résultat IA invalide');
+      }
+
+      const substances = classifyIngredients(aiResult.ingredients_lus);
+      const result = assembleResult(
+        {
+          categorie_produit: aiResult.categorie_produit,
+          objet_identifie: aiResult.objet_identifie,
+          materiau_detecte: aiResult.materiau_detecte || '',
+          erreur: aiResult.erreur || '',
+        },
+        substances,
+      );
+
+      console.log('[API] Final:', result.objet_identifie, '— badge:', result.badge_global, '— substances:', substances.length);
+
+      if (cacheKey && !result.erreur) {
+        if (ANALYSIS_CACHE.size >= CACHE_MAX) {
+          const firstKey = ANALYSIS_CACHE.keys().next().value;
+          if (firstKey) ANALYSIS_CACHE.delete(firstKey);
+        }
+        ANALYSIS_CACHE.set(cacheKey, result);
+      }
+      return result;
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error('[API] AI enrich error (attempt ' + attempt + '):', errorMsg);
+      if (attempt < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+        continue;
+      }
+      // AI failed: keep the instant local verdict but stop the loading spinners.
+      return instantResult ? finalizeInstant(instantResult) : buildErrorResult('error_analyze_product');
+    }
+  }
+  return instantResult ? finalizeInstant(instantResult) : buildErrorResult('error_process_photo');
+}
+
+/** Full one-shot analysis (OCR → AI). Kept for compatibility; the scanner uses the two-step flow. */
+export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult> {
+  const { ocrData, cacheKey } = await runOcrStep(imageBase64);
+  if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
+    console.log('[API] Cache hit');
+    return ANALYSIS_CACHE.get(cacheKey)!;
+  }
+  return scanAiEnrich(imageBase64, ocrData, cacheKey);
 }
 
 // ═══════════════════════════════════════════════════════════════════════

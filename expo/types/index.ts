@@ -23,6 +23,8 @@ export interface SubstanceDetected {
   niveau_risque: 'danger' | 'probable' | 'possible' | 'aucun';
   explication: string | null;
   source_exposition: string | null;
+  /** True while the AI description for this ingredient is still loading (unknown ingredient). */
+  descriptionPending?: boolean;
 }
 
 export type AdditiveCategory = 'food' | 'cosmetic' | 'household' | 'kitchen' | 'textile' | 'packaging';
@@ -42,6 +44,8 @@ export interface DetectedIngredient {
   classification_circ: string;
   niveau_risque: 'danger' | 'probable' | 'possible' | 'aucun';
   explication: string | null;
+  /** True while the AI description for this ingredient is still loading (unknown ingredient). */
+  descriptionPending?: boolean;
 }
 
 export interface UniversalAnalysisResult {

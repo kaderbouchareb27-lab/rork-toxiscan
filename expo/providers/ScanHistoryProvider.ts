@@ -43,6 +43,16 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
     });
   }, [saveMutation]);
 
+  const updateProduct = useCallback((barcode: string, patch: Partial<ScannedProduct>) => {
+    setHistory(prev => {
+      const updated = prev.map(p =>
+        p.barcode === barcode ? { ...p, ...patch, barcode: p.barcode } : p
+      );
+      saveMutation.mutate(updated);
+      return updated;
+    });
+  }, [saveMutation]);
+
   const toggleFavorite = useCallback((barcode: string) => {
     setHistory(prev => {
       const updated = prev.map(p =>
@@ -76,11 +86,12 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
     history,
     favorites,
     addProduct,
+    updateProduct,
     toggleFavorite,
     clearHistory,
     stats,
     isLoading: historyQuery.isLoading,
-  }), [history, favorites, addProduct, toggleFavorite, clearHistory, stats, historyQuery.isLoading]);
+  }), [history, favorites, addProduct, updateProduct, toggleFavorite, clearHistory, stats, historyQuery.isLoading]);
 });
 
 const FREE_HISTORY_LIMIT = 3;

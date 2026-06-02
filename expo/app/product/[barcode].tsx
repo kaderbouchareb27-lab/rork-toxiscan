@@ -688,9 +688,11 @@ export default function ProductScreen() {
                 // from the additives database (FR/EN) when we can match the ingredient.
                 const additiveMatch = isNonFood ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
                 const additiveDescription = additiveMatch ? getAdditiveDescription(additiveMatch) : '';
+                const hasExplanation = !!(ing.explication && ing.explication.trim().length > 0);
+                const isPending = ing.descriptionPending === true && !hasExplanation && additiveDescription.length === 0;
                 const description = additiveDescription.length > 0
                   ? additiveDescription
-                  : (ing.explication && ing.explication.trim().length > 0)
+                  : hasExplanation
                     ? ing.explication
                     : (level === 'aucun' ? getApprovedDescription(ing.nom) : '');
                 return (
@@ -702,7 +704,14 @@ export default function ProductScreen() {
                         <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
                       </View>
                     </View>
-                    {description ? (
+                    {isPending ? (
+                      <View style={styles.allIngPendingRow}>
+                        <ActivityIndicator size="small" color={Colors.primary} />
+                        <Text style={styles.allIngPendingText}>
+                          {isEnglish() ? 'Generating description…' : 'Génération de la description…'}
+                        </Text>
+                      </View>
+                    ) : description ? (
                       <View style={styles.allIngExplanation}>
                         <Text style={styles.allIngExplanationText}>
                           {description}
@@ -993,6 +1002,8 @@ const styles = StyleSheet.create({
   allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25 },
   allIngExplanation: { marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8', backgroundColor: '#FFFFFF' },
   allIngExplanationText: { fontSize: 13, lineHeight: 19, fontWeight: '500' as const, color: '#4E4E49' },
+  allIngPendingRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8' },
+  allIngPendingText: { fontSize: 12.5, fontWeight: '600' as const, color: '#9A9A96', fontStyle: 'italic' as const },
   approvedFooterCard: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#E8F9ED', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
   approvedFooterText: { flex: 1, fontSize: 14, color: '#2D6A3E', fontWeight: '600' as const, lineHeight: 20 },
   confettiLayer: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 400, pointerEvents: 'none' as const },

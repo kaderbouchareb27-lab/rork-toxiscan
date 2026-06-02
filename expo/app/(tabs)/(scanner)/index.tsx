@@ -22,7 +22,8 @@ import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { analyzeUniversalPhoto, universalResultToScannedProduct } from '@/utils/api';
+import { scanOcrInstant, scanAiEnrich, universalResultToScannedProduct } from '@/utils/api';
+import type { ScannedProduct } from '@/types';
 import { getScanFacts, pickRandomFactIndex } from '@/constants/scanFacts';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
@@ -39,7 +40,7 @@ const TITLE_FONT_FAMILY = Platform.select({ ios: 'Georgia', android: 'serif', we
 const ANALYZING_DR_TOXI_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/256dc913-0f70-4358-b3aa-5bc9a38cc427.png';
 
 export default function ScannerScreen() {
-  const { addProduct } = useScanHistory();
+  const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasAcceptedAIConsent } = useOnboarding();
   const { canScan, consumeScan, isPro, scanRemaining, scanLimit } = useSubscription();
@@ -111,42 +112,52 @@ export default function ScannerScreen() {
         }
       })();
 
-      console.log('[Scanner] Sending to API (thumbnail in parallel)...');
-      let result;
+      console.log('[Scanner] OCR + instant local classification (thumbnail in parallel)...');
+      let instant;
       let thumbnailBase64: string | undefined;
       try {
-        const [apiResult, thumb] = await Promise.all([
-          analyzeUniversalPhoto(base64),
+        const [instantResult, thumb] = await Promise.all([
+          scanOcrInstant(base64),
           thumbnailPromise,
         ]);
-        result = apiResult;
+        instant = instantResult;
         thumbnailBase64 = thumb;
-        if (thumbnailBase64) {
-          console.log('[Scanner] Thumbnail generated, length:', thumbnailBase64.length);
-        }
       } catch (apiError) {
         const realMsg = apiError instanceof Error ? apiError.message : String(apiError);
-        console.error('[Scanner] API call failed with real error:', realMsg);
-        console.error('[Scanner] Full error object:', apiError);
+        console.error('[Scanner] OCR/instant failed with real error:', realMsg);
         throw new Error(realMsg || t('error_analysis_failed'));
       }
 
-      if (result.erreur) {
-        console.error('[Scanner] API returned error:', result.erreur);
-        throw new Error(result.erreur);
+      // If OCR found no readable ingredients, wait for the full AI analysis before showing
+      // a verdict (so we never display a wrong instant "approved" badge on an unreadable label).
+      if (!instant.cached && !instant.instant) {
+        const finalResult = await scanAiEnrich(base64, instant.ocrData, instant.cacheKey, instant.result);
+        if (finalResult.erreur) {
+          console.error('[Scanner] AI returned error:', finalResult.erreur);
+          throw new Error(finalResult.erreur);
+        }
+        instant = { ...instant, result: finalResult, cached: true, instant: true };
       }
 
-      const product = universalResultToScannedProduct(result, imageUri);
-      if (thumbnailBase64) {
-        product.thumbnailBase64 = `data:image/jpeg;base64,${thumbnailBase64}`;
-      }
-      return product;
+      const thumbnailUri = thumbnailBase64 ? `data:image/jpeg;base64,${thumbnailBase64}` : undefined;
+      const product = universalResultToScannedProduct(instant.result, imageUri);
+      if (thumbnailUri) product.thumbnailBase64 = thumbnailUri;
+
+      return {
+        product,
+        base64,
+        imageUri,
+        thumbnailUri,
+        ocrData: instant.ocrData,
+        cacheKey: instant.cacheKey,
+        instantResult: instant.result,
+        needsEnrich: !instant.cached,
+      };
     },
-    onSuccess: (product) => {
-      console.log('[Scanner] Analysis success:', product.name, product.riskGroup);
+    onSuccess: ({ product, base64, imageUri, thumbnailUri, ocrData, cacheKey, instantResult, needsEnrich }) => {
+      console.log('[Scanner] Instant verdict ready:', product.name, product.riskGroup);
       const elapsed = analysisStartRef.current ? Date.now() - analysisStartRef.current : 0;
       if (elapsed > 500) {
-        // EMA of last response durations to better predict next progress speed
         avgDurationRef.current = Math.round(avgDurationRef.current * 0.6 + elapsed * 0.4);
       }
       progressAnim.stopAnimation();
@@ -164,6 +175,34 @@ export default function ScannerScreen() {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       router.push(`/product/${product.barcode}`);
+
+      // Background: let the AI generate descriptions for unknown ingredients, then merge.
+      if (needsEnrich) {
+        const barcode = product.barcode;
+        void scanAiEnrich(base64, ocrData, cacheKey, instantResult)
+          .then((finalResult) => {
+            const finalProduct = universalResultToScannedProduct(finalResult, imageUri);
+            const patch: Partial<ScannedProduct> = {
+              name: finalProduct.name,
+              riskGroup: finalProduct.riskGroup,
+              detectedAdditives: finalProduct.detectedAdditives,
+              ingredientsText: finalProduct.ingredientsText,
+              detectedIngredients: finalProduct.detectedIngredients,
+              analysisSummary: finalProduct.analysisSummary,
+              productCategory: finalProduct.productCategory,
+              categories: finalProduct.categories,
+              objectIdentified: finalProduct.objectIdentified,
+              materialDetected: finalProduct.materialDetected,
+              substances: finalProduct.substances,
+              recommendations: finalProduct.recommendations,
+              saferAlternatives: finalProduct.saferAlternatives,
+              healthyAlternatives: finalProduct.healthyAlternatives,
+            };
+            updateProduct(barcode, patch);
+            console.log('[Scanner] Background AI enrichment merged for:', barcode);
+          })
+          .catch((e) => console.warn('[Scanner] Background enrichment failed:', e));
+      }
     },
     onError: (error: Error) => {
       console.error('[Scanner] Analysis error:', error.message);
