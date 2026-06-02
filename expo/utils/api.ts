@@ -326,7 +326,27 @@ Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, T
 
 ═══ TYPE 2 : INGRÉDIENTS TRANSFORMÉS / CONTROVERSÉS (sucres, sirops, huiles raffinées, arômes, gommes, acide citrique industriel, lécithines, phosphates, sulfites, extrait de levure, gel de silice, etc.) ═══
 
-→ Ton FRANC ET DIRECT. Explique POURQUOI c'est problématique avec DES FAITS CONCRETS.
+🚨🚨 DISTINCTION OBLIGATOIRE — DEUX SOUS-TONS SELON LA GRAVITÉ 🚨🚨
+
+▸ INGRÉDIENT ULTRA-TRANSFORMÉ / ORANGE (sucre, sirop de glucose-fructose, huile hydrogénée, huile raffinée, maltodextrine, dextrose, émulsifiants, arômes industriels, etc.) :
+  La description DOIT TOUJOURS, sans exception :
+  1. Expliquer COMMENT et POURQUOI l'ingrédient est industriellement transformé (procédé : raffinage, hydrogénation, solvants, haute température…).
+  2. Expliquer POURQUOI il est dangereux pour la santé.
+  3. TOUJOURS mentionner le lien avec le cancer, l'inflammation chronique ou une maladie grave (obésité, diabète, maladie cardiovasculaire, stéatose hépatique…).
+  4. NE JAMAIS mentionner un seul bienfait. INTERDIT d'écrire "en petite quantité c'est sûr", "apporte de l'énergie", "riche en…", "aide à…", "stabilise…", "sans danger".
+  5. Ton DIRECT et FACTUEL, comme un médecin qui met en garde un patient.
+
+  EXEMPLES OBLIGATOIRES (à reproduire dans cet esprit) :
+  • Sucre / Sucre de canne : "Sucre industriel raffiné sans valeur nutritive. Nourrit les cellules cancéreuses, favorise l'obésité, la résistance à l'insuline et l'inflammation chronique — tous des facteurs majeurs de risque de cancer. À éviter."
+  • Huile végétale hydrogénée : "Huile végétale hydrogénée industriellement. Le processus d'hydrogénation crée des gras trans qui favorisent l'inflammation chronique, obstruent les artères et sont directement liés à un risque accru de cancer. Évitez la consommation régulière."
+
+▸ INGRÉDIENT CONTROVERSÉ / JAUNE (acceptable occasionnellement : certains additifs modérés, acide citrique, gommes, conservateurs légers, etc.) :
+  Description ÉQUILIBRÉE :
+  1. Explique ce qu'est l'ingrédient.
+  2. Mentionne pourquoi il est controversé ou potentiellement nocif.
+  3. Dis qu'il peut se consommer occasionnellement mais PAS au quotidien.
+  4. Court et factuel.
+
 → Cite TOUJOURS au moins une donnée précise : étude scientifique, autorité (EFSA, ANSES, OMS), nom de classe chimique, ou effet biologique nommé.
 → Termine TOUJOURS par une phrase qui guide l'utilisateur : "À limiter.", "Marqueur de produit ultra-transformé.", "Préférer une alternative naturelle."
 
@@ -362,9 +382,13 @@ EXEMPLES OBLIGATOIRES À SUIVRE :
 
 • Phosphates ajoutés (E450-E452, E339-E341) : "Sels minéraux industriels qui augmentent dangereusement l'apport en phosphore. Études : excès lié à calcification des artères, troubles rénaux et risque cardiovasculaire accru. Très différents du phosphore naturel des aliments."
 
-═══ TYPE 3 : INGRÉDIENTS DANGEREUX (nitrites, formaldéhyde, métaux lourds, PFAS, parabens, phtalates, etc.) ═══
+═══ TYPE 3 : INGRÉDIENTS CANCÉRIGÈNES / DANGEREUX (nitrites, formaldéhyde, métaux lourds, PFAS, parabens, phtalates, etc.) ═══
 
-→ Ton d'alerte FORT. Cite le classement officiel (CIRC, EFSA). Déconseille clairement.
+La description DOIT TOUJOURS, sans exception :
+1. Indiquer clairement qu'il est classé CANCÉRIGÈNE par l'OMS ou le CIRC.
+2. Expliquer le risque de cancer spécifique (quel mécanisme, quel organe).
+3. NE JAMAIS mentionner un seul bienfait.
+4. Ton DIRECT et ALARMANT — cet ingrédient cause le cancer.
 → Exemple nitrite de sodium (E250) : "Conservateur des charcuteries qui forme des nitrosamines cancérigènes lors de la cuisson. Classé cancérogène avéré Groupe 1 par le CIRC (OMS) — même catégorie que le tabac. À éviter, surtout chez les enfants."
 → Exemple parabens : "Conservateurs cosmétiques perturbateurs endocriniens — détectés dans des biopsies de cancer du sein (étude Darbre 2004). Mimétiques des œstrogènes. Plusieurs sont interdits en UE. À éviter absolument."
 
@@ -489,7 +513,27 @@ The user downloaded this app BECAUSE THEY WANT THE TRUTH. If you reassure them, 
 
 ═══ TYPE 2: PROCESSED / CONTROVERSIAL INGREDIENTS (sugars, syrups, refined oils, flavors, gums, industrial citric acid, lecithins, phosphates, sulfites, yeast extract, silica gel, etc.) ═══
 
-→ FRANK AND DIRECT tone. Explain WHY it's problematic with CONCRETE FACTS.
+🚨🚨 MANDATORY DISTINCTION — TWO SUB-TONES BASED ON SEVERITY 🚨🚨
+
+▸ ULTRA-PROCESSED / ORANGE INGREDIENT (sugar, glucose-fructose syrup, hydrogenated oil, refined oil, maltodextrin, dextrose, emulsifiers, industrial flavors, etc.):
+  The description MUST ALWAYS, no exception:
+  1. Explain HOW and WHY the ingredient is industrially processed (the process: refining, hydrogenation, solvents, high heat…).
+  2. Explain WHY it is dangerous for health.
+  3. ALWAYS mention the link to cancer, chronic inflammation, or serious disease (obesity, diabetes, cardiovascular disease, fatty liver…).
+  4. NEVER mention a single benefit. FORBIDDEN to write "in small amounts it's safe", "provides energy", "rich in…", "helps…", "stabilizes…", "generally regarded as safe".
+  5. DIRECT and FACTUAL tone, like a doctor warning a patient.
+
+  MANDATORY EXAMPLES (reproduce in this spirit):
+  • Sugar / Cane sugar: "Refined industrial sugar with zero nutritional value. Feeds cancer cells, promotes obesity, insulin resistance and chronic inflammation — all major cancer risk factors. Avoid."
+  • Hydrogenated vegetable oil: "Industrially hydrogenated vegetable oil. The hydrogenation process creates trans fats that promote chronic inflammation, block arteries and are directly linked to increased cancer risk. Avoid regular consumption."
+
+▸ CONTROVERSIAL / YELLOW INGREDIENT (acceptable occasionally: some moderate additives, citric acid, gums, light preservatives, etc.):
+  BALANCED description:
+  1. Explain what the ingredient is.
+  2. Mention why it is controversial or potentially harmful.
+  3. Say it can be consumed occasionally but NOT daily.
+  4. Short and factual.
+
 → ALWAYS cite at least one specific data point: scientific study, authority (EFSA, FDA, WHO), chemical class, or named biological effect.
 → ALWAYS end with guidance: "Limit consumption.", "Marker of ultra-processed food.", "Prefer a natural alternative."
 
@@ -515,9 +559,13 @@ MANDATORY EXAMPLES TO FOLLOW:
 
 • Yeast extract: "This is hidden MSG (monosodium glutamate) under a more 'natural' name. Naturally contains glutamate which acts as flavor enhancer and excitotoxin. Avoid if sensitive to headaches, palpitations, or hypertension."
 
-═══ TYPE 3: DANGEROUS INGREDIENTS (nitrites, formaldehyde, heavy metals, PFAS, parabens, phthalates, etc.) ═══
+═══ TYPE 3: CARCINOGENIC / DANGEROUS INGREDIENTS (nitrites, formaldehyde, heavy metals, PFAS, parabens, phthalates, etc.) ═══
 
-→ STRONG alert tone. Cite the IARC classification. Clearly advise against it.
+The description MUST ALWAYS, no exception:
+1. State clearly it is classified as CARCINOGENIC by the WHO or IARC.
+2. Explain the specific cancer risk (which mechanism, which organ).
+3. NEVER mention a single benefit.
+4. DIRECT and ALARMING tone — this ingredient causes cancer.
 → Sodium nitrite (E250) example: "Preservative in processed meats that forms carcinogenic nitrosamines when cooked. Classified confirmed carcinogen Group 1 by IARC (WHO) — same category as tobacco. Avoid, especially for children."
 
 ═══ STRICT PROHIBITIONS ═══
@@ -690,6 +738,16 @@ const POSITIVE_SPIN_MARKERS = [
   'essential nutrient', 'nutriment essentiel', 'essential mineral',
   'part of a balanced', 'balanced diet',
   'source of', 'source de', 'rich in', 'riche en',
+  // Soft / minimizing phrases that must never appear on a red/orange ingredient.
+  'in small amounts', 'in moderation', 'en petite quantite', 'en petites quantites', 'avec moderation',
+  'helps', 'help to', 'aide a', 'aide au', 'contribue a', 'contributes to',
+  'stabilize', 'stabilise', 'stabilizes', 'stabilise le ph', 'stabilizes ph', 'stabilize ph',
+  'provides energy', 'quick energy', 'energie rapide', 'apporte de l energie', 'provides quick',
+  'amino acid', 'acide amine', 'muscle repair', 'muscle building', 'reparation musculaire', 'construction musculaire',
+  'nutritional value', 'valeur nutritive', 'valeur nutritionnelle',
+  'vitamin', 'vitamine', 'mineral', 'minerale', 'antioxidant', 'antioxydant',
+  'flavor', 'flavour', 'saveur', 'gout agreable', 'texture', 'palatable',
+  'well tolerated', 'bien tolere', 'gras to', 'gras as',
 ];
 
 function hasPositiveSpin(text: string): boolean {
@@ -700,15 +758,19 @@ function hasPositiveSpin(text: string): boolean {
 // BUG 3 FIX — Force une description negative pour les ingredients rouges/oranges.
 function buildNegativeDescription(name: string, risk: RiskLevel, entry: IngredientEntry | null): string {
   const en = isEnglish();
+  // Prefer the database note when it already carries a frank, negative tone — it is
+  // ingredient-specific and more accurate than a generic fallback.
+  const note = entry?.note?.trim();
+  if (note && hasNegativeTone(note) && !hasPositiveSpin(note)) return note;
   const circInfo = entry?.circ ? ' (' + entry.circ + ')' : '';
   if (risk === 'danger') {
     return en
-      ? name + ' is classified as a confirmed carcinogen' + circInfo + ' by the WHO/IARC. It is dangerous to health and should be avoided — especially for children and pregnant women. This ingredient has no health benefits and is only used by the food industry for preservation, color, or texture at the expense of consumer safety.'
-      : name + ' est classe cancerigene avere' + circInfo + ' par l\'OMS/CIRC. C\'est un ingredient dangereux pour la sante, a eviter absolument — surtout chez les enfants et les femmes enceintes. Cet ingredient n\'a aucun benefice sante et n\'est utilise que par l\'industrie pour la conservation, la couleur ou la texture au detriment de la securite du consommateur.';
+      ? name + ' is classified as a carcinogen' + circInfo + ' by the WHO/IARC — the same category of substances that cause cancer. Regular exposure damages cells and increases cancer risk, and it is especially harmful to children and pregnant women. This ingredient has NO health benefit; the food industry uses it only for preservation, color, or texture. Avoid it.'
+      : name + ' est classe cancerigene' + circInfo + ' par l\'OMS/CIRC — la meme categorie de substances qui causent le cancer. Une exposition reguliere endommage les cellules et augmente le risque de cancer, et c\'est particulierement nocif pour les enfants et les femmes enceintes. Cet ingredient n\'a AUCUN benefice sante ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. A eviter.';
   }
   return en
-    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. Its manufacturing involves chemical processes (refining, solvents, high heat) that create potentially harmful compounds. This ingredient is a marker of ultra-processed food (NOVA 4) — it should not be part of a daily diet.'
-    : name + ' est un ingredient industriel ultra-transformé' + circInfo + '. Sa fabrication implique des procedes chimiques (raffinage, solvants, haute temperature) qui generent des composes potentiellement nocifs. Cet ingredient est un marqueur d\'aliment ultra-transformé (NOVA 4) — il ne devrait pas faire partie d\'une alimentation quotidienne.';
+    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents, high heat) that strips any nutritional value and creates compounds linked to chronic inflammation and increased cancer risk. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.'
+    : name + ' est un ingredient industriel ultra-transforme' + circInfo + '. Il est produit par un lourd procede chimique (raffinage, hydrogenation, solvants, haute temperature) qui detruit toute valeur nutritive et cree des composes lies a l\'inflammation chronique et a un risque accru de cancer. Il n\'a aucun benefice sante reel et c\'est un marqueur d\'aliment ultra-transforme (NOVA 4). A eviter au quotidien.';
 }
 
 // BUG 1 FIX — No more generic fallback. Every description must be specific.
