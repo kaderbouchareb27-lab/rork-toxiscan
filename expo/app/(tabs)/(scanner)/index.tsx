@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Camera, Shirt, Droplets, UtensilsCrossed, Leaf, SprayCan, ScanLine, Database, ShieldCheck, Sparkles, ChevronRight, Zap } from 'lucide-react-native';
+import { Camera, Shirt, Droplets, UtensilsCrossed, Leaf, SprayCan, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -24,7 +24,6 @@ import * as Haptics from 'expo-haptics';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { scanOcrInstant, scanAiEnrich, universalResultToScannedProduct } from '@/utils/api';
 import type { ScannedProduct } from '@/types';
-import { getScanFacts, pickRandomFactIndex } from '@/constants/scanFacts';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -38,6 +37,8 @@ import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const TITLE_FONT_FAMILY = Platform.select({ ios: 'Georgia', android: 'serif', web: 'Georgia' }) ?? 'serif';
 const ANALYZING_DR_TOXI_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/256dc913-0f70-4358-b3aa-5bc9a38cc427.png';
+const LOADER_BAR_WIDTH = 232;
+const LOADER_BAR_SEGMENT = 78;
 
 export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
@@ -156,18 +157,6 @@ export default function ScannerScreen() {
     },
     onSuccess: ({ product, base64, imageUri, thumbnailUri, ocrData, cacheKey, instantResult, needsEnrich }) => {
       console.log('[Scanner] Instant verdict ready:', product.name, product.riskGroup);
-      const elapsed = analysisStartRef.current ? Date.now() - analysisStartRef.current : 0;
-      if (elapsed > 500) {
-        avgDurationRef.current = Math.round(avgDurationRef.current * 0.6 + elapsed * 0.4);
-      }
-      progressAnim.stopAnimation();
-      setProgressPercent(100);
-      Animated.timing(progressAnim, {
-        toValue: 1,
-        duration: 120,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }).start();
       addProduct(product);
       consumeScan();
       recordScan(product.riskGroup === 'none');
@@ -313,83 +302,98 @@ export default function ScannerScreen() {
 
   const isLoading = photoMutation.isPending;
 
-  const scanFacts = getScanFacts();
-  const [tipIndex, setTipIndex] = useState<number>(0);
-  const [progressPercent, setProgressPercent] = useState<number>(0);
-  const progressAnim = useRef(new Animated.Value(0)).current;
+  // Lean loader: a slim, indeterminate loader calibrated for the new ~1-3s OCR wait.
+  // No fake percentage; a short reassuring status line transitions as time passes,
+  // and the slow AI-fallback path (unreadable label) gracefully shows "Looking closer…".
+  type LoaderStatus = 'reading' | 'checking' | 'closer';
+  const [statusKey, setStatusKey] = useState<LoaderStatus>('reading');
   const spinnerRotation = useRef(new Animated.Value(0)).current;
-  const tipFadeAnim = useRef(new Animated.Value(1)).current;
-  const analysisStartRef = useRef<number>(0);
-  const avgDurationRef = useRef<number>(7000);
+  const pulseRing = useRef(new Animated.Value(0)).current;
+  const trackAnim = useRef(new Animated.Value(0)).current;
+  const statusFadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (!isLoading) {
-      setProgressPercent(0);
-      progressAnim.setValue(0);
+      setStatusKey('reading');
       return;
     }
-    setTipIndex(Math.floor(Math.random() * scanFacts.length));
-
-    const tipInterval = setInterval(() => {
-      Animated.timing(tipFadeAnim, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => {
-        setTipIndex(prev => pickRandomFactIndex(prev, scanFacts.length));
-        Animated.timing(tipFadeAnim, { toValue: 1, duration: 320, useNativeDriver: true }).start();
-      });
-    }, 5000);
-
-    // Drive the bar against the real expected response duration (EMA of past calls).
-    // We approach 92% asymptotically over the expected duration so we never stall at 100
-    // before the API actually returns. onSuccess snaps to 100 instantly.
-    const startedAt = Date.now();
-    analysisStartRef.current = startedAt;
-    let current = 0;
-    const progressInterval = setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-      const expected = Math.max(2000, avgDurationRef.current);
-      // Linear up to 85% of expected duration, then ease out toward 95% cap
-      const ratio = elapsed / expected;
-      const target = ratio < 0.85
-        ? ratio * (88 / 0.85)
-        : Math.min(95, 88 + (1 - Math.exp(-(ratio - 0.85) * 1.5)) * 7);
-      if (target > current) {
-        current = target;
-        const rounded = Math.min(95, Math.floor(current));
-        setProgressPercent(rounded);
-        Animated.timing(progressAnim, {
-          toValue: Math.min(0.95, current / 100),
-          duration: 180,
-          easing: Easing.linear,
-          useNativeDriver: false,
-        }).start();
-      }
-    }, 120);
 
     const spinLoop = Animated.loop(
       Animated.timing(spinnerRotation, {
         toValue: 1,
-        duration: 1200,
+        duration: 1400,
         easing: Easing.linear,
         useNativeDriver: true,
       })
     );
     spinLoop.start();
 
-    return () => {
-      clearInterval(tipInterval);
-      clearInterval(progressInterval);
-      spinLoop.stop();
-      spinnerRotation.setValue(0);
+    const pulseLoop = Animated.loop(
+      Animated.timing(pulseRing, {
+        toValue: 1,
+        duration: 1500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      })
+    );
+    pulseLoop.start();
+
+    const trackLoop = Animated.loop(
+      Animated.timing(trackAnim, {
+        toValue: 1,
+        duration: 1150,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      })
+    );
+    trackLoop.start();
+
+    const fadeTo = (next: LoaderStatus) => {
+      Animated.timing(statusFadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
+        setStatusKey(next);
+        Animated.timing(statusFadeAnim, { toValue: 1, duration: 240, useNativeDriver: true }).start();
+      });
     };
-  }, [isLoading, progressAnim, spinnerRotation, tipFadeAnim, scanFacts.length]);
+    const toChecking = setTimeout(() => fadeTo('checking'), 850);
+    const toCloser = setTimeout(() => fadeTo('closer'), 2500);
+
+    return () => {
+      clearTimeout(toChecking);
+      clearTimeout(toCloser);
+      spinLoop.stop();
+      pulseLoop.stop();
+      trackLoop.stop();
+      spinnerRotation.setValue(0);
+      pulseRing.setValue(0);
+      trackAnim.setValue(0);
+      statusFadeAnim.setValue(1);
+    };
+  }, [isLoading, spinnerRotation, pulseRing, trackAnim, statusFadeAnim]);
+
+  const statusText = statusKey === 'closer'
+    ? t('analysis_looking_closer')
+    : statusKey === 'checking'
+    ? t('analysis_checking_ingredients')
+    : t('analysis_reading_label');
 
   const spinDeg = spinnerRotation.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
 
-  const progressBarWidth = progressAnim.interpolate({
+  const pulseScale = pulseRing.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
+    outputRange: [0.82, 1.32],
+  });
+
+  const pulseOpacity = pulseRing.interpolate({
+    inputRange: [0, 0.12, 1],
+    outputRange: [0, 0.5, 0],
+  });
+
+  const trackTranslate = trackAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-LOADER_BAR_SEGMENT, LOADER_BAR_WIDTH],
   });
 
   if (hasAcceptedAIConsent === null || hasSeenOnboarding === null) {
@@ -408,77 +412,34 @@ export default function ScannerScreen() {
             <View style={styles.loadingBackdropOrbTop} />
             <View style={styles.loadingBackdropOrbBottom} />
 
-            <LinearGradient colors={['#FFFFFF', '#F8F8F4']} style={styles.analysisPanel}>
-              <View style={styles.analysisPill}>
-                <Sparkles color="#2E9E34" size={14} strokeWidth={2.4} />
-                <Text style={styles.analysisPillText}>{t('analysis_ai_badge')}</Text>
-              </View>
-
-              <View style={styles.loadingHeroStage}>
-                <View style={[styles.scanBeam, styles.scanBeamTop]} />
-                <View style={[styles.scanBeam, styles.scanBeamMiddle]} />
-                <View style={[styles.scanBeam, styles.scanBeamBottom]} />
-                <View style={styles.loadingIconContainer}>
-                  <Animated.View style={[styles.spinnerRing, { transform: [{ rotate: spinDeg }] }]}>
-                    <View style={styles.spinnerDot} />
-                  </Animated.View>
+            <View style={styles.leanLoader}>
+              <View style={styles.leanAvatarStage}>
+                <Animated.View
+                  style={[styles.leanPulseRing, { opacity: pulseOpacity, transform: [{ scale: pulseScale }] }]}
+                />
+                <Animated.View style={[styles.leanSpinRing, { transform: [{ rotate: spinDeg }] }]}>
+                  <View style={styles.spinnerDot} />
+                </Animated.View>
+                <View style={styles.leanAvatarDisc}>
                   <RNImage
                     source={{ uri: ANALYZING_DR_TOXI_AVATAR_URI }}
-                    style={styles.spinnerAvatar}
+                    style={styles.leanAvatar}
                     resizeMode="contain"
                   />
                 </View>
               </View>
 
-              <Text style={styles.loadingTitle}>{t('analysis_in_progress')}</Text>
-              <Text style={styles.loadingSubtitle}>{t('drtoxi_examining')}</Text>
+              <Text style={styles.leanTitle}>{t('analysis_in_progress')}</Text>
+              <Animated.Text style={[styles.leanStatus, { opacity: statusFadeAnim }]}>
+                {statusText}
+              </Animated.Text>
 
-              <View style={styles.analysisStepsRow}>
-                <View style={styles.analysisStepItem}>
-                  <ScanLine color="#2E9E34" size={16} strokeWidth={2.2} />
-                  <Text style={styles.analysisStepText}>{t('analysis_step_photo')}</Text>
-                </View>
-                <View style={styles.analysisStepItem}>
-                  <Database color="#2E9E34" size={16} strokeWidth={2.2} />
-                  <Text style={styles.analysisStepText}>{t('analysis_step_database')}</Text>
-                </View>
-                <View style={styles.analysisStepItem}>
-                  <ShieldCheck color="#2E9E34" size={16} strokeWidth={2.2} />
-                  <Text style={styles.analysisStepText}>{t('analysis_step_verdict')}</Text>
-                </View>
+              <View style={styles.leanTrackBg}>
+                <Animated.View
+                  style={[styles.leanTrackFill, { transform: [{ translateX: trackTranslate }] }]}
+                />
               </View>
-
-              <View style={styles.progressSection}>
-                <View style={styles.progressHeaderRow}>
-                  <Text style={styles.progressLabel}>{t('analysis_progress_label')}</Text>
-                  <Text style={styles.progressText}>{progressPercent}%</Text>
-                </View>
-                <View style={styles.progressBarBg}>
-                  <Animated.View style={[styles.progressBarFill, { width: progressBarWidth }]} />
-                </View>
-              </View>
-            </LinearGradient>
-
-            <Animated.View style={[styles.tipContainer, { opacity: tipFadeAnim }]}> 
-              <View style={styles.tipHeaderRow}>
-                <View style={styles.tipHeaderAvatarWrap}>
-                  <RNImage
-                    source={{ uri: ANALYZING_DR_TOXI_AVATAR_URI }}
-                    style={styles.tipHeaderAvatar}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View style={styles.tipHeaderTextGroup}>
-                  <Text style={styles.tipTitle}>{t('daily_fact_title')}</Text>
-                  <Text style={styles.tipSubtitle}>{t('analysis_fact_subtitle')}</Text>
-                </View>
-                <View style={styles.tipCtaPill}>
-                  <Text style={styles.tipCta}>{t('analysis_tip_cta')}</Text>
-                </View>
-              </View>
-              <Text style={styles.tipText}>{scanFacts[tipIndex]?.text}</Text>
-              <Text style={styles.tipSource} numberOfLines={1}>{scanFacts[tipIndex]?.source}</Text>
-            </Animated.View>
+            </View>
           </View>
         ) : (
           <ScrollView
@@ -974,91 +935,36 @@ const styles = StyleSheet.create({
     borderRadius: 105,
     backgroundColor: 'rgba(232, 115, 10, 0.08)',
   },
-  analysisPanel: {
+  leanLoader: {
     width: '100%',
-    maxWidth: 372,
-    alignItems: 'center',
-    borderRadius: 34,
-    paddingHorizontal: 22,
-    paddingTop: 18,
-    paddingBottom: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.12)',
-    shadowColor: '#111111',
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.10,
-    shadowRadius: 34,
-    elevation: 8,
-  },
-  analysisPill: {
-    flexDirection: 'row' as const,
+    maxWidth: 320,
     alignItems: 'center' as const,
-    gap: 6,
-    alignSelf: 'center' as const,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: 'rgba(46, 158, 52, 0.09)',
-    borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.14)',
+    justifyContent: 'center' as const,
   },
-  analysisPillText: {
-    fontSize: 11,
-    fontWeight: '800' as const,
-    color: '#2E9E34',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase' as const,
+  leanAvatarStage: {
+    width: 132,
+    height: 132,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginBottom: 22,
   },
-  loadingHeroStage: {
-    width: 214,
-    height: 174,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  scanBeam: {
+  leanPulseRing: {
     position: 'absolute',
-    left: 18,
-    right: 18,
-    height: 1,
-    backgroundColor: 'rgba(46, 158, 52, 0.16)',
+    width: 124,
+    height: 124,
+    borderRadius: 62,
+    borderWidth: 2,
+    borderColor: 'rgba(46, 158, 52, 0.55)',
   },
-  scanBeamTop: {
-    top: 44,
-  },
-  scanBeamMiddle: {
-    top: 86,
-    height: 2,
-    backgroundColor: 'rgba(46, 158, 52, 0.28)',
-  },
-  scanBeamBottom: {
-    top: 130,
-  },
-  loadingIconContainer: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.12)',
-    shadowColor: '#2E9E34',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.16,
-    shadowRadius: 28,
-    elevation: 6,
-  },
-  spinnerRing: {
+  leanSpinRing: {
     position: 'absolute',
-    width: 164,
-    height: 164,
-    borderRadius: 82,
+    width: 116,
+    height: 116,
+    borderRadius: 58,
     borderWidth: 3,
     borderColor: 'rgba(46, 158, 52, 0.12)',
     borderTopColor: '#2E9E34',
-    borderRightColor: 'rgba(46, 158, 52, 0.38)',
+    borderRightColor: 'rgba(46, 158, 52, 0.40)',
   },
   spinnerDot: {
     position: 'absolute',
@@ -1070,154 +976,53 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#2E9E34',
   },
-  spinnerAvatar: {
-    width: 126,
-    height: 126,
-  },
-  analysisStepsRow: {
-    width: '100%',
-    flexDirection: 'row' as const,
-    gap: 8,
-    marginTop: 18,
-  },
-  analysisStepItem: {
-    flex: 1,
-    alignItems: 'center' as const,
-    gap: 6,
-    paddingVertical: 10,
-    borderRadius: 16,
+  leanAvatarDisc: {
+    width: 94,
+    height: 94,
+    borderRadius: 47,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(14, 14, 12, 0.06)',
-  },
-  analysisStepText: {
-    fontSize: 10.5,
-    fontWeight: '700' as const,
-    color: '#5F675F',
-    textAlign: 'center' as const,
-  },
-  progressSection: {
-    width: '100%',
-    marginTop: 18,
-  },
-  progressHeaderRow: {
-    flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    justifyContent: 'space-between' as const,
-    marginBottom: 8,
-  },
-  progressLabel: {
-    fontSize: 12,
-    fontWeight: '700' as const,
-    color: '#7A7F78',
-  },
-  progressBarBg: {
-    width: '100%',
-    height: 9,
-    borderRadius: 999,
-    backgroundColor: 'rgba(46, 158, 52, 0.12)',
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 999,
-    backgroundColor: '#2E9E34',
-  },
-  progressText: {
-    fontSize: 13,
-    fontWeight: '800' as const,
-    color: '#2E9E34',
-    minWidth: 38,
-    textAlign: 'right' as const,
-  },
-  loadingTitle: {
-    fontSize: 25,
-    fontWeight: '800' as const,
-    color: '#11120F',
-    letterSpacing: -0.7,
-    textAlign: 'center' as const,
-  },
-  loadingSubtitle: {
-    marginTop: 5,
-    fontSize: 15,
-    fontWeight: '500' as const,
-    color: '#777B74',
-    textAlign: 'center' as const,
-    lineHeight: 21,
-  },
-  tipContainer: {
-    marginTop: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    borderRadius: 24,
-    width: '100%',
-    maxWidth: 372,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.07,
-    shadowRadius: 22,
-    elevation: 4,
+    justifyContent: 'center' as const,
     borderWidth: 1,
     borderColor: 'rgba(46, 158, 52, 0.10)',
-  },
-  tipHeaderRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 10,
-    marginBottom: 10,
-  },
-  tipHeaderAvatarWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(46, 158, 52, 0.08)',
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
+    shadowColor: '#2E9E34',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    elevation: 4,
     overflow: 'hidden' as const,
   },
-  tipHeaderAvatar: {
-    width: 30,
-    height: 30,
+  leanAvatar: {
+    width: 78,
+    height: 78,
   },
-  tipHeaderTextGroup: {
-    flex: 1,
+  leanTitle: {
+    fontSize: 17,
+    fontWeight: '700' as const,
+    color: '#11120F',
+    letterSpacing: -0.3,
+    textAlign: 'center' as const,
   },
-  tipTitle: {
-    fontSize: 12,
-    fontWeight: '800' as const,
-    color: '#2E9E34',
-    letterSpacing: 0.35,
-    textTransform: 'uppercase' as const,
-  },
-  tipSubtitle: {
-    marginTop: 1,
-    fontSize: 11.5,
-    fontWeight: '600' as const,
-    color: '#9A9A96',
-  },
-  tipCtaPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: '#F4F4F2',
-  },
-  tipCta: {
-    fontSize: 11,
-    fontWeight: '800' as const,
-    color: '#2E9E34',
-  },
-  tipText: {
-    fontSize: 13.5,
+  leanStatus: {
+    marginTop: 5,
+    fontSize: 14.5,
     fontWeight: '500' as const,
-    color: '#1A1C1E',
-    lineHeight: 20,
+    color: '#6C8A74',
+    textAlign: 'center' as const,
   },
-  tipSource: {
-    marginTop: 10,
-    fontSize: 11,
-    color: '#9CA3AF',
-    fontStyle: 'italic' as const,
+  leanTrackBg: {
+    width: LOADER_BAR_WIDTH,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
+    overflow: 'hidden' as const,
+    marginTop: 20,
+  },
+  leanTrackFill: {
+    width: LOADER_BAR_SEGMENT,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: '#2E9E34',
   },
 
 });

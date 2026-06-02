@@ -53,7 +53,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - **Couleurs des badges** : rouge (#FF3B30), orange (#FF9500), jaune (#FFCC00), vert broccoli unique (#2E9E34)
 - **Texte** : noir (#1A1A1A) principal, gris (#8E8E93) secondaire
 - **Style** : premium mobile-first, icônes fines arrondies, typographie grande et lisible
-- **Écran d'analyse** : avatar Dr. Toxi avec loupe (Option 2), grand visuel central, progression claire, micro-infos éducatives
+- **Écran d'analyse** : loader léger et rapide (calibré ~1-3s), avatar Dr. Toxi subtil avec halo pulsé + anneau, courte ligne de statut rassurante (« Lecture de l'étiquette… » → « Analyse des ingrédients… » → « Inspection approfondie… » si plus long), barre indéterminée — pas de compteur %, pas de carrousel d'infos
 - **Pas d'emojis** dans l'interface (sauf chat Dr. Toxi)
 
 ---
