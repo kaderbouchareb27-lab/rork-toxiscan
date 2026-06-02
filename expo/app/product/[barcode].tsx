@@ -669,24 +669,6 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <View style={[styles.badgeContainer, { backgroundColor: bannerConfig.color, shadowColor: bannerConfig.color }]}>
-          <View style={styles.verdictTopLine}>
-            <View style={styles.verdictIconBubble}>
-              {bannerConfig.avatarUri ? (
-                <Image source={{ uri: bannerConfig.avatarUri }} style={styles.verdictAvatar} contentFit="contain" />
-              ) : (
-                bannerConfig.icon
-              )}
-            </View>
-            <View style={styles.badgeTextContainer}>
-              <Text style={styles.verdictEyebrow}>{isEnglish() ? 'RISK VERDICT' : 'VERDICT SANTÉ'}</Text>
-              <Text style={styles.badgeLabel}>{bannerConfig.label}</Text>
-            </View>
-          </View>
-          <Text style={styles.verdictAction}>{verdictAction}</Text>
-          <Text style={styles.verdictIntro}>{bannerConfig.intro}</Text>
-        </View>
-
         <DrToxiVerdict level={verdictLevel} />
 
         {/* ─── Tous les ingrédients ─── */}

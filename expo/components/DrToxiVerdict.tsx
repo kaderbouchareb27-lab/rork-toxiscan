@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { ThumbsUp } from 'lucide-react-native';
-import { isEnglish, t } from '@/utils/i18n';
+import { isEnglish } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
@@ -11,169 +10,171 @@ interface DrToxiVerdictProps {
   level: VerdictLevel;
 }
 
-function getVerdictConfig(): Record<VerdictLevel, {
+interface VerdictCardConfig {
   accentColor: string;
-  title: string;
-  message: string;
-  icon: React.ReactNode;
+  label: string;
+  subtitle: string;
+  description: string;
   avatarUri: string | null;
-}> {
+}
+
+/**
+ * Fixed, hardcoded verdict description based on the verdict level.
+ * These texts must never be generated or replaced by the AI.
+ */
+function getFixedDescription(level: VerdictLevel): string {
+  const english = isEnglish();
+  switch (level) {
+    case 'danger':
+      return english
+        ? 'This product contains carcinogenic ingredients classified by the WHO. Regular consumption significantly increases cancer risk.'
+        : 'Ce produit contient des ingrédients cancérigènes classifiés par l’OMS. Une consommation régulière augmente significativement le risque de cancer.';
+    case 'warning':
+      return english
+        ? 'This product contains too many ultra-processed ingredients, some of which may promote cancer risk.'
+        : 'Ce produit contient trop d’ingrédients ultra-transformés, dont certains peuvent favoriser le cancer.';
+    case 'moderation':
+      return english
+        ? 'This product contains some controversial ingredients. Consume occasionally and avoid making it a daily habit.'
+        : 'Ce produit contient certains ingrédients controversés. Consommez occasionnellement et évitez d’en faire une habitude quotidienne.';
+    case 'approuve':
+      return english
+        ? 'This product is made of healthy, natural ingredients with no major health concerns. A good everyday choice.'
+        : 'Ce produit est composé d’ingrédients sains et naturels, sans préoccupation majeure pour la santé. Un bon choix au quotidien.';
+  }
+}
+
+function getSubtitle(level: VerdictLevel): string {
+  const english = isEnglish();
+  switch (level) {
+    case 'danger':
+      return english ? 'Avoid regular consumption' : 'À éviter régulièrement';
+    case 'warning':
+      return english ? 'Limit as much as possible' : 'À limiter fortement';
+    case 'moderation':
+      return english ? 'Consume with moderation' : 'Consommer avec modération';
+    case 'approuve':
+      return english ? 'Good everyday choice' : 'Bon choix au quotidien';
+  }
+}
+
+function getLabel(level: VerdictLevel): string {
+  const english = isEnglish();
+  switch (level) {
+    case 'danger':
+      return english ? 'CARCINOGENIC' : 'CANCÉRIGÈNE';
+    case 'warning':
+      return english ? 'ULTRA-PROCESSED' : 'ULTRA-TRANSFORMÉ';
+    case 'moderation':
+      return english ? 'CAUTION' : 'MODÉRATION';
+    case 'approuve':
+      return english ? 'APPROVED' : 'APPROUVÉ';
+  }
+}
+
+function getVerdictConfig(level: VerdictLevel): VerdictCardConfig {
+  const accentColors: Record<VerdictLevel, string> = {
+    danger: '#D0260F',
+    warning: '#E8730A',
+    moderation: '#EAB308',
+    approuve: '#2E9E34',
+  };
   return {
-    danger: {
-      accentColor: '#D0260F',
-      title: t('verdict_danger_title'),
-      message: t('verdict_danger_msg'),
-      icon: null,
-      avatarUri: getDrToxiBadgeAvatarForVerdict('danger'),
-    },
-    warning: {
-      accentColor: '#E8730A',
-      title: t('verdict_caution_title'),
-      message: t('verdict_caution_msg'),
-      icon: null,
-      avatarUri: getDrToxiBadgeAvatarForVerdict('warning'),
-    },
-    moderation: {
-      accentColor: '#EAB308',
-      title: t('verdict_moderation_title'),
-      message: t('verdict_moderation_msg'),
-      icon: null,
-      avatarUri: getDrToxiBadgeAvatarForVerdict('moderation'),
-    },
-    approuve: {
-      accentColor: '#2E9E34',
-      title: t('verdict_approved_title'),
-      message: t('verdict_approved_msg'),
-      icon: <ThumbsUp color="#2E9E34" size={22} />,
-      avatarUri: null,
-    },
+    accentColor: accentColors[level],
+    label: getLabel(level),
+    subtitle: getSubtitle(level),
+    description: getFixedDescription(level),
+    avatarUri: getDrToxiBadgeAvatarForVerdict(level),
   };
 }
 
 export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
-  const config = getVerdictConfig()[level];
-
-  const eyebrow = isEnglish() ? 'AI INSIGHT' : 'ANALYSE IA';
-  const signature = isEnglish() ? 'Dr. Toxi Analysis' : 'Analyse Dr. Toxi';
+  const config = getVerdictConfig(level);
+  const eyebrow = isEnglish() ? 'RISK VERDICT' : 'VERDICT SANTÉ';
 
   return (
-    <View style={[styles.container, { borderColor: config.accentColor }]} testID="dr-toxi-verdict">
-      <View style={[styles.accentBar, { backgroundColor: config.accentColor }]} />
+    <View
+      style={[styles.container, { backgroundColor: config.accentColor, shadowColor: config.accentColor }]}
+      testID="dr-toxi-verdict"
+    >
       <View style={styles.headerRow}>
-        <View style={[styles.avatarRing, { borderColor: config.accentColor }]}>
+        <View style={styles.avatarBubble}>
           <Image
             source={{ uri: config.avatarUri ?? DR_TOXI_DEFAULT_AVATAR_URI }}
             style={styles.avatar}
-            contentFit="cover"
+            contentFit="contain"
           />
         </View>
         <View style={styles.headerText}>
-          <View style={styles.eyebrowRow}>
-            <View style={[styles.liveDot, { backgroundColor: config.accentColor }]} />
-            <Text style={styles.eyebrow}>{eyebrow}</Text>
-          </View>
-          <Text style={styles.signature}>{signature}</Text>
+          <Text style={styles.eyebrow}>{eyebrow}</Text>
+          <Text style={styles.label}>{config.label}</Text>
         </View>
       </View>
-      <Text style={[styles.title, { color: config.accentColor }]}>{config.title}</Text>
-      <Text style={styles.message}>{config.message}</Text>
+      <Text style={styles.subtitle}>{config.subtitle}</Text>
+      <Text style={styles.description}>{config.description}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative' as const,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 18,
+    borderRadius: 28,
+    padding: 22,
     marginTop: 16,
-    marginBottom: 4,
-    borderWidth: 1,
-    overflow: 'hidden' as const,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.06,
-    shadowRadius: 22,
-    elevation: 3,
-  },
-  accentBar: {
-    position: 'absolute' as const,
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 5,
+    marginBottom: 0,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.22,
+    shadowRadius: 24,
+    elevation: 8,
   },
   headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 13,
+    marginBottom: 16,
   },
-  avatarRing: {
+  avatarBubble: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    borderWidth: 2,
-    padding: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
     overflow: 'hidden' as const,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.34)',
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
   },
   headerText: {
     flex: 1,
   },
-  eyebrowRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 6,
-    marginBottom: 3,
-  },
-  liveDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-  },
   eyebrow: {
     fontSize: 11,
+    fontWeight: '900' as const,
+    color: 'rgba(255,255,255,0.76)',
+    letterSpacing: 1.2,
+    marginBottom: 3,
+  },
+  label: {
+    fontSize: 25,
+    lineHeight: 30,
+    fontWeight: '900' as const,
+    letterSpacing: 0.6,
+    color: '#FFFFFF',
+  },
+  subtitle: {
+    fontSize: 17,
     fontWeight: '800' as const,
-    color: '#8A8A84',
-    letterSpacing: 1.1,
+    color: '#FFFFFF',
+    letterSpacing: -0.25,
+    marginBottom: 6,
   },
-  signature: {
-    fontSize: 15,
-    fontWeight: '800' as const,
-    color: '#0E0E0C',
-    letterSpacing: -0.2,
-  },
-  iconBubble: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    backgroundColor: '#FFFFFF',
-    overflow: 'hidden' as const,
-  },
-  badgeAvatar: {
-    width: 44,
-    height: 44,
-  },
-  title: {
-    fontSize: 18,
-    lineHeight: 23,
-    fontWeight: '800' as const,
-    letterSpacing: -0.35,
-    marginBottom: 8,
-  },
-  message: {
+  description: {
     fontSize: 14,
-    lineHeight: 21,
-    color: '#3C3C38',
+    color: 'rgba(255,255,255,0.9)',
+    lineHeight: 20,
   },
 });
