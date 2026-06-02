@@ -333,12 +333,19 @@ Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, T
   1. Expliquer COMMENT et POURQUOI l'ingrédient est industriellement transformé (procédé : raffinage, hydrogénation, solvants, haute température…).
   2. Expliquer POURQUOI il est dangereux pour la santé.
   3. TOUJOURS mentionner le lien avec le cancer, l'inflammation chronique ou une maladie grave (obésité, diabète, maladie cardiovasculaire, stéatose hépatique…).
-  4. NE JAMAIS mentionner un seul bienfait. INTERDIT d'écrire "en petite quantité c'est sûr", "apporte de l'énergie", "riche en…", "aide à…", "stabilise…", "sans danger".
+  4. NE JAMAIS mentionner un seul bienfait, ni un seul fait NEUTRE. INTERDIT d'écrire "en petite quantité c'est sûr", "apporte de l'énergie", "riche en…", "aide à…", "stabilise…", "sans danger", "index glycémique bas", "faible indice glycémique", "faible en calories", "facile à digérer", "sans gluten". Aucune phrase descriptive neutre type "sert d'agent levant" / "utilisé comme édulcorant" sans expliquer le danger.
   5. Ton DIRECT et FACTUEL, comme un médecin qui met en garde un patient.
+  6. Description SPÉCIFIQUE à CET ingrédient — JAMAIS de description générique ni passe-partout.
 
   EXEMPLES OBLIGATOIRES (à reproduire dans cet esprit) :
   • Sucre / Sucre de canne : "Sucre industriel raffiné sans valeur nutritive. Nourrit les cellules cancéreuses, favorise l'obésité, la résistance à l'insuline et l'inflammation chronique — tous des facteurs majeurs de risque de cancer. À éviter."
   • Huile végétale hydrogénée : "Huile végétale hydrogénée industriellement. Le processus d'hydrogénation crée des gras trans qui favorisent l'inflammation chronique, obstruent les artères et sont directement liés à un risque accru de cancer. Évitez la consommation régulière."
+
+  🚫🚫 ERREURS RÉELLES CONSTATÉES — À NE PLUS JAMAIS REPRODUIRE 🚫🚫
+  • Sirop de glucose-fructose / HFCS : il est STRICTEMENT INTERDIT d'écrire "index glycémique bas" ou toute phrase positive/neutre. LA VÉRITÉ : son fructose isolé est métabolisé directement par le foie → stéatose hépatique non alcoolique, obésité, résistance à l'insuline et risque accru de cancer. "Sirop de glucose-fructose industriel extrait du maïs (souvent OGM). Son fructose isolé surcharge le foie et favorise la stéatose hépatique, l'obésité et l'inflammation chronique — facteurs de risque de cancer. À éviter."
+  • Poudre à lever / agents levants ("leavening") : JAMAIS de description générique. Explique qu'ils contiennent des phosphates industriels (E450-E452) dont l'excès est lié à la calcification des artères et aux troubles rénaux, marqueur d'aliment transformé.
+  • Arômes naturels ET artificiels : JAMAIS neutre. Composés industriels à composition secrète (extraits aux solvants, pétrochimie pour les artificiels), marqueurs certains d'ultra-transformation (NOVA 4).
+  ⛔ Toute description d'ingrédient ORANGE (ultra-transformé) DOIT contenir AU MOINS UN de ces mots : cancer, inflammation chronique, obésité, diabète, stéatose hépatique, maladie cardiovasculaire. Sinon elle est INVALIDE.
 
 ▸ INGRÉDIENT CONTROVERSÉ / JAUNE (acceptable occasionnellement : certains additifs modérés, acide citrique, gommes, conservateurs légers, etc.) :
   Description ÉQUILIBRÉE :
@@ -520,12 +527,19 @@ The user downloaded this app BECAUSE THEY WANT THE TRUTH. If you reassure them, 
   1. Explain HOW and WHY the ingredient is industrially processed (the process: refining, hydrogenation, solvents, high heat…).
   2. Explain WHY it is dangerous for health.
   3. ALWAYS mention the link to cancer, chronic inflammation, or serious disease (obesity, diabetes, cardiovascular disease, fatty liver…).
-  4. NEVER mention a single benefit. FORBIDDEN to write "in small amounts it's safe", "provides energy", "rich in…", "helps…", "stabilizes…", "generally regarded as safe".
+  4. NEVER mention a single benefit, and NEVER state a merely NEUTRAL fact. FORBIDDEN to write "in small amounts it's safe", "provides energy", "rich in…", "helps…", "stabilizes…", "generally regarded as safe", "low glycemic index", "low in calories", "easy to digest", "gluten free". No neutral descriptive phrase like "acts as a leavening agent" / "used as a sweetener" without explaining the danger.
   5. DIRECT and FACTUAL tone, like a doctor warning a patient.
+  6. SPECIFIC to THIS ingredient — NEVER a generic or boilerplate description.
 
   MANDATORY EXAMPLES (reproduce in this spirit):
   • Sugar / Cane sugar: "Refined industrial sugar with zero nutritional value. Feeds cancer cells, promotes obesity, insulin resistance and chronic inflammation — all major cancer risk factors. Avoid."
   • Hydrogenated vegetable oil: "Industrially hydrogenated vegetable oil. The hydrogenation process creates trans fats that promote chronic inflammation, block arteries and are directly linked to increased cancer risk. Avoid regular consumption."
+
+  🚫🚫 REAL ERRORS OBSERVED — MUST NEVER HAPPEN AGAIN 🚫🚫
+  • High Fructose Corn Syrup / HFCS: it is STRICTLY FORBIDDEN to write "low glycemic index" or any positive/neutral phrase. THE TRUTH: its isolated fructose is metabolized directly by the liver → non-alcoholic fatty liver disease, obesity, insulin resistance and increased cancer risk. "Industrial sweetener extracted from corn (often GMO). Its isolated fructose overloads the liver and promotes fatty liver disease, obesity and chronic inflammation — cancer risk factors. Avoid."
+  • Leavening / raising agents / baking powder: NEVER a generic description. Explain they contain industrial phosphates (E450-E452) whose excess is linked to artery calcification and kidney problems — a marker of processed food.
+  • Natural AND artificial flavors: NEVER neutral. Industrial compounds with secret composition (solvent extraction, petrochemistry for artificial), certain markers of ultra-processing (NOVA 4).
+  ⛔ Every ORANGE (ultra-processed) ingredient description MUST contain AT LEAST ONE of these words: cancer, chronic inflammation, obesity, diabetes, fatty liver, cardiovascular disease. Otherwise it is INVALID.
 
 ▸ CONTROVERSIAL / YELLOW INGREDIENT (acceptable occasionally: some moderate additives, citric acid, gums, light preservatives, etc.):
   BALANCED description:
@@ -717,6 +731,21 @@ const NEGATIVE_MARKERS_FOR_GREEN = [
   'consommation excessive', 'excessive consumption',
   'préférer une alternative', 'preferer une alternative', 'prefer a natural', 'prefer an alternative',
   'inconvénient pour la santé', 'inconvenient pour la sante',
+  // Disease / harm vocabulary — broadens recognition of a genuinely negative description.
+  'obésit', 'obesit', 'obesity',
+  'diabèt', 'diabet', 'diabetes',
+  'stéatose', 'steatose', 'fatty liver', 'hépatique', 'hepatique',
+  'métabolique', 'metabolique', 'metabolic',
+  'tumeur', 'tumeurs', 'tumor', 'tumour',
+  'maladie', 'disease',
+  'nocif', 'nocive', 'harmful', 'nuisible',
+  'toxique', 'toxic', 'toxine', 'toxin',
+  'gras trans', 'graisses trans', 'trans fat', 'acides gras trans',
+  'pic glycemique', 'pics glycemiques', 'pic de glycemie', 'pics de glycemie', 'spikes blood sugar', 'blood sugar spike',
+  'synthétique', 'synthetique', 'synthetic',
+  'pétrochimie', 'petrochimie', 'petrochemical',
+  'perturbateur', 'perturbe', 'disrupt',
+  'glycémique élevé', 'glycemique eleve', 'high glycemic', 'index glycemique eleve',
 ];
 
 function hasNegativeTone(text: string): boolean {
@@ -748,6 +777,15 @@ const POSITIVE_SPIN_MARKERS = [
   'vitamin', 'vitamine', 'mineral', 'minerale', 'antioxidant', 'antioxydant',
   'flavor', 'flavour', 'saveur', 'gout agreable', 'texture', 'palatable',
   'well tolerated', 'bien tolere', 'gras to', 'gras as',
+  // Misleading "healthy-sounding" claims that must NEVER appear on a red/orange ingredient.
+  'low glycemic', 'low-glycemic', 'low glycaemic', 'low gi', 'lower glycemic', 'lower the glycemic',
+  'faible indice glycemique', 'indice glycemique bas', 'indice glycemique faible', 'faible ig',
+  'low calorie', 'low-calorie', 'faible en calorie', 'peu calorique', 'pauvre en calorie',
+  'low fat', 'fat free', 'fat-free', 'faible en gras', 'sans gras',
+  'gluten free', 'gluten-free', 'sans gluten',
+  'easily digestible', 'easy to digest', 'facile a digerer', 'facilement digestible', 'gentle on',
+  'prebiotic', 'prebiotique', 'probiotic', 'probiotique',
+  'wholesome', 'nourishing', 'nutritious', 'nutritif', 'nutritive', 'good source', 'great source',
 ];
 
 function hasPositiveSpin(text: string): boolean {
@@ -755,22 +793,54 @@ function hasPositiveSpin(text: string): boolean {
   return POSITIVE_SPIN_MARKERS.some((kw) => lower.includes(kw));
 }
 
-// BUG 3 FIX — Force une description negative pour les ingredients rouges/oranges.
+// Disease-link markers — an ultra-processed/carcinogenic description MUST tie back to
+// cancer, chronic inflammation, or a serious disease (rule #3).
+const DISEASE_LINK_MARKERS = [
+  'cancer', 'cancér', 'cancero', 'cancéro', 'carcinogen', 'carcinogène', 'carcinogene',
+  'inflammation', 'inflammatoire', 'inflammatory',
+  'obésit', 'obesit', 'obesity',
+  'diabèt', 'diabet', 'diabetes',
+  'cardiovascul',
+  'stéatose', 'steatose', 'fatty liver', 'hépatique', 'hepatique',
+  'métabolique', 'metabolique', 'metabolic',
+  'tumeur', 'tumor', 'tumour',
+  'maladie', 'disease',
+  'neurotoxi', 'perturbateur endocrinien', 'endocrine',
+  'rénaux', 'renaux', 'rénale', 'renale', 'kidney',
+];
+
+function hasDiseaseLink(text: string): boolean {
+  const lower = text.toLowerCase();
+  return DISEASE_LINK_MARKERS.some((kw) => lower.includes(kw));
+}
+
+/** Clause guaranteeing every ultra-processed description ends on a cancer/disease link. */
+function diseaseClause(en: boolean): string {
+  return en
+    ? ' It is a marker of ultra-processed food linked to chronic inflammation and an increased risk of cancer and metabolic disease. Avoid regular consumption.'
+    : ' C\'est un marqueur d\'aliment ultra-transformé lié à l\'inflammation chronique et à un risque accru de cancer et de maladies métaboliques. À éviter au quotidien.';
+}
+
+// Force a SPECIFIC, negative description for red/orange ingredients (fallback generator level).
 function buildNegativeDescription(name: string, risk: RiskLevel, entry: IngredientEntry | null): string {
   const en = isEnglish();
-  // Prefer the database note when it already carries a frank, negative tone — it is
-  // ingredient-specific and more accurate than a generic fallback.
+  // 1) Prefer the curated database note — it is ingredient-specific and accurate. We only
+  //    require a genuinely negative tone (NOT absence of positive words: a curated note like
+  //    "imite des goûts naturels" is fine), then GUARANTEE a disease-link clause is present.
   const note = entry?.note?.trim();
-  if (note && hasNegativeTone(note) && !hasPositiveSpin(note)) return note;
+  if (note && hasNegativeTone(note)) {
+    return hasDiseaseLink(note) ? note : note + diseaseClause(en);
+  }
+  // 2) No usable note → build a specific description from the ingredient name.
   const circInfo = entry?.circ ? ' (' + entry.circ + ')' : '';
   if (risk === 'danger') {
     return en
       ? name + ' is classified as a carcinogen' + circInfo + ' by the WHO/IARC — the same category of substances that cause cancer. Regular exposure damages cells and increases cancer risk, and it is especially harmful to children and pregnant women. This ingredient has NO health benefit; the food industry uses it only for preservation, color, or texture. Avoid it.'
-      : name + ' est classe cancerigene' + circInfo + ' par l\'OMS/CIRC — la meme categorie de substances qui causent le cancer. Une exposition reguliere endommage les cellules et augmente le risque de cancer, et c\'est particulierement nocif pour les enfants et les femmes enceintes. Cet ingredient n\'a AUCUN benefice sante ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. A eviter.';
+      : name + ' est classé cancérigène' + circInfo + ' par l\'OMS/CIRC — la même catégorie de substances qui causent le cancer. Une exposition régulière endommage les cellules et augmente le risque de cancer, et c\'est particulièrement nocif pour les enfants et les femmes enceintes. Cet ingrédient n\'a AUCUN bénéfice santé ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. À éviter.';
   }
   return en
-    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents, high heat) that strips any nutritional value and creates compounds linked to chronic inflammation and increased cancer risk. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.'
-    : name + ' est un ingredient industriel ultra-transforme' + circInfo + '. Il est produit par un lourd procede chimique (raffinage, hydrogenation, solvants, haute temperature) qui detruit toute valeur nutritive et cree des composes lies a l\'inflammation chronique et a un risque accru de cancer. Il n\'a aucun benefice sante reel et c\'est un marqueur d\'aliment ultra-transforme (NOVA 4). A eviter au quotidien.';
+    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents or high heat) that strips any nutritional value and creates compounds promoting chronic inflammation, obesity, type 2 diabetes and an increased risk of cancer. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.'
+    : name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé chimique (raffinage, hydrogénation, solvants, haute température) qui détruit toute valeur nutritive et crée des composés favorisant l\'inflammation chronique, l\'obésité, le diabète de type 2 et un risque accru de cancer. Il n\'a aucun bénéfice santé réel et c\'est un marqueur d\'aliment ultra-transformé (NOVA 4). À éviter au quotidien.';
 }
 
 // BUG 1 FIX — No more generic fallback. Every description must be specific.
@@ -866,16 +936,20 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
 
       // 🟢 Anti-contradiction : si l'ingredient est VERT mais l'IA a ecrit du negatif.
       if (entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
-        const original = explication;
         explication = buildPositiveFallback(ing.nom, entry.note);
         console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced.');
       }
 
-      // 🔴🟠 BUG 3 FIX — Reverse contradiction : si ROUGE/ORANGE mais description positive.
-      if ((entry.risk === 'danger' || entry.risk === 'probable') && explication && hasPositiveSpin(explication)) {
-        const original = explication;
+      // 🔴🟠 ULTRA-PROCESSED / CARCINOGENIC enforcement (rule applied at the post-processing level).
+      // For a red/orange ingredient the description must ALWAYS be negative AND specific. We replace it
+      // when it is missing, carries any positive spin, OR is merely neutral (no danger/disease tone) —
+      // this is what catches cases like HFCS "low glycemic index" or a flavor described too softly.
+      if (
+        (entry.risk === 'danger' || entry.risk === 'probable') &&
+        (!explication || hasPositiveSpin(explication) || !hasNegativeTone(explication))
+      ) {
         explication = buildNegativeDescription(ing.nom, entry.risk, entry);
-        console.log('[Classify] BADGE override — "' + ing.nom + '" (' + entry.risk + ') : positive spin replaced.');
+        console.log('[Classify] BADGE override — "' + ing.nom + '" (' + entry.risk + ') : forced specific negative description.');
       }
 
       return {
@@ -905,12 +979,18 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     const isObviousWholeFood = wholeFoodMarkers.some((kw) => lowerName.includes(kw)) && !hasIndustrialMarker;
     const fallbackRisk: RiskLevel = hasIndustrialMarker ? 'probable' : isObviousWholeFood ? 'aucun' : 'possible';
     console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (hasIndustrialMarker ? ' (industrial marker)' : isObviousWholeFood ? ' (whole food)' : ' (default yellow)'));
+    // Even for unknown ingredients, an ULTRA-PROCESSED classification must carry a specific,
+    // negative description — never a positive/neutral or generic "not listed" fallback.
+    const finalExplication =
+      fallbackRisk === 'probable' && (hasPositiveSpin(explication) || !hasNegativeTone(explication))
+        ? buildNegativeDescription(ing.nom, 'probable', null)
+        : explication;
     return {
       nom: ing.nom,
       code: null,
       classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
       niveau_risque: fallbackRisk,
-      explication,
+      explication: finalExplication,
       source_exposition: null,
     };
   });
