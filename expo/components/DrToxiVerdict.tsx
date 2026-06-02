@@ -27,8 +27,8 @@ function getFixedDescription(level: VerdictLevel): string {
   switch (level) {
     case 'danger':
       return english
-        ? 'This product contains carcinogenic ingredients classified by the WHO. Regular consumption significantly increases cancer risk.'
-        : 'Ce produit contient des ingrédients cancérigènes classifiés par l’OMS. Une consommation régulière augmente significativement le risque de cancer.';
+        ? 'This product contains dangerous ingredients linked to cancer risk or serious health hazards. Avoid regular consumption.'
+        : 'Ce produit contient des ingrédients dangereux liés au risque de cancer ou à des problèmes de santé graves. Évitez la consommation régulière.';
     case 'warning':
       return english
         ? 'This product contains too many ultra-processed ingredients, some of which may promote cancer risk.'
