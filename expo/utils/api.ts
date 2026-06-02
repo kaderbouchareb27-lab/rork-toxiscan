@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { t, isEnglish } from '@/utils/i18n';
-import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY } from '@/constants/ingredientsDatabase';
+import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote } from '@/constants/ingredientsDatabase';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -827,7 +827,7 @@ function buildNegativeDescription(name: string, risk: RiskLevel, entry: Ingredie
   // 1) Prefer the curated database note — it is ingredient-specific and accurate. We only
   //    require a genuinely negative tone (NOT absence of positive words: a curated note like
   //    "imite des goûts naturels" is fine), then GUARANTEE a disease-link clause is present.
-  const note = entry?.note?.trim();
+  const note = getLocalizedNote(entry)?.trim();
   if (note && hasNegativeTone(note)) {
     return hasDiseaseLink(note) ? note : note + diseaseClause(en);
   }
@@ -932,11 +932,11 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     if (entry) {
       console.log('[Classify] "' + ing.nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
 
-      let explication = ing.explication || (entry.note ?? '');
+      let explication = ing.explication || (getLocalizedNote(entry) ?? '');
 
       // 🟢 Anti-contradiction : si l'ingredient est VERT mais l'IA a ecrit du negatif.
       if (entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
-        explication = buildPositiveFallback(ing.nom, entry.note);
+        explication = buildPositiveFallback(ing.nom, getLocalizedNote(entry));
         console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced.');
       }
 
@@ -997,137 +997,6 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// COHÉRENCE LINGUISTIQUE — jamais de langues mélangées dans un seul scan
-// ═══════════════════════════════════════════════════════════════════════
-
-// Mots-outils EXCLUSIFS à chaque langue (n'apparaissent jamais dans l'autre).
-// Sert à détecter de façon fiable la langue réelle d'un texte court.
-const FRENCH_FUNCTION_WORDS: ReadonlySet<string> = new Set([
-  'le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'et', 'est', 'sont', 'dans',
-  'pour', 'avec', 'qui', 'que', 'cette', 'ces', 'cet', 'aux', 'par', 'sur', 'ou',
-  'sa', 'ses', 'leur', 'leurs', 'ils', 'elles', 'elle', 'vous', 'nous', 'votre',
-  'notre', 'ne', 'pas', 'plus', 'tres', 'aussi', 'peut', 'sans', 'mais', 'comme',
-  'tout', 'toute', 'tous', 'toutes', 'etre', 'cela', 'donc', 'car', 'afin', 'chez',
-  'entre', 'vers', 'selon', 'contient', 'contre', 'ainsi', 'lorsque', 'naturel',
-  'naturelle', 'sante', 'sucre', 'huile', 'raffine', 'raffinee', 'transforme',
-]);
-
-const ENGLISH_FUNCTION_WORDS: ReadonlySet<string> = new Set([
-  'the', 'and', 'is', 'are', 'was', 'were', 'for', 'with', 'this', 'that', 'from',
-  'which', 'has', 'have', 'had', 'will', 'would', 'can', 'could', 'your', 'you',
-  'they', 'their', 'these', 'those', 'of', 'to', 'be', 'been', 'being', 'it', 'its',
-  'as', 'by', 'an', 'at', 'in', 'but', 'not', 'them', 'about', 'into', 'than',
-  'then', 'when', 'while', 'also', 'because', 'contains', 'health', 'healthy',
-  'body', 'added', 'used', 'made', 'often', 'rich', 'known', 'may', 'high',
-  'linked', 'only', 'very', 'sugar', 'flavor', 'natural',
-]);
-
-/** Détecte la langue dominante d'un texte via les mots-outils exclusifs + accents. */
-function detectTextLanguage(text: string): 'fr' | 'en' | 'unknown' {
-  if (!text) return 'unknown';
-  const lower = text.toLowerCase();
-  const tokens = lower.match(/[a-zàâäçéèêëîïôöùûüœ]+/gi) ?? [];
-  let fr = 0;
-  let en = 0;
-  for (const tok of tokens) {
-    if (FRENCH_FUNCTION_WORDS.has(tok)) fr += 1;
-    if (ENGLISH_FUNCTION_WORDS.has(tok)) en += 1;
-  }
-  // Les caractères accentués sont un signal TRÈS fort de français.
-  const accents = (lower.match(/[àâäçéèêëîïôöùûüœ]/g) ?? []).length;
-  if (accents > 0) fr += accents * 2;
-  if (fr === 0 && en === 0) return 'unknown';
-  if (fr > en) return 'fr';
-  if (en > fr) return 'en';
-  return 'unknown';
-}
-
-/** true si le texte est clairement dans la mauvaise langue par rapport à la cible. */
-function isWrongLanguage(text: string, targetEnglish: boolean): boolean {
-  const detected = detectTextLanguage(text);
-  if (detected === 'unknown') return false;
-  return targetEnglish ? detected === 'fr' : detected === 'en';
-}
-
-const translationBatchSchema = z.object({
-  items: z.preprocess(
-    (v) => (Array.isArray(v) ? v : []),
-    z.array(z.object({ nom: safeString(''), explication: safeString('') })),
-  ),
-});
-
-/** Re-traduit en bloc une liste d'ingrédients vers la langue cible (1 seul appel IA). */
-async function translateIngredientsBatch(
-  items: { nom: string; explication: string }[],
-  targetEnglish: boolean,
-): Promise<{ nom: string; explication: string }[]> {
-  const system = targetEnglish
-    ? 'You are a professional food-label translator. Translate EVERY ingredient name and description into natural, fluent ENGLISH. Keep the frank, educational tone and ALL factual content (studies, IARC groups, percentages, E-numbers). Do NOT add or remove information. Output STRICT JSON {"items":[{"nom":"...","explication":"..."}]} in the SAME order. Absolutely NO French word anywhere.'
-    : 'Tu es un traducteur professionnel d\'étiquettes alimentaires. Traduis CHAQUE nom d\'ingrédient et description en FRANÇAIS naturel et fluide. Garde le ton franc et pédagogique et TOUT le contenu factuel (études, groupes CIRC, pourcentages, numéros E). N\'ajoute ni ne retire d\'information. Réponds en JSON STRICT {"items":[{"nom":"...","explication":"..."}]} dans le MÊME ordre. Absolument AUCUN mot anglais.';
-
-  const payload = items
-    .map((it, i) => (i + 1) + '. nom: ' + it.nom + '\n   description: ' + it.explication)
-    .join('\n');
-  const userText = targetEnglish
-    ? 'Translate these ' + items.length + ' ingredients to English (keep order):\n\n' + payload
-    : 'Traduis ces ' + items.length + ' ingrédients en français (garde l\'ordre) :\n\n' + payload;
-
-  const result = await aiGenerateObject({
-    system,
-    messages: [{ role: 'user', content: [{ type: 'text', text: userText }] }],
-    schema: translationBatchSchema,
-    maxTokens: Math.min(4000, 400 + items.length * 240),
-  });
-  return result.items;
-}
-
-/**
- * Filet de sécurité final : scanne chaque substance et, si un nom ou une
- * description est dans la mauvaise langue, la re-traduit vers la langue de l'app.
- * Garantit qu'un même scan n'affiche JAMAIS un mélange français / anglais.
- */
-async function enforceLanguageConsistency(substances: SubstanceDetected[]): Promise<SubstanceDetected[]> {
-  const targetEnglish = isEnglish();
-  const flaggedIdx: number[] = [];
-  substances.forEach((s, i) => {
-    const wrongExpl = isWrongLanguage(s.explication ?? '', targetEnglish);
-    const wrongName = isWrongLanguage(s.nom ?? '', targetEnglish);
-    if (wrongExpl || wrongName) flaggedIdx.push(i);
-  });
-
-  if (flaggedIdx.length === 0) {
-    console.log('[Lang] All ' + substances.length + ' entries consistent (' + (targetEnglish ? 'EN' : 'FR') + ')');
-    return substances;
-  }
-
-  console.log('[Lang] ' + flaggedIdx.length + '/' + substances.length + ' wrong-language entries → re-translating to ' + (targetEnglish ? 'EN' : 'FR'));
-  try {
-    const toTranslate = flaggedIdx.map((i) => ({
-      nom: substances[i].nom,
-      explication: substances[i].explication ?? '',
-    }));
-    const translated = await translateIngredientsBatch(toTranslate, targetEnglish);
-    const out = substances.slice();
-    flaggedIdx.forEach((origIdx, k) => {
-      const tr = translated[k];
-      if (!tr) return;
-      const newNom = (tr.nom ?? '').trim();
-      const newExpl = (tr.explication ?? '').trim();
-      out[origIdx] = {
-        ...out[origIdx],
-        // On ne remplace que si la traduction est bien dans la langue cible.
-        nom: newNom && !isWrongLanguage(newNom, targetEnglish) ? newNom : out[origIdx].nom,
-        explication: newExpl && !isWrongLanguage(newExpl, targetEnglish) ? newExpl : out[origIdx].explication,
-      };
-    });
-    return out;
-  } catch (e) {
-    console.warn('[Lang] Re-translation failed (non-blocking):', e instanceof Error ? e.message : String(e));
-    return substances;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
 // CACHE
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -1178,11 +1047,10 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
         throw new Error(isEnglish() ? 'Invalid AI result' : 'Résultat IA invalide');
       }
 
-      let substances = classifyIngredients(aiResult.ingredients_lus);
+      const substances = classifyIngredients(aiResult.ingredients_lus);
 
-      // 🌐 BUG FIX LANGUE — garantit que tout le scan est dans la langue de l'app.
-      // Re-traduit toute substance dont le nom/description aurait échappé au verrou de langue.
-      substances = await enforceLanguageConsistency(substances);
+      // 🌐 Langue garantie en amont : descriptions servies directement depuis la base
+      // (note/noteEn) dans la langue de l'app. Aucun second appel IA de traduction.
 
       const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
       substances.sort((a, b) => riskOrder[a.niveau_risque] - riskOrder[b.niveau_risque]);
