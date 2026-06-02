@@ -391,6 +391,8 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   { keywords: ['yaourt', 'yogurt', 'yoghurt'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['fromage', 'cheese', 'fromage blanc'], code: null, risk: 'aucun', circ: 'Naturel' },
   { keywords: ['oeuf', 'oeufs', 'egg', 'eggs', 'œuf', 'œufs'], code: null, risk: 'aucun', circ: 'Naturel' },
+  { keywords: ['blanc d\'oeuf', 'blanc d\'œuf', 'blancs d\'oeufs', 'blancs d\'œufs', 'egg white', 'egg whites', 'albumen', 'albumine d\'oeuf', 'egg white powder', 'blanc d\'oeuf en poudre'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Blanc d\'œuf, ingrédient naturel issu de l\'œuf. Protéine pure de haute qualité.' },
+  { keywords: ['whey', 'lactoserum', 'lactosérum', 'petit-lait', 'petit lait', 'whey protein', 'proteine de lactoserum', 'protéine de lactosérum', 'proteine de petit-lait'], code: null, risk: 'aucun', circ: 'Naturel', note: 'Lactosérum (petit-lait), sous-produit naturel de la fabrication du fromage, riche en protéines.' },
 
   // --- Viandes fraîches non transformées ---
   // Viande brute (non charcutée, sans nitrites/additifs) — source de protéines, fer héminique et B12.
