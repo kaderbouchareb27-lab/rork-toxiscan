@@ -1457,15 +1457,21 @@ export function universalResultToScannedProduct(
 // ALTERNATIVES POUR SCAN CODE-BARRES
 // ═══════════════════════════════════════════════════════════════════════
 
-const ADDITIVE_ALTERNATIVES: Record<string, { nom: string; raison: string }[]> = {
-  'en:e250': [{ nom: 'Jambon sans nitrites (Fleury Michon)', raison: 'Sans conservateurs cancérogènes' }],
-  'en:e249': [{ nom: 'Charcuterie bio sans nitrites', raison: 'Conservation naturelle sans nitrites' }],
-  'en:e951': [{ nom: 'Stévia ou érythritol', raison: 'Édulcorants naturels' }],
-  'palm-oil': [{ nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3 anti-inflammatoires' }],
-  'pfas': [{ nom: 'Contenants en verre ou inox', raison: 'Sans polluants éternels' }],
+interface LocalizedAlternative {
+  readonly fr: { nom: string; raison: string };
+  readonly en: { nom: string; raison: string };
+}
+
+const ADDITIVE_ALTERNATIVES: Record<string, readonly LocalizedAlternative[]> = {
+  'en:e250': [{ fr: { nom: 'Jambon sans nitrites (Fleury Michon)', raison: 'Sans conservateurs cancérogènes' }, en: { nom: 'Nitrite-free deli ham', raison: 'No carcinogenic preservatives' } }],
+  'en:e249': [{ fr: { nom: 'Charcuterie bio sans nitrites', raison: 'Conservation naturelle sans nitrites' }, en: { nom: 'Organic nitrite-free deli meat', raison: 'Naturally preserved without nitrites' } }],
+  'en:e951': [{ fr: { nom: 'Stévia ou érythritol', raison: 'Édulcorants naturels' }, en: { nom: 'Stevia or erythritol', raison: 'Natural sweeteners' } }],
+  'palm-oil': [{ fr: { nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3 anti-inflammatoires' }, en: { nom: 'Extra virgin olive oil', raison: 'Rich in anti-inflammatory omega-3' } }],
+  'pfas': [{ fr: { nom: 'Contenants en verre ou inox', raison: 'Sans polluants éternels' }, en: { nom: 'Glass or stainless steel containers', raison: 'Free of forever chemicals (PFAS)' } }],
 };
 
 export function generateBarcodeAlternatives(detectedAdditives: { code: string; name: string; group: string }[]): { nom: string; raison: string }[] {
+  const en = isEnglish();
   const seen = new Set<string>();
   const alternatives: { nom: string; raison: string }[] = [];
 
@@ -1473,9 +1479,10 @@ export function generateBarcodeAlternatives(detectedAdditives: { code: string; n
     const alts = ADDITIVE_ALTERNATIVES[additive.code];
     if (alts) {
       for (const alt of alts) {
-        if (!seen.has(alt.nom)) {
-          seen.add(alt.nom);
-          alternatives.push(alt);
+        const localized = en ? alt.en : alt.fr;
+        if (!seen.has(localized.nom)) {
+          seen.add(localized.nom);
+          alternatives.push(localized);
         }
       }
     }
