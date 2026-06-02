@@ -1420,6 +1420,7 @@ export function universalResultToScannedProduct(
     classification_circ: s.classification_circ,
     niveau_risque: s.niveau_risque,
     explication: s.explication,
+    descriptionPending: s.descriptionPending,
   }));
 
   const productName = result.objet_identifie;
