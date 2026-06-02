@@ -167,7 +167,7 @@ export default function ProfileScreen() {
               <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
               <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#E8730A" />
               <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#EAB308" />
-              <StatBar label="Approved" count={stats.safe} max={maxStat} color="#2E9E34" />
+              <StatBar label={t('stat_safe')} count={stats.safe} max={maxStat} color="#2E9E34" />
             </View>
           )}
         </View>
