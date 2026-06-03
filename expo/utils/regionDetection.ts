@@ -89,6 +89,40 @@ export function detectRegion(): RegionInfo {
   }
 }
 
+/**
+ * Determines which region's STORES / BRANDS / MARKETS to suggest.
+ *
+ * Unlike {@link detectRegion} (which is driven by the device LANGUAGE), this
+ * prefers the user's real GPS location. So an English-language phone physically
+ * in Quebec still gets Quebec stores (IGA, Metro, Avril, Marché Jean-Talon)
+ * instead of the generic English-Canada list (which includes BC-only chains
+ * like Nature's Fare Markets). The UI language is intentionally NOT affected —
+ * only which stores are shown. Falls back to locale-based region when GPS is
+ * unavailable.
+ */
+export function getStoreRegion(): UserRegion {
+  const loc = cachedUserLocation;
+  const countryCode = (loc?.countryCode ?? '').toUpperCase();
+  const subregion = (loc?.subregion ?? '').toLowerCase();
+
+  switch (countryCode) {
+    case 'CA':
+      return subregion.includes('quebec') || subregion.includes('québec') || subregion === 'qc'
+        ? 'quebec'
+        : 'canada_other';
+    case 'US':
+      return 'usa';
+    case 'FR':
+      return 'france';
+    case 'BE':
+      return 'belgium';
+    case 'CH':
+      return 'switzerland';
+    default:
+      return detectRegion().region;
+  }
+}
+
 export function getRegionStores(region: UserRegion): string[] {
   switch (region) {
     case 'quebec':
@@ -240,7 +274,8 @@ function getLocationContext(): string {
 }
 
 export function getAnalysisRegionPrompt(): string {
-  const { region, language } = detectRegion();
+  const { language } = detectRegion();
+  const region = getStoreRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
   const locationContext = getLocationContext();
@@ -249,7 +284,8 @@ export function getAnalysisRegionPrompt(): string {
 }
 
 export function getChatRegionPrompt(): string {
-  const { region, language, regionCode } = detectRegion();
+  const { language, regionCode } = detectRegion();
+  const region = getStoreRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
 

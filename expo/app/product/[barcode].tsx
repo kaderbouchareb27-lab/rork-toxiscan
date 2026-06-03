@@ -35,7 +35,7 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
 import { PhotoType, HealthyAlternative } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
-import { detectRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
+import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
@@ -554,9 +554,10 @@ export default function ProductScreen() {
   })();
 
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
-  const regionInfo = useMemo(() => detectRegion(), []);
-  const userCountry = regionInfo.region;
   const { location, isResolving, requestAndResolve } = useLocation();
+  // Store suggestions follow the user's REAL location (GPS), not the phone
+  // language — so an English phone in Quebec gets Quebec stores, not BC chains.
+  const userCountry = useMemo(() => getStoreRegion(), [location]);
 
   const handleEnableLocation = useCallback(async () => {
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
