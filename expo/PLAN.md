@@ -48,6 +48,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Identification automatique des substances potentiellement cancérigènes
 - [x] Badge de risque coloré instantané (rouge, orange, jaune, vert) basé sur les classifications CIRC/OMS
 - [x] Fiche produit détaillée : photo, nom, marque, badge, substances détectées avec explications
+- [x] Descriptions honnêtes : la mention du cancer/maladie n'apparaît que si l'ingrédient a une vraie base (CIRC ou preuve solide) ; les marqueurs purement ultra-transformés (vitamines de synthèse, minéraux/sels industriels) terminent par « marqueur d'aliment ultra-transformé (NOVA 4) » sans cancer inventé
 - [x] Suggestions d'alternatives plus saines
 - [x] Gros bouton "Partager ce résultat" sur chaque fiche
 - [x] Magasins bio recommandés

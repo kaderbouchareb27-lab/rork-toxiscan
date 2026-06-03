@@ -354,7 +354,7 @@ Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, T
   La description DOIT TOUJOURS, sans exception :
   1. Expliquer COMMENT et POURQUOI l'ingrédient est industriellement transformé (procédé : raffinage, hydrogénation, solvants, haute température…).
   2. Expliquer POURQUOI il est dangereux pour la santé.
-  3. TOUJOURS mentionner le lien avec le cancer, l'inflammation chronique ou une maladie grave (obésité, diabète, maladie cardiovasculaire, stéatose hépatique…).
+  3. Mentionner le lien avec le cancer ou une maladie grave (inflammation chronique, obésité, diabète, maladie cardiovasculaire, stéatose hépatique…) UNIQUEMENT quand il est RÉELLEMENT établi pour CET ingrédient (classement CIRC, ou preuve solide type sucre→diabète, gras trans→cardiovasculaire). Pour un marqueur PUREMENT ultra-transformé SANS lien maladie prouvé (vitamines de synthèse B3/B5/B6/B12, inositol, minéraux et sels industriels…), N'INVENTE AUCUN cancer : explique le procédé industriel et termine simplement par « marqueur d'aliment ultra-transformé (NOVA 4) ».
   4. NE JAMAIS mentionner un seul bienfait, ni un seul fait NEUTRE. INTERDIT d'écrire "en petite quantité c'est sûr", "apporte de l'énergie", "riche en…", "aide à…", "stabilise…", "sans danger", "index glycémique bas", "faible indice glycémique", "faible en calories", "facile à digérer", "sans gluten". Aucune phrase descriptive neutre type "sert d'agent levant" / "utilisé comme édulcorant" sans expliquer le danger.
   5. Ton DIRECT et FACTUEL, comme un médecin qui met en garde un patient.
   6. Description SPÉCIFIQUE à CET ingrédient — JAMAIS de description générique ni passe-partout.
@@ -367,7 +367,8 @@ Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, T
   • Sirop de glucose-fructose / HFCS : il est STRICTEMENT INTERDIT d'écrire "index glycémique bas" ou toute phrase positive/neutre. LA VÉRITÉ : son fructose isolé est métabolisé directement par le foie → stéatose hépatique non alcoolique, obésité, résistance à l'insuline et risque accru de cancer. "Sirop de glucose-fructose industriel extrait du maïs (souvent OGM). Son fructose isolé surcharge le foie et favorise la stéatose hépatique, l'obésité et l'inflammation chronique — facteurs de risque de cancer. À éviter."
   • Poudre à lever / agents levants ("leavening") : JAMAIS de description générique. Explique qu'ils contiennent des phosphates industriels (E450-E452) dont l'excès est lié à la calcification des artères et aux troubles rénaux, marqueur d'aliment transformé.
   • Arômes naturels ET artificiels : JAMAIS neutre. Composés industriels à composition secrète (extraits aux solvants, pétrochimie pour les artificiels), marqueurs certains d'ultra-transformation (NOVA 4).
-  ⛔ Toute description d'ingrédient ORANGE (ultra-transformé) DOIT contenir AU MOINS UN de ces mots : cancer, inflammation chronique, obésité, diabète, stéatose hépatique, maladie cardiovasculaire. Sinon elle est INVALIDE.
+  • Vitamines de synthèse (cyanocobalamine/B12, niacine/B3, B5, B6, inositol…) ET minéraux/sels industriels (carbonate de calcium, citrate de sodium…) : N'INVENTE JAMAIS de cancer. Explique qu'ils sont fabriqués par synthèse/fermentation industrielle pour re-fortifier ou stabiliser un produit appauvri, et que leur présence trahit un aliment ultra-transformé. Termine par « marqueur d'aliment ultra-transformé (NOVA 4). À éviter au quotidien. » SANS mot « cancer ».
+  ⛔ Toute description d'ingrédient ORANGE (ultra-transformé) DOIT : (a) expliquer le procédé industriel, (b) ne JAMAIS rassurer ni citer un bienfait, (c) se terminer par une reco claire. Le mot « cancer » (ou une maladie grave) n'apparaît QUE s'il est réellement fondé pour cet ingrédient (CIRC / preuve solide) — sinon termine par « À éviter au quotidien — marqueur d'aliment ultra-transformé (NOVA 4) ». NE COLLE JAMAIS « cancer » par défaut sur une vitamine de synthèse, un minéral ou un sel industriel.
 
 ▸ INGRÉDIENT CONTROVERSÉ / JAUNE (acceptable occasionnellement : certains additifs modérés, acide citrique, gommes, conservateurs légers, etc.) :
   Description ÉQUILIBRÉE :
@@ -555,7 +556,7 @@ The user downloaded this app BECAUSE THEY WANT THE TRUTH. If you reassure them, 
   The description MUST ALWAYS, no exception:
   1. Explain HOW and WHY the ingredient is industrially processed (the process: refining, hydrogenation, solvents, high heat…).
   2. Explain WHY it is dangerous for health.
-  3. ALWAYS mention the link to cancer, chronic inflammation, or serious disease (obesity, diabetes, cardiovascular disease, fatty liver…).
+  3. Mention the link to cancer or serious disease (chronic inflammation, obesity, diabetes, cardiovascular disease, fatty liver…) ONLY when it is GENUINELY established for THIS ingredient (IARC classification, or strong evidence like sugar→diabetes, trans fats→cardiovascular). For a PURELY ultra-processed marker with NO proven disease link (synthetic vitamins B3/B5/B6/B12, inositol, industrial minerals and salts…), do NOT invent any cancer: explain the industrial process and simply end with "a marker of ultra-processed food (NOVA 4)".
   4. NEVER mention a single benefit, and NEVER state a merely NEUTRAL fact. FORBIDDEN to write "in small amounts it's safe", "provides energy", "rich in…", "helps…", "stabilizes…", "generally regarded as safe", "low glycemic index", "low in calories", "easy to digest", "gluten free". No neutral descriptive phrase like "acts as a leavening agent" / "used as a sweetener" without explaining the danger.
   5. DIRECT and FACTUAL tone, like a doctor warning a patient.
   6. SPECIFIC to THIS ingredient — NEVER a generic or boilerplate description.
@@ -568,7 +569,8 @@ The user downloaded this app BECAUSE THEY WANT THE TRUTH. If you reassure them, 
   • High Fructose Corn Syrup / HFCS: it is STRICTLY FORBIDDEN to write "low glycemic index" or any positive/neutral phrase. THE TRUTH: its isolated fructose is metabolized directly by the liver → non-alcoholic fatty liver disease, obesity, insulin resistance and increased cancer risk. "Industrial sweetener extracted from corn (often GMO). Its isolated fructose overloads the liver and promotes fatty liver disease, obesity and chronic inflammation — cancer risk factors. Avoid."
   • Leavening / raising agents / baking powder: NEVER a generic description. Explain they contain industrial phosphates (E450-E452) whose excess is linked to artery calcification and kidney problems — a marker of processed food.
   • Natural AND artificial flavors: NEVER neutral. Industrial compounds with secret composition (solvent extraction, petrochemistry for artificial), certain markers of ultra-processing (NOVA 4).
-  ⛔ Every ORANGE (ultra-processed) ingredient description MUST contain AT LEAST ONE of these words: cancer, chronic inflammation, obesity, diabetes, fatty liver, cardiovascular disease. Otherwise it is INVALID.
+  • Synthetic vitamins (cyanocobalamin/B12, niacin/B3, B5, B6, inositol…) AND industrial minerals/salts (calcium carbonate, sodium citrate…): NEVER invent cancer. Explain they are made by industrial synthesis/fermentation to re-fortify or stabilize a nutrient-stripped product, and that their presence betrays an ultra-processed food. End with "a marker of ultra-processed food (NOVA 4). Avoid regular consumption." WITHOUT the word "cancer".
+  ⛔ Every ORANGE (ultra-processed) ingredient description MUST: (a) explain the industrial process, (b) NEVER reassure or cite a benefit, (c) end with a clear recommendation. The word "cancer" (or a serious disease) appears ONLY when genuinely grounded for this ingredient (IARC / strong evidence) — otherwise end with "Avoid regular consumption — a marker of ultra-processed food (NOVA 4)". NEVER slap "cancer" by default onto a synthetic vitamin, a mineral or an industrial salt.
 
 ▸ CONTROVERSIAL / YELLOW INGREDIENT (acceptable occasionally: some moderate additives, citric acid, gums, light preservatives, etc.):
   BALANCED description:
@@ -844,33 +846,92 @@ function hasDiseaseLink(text: string): boolean {
   return DISEASE_LINK_MARKERS.some((kw) => lower.includes(kw));
 }
 
-/** Clause guaranteeing every ultra-processed description ends on a cancer/disease link. */
+// ─────────────────────────────────────────────────────────────────────
+// SOURCE DE VÉRITÉ — base cancérigène / maladie d'un ingrédient.
+// On ne lie un ingrédient au cancer ou à une maladie grave QUE si la base
+// le justifie réellement : classification CIRC (Groupe 1/2A/2B) OU note déjà
+// sourcée (obésité, diabète, stéatose…). Sinon un ingrédient ultra-transformé
+// (vitamines de synthèse, minéraux/sels industriels…) est clôturé par le simple
+// marqueur NOVA 4 — SANS inventer de lien avec le cancer.
+// ─────────────────────────────────────────────────────────────────────
+
+/** True when the CIRC classification itself encodes a carcinogenic basis. */
+function circHasCancerBasis(circ: string): boolean {
+  const c = normalizeForLookup(circ);
+  return (
+    c.includes('groupe 1') ||
+    c.includes('groupe 2a') ||
+    c.includes('groupe 2b') ||
+    c.includes('cancer') ||
+    c.includes('carcinogen') ||
+    c.includes('benzene')
+  );
+}
+
+/** True when an ingredient genuinely warrants a cancer/serious-disease mention. */
+function entryHasCancerBasis(entry: IngredientEntry | null): boolean {
+  if (!entry) return false;
+  if (circHasCancerBasis(entry.circ)) return true;
+  // A genuine disease link already curated in EITHER language note counts as a real basis.
+  return hasDiseaseLink(entry.note ?? '') || hasDiseaseLink(entry.noteEn ?? '');
+}
+
+/** Closing clause for a cancer/disease-grounded ultra-processed ingredient. */
 function diseaseClause(en: boolean): string {
   return en
     ? ' It is a marker of ultra-processed food linked to chronic inflammation and an increased risk of cancer and metabolic disease. Avoid regular consumption.'
     : ' C\'est un marqueur d\'aliment ultra-transformé lié à l\'inflammation chronique et à un risque accru de cancer et de maladies métaboliques. À éviter au quotidien.';
 }
 
+/** Neutral NOVA 4 closer for ultra-processed ingredients WITHOUT a real cancer/disease basis. */
+function novaClause(en: boolean, noteAlreadyHasMarker: boolean): string {
+  if (noteAlreadyHasMarker) {
+    return en ? ' Avoid regular consumption (NOVA 4).' : ' À éviter au quotidien (NOVA 4).';
+  }
+  return en
+    ? ' Avoid regular consumption — a marker of ultra-processed food (NOVA 4).'
+    : ' Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).';
+}
+
 // Force a SPECIFIC, negative description for red/orange ingredients (fallback generator level).
 function buildNegativeDescription(name: string, risk: RiskLevel, entry: IngredientEntry | null): string {
   const en = isEnglish();
-  // 1) Prefer the curated database note — it is ingredient-specific and accurate. We only
-  //    require a genuinely negative tone (NOT absence of positive words: a curated note like
-  //    "imite des goûts naturels" is fine), then GUARANTEE a disease-link clause is present.
+  const cancerBasis = entryHasCancerBasis(entry);
+  // 1) Prefer the curated database note — it is ingredient-specific and accurate. We require a
+  //    genuinely negative tone, then close it CORRECTLY: a cancer/disease link ONLY when the
+  //    ingredient truly has that basis; otherwise a neutral NOVA 4 marker (never a fabricated cancer).
   const note = getLocalizedNote(entry)?.trim();
   if (note && hasNegativeTone(note)) {
-    return hasDiseaseLink(note) ? note : note + diseaseClause(en);
+    const lower = note.toLowerCase();
+    // Already sourced with a disease link, or already an explicit NOVA 4 marker note → keep as-is.
+    if (hasDiseaseLink(note) || /nova\s*4/.test(lower)) return note;
+    if (cancerBasis) return note + diseaseClause(en);
+    const noteHasMarker = lower.includes('marqueur') || lower.includes('marker');
+    return note + novaClause(en, noteHasMarker);
   }
   // 2) No usable note → build a specific description from the ingredient name.
   const circInfo = entry?.circ ? ' (' + entry.circ + ')' : '';
   if (risk === 'danger') {
+    if (cancerBasis) {
+      return en
+        ? name + ' is classified as a carcinogen' + circInfo + ' by the WHO/IARC — the same category of substances that cause cancer. Regular exposure damages cells and increases cancer risk, and it is especially harmful to children and pregnant women. This ingredient has NO health benefit; the food industry uses it only for preservation, color, or texture. Avoid it.'
+        : name + ' est classé cancérigène' + circInfo + ' par l\'OMS/CIRC — la même catégorie de substances qui causent le cancer. Une exposition régulière endommage les cellules et augmente le risque de cancer, et c\'est particulièrement nocif pour les enfants et les femmes enceintes. Cet ingrédient n\'a AUCUN bénéfice santé ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. À éviter.';
+    }
+    // Dangerous but NOT carcinogenic (toxic / banned additive) — no fabricated cancer claim.
     return en
-      ? name + ' is classified as a carcinogen' + circInfo + ' by the WHO/IARC — the same category of substances that cause cancer. Regular exposure damages cells and increases cancer risk, and it is especially harmful to children and pregnant women. This ingredient has NO health benefit; the food industry uses it only for preservation, color, or texture. Avoid it.'
-      : name + ' est classé cancérigène' + circInfo + ' par l\'OMS/CIRC — la même catégorie de substances qui causent le cancer. Une exposition régulière endommage les cellules et augmente le risque de cancer, et c\'est particulièrement nocif pour les enfants et les femmes enceintes. Cet ingrédient n\'a AUCUN bénéfice santé ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. À éviter.';
+      ? name + ' is a toxic industrial substance' + circInfo + ', banned or restricted in food in several countries. It accumulates in the body and damages organs, with no health benefit whatsoever. Avoid it completely.'
+      : name + ' est une substance industrielle toxique' + circInfo + ', interdite ou restreinte dans l\'alimentation de plusieurs pays. Elle s\'accumule dans l\'organisme et endommage les organes, sans aucun bénéfice santé. À éviter totalement.';
   }
+  // Orange (ultra-processed).
+  if (cancerBasis) {
+    return en
+      ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents or high heat) that strips any nutritional value and creates compounds promoting chronic inflammation, obesity, type 2 diabetes and an increased risk of cancer. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.'
+      : name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé chimique (raffinage, hydrogénation, solvants, haute température) qui détruit toute valeur nutritive et crée des composés favorisant l\'inflammation chronique, l\'obésité, le diabète de type 2 et un risque accru de cancer. Il n\'a aucun bénéfice santé réel et c\'est un marqueur d\'aliment ultra-transformé (NOVA 4). À éviter au quotidien.';
+  }
+  // Ultra-processed WITHOUT a proven cancer/disease basis (synthetic vitamins, industrial minerals/salts…).
   return en
-    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents or high heat) that strips any nutritional value and creates compounds promoting chronic inflammation, obesity, type 2 diabetes and an increased risk of cancer. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.'
-    : name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé chimique (raffinage, hydrogénation, solvants, haute température) qui détruit toute valeur nutritive et crée des composés favorisant l\'inflammation chronique, l\'obésité, le diabète de type 2 et un risque accru de cancer. Il n\'a aucun bénéfice santé réel et c\'est un marqueur d\'aliment ultra-transformé (NOVA 4). À éviter au quotidien.';
+    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced by a heavy industrial process that strips away any real nutritional value — a whole, natural food never needs it. Avoid regular consumption — a marker of ultra-processed food (NOVA 4).'
+    : name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé industriel qui le prive de toute vraie valeur nutritive — un aliment entier et naturel n\'en a jamais besoin. Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).';
 }
 
 // BUG 1 FIX — No more generic fallback. Every description must be specific.
