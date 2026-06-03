@@ -395,6 +395,86 @@ function getProductSpecificAdvice(
       ];
 }
 
+// ─────────────────────────────────────────────
+// Personalized advice tied to the substances ACTUALLY detected in the scanned
+// product. Names the flagged ingredients found on THIS label and derives
+// concrete "look for a version without X" guidance from what was really there.
+// ─────────────────────────────────────────────
+const CONCERN_RULES: { readonly kws: readonly string[]; readonly fr: string; readonly en: string }[] = [
+  { kws: ['sucre', 'sugar', 'sirop', 'syrup', 'glucose', 'fructose', 'dextrose', 'maltodextr', 'saccharose', 'sucrose', 'corn syrup'], fr: 'sucres ajoutés', en: 'added sugars' },
+  { kws: ['silice', 'silica', 'anti-agglom', 'anti agglom', 'anticaking', 'anti-caking', 'e551', 'e552', 'e553', 'e500', 'e504', 'e554', 'e535', 'e536'], fr: 'anti-agglomérants', en: 'anti-caking agents' },
+  { kws: ['colorant', 'tartrazine', 'carmin', 'allura', 'amarante', 'erythrosine', 'red 40', 'yellow 5', 'yellow 6', 'blue 1', 'e150'], fr: 'colorants artificiels', en: 'artificial colors' },
+  { kws: ['nitrite', 'nitrate', 'e249', 'e250', 'e251', 'e252', 'conservateur', 'preservative', 'bha', 'bht', 'e320', 'e321', 'benzoate', 'e210', 'e211', 'sorbate', 'e202', 'e220', 'sulfite'], fr: 'conservateurs chimiques', en: 'chemical preservatives' },
+  { kws: ['aspartame', 'sucralose', 'acesulfame', 'edulcorant', 'sweetener', 'e950', 'e951', 'e952', 'e954', 'e955', 'saccharine', 'neotame'], fr: 'édulcorants artificiels', en: 'artificial sweeteners' },
+  { kws: ['glutamate', 'msg', 'e621', 'exhausteur', 'flavor enhancer', 'flavour enhancer', 'e622', 'e627', 'e631'], fr: 'exhausteurs de goût', en: 'flavor enhancers' },
+  { kws: ['hydrogen', 'huile de palme', 'palm oil', 'huile raffin', 'refined oil', 'gras trans', 'trans fat', 'palmiste'], fr: 'huiles hydrogénées ou raffinées', en: 'hydrogenated or refined oils' },
+  { kws: ['arome', 'artificial flavor', 'artificial flavour', 'flavoring', 'flavouring'], fr: 'arômes artificiels', en: 'artificial flavorings' },
+  { kws: ['emulsifiant', 'emulsifier', 'lecithine', 'lecithin', 'gomme', 'carraghenane', 'carrageenan', 'e407', 'e471', 'e472', 'e433', 'e466', 'e412', 'e415'], fr: 'émulsifiants et additifs de texture', en: 'emulsifiers and texture additives' },
+  { kws: ['phosphate', 'e338', 'e339', 'e340', 'e341', 'e450', 'e451', 'e452'], fr: 'phosphates ajoutés', en: 'added phosphates' },
+];
+
+function joinWithConnector(items: string[], english: boolean, connectorEn: string, connectorFr: string): string {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  const connector = english ? connectorEn : connectorFr;
+  if (items.length === 2) return `${items[0]} ${connector} ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')} ${connector} ${items[items.length - 1]}`;
+}
+
+/** Lowercase the first letter of normal words, but keep acronyms/codes (BHA, MSG, E250) intact. */
+function naturalizeName(name: string): string {
+  if (name.length === 0 || name === name.toUpperCase()) return name;
+  return name.charAt(0).toLowerCase() + name.slice(1);
+}
+
+/**
+ * Builds a personalized one-line callout naming the flagged substances found
+ * on THIS scanned product, plus tailored guidance derived from what was
+ * actually detected. Returns null when nothing is flagged (approved product).
+ */
+function getScannedSubstancesAdvice(flagged: { nom: string }[]): string | null {
+  const english = isEnglish();
+  if (flagged.length === 0) return null;
+
+  const seen = new Set<string>();
+  const names: string[] = [];
+  const guidanceSet = new Set<string>();
+  const guidance: string[] = [];
+
+  for (const f of flagged) {
+    const clean = (f.nom ?? '').trim();
+    if (clean.length === 0) continue;
+    const key = clean.toLowerCase();
+    if (!seen.has(key) && names.length < 3) {
+      seen.add(key);
+      names.push(naturalizeName(clean));
+    }
+    const norm = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    for (const rule of CONCERN_RULES) {
+      const phrase = english ? rule.en : rule.fr;
+      if (!guidanceSet.has(phrase) && rule.kws.some((k) => norm.includes(k))) {
+        guidanceSet.add(phrase);
+        guidance.push(phrase);
+      }
+    }
+  }
+
+  if (names.length === 0) return null;
+
+  const namesList = joinWithConnector(names, english, 'and', 'et');
+  const intro = english ? `This product contains ${namesList}.` : `Ce produit contient ${namesList}.`;
+
+  if (guidance.length > 0) {
+    const g = joinWithConnector(guidance.slice(0, 3), english, 'or', 'ni');
+    return english
+      ? `${intro} Look for a version without ${g}.`
+      : `${intro} Cherche une version sans ${g}.`;
+  }
+  return english
+    ? `${intro} Look for a cleaner version with a shorter ingredient list.`
+    : `${intro} Cherche une version plus clean avec une liste d'ingrédients plus courte.`;
+}
+
 function shortenText(text: string, maxSentences: number): string {
   const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
   if (sentences.length <= maxSentences) return text;
@@ -581,6 +661,17 @@ export default function ProductScreen() {
     ? product.detectedIngredients
     : product.substances ?? [];
 
+  // Advice built from what was ACTUALLY found on this scanned label — names the
+  // flagged substances (worst first) and turns them into concrete guidance.
+  const scannedAdvice = useMemo(() => {
+    const severityRank: Record<DisplayLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
+    const flagged = ingredientsList
+      .filter((ing) => getDisplayLevel(ing) !== 'aucun')
+      .slice()
+      .sort((a, b) => severityRank[getDisplayLevel(a)] - severityRank[getDisplayLevel(b)]);
+    return getScannedSubstancesAdvice(flagged);
+  }, [ingredientsList]);
+
 
   const getApprovedDescription = useCallback((name: string): string => {
     return isEnglish()
@@ -763,6 +854,11 @@ export default function ProductScreen() {
               <Text style={styles.bioStoresSubtitle}>
                 {isEnglish() ? 'Real advice for this product' : 'Conseils concrets pour ce produit'}
               </Text>
+              {scannedAdvice ? (
+                <View style={styles.scannedAdviceCallout}>
+                  <Text style={styles.scannedAdviceText}>{scannedAdvice}</Text>
+                </View>
+              ) : null}
               {getProductSpecificAdvice(
                 product.name,
                 product.productCategory,
@@ -981,6 +1077,8 @@ const styles = StyleSheet.create({
   adviceItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, gap: 10, paddingVertical: 6 },
   adviceBullet: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#2E9E34', marginTop: 7 },
   adviceText: { flex: 1, fontSize: 14, color: '#1A1A1A', lineHeight: 20 },
+  scannedAdviceCallout: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 13, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.22)', borderLeftWidth: 4, borderLeftColor: '#2E9E34' },
+  scannedAdviceText: { fontSize: 13.5, lineHeight: 20, color: '#1A1A1A', fontWeight: '600' as const },
   bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
   bigShareButtonGreen: { backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
   bigShareButtonLoading: { opacity: 0.8 },
