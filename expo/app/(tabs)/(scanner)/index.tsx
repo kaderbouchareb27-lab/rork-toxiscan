@@ -30,7 +30,6 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import DailyFact from '@/components/DailyFact';
-import DonationBanner from '@/components/DonationBanner';
 import { t, tf } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 
@@ -552,7 +551,6 @@ export default function ScannerScreen() {
 
             <View style={styles.cardsSection}>
               <DailyFact />
-              <DonationBanner />
             </View>
           </ScrollView>
         )}
