@@ -209,6 +209,8 @@ const translations = {
   badge_caution: { fr: 'ULTRA-TRANSFORMÉ', en: 'ULTRA-PROCESSED' },
   badge_moderation: { fr: 'MODÉRATION', en: 'MODERATION' },
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED' },
+  ingredient_badge_industrial: { fr: 'INDUSTRIEL', en: 'INDUSTRIAL' },
+  ingredient_badge_disputed: { fr: 'CONTESTÉ', en: 'DISPUTED' },
   intro_danger: { fr: 'Ce produit contient des substances cancérigènes.', en: 'This product contains carcinogenic substances.' },
   intro_warning: { fr: 'Ce produit est transformé. Limite ta consommation.', en: 'This product is processed. Limit your consumption.' },
   intro_moderation: { fr: 'Ce produit est à consommer avec modération.', en: 'This product should be consumed in moderation.' },

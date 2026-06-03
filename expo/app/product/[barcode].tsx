@@ -69,8 +69,8 @@ function getLevelBadgeColor(level: DisplayLevel): string {
 function getLevelBadgeLabel(level: DisplayLevel): string {
   switch (level) {
     case 'danger':   return t('badge_danger');     // CANCÉRIGÈNE
-    case 'probable': return t('badge_caution');    // ULTRA-TRANSFORMÉ
-    case 'possible': return t('badge_moderation'); // MODÉRATION
+    case 'probable': return t('ingredient_badge_industrial'); // INDUSTRIEL / INDUSTRIAL
+    case 'possible': return t('ingredient_badge_disputed');   // CONTESTÉ / DISPUTED
     case 'aucun':    return t('badge_approved');   // APPROUVÉ
   }
 }
