@@ -298,6 +298,19 @@ const translations = {
   next: { fr: 'Suivant', en: 'Next' },
   skip: { fr: 'Passer', en: 'Skip' },
 
+  // ===== ONBOARDING (single screen) =====
+  onboarding_hero_title: { fr: 'Scannez les ingrédients.\nConnaissez le risque.', en: 'Scan ingredients.\nKnow the risk.' },
+  onboarding_hero_sub: { fr: "Photographiez uniquement la liste d'ingrédients au dos du produit.", en: 'Photograph only the ingredient list on the back of the product.' },
+  onboarding_mock_ingredients_label: { fr: 'INGRÉDIENTS :', en: 'INGREDIENTS:' },
+  onboarding_mock_ingredients_body: { fr: 'Eau, Sucre, Huile de palme, Émulsifiant (E471), Sel, Arôme naturel, Acide citrique, Conservateur (E202).', en: 'Water, Sugar, Palm Oil, Emulsifier (E471), Salt, Natural Flavour, Citric Acid, Preservative (E202).' },
+  onboarding_results_heading: { fr: 'Résultats possibles', en: 'Possible results' },
+  onboarding_risk_avoid: { fr: 'Risque élevé · À éviter', en: 'High risk · Avoid' },
+  onboarding_risk_limit: { fr: 'Risque élevé · À limiter', en: 'High risk · Limit' },
+  onboarding_risk_moderate: { fr: 'Risque moyen · Modération', en: 'Medium risk · Moderate' },
+  onboarding_risk_enjoy: { fr: 'Faible risque · Sans souci', en: 'Low risk · Enjoy' },
+  onboarding_cta_start: { fr: 'Commencer à scanner', en: 'Start scanning' },
+  onboarding_science_footer: { fr: "Scientifiquement fondé · Aligné sur l'OMS", en: 'Science-backed · WHO-aligned' },
+
   // ===== AI CONSENT =====
   ai_consent_title: { fr: "Dr.Toxi utilise l'intelligence artificielle", en: 'Dr.Toxi uses artificial intelligence' },
   ai_consent_desc: { fr: "Dr. Toxi est une IA entraînée pour repérer les substances cancérigènes dans tes produits. Il analyse, t'alerte et te guide vers les meilleurs choix.", en: "Dr. Toxi is an AI trained to spot carcinogenic substances in your products. It analyzes, alerts you, and guides you toward the best choices." },

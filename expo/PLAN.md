@@ -77,8 +77,8 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Accès paywall depuis Profil
 
 ### Onboarding
-- [x] 3 écrans de présentation swipables avec illustrations
-- [x] Bouton "Commencer" à la fin
+- [x] Onboarding sur un seul écran (plus de "Suivant" répétés) : titre, illustration de scan, aperçu des 4 verdicts avec avatars Dr. Toxi
+- [x] Bouton "Commencer à scanner" qui mène directement à l'accueil
 
 ---
 
@@ -94,7 +94,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 
 ## Screens
 
-1. **Onboarding** — 3 écrans swipables avec illustration, titre et sous-titre
+1. **Onboarding** — un seul écran : titre, illustration de scan, aperçu des 4 verdicts avec avatars Dr. Toxi, accès direct à l'accueil
 2. **Paywall** — Choix d'abonnement (sans essai gratuit), apparaît uniquement pour Dr. Toxi illimité
 3. **Scanner** (onglet principal) — Grand bouton central de scan, scans illimités
 4. **Fiche Produit** — Badge de risque, substances, alternatives, gros bouton partage
