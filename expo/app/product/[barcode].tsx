@@ -912,7 +912,7 @@ export default function ProductScreen() {
           </View>
         ) : null}
 
-        {!isGreen && (
+        {(verdictLevel === 'danger' || verdictLevel === 'warning') && (
           <View style={styles.section}>
             <View style={styles.sectionTitleRow}>
               <MapPin color={Colors.primary} size={18} />
