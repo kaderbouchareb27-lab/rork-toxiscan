@@ -34,7 +34,7 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
-import { PhotoType, HealthyAlternative } from '@/types';
+import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { useLocation } from '@/providers/LocationProvider';
@@ -586,6 +586,104 @@ export default function ProductScreen() {
     router.back();
   }, []);
 
+  // ──────────────────────────────────────────────────────────────────────
+  // ⚠️ Rules of Hooks: EVERY hook below must run on EVERY render, BEFORE the
+  // `if (!product)` early return — otherwise the hook count changes when the
+  // product hydrates from storage and React crashes the screen. They are all
+  // written null-safe so they tolerate the brief window where product is
+  // still undefined.
+  // ──────────────────────────────────────────────────────────────────────
+
+  // ✅ Verdict 100% déterministe — basé sur product.riskGroup calculé par api.ts
+  const { verdictLevel } = useMemo(() => {
+    let _verdictLevel: VerdictLevel = 'approuve';
+    switch (product?.riskGroup) {
+      case 'group1':  _verdictLevel = 'danger';     break;
+      case 'group2a': _verdictLevel = 'warning';    break;
+      case 'group2b': _verdictLevel = 'moderation'; break;
+      case 'none':
+      default:        _verdictLevel = 'approuve';   break;
+    }
+    return { verdictLevel: _verdictLevel };
+  }, [product?.riskGroup]);
+
+  const { location, isResolving, requestAndResolve } = useLocation();
+  // Store suggestions follow the user's REAL location (GPS), not the phone
+  // language — so an English phone in Quebec gets Quebec stores, not BC chains.
+  const userCountry = useMemo(() => getStoreRegion(), [location]);
+
+  const handleEnableLocation = useCallback(async () => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await requestAndResolve();
+  }, [requestAndResolve]);
+
+  const locationLabel = useMemo(() => {
+    if (!location) return null;
+    const parts: string[] = [];
+    if (location.city) parts.push(location.city);
+    if (location.subregion && location.subregion !== location.city) parts.push(location.subregion);
+    return parts.join(', ');
+  }, [location]);
+
+  // Opens the suggested store in the native Maps app, searching for it near the
+  // user's detected city (falls back to a plain "near me" search when location
+  // is unknown). Strips parenthetical notes like "Target (organic)" first.
+  const handleOpenStoreInMaps = useCallback(async (storeName: string) => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const cleanName = storeName.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
+    const locationPart = locationLabel ? ` ${locationLabel}` : '';
+    const query = encodeURIComponent(`${cleanName}${locationPart}`.trim());
+    const webUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    const primary = Platform.select({
+      ios: `http://maps.apple.com/?q=${query}`,
+      android: `geo:0,0?q=${query}`,
+      default: webUrl,
+    }) ?? webUrl;
+    try {
+      await Linking.openURL(primary);
+    } catch {
+      try {
+        await Linking.openURL(webUrl);
+      } catch (e) {
+        console.log('[Product] Could not open store in maps:', e);
+      }
+    }
+  }, [locationLabel]);
+
+  const shortAnalysis = useMemo(() => {
+    if (!product?.analysisSummary) return null;
+    return shortenText(product.analysisSummary, 3);
+  }, [product?.analysisSummary]);
+
+  const ingredientsList = useMemo<(DetectedIngredient | SubstanceDetected)[]>(() => {
+    if (!product) return [];
+    return product.detectedIngredients && product.detectedIngredients.length > 0
+      ? product.detectedIngredients
+      : product.substances ?? [];
+  }, [product]);
+
+  // Advice built from what was ACTUALLY found on this scanned label — names the
+  // flagged substances (worst first) and turns them into concrete guidance.
+  const scannedAdvice = useMemo(() => {
+    const severityRank: Record<DisplayLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
+    const flagged = ingredientsList
+      .filter((ing) => getDisplayLevel(ing) !== 'aucun')
+      .slice()
+      .sort((a, b) => severityRank[getDisplayLevel(a)] - severityRank[getDisplayLevel(b)]);
+    return getScannedSubstancesAdvice(flagged);
+  }, [ingredientsList]);
+
+  const getApprovedDescription = useCallback((name: string): string => {
+    return isEnglish()
+      ? `${name} is a natural or commonly accepted ingredient with no identified health risk at typical food levels.`
+      : `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`;
+  }, []);
+
+  const additiveCategory = useMemo(
+    () => productCategoryToAdditiveCategory(product?.productCategory),
+    [product?.productCategory],
+  );
+
   if (!product) {
     return (
       <SafeAreaView style={styles.container}>
@@ -610,20 +708,6 @@ export default function ProductScreen() {
   const photoType: PhotoType = product.photoType ?? 'unknown';
   const isUniversalScan = product.barcode.startsWith('universal_');
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
-
-  // ✅ Verdict 100% déterministe — basé sur product.riskGroup calculé par api.ts
-  const { verdictLevel } = useMemo(() => {
-    let _verdictLevel: VerdictLevel = 'approuve';
-    switch (product.riskGroup) {
-      case 'group1':  _verdictLevel = 'danger';     break;
-      case 'group2a': _verdictLevel = 'warning';    break;
-      case 'group2b': _verdictLevel = 'moderation'; break;
-      case 'none':
-      default:        _verdictLevel = 'approuve';   break;
-    }
-    console.log('[Product] Verdict from riskGroup:', product.riskGroup, '→', _verdictLevel);
-    return { verdictLevel: _verdictLevel };
-  }, [product.riskGroup]);
 
   const isGreen = verdictLevel === 'approuve';
   const bannerConfig = getBannerConfig(verdictLevel);
@@ -698,80 +782,7 @@ export default function ProductScreen() {
   })();
 
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
-  const { location, isResolving, requestAndResolve } = useLocation();
-  // Store suggestions follow the user's REAL location (GPS), not the phone
-  // language — so an English phone in Quebec gets Quebec stores, not BC chains.
-  const userCountry = useMemo(() => getStoreRegion(), [location]);
 
-  const handleEnableLocation = useCallback(async () => {
-    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    await requestAndResolve();
-  }, [requestAndResolve]);
-
-  const locationLabel = useMemo(() => {
-    if (!location) return null;
-    const parts: string[] = [];
-    if (location.city) parts.push(location.city);
-    if (location.subregion && location.subregion !== location.city) parts.push(location.subregion);
-    return parts.join(', ');
-  }, [location]);
-
-  // Opens the suggested store in the native Maps app, searching for it near the
-  // user's detected city (falls back to a plain "near me" search when location
-  // is unknown). Strips parenthetical notes like "Target (organic)" first.
-  const handleOpenStoreInMaps = useCallback(async (storeName: string) => {
-    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const cleanName = storeName.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
-    const locationPart = locationLabel ? ` ${locationLabel}` : '';
-    const query = encodeURIComponent(`${cleanName}${locationPart}`.trim());
-    const webUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-    const primary = Platform.select({
-      ios: `http://maps.apple.com/?q=${query}`,
-      android: `geo:0,0?q=${query}`,
-      default: webUrl,
-    }) ?? webUrl;
-    try {
-      await Linking.openURL(primary);
-    } catch {
-      try {
-        await Linking.openURL(webUrl);
-      } catch (e) {
-        console.log('[Product] Could not open store in maps:', e);
-      }
-    }
-  }, [locationLabel]);
-
-  const shortAnalysis = useMemo(() => {
-    if (!product.analysisSummary) return null;
-    return shortenText(product.analysisSummary, 3);
-  }, [product.analysisSummary]);
-
-  const ingredientsList = product.detectedIngredients && product.detectedIngredients.length > 0
-    ? product.detectedIngredients
-    : product.substances ?? [];
-
-  // Advice built from what was ACTUALLY found on this scanned label — names the
-  // flagged substances (worst first) and turns them into concrete guidance.
-  const scannedAdvice = useMemo(() => {
-    const severityRank: Record<DisplayLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
-    const flagged = ingredientsList
-      .filter((ing) => getDisplayLevel(ing) !== 'aucun')
-      .slice()
-      .sort((a, b) => severityRank[getDisplayLevel(a)] - severityRank[getDisplayLevel(b)]);
-    return getScannedSubstancesAdvice(flagged);
-  }, [ingredientsList]);
-
-
-  const getApprovedDescription = useCallback((name: string): string => {
-    return isEnglish()
-      ? `${name} is a natural or commonly accepted ingredient with no identified health risk at typical food levels.`
-      : `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`;
-  }, []);
-
-  const additiveCategory = useMemo(
-    () => productCategoryToAdditiveCategory(product.productCategory),
-    [product.productCategory],
-  );
   const isNonFood = additiveCategory !== 'food';
 
   const specialtyStores = getRegionSpecialtyStores(userCountry);
