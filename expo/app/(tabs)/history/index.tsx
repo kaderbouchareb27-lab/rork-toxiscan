@@ -28,6 +28,7 @@ import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvi
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { RiskGroup, ScannedProduct } from '@/types';
 import { t, getDateLocale } from '@/utils/i18n';
+import { getDisplayBrand } from '@/utils/api';
 import { getDrToxiBadgeAvatarForRiskGroup } from '@/constants/drToxiAvatars';
 
 type FilterType = 'all' | 'favorites' | RiskGroup;
@@ -190,7 +191,7 @@ export default function HistoryScreen() {
       month: 'short',
     });
     const isPhoto = item.scanMethod === 'photo';
-    const brandLabel = item.brand?.trim() ? item.brand : t('history_unknown_brand');
+    const brandLabel = getDisplayBrand(item.brand, item.productCategory);
 
     return (
       <TouchableOpacity

@@ -1490,6 +1490,16 @@ export function getCategoryLabel(category: ProductCategory): string {
   return t(key);
 }
 
+/**
+ * Brand line shown in lists/cards. Returns the real brand when available, otherwise a clean
+ * category label (e.g. "Aliment", "Boisson") instead of an "Unknown brand" placeholder.
+ */
+export function getDisplayBrand(brand: string | undefined, category: ProductCategory | undefined): string {
+  const trimmed = (brand ?? '').trim();
+  if (trimmed && !isPlaceholderName(trimmed)) return trimmed;
+  return getCategoryLabel(category ?? 'other');
+}
+
 export function universalResultToScannedProduct(
   result: UniversalAnalysisResult,
   photoUri: string,
