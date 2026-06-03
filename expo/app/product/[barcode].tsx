@@ -11,6 +11,7 @@ import {
   Animated,
   Easing,
   Dimensions,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -18,7 +19,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart,
+  Store, Heart, Navigation,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
@@ -481,6 +482,26 @@ function shortenText(text: string, maxSentences: number): string {
   return sentences.slice(0, maxSentences).join(' ');
 }
 
+// ─────────────────────────────────────────────
+// A store/market suggestion the user can tap to open in their Maps app
+// (searches "{store} {city}" near the user). Turns the passive store list
+// into a concrete tool to actually find a cleaner alternative nearby.
+// ─────────────────────────────────────────────
+function StoreRow({ name, icon, onPress }: { name: string; icon: React.ReactNode; onPress: (name: string) => void }) {
+  return (
+    <TouchableOpacity
+      style={styles.bioStoreItemTappable}
+      activeOpacity={0.6}
+      onPress={() => onPress(name)}
+      testID={`maps-store-${name}`}
+    >
+      {icon}
+      <Text style={styles.bioStoreTextTappable} numberOfLines={1}>{name}</Text>
+      <Navigation color="#86C091" size={13} />
+    </TouchableOpacity>
+  );
+}
+
 export default function ProductScreen() {
   console.log("[ProductScreen] Rendering product detail screen");
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
@@ -652,6 +673,31 @@ export default function ProductScreen() {
     return parts.join(', ');
   }, [location]);
 
+  // Opens the suggested store in the native Maps app, searching for it near the
+  // user's detected city (falls back to a plain "near me" search when location
+  // is unknown). Strips parenthetical notes like "Target (organic)" first.
+  const handleOpenStoreInMaps = useCallback(async (storeName: string) => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const cleanName = storeName.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
+    const locationPart = locationLabel ? ` ${locationLabel}` : '';
+    const query = encodeURIComponent(`${cleanName}${locationPart}`.trim());
+    const webUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    const primary = Platform.select({
+      ios: `http://maps.apple.com/?q=${query}`,
+      android: `geo:0,0?q=${query}`,
+      default: webUrl,
+    }) ?? webUrl;
+    try {
+      await Linking.openURL(primary);
+    } catch {
+      try {
+        await Linking.openURL(webUrl);
+      } catch (e) {
+        console.log('[Product] Could not open store in maps:', e);
+      }
+    }
+  }, [locationLabel]);
+
   const shortAnalysis = useMemo(() => {
     if (!product.analysisSummary) return null;
     return shortenText(product.analysisSummary, 3);
@@ -684,6 +730,12 @@ export default function ProductScreen() {
     [product.productCategory],
   );
   const isNonFood = additiveCategory !== 'food';
+
+  const specialtyStores = getRegionSpecialtyStores(userCountry);
+  const groceryStores = getRegionGroceryStores(userCountry);
+  const cleanBrands = getRegionCleanBrands(userCountry, isNonFood);
+  const localMarkets = getRegionLocalMarkets(userCountry);
+  const hasMapStores = specialtyStores.length > 0 || groceryStores.length > 0 || localMarkets.length > 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -870,36 +922,49 @@ export default function ProductScreen() {
                 </View>
               ))}
 
-              {getRegionSpecialtyStores(userCountry).length > 0 ? (
+              {hasMapStores ? (
+                <View style={styles.mapsHintRow}>
+                  <Navigation color="#2E9E34" size={12} />
+                  <Text style={styles.mapsHintText}>
+                    {isEnglish() ? 'Tap a store to find it near you in Maps' : 'Touchez un magasin pour le trouver près de vous dans Plans'}
+                  </Text>
+                </View>
+              ) : null}
+
+              {specialtyStores.length > 0 ? (
                 <>
                   <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
-                  {getRegionSpecialtyStores(userCountry).map((s, i) => (
-                    <View key={`spec-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2E9E34" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{s}</Text>
-                    </View>
+                  {specialtyStores.map((s, i) => (
+                    <StoreRow
+                      key={`spec-${i}`}
+                      name={s}
+                      icon={<Store color="#2E9E34" size={14} strokeWidth={2} />}
+                      onPress={handleOpenStoreInMaps}
+                    />
                   ))}
                 </>
               ) : null}
 
-              {getRegionGroceryStores(userCountry).length > 0 ? (
+              {groceryStores.length > 0 ? (
                 <>
                   <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
-                  {getRegionGroceryStores(userCountry).map((s, i) => (
-                    <View key={`groc-${i}`} style={styles.bioStoreItem}>
-                      <Store color="#2E9E34" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{s}</Text>
-                    </View>
+                  {groceryStores.map((s, i) => (
+                    <StoreRow
+                      key={`groc-${i}`}
+                      name={s}
+                      icon={<Store color="#2E9E34" size={14} strokeWidth={2} />}
+                      onPress={handleOpenStoreInMaps}
+                    />
                   ))}
                 </>
               ) : null}
 
-              {getRegionCleanBrands(userCountry, isNonFood).length > 0 ? (
+              {cleanBrands.length > 0 ? (
                 <>
                   <Text style={styles.bioStoresSubtitle}>
                     {isNonFood ? t('clean_brands') : t('organic_brands')}
                   </Text>
-                  {getRegionCleanBrands(userCountry, isNonFood).map((b, i) => (
+                  {cleanBrands.map((b, i) => (
                     <View key={`brand-${i}`} style={styles.bioStoreItem}>
                       <CheckCircle color="#2E9E34" size={14} strokeWidth={2} />
                       <Text style={styles.bioStoreText}>{b}</Text>
@@ -908,14 +973,16 @@ export default function ProductScreen() {
                 </>
               ) : null}
 
-              {getRegionLocalMarkets(userCountry).length > 0 ? (
+              {localMarkets.length > 0 ? (
                 <>
                   <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
-                  {getRegionLocalMarkets(userCountry).map((m, i) => (
-                    <View key={`mkt-${i}`} style={styles.bioStoreItem}>
-                      <MapPin color="#2E9E34" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{m}</Text>
-                    </View>
+                  {localMarkets.map((m, i) => (
+                    <StoreRow
+                      key={`mkt-${i}`}
+                      name={m}
+                      icon={<MapPin color="#2E9E34" size={14} strokeWidth={2} />}
+                      onPress={handleOpenStoreInMaps}
+                    />
                   ))}
                 </>
               ) : null}
@@ -1073,6 +1140,10 @@ const styles = StyleSheet.create({
   bioStoresSubtitle: { fontSize: 14, fontWeight: '700' as const, color: '#1A1A1A', marginTop: 16, marginBottom: 8 },
   bioStoreItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 5 },
   bioStoreText: { fontSize: 14, color: '#1A1A1A' },
+  bioStoreItemTappable: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 9, paddingHorizontal: 11, marginBottom: 6, backgroundColor: '#FFFFFF', borderRadius: 11, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
+  bioStoreTextTappable: { flex: 1, fontSize: 14, color: '#1A1A1A', fontWeight: '600' as const },
+  mapsHintRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, marginTop: 14, marginBottom: 2 },
+  mapsHintText: { flex: 1, fontSize: 12, color: '#3F7A48', fontWeight: '600' as const, fontStyle: 'italic' as const },
   bioStoresNote: { fontSize: 13, color: '#1F5A28', lineHeight: 19 },
   adviceItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, gap: 10, paddingVertical: 6 },
   adviceBullet: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#2E9E34', marginTop: 7 },
