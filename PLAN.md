@@ -22,10 +22,14 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - Réouverture d'une fiche produit en un tap
 
 ### Dr. Toxi — Assistant IA
-- Chat conversationnel avec un expert virtuel en toxicologie
-- Suggestions de questions rapides
-- Réponses courtes, factuelles, en français
-- Bannière de transparence IA
+- Chat conversationnel avec un expert virtuel en ingrédients ultra-transformés et cancérigènes
+- Personnalité d'ami de confiance et d'allié (jamais un "ChatGPT" neutre) : il comprend les utilisateurs méfiants de l'agroalimentaire, les prend au sérieux et est de leur côté
+- Donne toujours un verdict couleur clair dans le chat (rouge / orange / jaune / vert), même sans photo
+- Ne contredit JAMAIS un scan ni la base de données officielle (source de vérité unique)
+- Propose de vraies alternatives concrètes (marque précise + enseigne du pays), jamais de demi-mesures
+- Réponses courtes et lisibles sur mobile, chaleureuses, en FR/EN
+- Garde-fou santé : n'attaque jamais médecins/vaccins, ne pose pas de diagnostic, renvoie au médecin
+- Suggestions de questions rapides + bannière de transparence IA
 - Intégré via le toolkit IA de Rork
 
 ### Profil
