@@ -502,6 +502,49 @@ function StoreRow({ name, icon, onPress }: { name: string; icon: React.ReactNode
   );
 }
 
+// ─────────────────────────────────────────────
+// Clean-brand chips. Brands aren't physical places (nothing to open in Maps),
+// so they render as compact wrapping chips instead of a long vertical list —
+// the US list runs ~17 brands, which was a wall of text. Long lists collapse
+// behind a "+N more" chip to keep the card tight.
+// ─────────────────────────────────────────────
+const BRAND_CHIP_CAP = 8;
+
+function BrandChips({ brands }: { brands: string[] }) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const shouldCap = brands.length > BRAND_CHIP_CAP + 2;
+  const visible = expanded || !shouldCap ? brands : brands.slice(0, BRAND_CHIP_CAP);
+  const hiddenCount = brands.length - visible.length;
+
+  const handleExpand = useCallback(() => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpanded(true);
+  }, []);
+
+  return (
+    <View style={styles.brandChipsWrap}>
+      {visible.map((b, i) => (
+        <View key={`brand-${i}`} style={styles.brandChip}>
+          <CheckCircle color="#2E9E34" size={12} strokeWidth={2.4} />
+          <Text style={styles.brandChipText}>{b}</Text>
+        </View>
+      ))}
+      {hiddenCount > 0 ? (
+        <TouchableOpacity
+          style={styles.brandChipMore}
+          activeOpacity={0.7}
+          onPress={handleExpand}
+          testID="brands-show-more"
+        >
+          <Text style={styles.brandChipMoreText}>
+            {isEnglish() ? `+${hiddenCount} more` : `+${hiddenCount} autres`}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+    </View>
+  );
+}
+
 export default function ProductScreen() {
   console.log("[ProductScreen] Rendering product detail screen");
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
@@ -964,12 +1007,7 @@ export default function ProductScreen() {
                   <Text style={styles.bioStoresSubtitle}>
                     {isNonFood ? t('clean_brands') : t('organic_brands')}
                   </Text>
-                  {cleanBrands.map((b, i) => (
-                    <View key={`brand-${i}`} style={styles.bioStoreItem}>
-                      <CheckCircle color="#2E9E34" size={14} strokeWidth={2} />
-                      <Text style={styles.bioStoreText}>{b}</Text>
-                    </View>
-                  ))}
+                  <BrandChips brands={cleanBrands} />
                 </>
               ) : null}
 
@@ -1138,8 +1176,11 @@ const styles = StyleSheet.create({
   bioStoresCard: { backgroundColor: '#E8F9ED', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.25)' },
   bioStoresIntro: { fontSize: 14, color: '#1F5A28', lineHeight: 20, marginBottom: 6 },
   bioStoresSubtitle: { fontSize: 14, fontWeight: '700' as const, color: '#1A1A1A', marginTop: 16, marginBottom: 8 },
-  bioStoreItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 5 },
-  bioStoreText: { fontSize: 14, color: '#1A1A1A' },
+  brandChipsWrap: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8, marginTop: 2 },
+  brandChip: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, maxWidth: '100%' as const, paddingVertical: 7, paddingHorizontal: 11, backgroundColor: '#FFFFFF', borderRadius: 999, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
+  brandChipText: { flexShrink: 1, fontSize: 13, color: '#1A1A1A', fontWeight: '600' as const },
+  brandChipMore: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingVertical: 7, paddingHorizontal: 13, backgroundColor: 'rgba(46, 158, 52, 0.12)', borderRadius: 999, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.28)' },
+  brandChipMoreText: { fontSize: 13, color: '#1F6B2A', fontWeight: '800' as const },
   bioStoreItemTappable: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingVertical: 9, paddingHorizontal: 11, marginBottom: 6, backgroundColor: '#FFFFFF', borderRadius: 11, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
   bioStoreTextTappable: { flex: 1, fontSize: 14, color: '#1A1A1A', fontWeight: '600' as const },
   mapsHintRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, marginTop: 14, marginBottom: 2 },
