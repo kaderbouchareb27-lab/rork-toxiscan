@@ -38,6 +38,7 @@ import { BadgesProvider } from "@/providers/BadgesProvider";
 import { OnboardingProvider } from "@/providers/OnboardingProvider";
 import { QuizProvider } from "@/providers/QuizProvider";
 import { LocationProvider } from "@/providers/LocationProvider";
+import { HealthProfileProvider } from "@/providers/HealthProfileProvider";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -140,6 +141,7 @@ function RootLayoutNav() {
       <Stack.Screen name="ai-consent" options={{ headerShown: false }} />
       <Stack.Screen name="badges" options={{ headerShown: false }} />
       <Stack.Screen name="faq" options={{ title: t('nav_faq') }} />
+      <Stack.Screen name="health-profile" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
@@ -182,7 +184,9 @@ export default function RootLayout() {
                   <OnboardingProvider>
                     <QuizProvider>
                       <LocationProvider>
-                        <RootLayoutNav />
+                        <HealthProfileProvider>
+                          <RootLayoutNav />
+                        </HealthProfileProvider>
                       </LocationProvider>
                     </QuizProvider>
                   </OnboardingProvider>

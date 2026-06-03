@@ -68,9 +68,11 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] 1 message gratuit (historique chat non sauvegardé sans abo)
 - [x] Paywall quand 2ème message tenté
 - [x] Bouton "Partager" après chaque réponse de Dr. Toxi
+- [x] Mémoire de profil : situation + priorités mémorisées une fois, Dr. Toxi personnalise verdicts, mises en garde et alternatives (chat ET scans) sans changer la couleur officielle d'un ingrédient
 
 ### Profil
 - [x] Statut d'abonnement (Gratuit / Pro)
+- [x] Profil santé : préférences mémorisées par Dr. Toxi (situation + priorités alimentaires + note libre), stockées uniquement sur l'appareil
 - [x] Statistiques de scans avec répartition par badge
 - [x] Pages légales : Politique de confidentialité, FAQ, Transparence IA
 - [x] Lien de contact et restauration d'achat

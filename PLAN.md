@@ -30,11 +30,13 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - Réponses courtes et lisibles sur mobile, chaleureuses, en FR/EN
 - Garde-fou santé : n'attaque jamais médecins/vaccins, ne pose pas de diagnostic, renvoie au médecin
 - Suggestions de départ engageantes + puces de relance en un tap sous chaque réponse (« Pourquoi ce verdict ? », « Une alternative plus saine ? »), adaptées au verdict du produit
+- Mémoire de profil : l'utilisateur dit une fois sa situation (enceinte, j'évite le sucre, végan, sans gluten…) et Dr. Toxi personnalise ses verdicts, mises en garde et alternatives dans le chat ET les scans — sans jamais changer la couleur officielle d'un ingrédient
 - Bannière de transparence IA
 - Intégré via le toolkit IA de Rork
 
 ### Profil
 - Statut d'abonnement
+- Profil santé : préférences mémorisées par Dr. Toxi (situation + priorités alimentaires + note libre), stockées uniquement sur l'appareil
 - Statistiques de scans avec répartition par badge
 - Pages légales : Politique de confidentialité, FAQ (accordéon), Transparence IA
 - Lien de contact et restauration d'achat

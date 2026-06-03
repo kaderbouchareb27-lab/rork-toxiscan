@@ -34,6 +34,7 @@ import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISI
 import { LOADING_TIPS } from '@/constants/loadingTips';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { getChatRegionPrompt } from '@/utils/regionDetection';
+import { getHealthProfilePrompt } from '@/utils/healthProfile';
 import { t, tf, getDateLocale, isEnglish } from '@/utils/i18n';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
@@ -263,6 +264,7 @@ export default function DrToxiScreen() {
         }));
 
       const regionPrompt = getChatRegionPrompt();
+      const healthProfilePrompt = getHealthProfilePrompt();
 
       let productContextPrompt = '';
       if (activeConversation?.productContext) {
@@ -271,8 +273,8 @@ export default function DrToxiScreen() {
       }
 
       const systemPrompt = payload.imageBase64
-        ? DR_TOXI_SYSTEM_PROMPT + regionPrompt + productContextPrompt + '\n\n--- MODE SCANNER VISION ---\n\n' + DR_TOXI_VISION_PROMPT
-        : DR_TOXI_SYSTEM_PROMPT + regionPrompt + productContextPrompt;
+        ? DR_TOXI_SYSTEM_PROMPT + regionPrompt + healthProfilePrompt + productContextPrompt + '\n\n--- MODE SCANNER VISION ---\n\n' + DR_TOXI_VISION_PROMPT
+        : DR_TOXI_SYSTEM_PROMPT + regionPrompt + healthProfilePrompt + productContextPrompt;
 
       const userContent: string | Array<{ type: 'text'; text: string } | { type: 'image'; image: string }> = payload.imageBase64
         ? [

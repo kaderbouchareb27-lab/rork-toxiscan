@@ -23,6 +23,7 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
+import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { t, tf } from '@/utils/i18n';
 
 export default function ProfileScreen() {
@@ -30,6 +31,7 @@ export default function ProfileScreen() {
   const { isPro } = useSubscription();
   const { totalCorrect, totalAnswered } = useQuiz();
   const { unlockedCount, totalCount, shareCount } = useBadges();
+  const { activeCount: healthActiveCount } = useHealthProfile();
 
   const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
 
@@ -156,6 +158,24 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight color={Colors.textTertiary} size={16} />
           </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.healthProfileCard}
+          onPress={() => handleMenuPress('/health-profile')}
+          activeOpacity={0.8}
+          testID="health-profile-card"
+        >
+          <View style={styles.healthProfileLeft}>
+            <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.healthProfileAvatar} />
+            <View style={styles.healthProfileInfo}>
+              <Text style={styles.healthProfileTitle}>{t('health_profile_card_title')}</Text>
+              <Text style={styles.healthProfileSubtitle}>
+                {healthActiveCount > 0 ? tf('health_profile_active', healthActiveCount) : t('health_profile_card_empty')}
+              </Text>
+            </View>
+          </View>
+          <ChevronRight color={Colors.primary} size={18} />
         </TouchableOpacity>
 
         <View style={styles.card}>
@@ -469,6 +489,47 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 14,
     color: '#4B5563',
+  },
+  healthProfileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: '#2E9E34',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.12)',
+  },
+  healthProfileLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    flex: 1,
+  },
+  healthProfileAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+  },
+  healthProfileInfo: {
+    flex: 1,
+  },
+  healthProfileTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: Colors.text,
+  },
+  healthProfileSubtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 3,
+    lineHeight: 16,
   },
   quizCard: {
     flexDirection: 'row',

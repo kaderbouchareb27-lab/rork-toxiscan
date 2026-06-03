@@ -3,6 +3,7 @@ import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
+import { getHealthProfileAnalysisPrompt } from '@/utils/healthProfile';
 import { t, isEnglish } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote } from '@/constants/ingredientsDatabase';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
@@ -677,7 +678,8 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
 `;
 
   const regionPrompt = getAnalysisRegionPrompt();
-  const systemParts: string[] = [languageLock, AI_PROMPT, regionPrompt];
+  const healthProfilePrompt = getHealthProfileAnalysisPrompt();
+  const systemParts: string[] = [languageLock, AI_PROMPT, regionPrompt, healthProfilePrompt];
 
   if (ocrText) {
     // BUG 4 FIX — Strip "Contains:" / "May contain:" allergen lines from OCR before sending to AI.

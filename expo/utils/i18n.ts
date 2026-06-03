@@ -501,6 +501,20 @@ const translations = {
 
   // ===== DR TOXI SYSTEM PROMPT ACKNOWLEDGMENT =====
   drtoxi_ack: { fr: "Compris ! Je suis Dr. Toxi, ton expert en ingrédients du quotidien. Je suis prêt à t'aider.", en: "Got it! I'm Dr. Toxi, your everyday ingredient expert. I'm ready to help you." },
+
+  // ===== HEALTH PROFILE (DR. TOXI MEMORY) =====
+  health_profile_card_title: { fr: 'Mon profil santé', en: 'My health profile' },
+  health_profile_card_empty: { fr: 'Dis à Dr. Toxi qui tu es', en: 'Tell Dr. Toxi who you are' },
+  health_profile_active: { fr: (n: number) => `${n} info${n > 1 ? 's' : ''} mémorisée${n > 1 ? 's' : ''}`, en: (n: number) => `${n} thing${n > 1 ? 's' : ''} remembered` },
+  health_profile_title: { fr: 'Profil santé', en: 'Health profile' },
+  health_profile_intro: { fr: "Dis à Dr. Toxi qui tu es. Il s'en souviendra pour personnaliser chaque analyse et te proposer les bonnes alternatives.", en: "Tell Dr. Toxi who you are. He'll remember it to personalize every analysis and suggest the right alternatives." },
+  health_profile_section_life: { fr: 'Ta situation', en: 'Your situation' },
+  health_profile_section_diet: { fr: 'Tes priorités', en: 'Your priorities' },
+  health_profile_note_label: { fr: 'Autre chose à savoir ?', en: 'Anything else?' },
+  health_profile_note_placeholder: { fr: "Ex : je surveille mon cholestérol, j'évite l'huile de palme…", en: 'E.g. I watch my cholesterol, I avoid palm oil…' },
+  health_profile_privacy: { fr: "Ces informations restent sur ton téléphone et servent uniquement à personnaliser tes analyses.", en: 'This info stays on your phone and is only used to personalize your analysis.' },
+  health_profile_clear: { fr: 'Tout effacer', en: 'Clear all' },
+  health_profile_saved: { fr: 'Mémorisé par Dr. Toxi', en: 'Remembered by Dr. Toxi' },
 } as const;
 
 type TranslationKey = keyof typeof translations;
