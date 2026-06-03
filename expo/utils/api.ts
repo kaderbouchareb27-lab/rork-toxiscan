@@ -103,6 +103,23 @@ function lookupIngredient(ingredientName: string): IngredientEntry | null {
   return bestMatch;
 }
 
+// Allergen declarations ("Contains: …", "May contain: …", "Peut contenir : …") are regulatory
+// statements, NOT ingredients. They must never be parsed or badged.
+const ALLERGEN_LINE_REGEX = /^(contains|contient|may contain|peut contenir)\s*:/i;
+
+// A compound ingredient like "Sugars (sugar, dextrose)" that lists refined sugar or dextrose
+// among its sub-ingredients must always classify as ULTRA-PROCESSED (orange), never CAUTION.
+const REFINED_SUGAR_TOKENS = ['sugars', 'sugar', 'sucres', 'sucre', 'dextrose'] as const;
+const REFINED_SUGAR_ENTRY: IngredientEntry | null = lookupIngredient('sugars');
+
+function isCompoundRefinedSugar(name: string): boolean {
+  // Compound = lists sub-ingredients via a parenthesis or comma (e.g. "Sugars (sugar, dextrose)").
+  if (!/[(),]/.test(name)) return false;
+  const normalized = normalizeForLookup(name);
+  if (!normalized) return false;
+  return REFINED_SUGAR_TOKENS.some((t) => normalized.includes(t));
+}
+
 function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLevel {
   const dangerCount = substances.filter(s => s.niveau_risque === 'danger').length;
   const probableCount = substances.filter(s => s.niveau_risque === 'probable').length;
@@ -652,15 +669,15 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
   const systemParts: string[] = [languageLock, AI_PROMPT, regionPrompt];
 
   if (ocrText) {
-    // BUG 4 FIX — Strip "Contains:" allergen lines from OCR before sending to AI.
+    // BUG 4 FIX — Strip "Contains:" / "May contain:" allergen lines from OCR before sending to AI.
     const cleanedOcr = ocrText
       .split('\n')
-      .filter(line => !/^(contains|contient)\s*:/i.test(line.trim()))
+      .filter(line => !ALLERGEN_LINE_REGEX.test(line.trim()))
       .join('\n');
     const cleanedBlock = ocrIngredientsBlock
       ? ocrIngredientsBlock
           .split('\n')
-          .filter(line => !/^(contains|contient)\s*:/i.test(line.trim()))
+          .filter(line => !ALLERGEN_LINE_REGEX.test(line.trim()))
           .join('\n')
       : null;
 
@@ -983,9 +1000,12 @@ function splitOcrIngredients(block: string): string[] {
 function classifyLocal(names: string[]): SubstanceDetected[] {
   return names
     .map((raw) => raw.trim())
-    .filter((name) => name.length >= 2 && !/^(contains|contient)\s*:/i.test(name))
+    .filter((name) => name.length >= 2 && !ALLERGEN_LINE_REGEX.test(name))
     .map((name) => {
-      const entry = lookupIngredient(name);
+      let entry = lookupIngredient(name);
+      if (isCompoundRefinedSugar(name) && REFINED_SUGAR_ENTRY && (!entry || (entry.risk !== 'danger' && entry.risk !== 'probable'))) {
+        entry = REFINED_SUGAR_ENTRY;
+      }
       if (entry) {
         let explication = getLocalizedNote(entry) ?? '';
         if (entry.risk === 'aucun') {
@@ -1025,7 +1045,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
   // BUG 4 FIX — Skip "Contains:" allergen declaration lines that the AI might still parse.
   const filtered = aiIngredients.filter((ing) => {
     const name = ing.nom.trim();
-    if (/^(contains|contient)\s*:/i.test(name)) {
+    if (ALLERGEN_LINE_REGEX.test(name)) {
       console.log('[Classify] SKIP allergen line: "' + name + '"');
       return false;
     }
@@ -1036,7 +1056,10 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     return true;
   });
   return filtered.map((ing) => {
-    const entry = lookupIngredient(ing.nom);
+    let entry = lookupIngredient(ing.nom);
+    if (isCompoundRefinedSugar(ing.nom) && REFINED_SUGAR_ENTRY && (!entry || (entry.risk !== 'danger' && entry.risk !== 'probable'))) {
+      entry = REFINED_SUGAR_ENTRY;
+    }
 
     if (entry) {
       console.log('[Classify] "' + ing.nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
