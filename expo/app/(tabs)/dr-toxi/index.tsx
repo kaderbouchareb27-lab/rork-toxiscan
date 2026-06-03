@@ -18,7 +18,7 @@ import {
   Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, ChevronRight, Share2, Camera, ChevronLeft, Plus, MessageSquare, X, Mic, Volume2, Square, Lock } from 'lucide-react-native';
+import { Send, ChevronRight, Share2, Camera, ChevronLeft, Plus, MessageSquare, X, Mic, Volume2, Square, Lock, Sparkles } from 'lucide-react-native';
 import { startRecording, transcribeAudio, speakText, stopSpeech, type RecorderHandle } from '@/utils/voiceChat';
 import { useMutation } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
@@ -30,7 +30,7 @@ import { aiGenerateText } from '@/utils/aiApi';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { router, useLocalSearchParams } from 'expo-router';
-import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISION_PROMPT, VISION_LOADING_MESSAGES } from '@/constants/drToxiPrompt';
+import { DR_TOXI_SYSTEM_PROMPT, QUICK_SUGGESTIONS, DR_TOXI_WELCOME, DR_TOXI_VISION_PROMPT, VISION_LOADING_MESSAGES, getFollowUpSuggestions } from '@/constants/drToxiPrompt';
 import { LOADING_TIPS } from '@/constants/loadingTips';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { getChatRegionPrompt } from '@/utils/regionDetection';
@@ -600,6 +600,13 @@ export default function DrToxiScreen() {
     }
   }, [speakingMessageId, isPro]);
 
+  const isLoading = sendMutation.isPending || isAnalyzingImage;
+  const lastMessageId = messages.length > 0 ? messages[messages.length - 1].id : null;
+  const followUps = useMemo(
+    () => getFollowUpSuggestions(activeConversation?.productContext?.verdictLevel),
+    [activeConversation?.productContext?.verdictLevel]
+  );
+
   const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
     const isUser = item.role === 'user';
     return (
@@ -656,12 +663,26 @@ export default function DrToxiScreen() {
               </TouchableOpacity>
             </View>
           )}
+          {!isUser && !item.id.includes('_error') && item.id === lastMessageId && !isLoading && followUps.length > 0 && (
+            <View style={styles.followUpRow}>
+              {followUps.map((followUp) => (
+                <TouchableOpacity
+                  key={followUp}
+                  style={styles.followUpChip}
+                  onPress={() => handleSend(followUp)}
+                  activeOpacity={0.7}
+                  testID={`followup-${followUp}`}
+                >
+                  <Sparkles color={Colors.primary} size={13} />
+                  <Text style={styles.followUpText}>{followUp}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
       </View>
     );
-  }, [handleShareResponse, handleSpeakMessage, speakingMessageId]);
-
-  const isLoading = sendMutation.isPending || isAnalyzingImage;
+  }, [handleShareResponse, handleSpeakMessage, speakingMessageId, handleSend, lastMessageId, isLoading, followUps]);
 
   useEffect(() => {
     if (!isRecording) {
@@ -853,6 +874,7 @@ export default function DrToxiScreen() {
               </TouchableOpacity>
             )}
 
+            <Text style={styles.suggestionsLabel}>{t('drtoxi_try_asking')}</Text>
             <View style={styles.suggestionsContainer}>
               {QUICK_SUGGESTIONS.map((suggestion) => (
                 <TouchableOpacity
@@ -1237,6 +1259,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
     fontWeight: '500' as const,
+  },
+  suggestionsLabel: {
+    fontSize: 13,
+    color: Colors.textTertiary,
+    fontWeight: '600' as const,
+    marginBottom: 12,
+  },
+  followUpRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  followUpChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    backgroundColor: 'rgba(46, 158, 52, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.22)',
+  },
+  followUpText: {
+    fontSize: 13,
+    color: Colors.primary,
+    fontWeight: '600' as const,
   },
   messagesList: {
     paddingHorizontal: 16,

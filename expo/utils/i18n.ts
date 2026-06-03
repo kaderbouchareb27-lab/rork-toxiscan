@@ -162,10 +162,20 @@ const translations = {
   analyze_for_me: { fr: 'Analyse ce produit pour moi.', en: 'Analyze this product for me.' },
 
   // ===== DR. TOXI PROMPTS =====
-  quick_suggestion_1: { fr: "Je suis au supermarché, aide-moi !", en: "I'm at the grocery store, help me!" },
-  quick_suggestion_2: { fr: 'Quels additifs éviter ?', en: 'Which additives to avoid?' },
-  quick_suggestion_3: { fr: "C'est quoi un perturbateur endocrinien ?", en: 'What is an endocrine disruptor?' },
+  quick_suggestion_1: { fr: "Aide-moi à faire mes courses", en: 'Help me with my groceries' },
+  quick_suggestion_2: { fr: "Le pire additif caché ?", en: 'The worst hidden additive?' },
+  quick_suggestion_3: { fr: "Quel édulcorant choisir ?", en: 'Which sweetener should I pick?' },
+  quick_suggestion_4: { fr: "Les nitrites, vraiment dangereux ?", en: 'Nitrites — really that bad?' },
+  drtoxi_try_asking: { fr: 'Essaie de me demander…', en: 'Try asking me…' },
   drtoxi_welcome: { fr: "Salut ! Pose-moi ta question ou scanne un produit.", en: "Hi! Ask me a question or scan a product." },
+
+  // ===== DR. TOXI FOLLOW-UP CHIPS =====
+  followup_alternative: { fr: 'Une alternative plus saine ?', en: 'A cleaner alternative?' },
+  followup_why_verdict: { fr: 'Pourquoi ce verdict ?', en: 'Why this verdict?' },
+  followup_worst_ingredient: { fr: "C'est quoi le pire ingrédient ?", en: "What's the worst ingredient?" },
+  followup_simpler: { fr: 'Explique plus simplement', en: 'Explain it more simply' },
+  followup_is_it_safe: { fr: "C'est risqué pour la santé ?", en: 'Is it risky for my health?' },
+  followup_good_news: { fr: "Pourquoi c'est un bon choix ?", en: 'Why is it a good pick?' },
 
   // ===== VISION LOADING =====
   vision_loading_1: { fr: 'Je lis les petits caractères pour toi...', en: "I'm reading the fine print for you..." },

@@ -441,10 +441,32 @@ export function getQuickSuggestions(): string[] {
     t('quick_suggestion_1'),
     t('quick_suggestion_2'),
     t('quick_suggestion_3'),
+    t('quick_suggestion_4'),
   ];
 }
 
 export const QUICK_SUGGESTIONS = getQuickSuggestions();
+
+export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
+
+/**
+ * One-tap follow-up prompts shown under Dr. Toxi's latest reply.
+ * Tailored to the scanned product's verdict so the user can dig deeper without
+ * typing — keeps the conversation going and builds attachment to Dr. Toxi.
+ */
+export function getFollowUpSuggestions(verdict?: DrToxiVerdictLevel | string | null): string[] {
+  switch (verdict) {
+    case 'danger':
+    case 'warning':
+      return [t('followup_why_verdict'), t('followup_alternative'), t('followup_worst_ingredient')];
+    case 'moderation':
+      return [t('followup_why_verdict'), t('followup_is_it_safe'), t('followup_simpler')];
+    case 'approuve':
+      return [t('followup_good_news'), t('followup_is_it_safe'), t('followup_simpler')];
+    default:
+      return [t('followup_alternative'), t('followup_worst_ingredient'), t('followup_simpler')];
+  }
+}
 
 export function getDrToxiWelcome(): string {
   return t('drtoxi_welcome');

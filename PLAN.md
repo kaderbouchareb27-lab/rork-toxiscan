@@ -29,7 +29,8 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - Propose de vraies alternatives concrètes (marque précise + enseigne du pays), jamais de demi-mesures
 - Réponses courtes et lisibles sur mobile, chaleureuses, en FR/EN
 - Garde-fou santé : n'attaque jamais médecins/vaccins, ne pose pas de diagnostic, renvoie au médecin
-- Suggestions de questions rapides + bannière de transparence IA
+- Suggestions de départ engageantes + puces de relance en un tap sous chaque réponse (« Pourquoi ce verdict ? », « Une alternative plus saine ? »), adaptées au verdict du produit
+- Bannière de transparence IA
 - Intégré via le toolkit IA de Rork
 
 ### Profil
