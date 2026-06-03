@@ -194,7 +194,7 @@ const safeString = (fallback: string = '') =>
 
 const aiAnalysisSchema = z.object({
   categorie_produit: categoryEnum,
-  objet_identifie: safeString('Objet inconnu'),
+  objet_identifie: safeString(''),
   materiau_detecte: safeString(''),
   ingredients_lus: z.preprocess(
     (v) => (Array.isArray(v) ? v : []),
@@ -226,8 +226,12 @@ Le système Dr. Toxi fait cette classification automatiquement via une base de d
 ═══ ÉTAPE 1 — IDENTIFIER LE PRODUIT ═══
 
 objet_identifie = marque + produit (ex: "LU Prince", "Coca-Cola Zero", "Nutella").
-Priorité : 1) nom Open Food Facts si fourni ; 2) texte sur l'emballage ; 3) marques connues ; 4) déduction par ingrédients.
-JAMAIS "Objet inconnu" si du texte est lisible.
+Priorité : 1) nom Open Food Facts si fourni ; 2) texte/marque sur l'emballage ; 3) marques connues reconnues visuellement ; 4) si la MARQUE est illisible ou absente, NOMME LE PRODUIT PAR SON TYPE déduit des ingrédients (ex: "Biscuits", "Céréales", "Sauce tomate", "Boisson gazeuse", "Barre chocolatée", "Shampoing", "Yaourt", "Chips").
+
+🚫 INTERDIT ABSOLU pour objet_identifie :
+- N'écris JAMAIS "Objet inconnu", "Produit inconnu", "Inconnu", "Unknown", "N/A".
+- N'écris JAMAIS la formule littérale "marque + produit" / "brand + product name" / "Nom du produit".
+- Il y a TOUJOURS un type identifiable d'après les ingrédients — donne-le.
 
 categorie_produit : food | beverage | cosmetic | household | other.
 
@@ -469,7 +473,14 @@ You MUST NEVER classify ingredients. The Dr. Toxi system does it automatically.
 
 ═══ STEP 1 — IDENTIFY THE PRODUCT ═══
 
-objet_identifie = brand + product name. NEVER "Unknown object" if text is readable.
+objet_identifie = brand + product name (e.g. "LU Prince", "Coca-Cola Zero", "Nutella").
+Priority: 1) OpenFoodFacts name if provided; 2) text/brand on the packaging; 3) known brands recognized visually; 4) if the BRAND is unreadable or absent, NAME THE PRODUCT BY ITS TYPE deduced from the ingredients (e.g. "Cookies", "Cereal", "Tomato sauce", "Soda", "Chocolate bar", "Shampoo", "Yogurt", "Chips").
+
+🚫 ABSOLUTELY FORBIDDEN for objet_identifie:
+- NEVER write "Unknown object", "Unknown product", "Unknown", "N/A".
+- NEVER write the literal template "brand + product name" or "Product name".
+- There is ALWAYS an identifiable type from the ingredients — provide it.
+
 categorie_produit: food | beverage | cosmetic | household | other.
 
 ═══ STEP 2 — READ EVERY INGREDIENT EXHAUSTIVELY ═══
@@ -1154,6 +1165,57 @@ export interface InstantScan {
   instant: boolean;
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// PRODUCT NAME — never display an "unknown product" placeholder. When the AI
+// cannot read a brand/name (blurry photo, only the ingredient panel visible, or
+// a template echo like "Unknown brand plus product name"), we fall back to a
+// clean category label derived from what was actually read on the label.
+// ─────────────────────────────────────────────────────────────────────
+
+/** Localized human label used when no real product name could be identified. */
+function genericProductName(category: ProductCategory): string {
+  const en = isEnglish();
+  switch (category) {
+    case 'beverage':        return en ? 'Beverage' : 'Boisson';
+    case 'cosmetic':        return en ? 'Cosmetic product' : 'Produit cosmétique';
+    case 'household':       return en ? 'Household product' : 'Produit ménager';
+    case 'kitchen_utensil': return en ? 'Kitchen item' : 'Ustensile de cuisine';
+    case 'clothing':        return en ? 'Textile item' : 'Article textile';
+    case 'electronics':     return en ? 'Electronic device' : 'Appareil électronique';
+    case 'furniture':       return en ? 'Furniture item' : 'Meuble';
+    case 'toy':             return en ? 'Toy' : 'Jouet';
+    case 'food':            return en ? 'Food product' : 'Produit alimentaire';
+    case 'other':
+    default:                return en ? 'Scanned product' : 'Produit scanné';
+  }
+}
+
+// Names the model sometimes returns when it cannot identify the product.
+const EXACT_PLACEHOLDER_NAMES: ReadonlySet<string> = new Set([
+  'na', 'n a', 'none', 'null', 'undefined', 'nan', 'tbd', 'product', 'produit',
+  'item', 'objet', 'analyse', 'analyzing', 'analysing',
+]);
+const CONTAINS_UNKNOWN_REGEX = /(unknown|inconnu|unidentified|unnamed|non identifie|not identified)/;
+const TEMPLATE_ECHO_REGEX = /(brand\s*(\+|plus|and|&)?\s*product|product\s+name|nom\s+(du\s+)?produit|marque\s*(\+|et)\s*(produit|nom))/;
+
+/** True when `name` is empty or a generic placeholder rather than a real product name. */
+function isPlaceholderName(name: string): boolean {
+  const raw = (name ?? '').trim();
+  if (raw.length < 2) return true;
+  const norm = normalizeForLookup(raw);
+  if (!norm) return true;
+  if (EXACT_PLACEHOLDER_NAMES.has(norm)) return true;
+  if (CONTAINS_UNKNOWN_REGEX.test(norm)) return true;
+  if (TEMPLATE_ECHO_REGEX.test(norm)) return true;
+  return false;
+}
+
+/** Guarantee a clean, non-"unknown" product name, deriving a category label when needed. */
+function sanitizeProductName(rawName: string, category: ProductCategory): string {
+  if (isPlaceholderName(rawName)) return genericProductName(category);
+  return rawName.trim();
+}
+
 /** Assemble a full UniversalAnalysisResult from classified substances + product meta. */
 function assembleResult(
   meta: { categorie_produit: ProductCategory; objet_identifie: string; materiau_detecte: string; erreur?: string },
@@ -1164,7 +1226,7 @@ function assembleResult(
   const badge_global = computeBadgeGlobal(sorted);
   return {
     categorie_produit: meta.categorie_produit,
-    objet_identifie: meta.objet_identifie,
+    objet_identifie: sanitizeProductName(meta.objet_identifie, meta.categorie_produit),
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
     badge_global,
@@ -1179,7 +1241,7 @@ function assembleResult(
 function buildErrorResult(messageKey: 'error_analyze_product' | 'error_process_photo'): UniversalAnalysisResult {
   return {
     categorie_produit: 'other',
-    objet_identifie: 'Unknown object',
+    objet_identifie: genericProductName('other'),
     materiau_detecte: '',
     substances_detectees: [],
     badge_global: 'aucun',
@@ -1190,13 +1252,18 @@ function buildErrorResult(messageKey: 'error_analyze_product' | 'error_process_p
   };
 }
 
+// Lines that are clearly NOT a product name (label boilerplate) — skipped when guessing.
+const NON_NAME_LINE_REGEX = /(ingr[ée]dien|valeurs?\s+nutri|nutrition\s+facts|best\s+before|à\s+consommer|conserv|fabriqu|distribu|emball|poids\s+net|net\s+w|contient|contains|allerg|www\.|https?:|\d{6,})/i;
+
 /** Rough product-name guess from raw OCR text, shown instantly until the AI returns the real name. */
 function guessProductName(fullText: string): string | null {
   const lines = fullText.split('\n').map((l) => l.trim()).filter(Boolean);
   for (const line of lines) {
-    if (/ingr[ée]dien/i.test(line)) continue;
+    if (NON_NAME_LINE_REGEX.test(line)) continue;
     if (line.length < 3 || line.length > 40) continue;
     if (/^[\d\s.,%*]+$/.test(line)) continue;
+    // Require at least 3 letters so we never surface a barcode / weight / code line.
+    if (line.replace(/[^a-zA-ZÀ-ÿ]/g, '').length < 3) continue;
     return line;
   }
   return null;
@@ -1252,7 +1319,9 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
   const substances = classifyLocal(names);
   console.log('[API] Instant local classification —', substances.length, 'ingredients parsed from OCR');
 
-  const guessedName = guessProductName(ocrData.fullText) ?? (isEnglish() ? 'Analyzing…' : 'Analyse…');
+  // A clean OCR guess shows instantly; assembleResult sanitizes empty/placeholder
+  // guesses into a category label so we never flash an "unknown product".
+  const guessedName = guessProductName(ocrData.fullText) ?? '';
   const result = assembleResult(
     {
       categorie_produit: 'food',
