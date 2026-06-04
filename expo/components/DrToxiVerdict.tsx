@@ -8,6 +8,8 @@ export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
 
 interface DrToxiVerdictProps {
   level: VerdictLevel;
+  /** Cosmetic products use the separate TOXIC / DISPUTED / APPROVED scale. */
+  isCosmetic?: boolean;
 }
 
 interface VerdictCardConfig {
@@ -72,7 +74,50 @@ function getLabel(level: VerdictLevel): string {
   }
 }
 
-function getVerdictConfig(level: VerdictLevel): VerdictCardConfig {
+// ─────────────────────────────────────────────────────────────────────
+// Cosmetic verdict — completely separate scale: 🟣 TOXIC / 🟡 DISPUTED / 🟢 APPROVED.
+// Cosmetics only ever produce danger (TOXIC), moderation (DISPUTED) or approuve
+// (APPROVED); 'warning' is mapped to DISPUTED as a safety net.
+// ─────────────────────────────────────────────────────────────────────
+function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
+  const english = isEnglish();
+  const avatarLevel: VerdictLevel = level === 'warning' ? 'moderation' : level;
+  if (level === 'danger') {
+    return {
+      accentColor: '#7C3AED',
+      label: english ? 'TOXIC' : 'TOXIQUE',
+      subtitle: english ? 'Avoid this product' : 'À éviter',
+      description: english
+        ? 'This cosmetic contains ingredients recognized as dangerous (endocrine disruptors, carcinogens or banned substances). Avoid skin contact and choose a clean alternative.'
+        : 'Ce cosmétique contient des ingrédients reconnus dangereux (perturbateurs endocriniens, cancérigènes ou substances interdites). Évite le contact avec la peau et choisis une alternative clean.',
+      avatarUri: getDrToxiBadgeAvatarForVerdict('danger'),
+    };
+  }
+  if (level === 'approuve') {
+    return {
+      accentColor: '#2E9E34',
+      label: english ? 'APPROVED' : 'APPROUVÉ',
+      subtitle: english ? 'Clean formula' : 'Formule clean',
+      description: english
+        ? 'This cosmetic is made of ingredients with no known risk. A clean choice for your skin.'
+        : 'Ce cosmétique est composé d’ingrédients sans risque connu. Un choix clean pour ta peau.',
+      avatarUri: null,
+    };
+  }
+  // moderation / warning → DISPUTED
+  return {
+    accentColor: '#EAB308',
+    label: english ? 'DISPUTED' : 'CONTESTÉ',
+    subtitle: english ? 'Use with caution' : 'À utiliser avec prudence',
+    description: english
+      ? 'This cosmetic contains several controversial ingredients with divided science. Use it occasionally and prefer a cleaner formula.'
+      : 'Ce cosmétique contient plusieurs ingrédients controversés à la science partagée. À utiliser occasionnellement et préfère une formule plus clean.',
+    avatarUri: getDrToxiBadgeAvatarForVerdict(avatarLevel),
+  };
+}
+
+function getVerdictConfig(level: VerdictLevel, isCosmetic: boolean): VerdictCardConfig {
+  if (isCosmetic) return getCosmeticConfig(level);
   const accentColors: Record<VerdictLevel, string> = {
     danger: '#D0260F',
     warning: '#E8730A',
@@ -88,9 +133,11 @@ function getVerdictConfig(level: VerdictLevel): VerdictCardConfig {
   };
 }
 
-export default function DrToxiVerdict({ level }: DrToxiVerdictProps) {
-  const config = getVerdictConfig(level);
-  const eyebrow = isEnglish() ? 'RISK VERDICT' : 'VERDICT SANTÉ';
+export default function DrToxiVerdict({ level, isCosmetic = false }: DrToxiVerdictProps) {
+  const config = getVerdictConfig(level, isCosmetic);
+  const eyebrow = isCosmetic
+    ? (isEnglish() ? 'COSMETIC VERDICT' : 'VERDICT COSMÉTIQUE')
+    : (isEnglish() ? 'RISK VERDICT' : 'VERDICT SANTÉ');
 
   return (
     <View

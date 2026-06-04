@@ -7,6 +7,14 @@ import { getHealthProfileAnalysisPrompt } from '@/utils/healthProfile';
 import { t, isEnglish } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote } from '@/constants/ingredientsDatabase';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
+import {
+  classifyCosmeticIngredient,
+  getCosmeticNote,
+  computeCosmeticVerdict,
+  looksLikeCosmetic,
+  CosmeticTier,
+  CosmeticVerdictCounts,
+} from '@/constants/cosmeticsDatabase';
 
 // ═══════════════════════════════════════════════════════════════════════
 // LOOKUP DÉTERMINISTE — l'IA NE CLASSE PAS, ELLE CHERCHE DANS LA BASE
@@ -160,6 +168,75 @@ function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLev
 
   console.log('[Badge] AUCUN: ' + aucunCount + ' vert');
   return 'aucun';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// COSMÉTIQUE — moteur d'analyse SÉPARÉ (🟣 TOXIC / 🟡 DISPUTED / 🟢 APPROVED)
+// La détection (looksLikeCosmetic) route un produit cosmétique vers ce moteur
+// au lieu du moteur alimentaire. Les tiers sont mappés sur le RiskLevel partagé
+// (toxic→danger, disputed→possible, approved→aucun) pour réutiliser le stockage,
+// l'historique et les badges, mais le VERDICT GLOBAL suit la règle cosmétique.
+// ═══════════════════════════════════════════════════════════════════════
+
+/** Map a cosmetic tier onto the shared RiskLevel used for storage/UI. */
+function cosmeticTierToRisk(tier: CosmeticTier): RiskLevel {
+  return tier === 'toxic' ? 'danger' : tier === 'disputed' ? 'possible' : 'aucun';
+}
+
+/** Localized classification label shown for a cosmetic ingredient. */
+function cosmeticCircLabel(tier: CosmeticTier): string {
+  const en = isEnglish();
+  if (tier === 'toxic') return en ? 'Recognized hazardous' : 'Dangereux reconnu';
+  if (tier === 'disputed') return en ? 'Controversial — divided science' : 'Controversé — science partagée';
+  return en ? 'No known risk' : 'Sans risque connu';
+}
+
+/** Build a SubstanceDetected for one cosmetic INCI ingredient (deterministic, no AI). */
+function buildCosmeticSubstance(name: string): SubstanceDetected {
+  const entry = classifyCosmeticIngredient(name);
+  if (entry) {
+    return {
+      nom: name,
+      code: null,
+      classification_circ: cosmeticCircLabel(entry.tier),
+      niveau_risque: cosmeticTierToRisk(entry.tier),
+      explication: getCosmeticNote(entry),
+      source_exposition: null,
+      descriptionPending: false,
+    };
+  }
+  // Unknown INCI → no known risk in our database (treated as APPROVED / neutral).
+  return {
+    nom: name,
+    code: null,
+    classification_circ: isEnglish() ? 'No known risk' : 'Sans risque connu',
+    niveau_risque: 'aucun',
+    explication: isEnglish()
+      ? `${name} is a functional cosmetic ingredient with no known risk in our database.`
+      : `${name} est un ingrédient cosmétique fonctionnel, sans risque connu dans notre base.`,
+    source_exposition: null,
+    descriptionPending: false,
+  };
+}
+
+/** Classify a list of INCI ingredient names through the cosmetic engine. */
+function classifyCosmeticNames(names: string[]): SubstanceDetected[] {
+  return names
+    .map((raw) => raw.trim())
+    .filter((name) => name.length >= 2 && !ALLERGEN_LINE_REGEX.test(name))
+    .map(buildCosmeticSubstance);
+}
+
+/** Global cosmetic badge derived from the per-ingredient tiers (≥1 TOXIC, ≥N DISPUTED…). */
+function computeCosmeticBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLevel {
+  const counts: CosmeticVerdictCounts = {
+    toxic: substances.filter((s) => s.niveau_risque === 'danger').length,
+    disputed: substances.filter((s) => s.niveau_risque === 'possible').length,
+    approved: substances.filter((s) => s.niveau_risque === 'aucun').length,
+  };
+  const tier = computeCosmeticVerdict(counts);
+  console.log('[Cosmetic] verdict', tier, '— toxic:', counts.toxic, 'disputed:', counts.disputed, 'approved:', counts.approved);
+  return cosmeticTierToRisk(tier);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1286,15 +1363,16 @@ function assembleResult(
 ): UniversalAnalysisResult {
   const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
   const sorted = [...substances].sort((a, b) => riskOrder[a.niveau_risque] - riskOrder[b.niveau_risque]);
-  const badge_global = computeBadgeGlobal(sorted);
+  const isCosmetic = meta.categorie_produit === 'cosmetic';
+  const badge_global = isCosmetic ? computeCosmeticBadgeGlobal(sorted) : computeBadgeGlobal(sorted);
   return {
     categorie_produit: meta.categorie_produit,
     objet_identifie: sanitizeProductName(meta.objet_identifie, meta.categorie_produit),
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
     badge_global,
-    resume: generateResume(badge_global, sorted),
-    recommandations: generateRecommendations(badge_global, sorted),
+    resume: isCosmetic ? generateCosmeticResume(badge_global, sorted) : generateResume(badge_global, sorted),
+    recommandations: isCosmetic ? generateCosmeticRecommendations(badge_global, sorted) : generateRecommendations(badge_global, sorted),
     alternatives_sures: [],
     alternatives_saines: [],
     erreur: meta.erreur || '',
@@ -1379,15 +1457,17 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
 
   const source = ocrData.ingredientsBlock || ocrData.fullText;
   const names = splitOcrIngredients(source);
-  const substances = classifyLocal(names);
-  console.log('[API] Instant local classification —', substances.length, 'ingredients parsed from OCR');
+  // Detect a cosmetic INCI list and route it to the SEPARATE cosmetic engine.
+  const isCosmetic = looksLikeCosmetic(names);
+  const substances = isCosmetic ? classifyCosmeticNames(names) : classifyLocal(names);
+  console.log('[API] Instant local classification —', substances.length, 'ingredients parsed from OCR', isCosmetic ? '(cosmetic)' : '(food)');
 
   // A clean OCR guess shows instantly; assembleResult sanitizes empty/placeholder
   // guesses into a category label so we never flash an "unknown product".
   const guessedName = guessProductName(ocrData.fullText) ?? '';
   const result = assembleResult(
     {
-      categorie_produit: 'food',
+      categorie_produit: isCosmetic ? 'cosmetic' : 'food',
       objet_identifie: guessedName,
       materiau_detecte: '',
     },
@@ -1421,10 +1501,15 @@ export async function scanAiEnrich(
         throw new Error(isEnglish() ? 'Invalid AI result' : 'Résultat IA invalide');
       }
 
-      const substances = classifyIngredients(aiResult.ingredients_lus);
+      // Cosmetic if the AI says so OR the INCI list clearly looks cosmetic.
+      const aiNames = aiResult.ingredients_lus.map((i) => i.nom);
+      const isCosmetic = aiResult.categorie_produit === 'cosmetic' || looksLikeCosmetic(aiNames);
+      const substances = isCosmetic
+        ? classifyCosmeticNames(aiNames)
+        : classifyIngredients(aiResult.ingredients_lus);
       const result = assembleResult(
         {
-          categorie_produit: aiResult.categorie_produit,
+          categorie_produit: isCosmetic ? 'cosmetic' : aiResult.categorie_produit,
           objet_identifie: aiResult.objet_identifie,
           materiau_detecte: aiResult.materiau_detecte || '',
           erreur: aiResult.erreur || '',
@@ -1526,6 +1611,62 @@ function generateRecommendations(badge: RiskLevel, substances: SubstanceDetected
     recs.push(en
       ? 'Continue choosing products with simple and natural ingredients.'
       : 'Continue de choisir des produits avec des ingrédients simples et naturels.');
+  }
+
+  return recs;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// RÉSUMÉS + RECOMMANDATIONS COSMÉTIQUES (séparés de l'alimentaire)
+// ─────────────────────────────────────────────────────────────────────
+
+function generateCosmeticResume(badge: RiskLevel, substances: SubstanceDetected[]): string {
+  const en = isEnglish();
+  if (badge === 'danger') {
+    const names = substances.filter((s) => s.niveau_risque === 'danger').slice(0, 2).map((s) => s.nom).join(', ');
+    return en
+      ? `This cosmetic contains ingredients recognized as hazardous${names ? ` (${names})` : ''} — endocrine disruptors or substances linked to cancer. Avoid it and choose a clean alternative.`
+      : `Ce cosmétique contient des ingrédients reconnus dangereux${names ? ` (${names})` : ''} — perturbateurs endocriniens ou substances liées au cancer. À éviter, choisis une alternative clean.`;
+  }
+  if (badge === 'possible') {
+    return en
+      ? `This cosmetic contains several controversial ingredients with divided science. Use it occasionally and prefer a cleaner formula.`
+      : `Ce cosmétique contient plusieurs ingrédients controversés à la science partagée. À utiliser occasionnellement, préfère une formule plus clean.`;
+  }
+  return en
+    ? `This cosmetic is made of ingredients with no known risk. A clean choice for your skin.`
+    : `Ce cosmétique est composé d'ingrédients sans risque connu. Un choix clean pour ta peau.`;
+}
+
+function generateCosmeticRecommendations(badge: RiskLevel, substances: SubstanceDetected[]): string[] {
+  const en = isEnglish();
+  const recs: string[] = [];
+
+  const hasPregnancyRisk = substances.some((s) => {
+    if (s.niveau_risque !== 'danger') return false;
+    return classifyCosmeticIngredient(s.nom)?.pregnancyDanger === true;
+  });
+  if (hasPregnancyRisk) {
+    recs.push(en
+      ? '⚠️ This product contains ingredients to avoid during pregnancy. Ask a healthcare professional.'
+      : '⚠️ Ce produit contient des ingrédients à éviter pendant la grossesse. Demande conseil à un professionnel de santé.');
+  }
+
+  if (badge === 'danger') {
+    recs.push(en
+      ? 'Avoid this product and pick a "clean" / EWG Verified alternative.'
+      : 'Évite ce produit et choisis une alternative « clean » / EWG Verified.');
+    recs.push(en
+      ? 'Check the INCI list on the EWG Skin Deep or Yuka app before buying.'
+      : 'Vérifie la liste INCI sur l\'app EWG Skin Deep ou Yuka avant d\'acheter.');
+  } else if (badge === 'possible') {
+    recs.push(en
+      ? 'Limit use and prefer fragrance-free, silicone-free formulas when possible.'
+      : 'Limite l\'usage et préfère des formules sans parfum ni silicone quand c\'est possible.');
+  } else {
+    recs.push(en
+      ? 'Clean formula — you can use it with confidence.'
+      : 'Formule clean — tu peux l\'utiliser en confiance.');
   }
 
   return recs;

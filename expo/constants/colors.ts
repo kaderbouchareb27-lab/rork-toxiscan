@@ -24,6 +24,7 @@ const Colors = {
   warning: '#E8730A',
   caution: '#EAB308',
   safe: '#2E9E34',
+  toxic: '#7C3AED',
   cardShadow: 'rgba(0, 0, 0, 0.05)',
   overlay: 'rgba(0, 0, 0, 0.5)',
   gradientStart: '#2F7D55',

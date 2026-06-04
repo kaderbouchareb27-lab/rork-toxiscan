@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
-import { t } from '@/utils/i18n';
+import { t, isEnglish } from '@/utils/i18n';
 import Colors from '@/constants/colors';
 import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 
@@ -45,6 +45,8 @@ interface ShareImageCardProps {
   substances?: SubstanceDetected[];
   detectedIngredients?: DetectedIngredient[];
   detectedAdditives?: AdditiveInfo[];
+  /** Cosmetic products use the separate TOXIC / DISPUTED / APPROVED scale. */
+  isCosmetic?: boolean;
 }
 
 /**
@@ -87,6 +89,47 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
         label: t('badge_approved'),
         eyebrow: t('share_verdict_eyebrow_approved'),
         sublabel: t('share_approved_sub'),
+        color: Colors.safe,
+        softColor: '#EAF8EC',
+        glowColor: 'rgba(46, 158, 52, 0.22)',
+        textColor: '#FFFFFF',
+      };
+  }
+}
+
+/**
+ * Cosmetic verdict badge — the separate 🟣 TOXIC / 🟡 DISPUTED / 🟢 APPROVED scale.
+ */
+function getCosmeticVerdictBadge(level: VerdictLevel): VerdictBadge {
+  const en = isEnglish();
+  const eyebrow = en ? 'COSMETIC VERDICT' : 'VERDICT COSMÉTIQUE';
+  switch (level) {
+    case 'danger':
+      return {
+        label: t('cosmetic_badge_toxic'),
+        eyebrow,
+        sublabel: en ? 'Avoid this product' : 'À éviter',
+        color: '#7C3AED',
+        softColor: '#F3EEFD',
+        glowColor: 'rgba(124, 58, 237, 0.20)',
+        textColor: '#FFFFFF',
+      };
+    case 'warning':
+    case 'moderation':
+      return {
+        label: t('cosmetic_badge_disputed'),
+        eyebrow,
+        sublabel: en ? 'Use with caution' : 'À utiliser avec prudence',
+        color: Colors.caution,
+        softColor: '#FFF8DB',
+        glowColor: 'rgba(234, 179, 8, 0.25)',
+        textColor: '#1D1703',
+      };
+    case 'approuve':
+      return {
+        label: t('cosmetic_badge_approved'),
+        eyebrow,
+        sublabel: en ? 'Clean formula' : 'Formule clean',
         color: Colors.safe,
         softColor: '#EAF8EC',
         glowColor: 'rgba(46, 158, 52, 0.22)',
@@ -196,7 +239,18 @@ type RiskRowStyle = {
   label: string;
 };
 
-function getRiskRowStyle(level: IngredientRiskLevel): RiskRowStyle {
+function getRiskRowStyle(level: IngredientRiskLevel, isCosmetic: boolean = false): RiskRowStyle {
+  if (isCosmetic) {
+    switch (level) {
+      case 'danger':
+        return { color: '#7C3AED', softColor: '#F3EEFD', label: t('cosmetic_badge_toxic') };
+      case 'warning':
+      case 'moderation':
+        return { color: Colors.caution, softColor: '#FFF8DB', label: t('cosmetic_badge_disputed') };
+      case 'approuve':
+        return { color: Colors.safe, softColor: '#EAF8EC', label: t('cosmetic_badge_approved') };
+    }
+  }
   switch (level) {
     case 'danger':
       return { color: Colors.danger, softColor: '#FFF0ED', label: t('badge_danger') };
@@ -213,8 +267,9 @@ const TOXISCAN_LOGO = require('../assets/images/icon.png') as ImageSourcePropTyp
 
 export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
+  const isCosmetic = props.isCosmetic === true;
   const verdictLevel = computeVerdictLevel(riskGroup);
-  const badge = getVerdictBadge(verdictLevel);
+  const badge = isCosmetic ? getCosmeticVerdictBadge(verdictLevel) : getVerdictBadge(verdictLevel);
   const items = getTopItems(props);
   const productImageUri = thumbnailBase64 ?? photoUri ?? imageUrl ?? null;
   const drToxiAvatarUri = getDrToxiBadgeAvatarForVerdict(verdictLevel);
@@ -266,7 +321,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
             <Text style={styles.substancesTitle}>{t('substances_detected')}</Text>
             <View style={styles.substanceList}>
               {items.map((item: SubstanceItem, index: number) => {
-                const rowStyle = getRiskRowStyle(item.level);
+                const rowStyle = getRiskRowStyle(item.level, isCosmetic);
                 return (
                   <View
                     key={`${item.name}-${index}`}

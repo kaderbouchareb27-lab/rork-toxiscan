@@ -57,7 +57,15 @@ function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
   }
 }
 
-function getLevelBadgeColor(level: DisplayLevel): string {
+function getLevelBadgeColor(level: DisplayLevel, isCosmetic: boolean = false): string {
+  if (isCosmetic) {
+    switch (level) {
+      case 'danger':   return '#7C3AED'; // 🟣 TOXIC
+      case 'probable': return '#EAB308'; // (n'arrive pas en cosmétique — sécurité)
+      case 'possible': return '#EAB308'; // 🟡 DISPUTED
+      case 'aucun':    return '#2E9E34'; // 🟢 APPROVED
+    }
+  }
   switch (level) {
     case 'danger':   return '#D0260F'; // 🔴 CANCÉRIGÈNE
     case 'probable': return '#E8730A'; // 🟠 ULTRA-TRANSFORMÉ
@@ -66,7 +74,15 @@ function getLevelBadgeColor(level: DisplayLevel): string {
   }
 }
 
-function getLevelBadgeLabel(level: DisplayLevel): string {
+function getLevelBadgeLabel(level: DisplayLevel, isCosmetic: boolean = false): string {
+  if (isCosmetic) {
+    switch (level) {
+      case 'danger':   return t('cosmetic_badge_toxic');     // TOXIQUE / TOXIC
+      case 'probable': return t('cosmetic_badge_disputed');  // (sécurité)
+      case 'possible': return t('cosmetic_badge_disputed');  // CONTESTÉ / DISPUTED
+      case 'aucun':    return t('cosmetic_badge_approved');  // APPROUVÉ / APPROVED
+    }
+  }
   switch (level) {
     case 'danger':   return t('badge_danger');     // CANCÉRIGÈNE
     case 'probable': return t('ingredient_badge_industrial'); // INDUSTRIEL / INDUSTRIAL
@@ -75,7 +91,18 @@ function getLevelBadgeLabel(level: DisplayLevel): string {
   }
 }
 
-function getBannerConfig(level: VerdictLevel): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
+function getBannerConfig(level: VerdictLevel, isCosmetic: boolean = false): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
+  if (isCosmetic) {
+    switch (level) {
+      case 'danger':
+        return { color: '#7C3AED', label: t('cosmetic_badge_toxic'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      case 'warning':
+      case 'moderation':
+        return { color: '#EAB308', label: t('cosmetic_badge_disputed'), intro: t('intro_moderation'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict('moderation') };
+      case 'approuve':
+        return { color: '#2E9E34', label: t('cosmetic_badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} />, avatarUri: null };
+    }
+  }
   switch (level) {
     case 'danger':
       return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
@@ -710,7 +737,8 @@ export default function ProductScreen() {
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
   const isGreen = verdictLevel === 'approuve';
-  const bannerConfig = getBannerConfig(verdictLevel);
+  const isCosmetic = product.productCategory === 'cosmetic';
+  const bannerConfig = getBannerConfig(verdictLevel, isCosmetic);
   const verdictAction = getVerdictAction(verdictLevel);
   const categoryLabel = product.productCategory ? getCategoryLabel(product.productCategory) : getCategoryLabel('food');
 
@@ -867,7 +895,7 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <DrToxiVerdict level={verdictLevel} />
+        <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} />
 
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (
@@ -881,10 +909,12 @@ export default function ProductScreen() {
                 // 🟡 possible = MODÉRATION
                 // 🟢 aucun = APPROUVÉ
                 const level = getDisplayLevel(ing);
-                const color = getLevelBadgeColor(level);
+                const color = getLevelBadgeColor(level, isCosmetic);
                 // For non-food scans, prefer the category-appropriate description
                 // from the additives database (FR/EN) when we can match the ingredient.
-                const additiveMatch = isNonFood ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
+                // Cosmetics carry their own bilingual description (cosmetic engine),
+                // so we never override them with the generic additives DB.
+                const additiveMatch = (isNonFood && !isCosmetic) ? findAdditiveByName(ing.nom, additiveCategory) : undefined;
                 const additiveDescription = additiveMatch ? getAdditiveDescription(additiveMatch) : '';
                 const hasExplanation = !!(ing.explication && ing.explication.trim().length > 0);
                 const isPending = ing.descriptionPending === true && !hasExplanation && additiveDescription.length === 0;
@@ -899,7 +929,7 @@ export default function ProductScreen() {
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
                       <View style={[styles.allIngBadge, { backgroundColor: color }]}>
-                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level)}</Text>
+                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level, isCosmetic)}</Text>
                       </View>
                     </View>
                     {isPending ? (
@@ -1102,7 +1132,7 @@ export default function ProductScreen() {
             productName={product.name} brand={product.brand} riskGroup={product.riskGroup}
             photoUri={product.photoUri} thumbnailBase64={product.thumbnailBase64} imageUrl={product.imageUrl}
             substances={product.substances} detectedIngredients={product.detectedIngredients}
-            detectedAdditives={product.detectedAdditives}
+            detectedAdditives={product.detectedAdditives} isCosmetic={isCosmetic}
           />
         </View>
       </View>

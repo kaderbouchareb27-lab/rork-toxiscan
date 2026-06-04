@@ -17,6 +17,15 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - Suggestions d'alternatives plus sûres
 - Partage du résultat
 
+### Analyse cosmétique (système séparé du alimentaire)
+- Détection automatique d'un produit cosmétique (shampoing, dentifrice, crème, savon, déo, maquillage) via la liste INCI — aucun choix manuel requis
+- Échelle de badges dédiée, distincte de l'alimentaire :
+  - 🟣 TOXIC (violet) — ingrédients reconnus dangereux (SLS/SLES, parabènes, phtalates, formaldéhyde et libérateurs, perturbateurs endocriniens, filtres UV chimiques, triclosan, hydroquinone, métaux lourds, PFAS, D4/D5)
+  - 🟡 DISPUTED (jaune) — ingrédients controversés à la science partagée (phénoxyéthanol, parfum, PEG, silicones, huiles minérales, allergènes de parfum, BHT)
+  - 🟢 APPROVED (vert) — ingrédients naturels/fonctionnels sans risque connu (aqua, glycérine, aloe, karité, vitamine E, acide hyaluronique, huiles végétales…)
+- Verdict global cosmétique : ≥1 TOXIC → 🟣 ; ≥3 DISPUTED → 🟡 ; sinon → 🟢 (seuil DISPUTED resserré vs « >5 » pour ne jamais afficher « clean » avec 3+ ingrédients controversés)
+- Descriptions et verdicts bilingues, Dr. Toxi et la carte de partage alignés sur ces badges (jamais « ultra-transformé »/NOVA pour un cosmétique)
+
 ### Historique
 - Liste chronologique de tous les produits scannés
 - Filtres rapides par niveau de risque

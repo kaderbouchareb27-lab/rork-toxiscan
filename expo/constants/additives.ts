@@ -658,32 +658,27 @@ export function getRiskBadgeInfo(
 
   const en = isEnglish();
 
-  // Cosmetic
+  // Cosmetic — uses the separate TOXIC / DISPUTED / APPROVED scale.
   if (category === 'cosmetic') {
     switch (group) {
       case 'group1':
-        return {
-          label: en ? 'CARCINOGENIC' : 'CANCÉRIGÈNE',
-          sublabel: en ? 'Classified carcinogenic (IARC Group 1) — avoid all contact' : 'Classé cancérigène (CIRC Groupe 1) — éviter tout contact',
-          color: '#D0260F',
-        };
       case 'group2a':
         return {
-          label: en ? 'HARMFUL' : 'NOCIF',
-          sublabel: en ? 'Known allergen or toxic to skin or respiratory system' : 'Allergène connu ou toxique pour la peau ou les voies respiratoires',
-          color: '#E8730A',
+          label: en ? 'TOXIC' : 'TOXIQUE',
+          sublabel: en ? 'Recognized hazardous ingredient — avoid this product' : 'Ingrédient reconnu dangereux — à éviter',
+          color: '#7C3AED',
         };
       case 'group2b':
         return {
-          label: en ? 'USE WITH CARE' : 'AVEC PRÉCAUTION',
-          sublabel: en ? 'May cause skin irritation — avoid prolonged contact' : 'Peut causer une irritation cutanée — éviter contact prolongé',
+          label: en ? 'DISPUTED' : 'CONTESTÉ',
+          sublabel: en ? 'Controversial — divided science, use with caution' : 'Controversé — science partagée, à utiliser avec prudence',
           color: '#EAB308',
         };
       case 'none':
       default:
         return {
-          label: en ? 'SAFE' : 'SANS RISQUE',
-          sublabel: en ? 'Dermatologically tolerated, non-irritating' : 'Dermatologiquement toléré, non irritant',
+          label: en ? 'APPROVED' : 'APPROUVÉ',
+          sublabel: en ? 'No known risk — clean for your skin' : 'Sans risque connu — clean pour ta peau',
           color: '#2E9E34',
         };
     }
