@@ -224,7 +224,8 @@ export default function ScannerScreen() {
         console.log('[Scanner] Camera cancelled by user');
       }
     } catch (error) {
-      console.error('[Scanner] Camera error:', error);
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn('[Scanner] Camera unavailable (non-blocking):', msg);
       Alert.alert(t('error_generic'), t('error_open_camera'));
     }
   }, [photoMutation]);
@@ -264,7 +265,8 @@ export default function ScannerScreen() {
         );
       }
     } catch (error) {
-      console.error('[Scanner] Permission check error:', error);
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn('[Scanner] Permission check failed (non-blocking):', msg);
     }
   }, [launchCamera]);
 
