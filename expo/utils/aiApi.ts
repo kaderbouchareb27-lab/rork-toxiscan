@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isEnglish } from '@/utils/i18n';
+import { pick } from '@/utils/i18n';
 
 const MODEL_ID = 'gpt-4.1-nano';
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
@@ -8,9 +8,11 @@ function getOpenAIConfig(): { url: string; apiKey: string } {
   const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
   if (!apiKey) {
     throw new Error(
-      isEnglish()
-        ? 'AI configuration is missing. The EXPO_PUBLIC_OPEN_AI environment variable must be set.'
-        : "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie."
+      pick({
+        en: 'AI configuration is missing. The EXPO_PUBLIC_OPEN_AI environment variable must be set.',
+        fr: "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie.",
+        ko: 'AI 구성이 누락되었습니다. EXPO_PUBLIC_OPEN_AI 환경 변수를 설정해야 합니다.',
+      })
     );
   }
   return {
@@ -121,9 +123,11 @@ export async function aiGenerateObject<T>(params: {
   toolDescription?: string;
   maxTokens?: number;
 }): Promise<T> {
-  const jsonInstruction = isEnglish()
-    ? '\n\nIMPORTANT: Respond ONLY with a valid JSON object (no text before or after, no backticks). The JSON object must contain all the fields described above.'
-    : "\n\nIMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide (pas de texte avant ni après, pas de backticks). L'objet JSON doit contenir tous les champs décrits ci-dessus.";
+  const jsonInstruction = pick({
+    en: '\n\nIMPORTANT: Respond ONLY with a valid JSON object (no text before or after, no backticks). The JSON object must contain all the fields described above.',
+    fr: "\n\nIMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide (pas de texte avant ni après, pas de backticks). L'objet JSON doit contenir tous les champs décrits ci-dessus.",
+    ko: '\n\n중요: 위에서 설명한 모든 필드를 포함하는 유효한 JSON 객체로만 응답하세요 (앞뒤에 텍스트 없이, 백틱 없이).',
+  });
   const systemWithJson = (params.system ?? '') + jsonInstruction;
 
   const body: Record<string, unknown> = {
@@ -147,9 +151,11 @@ export async function aiGenerateObject<T>(params: {
   }
   if (!contentStr) {
     throw new Error(
-      isEnglish()
-        ? 'The AI did not return a structured result.'
-        : "L'IA n'a pas retourné de résultat structuré."
+      pick({
+        en: 'The AI did not return a structured result.',
+        fr: "L'IA n'a pas retourné de résultat structuré.",
+        ko: 'AI가 구조화된 결과를 반환하지 않았습니다.',
+      })
     );
   }
   const jsonStr = extractJsonBlock(contentStr);
@@ -158,7 +164,7 @@ export async function aiGenerateObject<T>(params: {
     parsed = JSON.parse(jsonStr);
   } catch (e) {
     console.error('[AI] Failed to parse JSON response:', contentStr.substring(0, 500));
-    throw new Error(isEnglish() ? 'Unreadable AI response.' : 'Réponse IA illisible.');
+    throw new Error(pick({ en: 'Unreadable AI response.', fr: 'Réponse IA illisible.', ko: 'AI 응답을 읽을 수 없습니다.' }));
   }
   return params.schema.parse(parsed);
 }

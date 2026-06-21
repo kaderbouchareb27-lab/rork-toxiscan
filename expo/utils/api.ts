@@ -1549,7 +1549,7 @@ export async function scanAiEnrich(
         ocrData.ingredientsBlock || undefined,
       );
       if (!aiResult || !aiResult.categorie_produit) {
-        throw new Error(isEnglish() ? 'Invalid AI result' : 'Résultat IA invalide');
+        throw new Error(pick({ en: 'Invalid AI result', fr: 'Résultat IA invalide', ko: 'AI 결과가 올바르지 않습니다' }));
       }
 
       // Cosmetic if the AI says so OR the INCI list clearly looks cosmetic.

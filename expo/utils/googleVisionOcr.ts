@@ -1,4 +1,4 @@
-import { isEnglish } from '@/utils/i18n';
+import { pick } from '@/utils/i18n';
 
 const GOOGLE_VISION_URL = 'https://vision.googleapis.com/v1/images:annotate';
 
@@ -6,9 +6,11 @@ function getApiKey(): string {
   const apiKey = process.env.EXPO_PUBLIC_GOOGLE_VISION_API_KEY;
   if (!apiKey) {
     throw new Error(
-      isEnglish()
-        ? 'Google Vision API key is missing. Set EXPO_PUBLIC_GOOGLE_VISION_API_KEY.'
-        : "Clé API Google Vision manquante. Définis EXPO_PUBLIC_GOOGLE_VISION_API_KEY.",
+      pick({
+        en: 'Google Vision API key is missing. Set EXPO_PUBLIC_GOOGLE_VISION_API_KEY.',
+        fr: "Clé API Google Vision manquante. Définis EXPO_PUBLIC_GOOGLE_VISION_API_KEY.",
+        ko: 'Google Vision API 키가 없습니다. EXPO_PUBLIC_GOOGLE_VISION_API_KEY를 설정하세요.',
+      }),
     );
   }
   return apiKey;
@@ -61,7 +63,11 @@ export async function runGoogleVisionOcr(imageBase64: string): Promise<GoogleVis
     const msg = networkError instanceof Error ? networkError.message : String(networkError);
     console.error('[GoogleVision] Network error:', msg);
     throw new Error(
-      isEnglish() ? 'Could not reach Google Vision API.' : 'Impossible de joindre Google Vision API.',
+      pick({
+        en: 'Could not reach Google Vision API.',
+        fr: 'Impossible de joindre Google Vision API.',
+        ko: 'Google Vision API에 연결할 수 없습니다.',
+      }),
     );
   }
 
