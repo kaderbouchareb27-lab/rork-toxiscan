@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
 import { t, isEnglish } from '@/utils/i18n';
 import Colors from '@/constants/colors';
-import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
+import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
 
@@ -272,7 +272,9 @@ export default function ShareImageCard(props: ShareImageCardProps) {
   const badge = isCosmetic ? getCosmeticVerdictBadge(verdictLevel) : getVerdictBadge(verdictLevel);
   const items = getTopItems(props);
   const productImageUri = thumbnailBase64 ?? photoUri ?? imageUrl ?? null;
-  const drToxiAvatarUri = getDrToxiBadgeAvatarForVerdict(verdictLevel);
+  const drToxiAvatarUri = isCosmetic
+    ? getDrToxiCosmeticAvatarForVerdict(verdictLevel)
+    : getDrToxiBadgeAvatarForVerdict(verdictLevel);
   const hasItems = items.length > 0;
 
   return (

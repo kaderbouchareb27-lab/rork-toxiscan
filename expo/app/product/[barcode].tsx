@@ -22,6 +22,7 @@ import {
   Store, Heart, Navigation,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
+import ToxicLoadBanner from '@/components/ToxicLoadBanner';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -39,7 +40,7 @@ import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish } from '@/utils/i18n';
-import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
+import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
 // ✅ Conversion directe niveau_risque → couleur/label
@@ -95,10 +96,10 @@ function getBannerConfig(level: VerdictLevel, isCosmetic: boolean = false): { co
   if (isCosmetic) {
     switch (level) {
       case 'danger':
-        return { color: '#7C3AED', label: t('cosmetic_badge_toxic'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+        return { color: '#7C3AED', label: t('cosmetic_badge_toxic'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiCosmeticAvatarForVerdict(level) };
       case 'warning':
       case 'moderation':
-        return { color: '#EAB308', label: t('cosmetic_badge_disputed'), intro: t('intro_moderation'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict('moderation') };
+        return { color: '#EAB308', label: t('cosmetic_badge_disputed'), intro: t('intro_moderation'), icon: null, avatarUri: getDrToxiCosmeticAvatarForVerdict('moderation') };
       case 'approuve':
         return { color: '#2E9E34', label: t('cosmetic_badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} />, avatarUri: null };
     }
@@ -689,6 +690,16 @@ export default function ProductScreen() {
       : product.substances ?? [];
   }, [product]);
 
+  // 🔴 TOXIC LOAD / DANGER CUMULÉ / 과다 위험 — cumulative-risk alert.
+  // Triggered when MORE THAN 8 orange ULTRA-PROCESSED ingredients pile up in the
+  // same product, regardless of the main verdict. Not counted for cosmetics
+  // (they use their own TOXIC / DISPUTED / APPROVED scale).
+  const ultraProcessedCount = useMemo<number>(() => {
+    if (product?.productCategory === 'cosmetic') return 0;
+    return ingredientsList.filter((ing) => getDisplayLevel(ing) === 'probable').length;
+  }, [ingredientsList, product?.productCategory]);
+  const showToxicLoad = ultraProcessedCount > 8;
+
   // Advice built from what was ACTUALLY found on this scanned label — names the
   // flagged substances (worst first) and turns them into concrete guidance.
   const scannedAdvice = useMemo(() => {
@@ -896,6 +907,8 @@ export default function ProductScreen() {
         )}
 
         <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} />
+
+        {showToxicLoad ? <ToxicLoadBanner count={ultraProcessedCount} /> : null}
 
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (

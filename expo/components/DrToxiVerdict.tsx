@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { isEnglish } from '@/utils/i18n';
-import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
+import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
 
@@ -90,7 +90,7 @@ function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
       description: english
         ? 'This cosmetic contains ingredients recognized as dangerous (endocrine disruptors, carcinogens or banned substances). Avoid skin contact and choose a clean alternative.'
         : 'Ce cosmétique contient des ingrédients reconnus dangereux (perturbateurs endocriniens, cancérigènes ou substances interdites). Évite le contact avec la peau et choisis une alternative clean.',
-      avatarUri: getDrToxiBadgeAvatarForVerdict('danger'),
+      avatarUri: getDrToxiCosmeticAvatarForVerdict('danger'),
     };
   }
   if (level === 'approuve') {
@@ -112,7 +112,7 @@ function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
     description: english
       ? 'This cosmetic contains several controversial ingredients with divided science. Use it occasionally and prefer a cleaner formula.'
       : 'Ce cosmétique contient plusieurs ingrédients controversés à la science partagée. À utiliser occasionnellement et préfère une formule plus clean.',
-    avatarUri: getDrToxiBadgeAvatarForVerdict(avatarLevel),
+    avatarUri: getDrToxiCosmeticAvatarForVerdict(avatarLevel),
   };
 }
 
