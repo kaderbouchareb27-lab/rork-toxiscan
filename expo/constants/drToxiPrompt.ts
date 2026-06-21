@@ -1,4 +1,4 @@
-import { t, isEnglish } from '@/utils/i18n';
+import { t, isEnglish, isKorean } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, type IngredientEntry, type RiskLevel } from '@/constants/ingredientsDatabase';
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -446,7 +446,10 @@ ABSOLUTE RULES:
 
 You're here to help, reassure, inform, and guide. Every answer should leave the user with a clear piece of info and a concrete action, anchored in THEIR country.`;
 
-export const DR_TOXI_SYSTEM_PROMPT = isEnglish()
+// Korean reuses the English scaffold; the Korean language instruction injected by
+// getChatRegionPrompt() (appended AFTER this prompt) forces Korean OUTPUT and
+// overrides the English-only wording inside the English scaffold.
+export const DR_TOXI_SYSTEM_PROMPT = (isEnglish() || isKorean())
   ? DATABASE_HEADER_EN + DR_TOXI_SYSTEM_PROMPT_EN
   : DATABASE_HEADER_FR + DR_TOXI_SYSTEM_PROMPT_FR;
 
@@ -614,7 +617,7 @@ STRICT RULES:
 - Translate E-numbers into plain language (E250 → sodium nitrite)
 - If an ingredient isn't in your 4 categories, say "looks OK" or "neutral"`;
 
-export const DR_TOXI_VISION_PROMPT = isEnglish() ? DR_TOXI_VISION_PROMPT_EN : DR_TOXI_VISION_PROMPT_FR;
+export const DR_TOXI_VISION_PROMPT = (isEnglish() || isKorean()) ? DR_TOXI_VISION_PROMPT_EN : DR_TOXI_VISION_PROMPT_FR;
 
 export function getVisionLoadingMessages(): string[] {
   return [

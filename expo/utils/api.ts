@@ -1,4 +1,4 @@
-import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup } from '@/types';
+import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup, AdditiveInfo, AdditiveCategory } from '@/types';
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
@@ -25,7 +25,10 @@ function normalizeForLookup(s: string): string {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ')
+    // Keep ASCII alphanumerics AND Korean Hangul (syllables + conjoining/compatibility
+    // jamo). NFD decomposes Hangul into jamo, but keyword and OCR input are normalized
+    // identically, so decomposed forms still match each other consistently.
+    .replace(/[^a-z0-9\s\u1100-\u11ff\u3130-\u318f\uac00-\ud7a3]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -1748,12 +1751,20 @@ export function universalResultToScannedProduct(
   const riskGroup = niveauRisqueToGroup(result.badge_global);
   console.log('[API] Final riskGroup:', riskGroup);
 
-  const detectedAdditives = result.substances_detectees
+  const additiveCategory: AdditiveCategory =
+    result.categorie_produit === 'cosmetic' ? 'cosmetic'
+    : result.categorie_produit === 'household' ? 'household'
+    : result.categorie_produit === 'kitchen_utensil' ? 'kitchen'
+    : result.categorie_produit === 'clothing' ? 'textile'
+    : 'food';
+
+  const detectedAdditives: AdditiveInfo[] = result.substances_detectees
     .filter((s: SubstanceDetected) => s.niveau_risque !== 'aucun')
     .map((s: SubstanceDetected) => ({
       code: s.code ?? s.nom,
       name: s.nom,
       group: niveauRisqueToGroup(s.niveau_risque),
+      category: additiveCategory,
       description: s.explication ?? '',
     }));
 

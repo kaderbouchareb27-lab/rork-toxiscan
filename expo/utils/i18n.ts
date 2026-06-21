@@ -532,12 +532,12 @@ type TranslationKey = keyof typeof translations;
 
 export function t(key: TranslationKey): string {
   const lang = getDeviceLanguage();
-  const entry = translations[key];
+  const entry = translations[key] as Record<Lang, unknown> | undefined;
   if (!entry) {
     console.warn('[i18n] Missing key:', key);
     return key;
   }
-  const val = (entry as Record<Lang, unknown>)[lang] ?? entry.en ?? entry.fr;
+  const val = entry[lang] ?? entry.en ?? entry.fr;
   if (typeof val === 'function') {
     return key;
   }
@@ -546,12 +546,12 @@ export function t(key: TranslationKey): string {
 
 export function tf<A extends unknown[]>(key: TranslationKey, ...args: A): string {
   const lang = getDeviceLanguage();
-  const entry = translations[key];
+  const entry = translations[key] as Record<Lang, unknown> | undefined;
   if (!entry) {
     console.warn('[i18n] Missing key:', key);
     return key;
   }
-  const val = (entry as Record<Lang, unknown>)[lang] ?? entry.en ?? entry.fr;
+  const val = entry[lang] ?? entry.en ?? entry.fr;
   if (typeof val === 'function') {
     return (val as unknown as (...a: A) => string)(...args);
   }

@@ -1,8 +1,8 @@
 import * as Localization from 'expo-localization';
 import { Platform } from 'react-native';
 
-export type UserRegion = 'quebec' | 'france' | 'usa' | 'belgium' | 'switzerland' | 'canada_other';
-export type UserLanguage = 'fr_quebec' | 'fr_france' | 'en' | 'fr_belgium' | 'fr_switzerland';
+export type UserRegion = 'quebec' | 'france' | 'usa' | 'belgium' | 'switzerland' | 'canada_other' | 'korea';
+export type UserLanguage = 'fr_quebec' | 'fr_france' | 'en' | 'fr_belgium' | 'fr_switzerland' | 'ko';
 
 interface RegionInfo {
   region: UserRegion;
@@ -48,7 +48,10 @@ export function detectRegion(): RegionInfo {
     let region: UserRegion;
     let language: UserLanguage;
 
-    if (regionCode === 'CA') {
+    if (languageCode === 'ko' || regionCode === 'KR') {
+      region = 'korea';
+      language = 'ko';
+    } else if (regionCode === 'CA') {
       if (languageCode === 'fr') {
         region = 'quebec';
         language = 'fr_quebec';
@@ -118,6 +121,8 @@ export function getStoreRegion(): UserRegion {
       return 'belgium';
     case 'CH':
       return 'switzerland';
+    case 'KR':
+      return 'korea';
     default:
       return detectRegion().region;
   }
@@ -137,6 +142,8 @@ export function getRegionStores(region: UserRegion): string[] {
       return ['Delhaize', 'Colruyt', 'Carrefour Belgique', 'Bio-Planet', 'Aldi', 'Lidl'];
     case 'switzerland':
       return ['Migros', 'Coop', 'Denner', 'Aldi Suisse', 'Manor'];
+    case 'korea':
+      return ['이마트', '홈플러스', '롯데마트', '코스트코', '쿠팡', '마켓컬리', '한살림', '초록마을', '자연드림', '올리브영'];
   }
 }
 
@@ -154,6 +161,8 @@ export function getRegionSpecialtyStores(region: UserRegion): string[] {
       return ['Bio-Planet', 'Séquoia'];
     case 'switzerland':
       return ['Alnatura'];
+    case 'korea':
+      return ['한살림', '초록마을', '자연드림(iCOOP)', '올가홀푸드', '아이허브'];
   }
 }
 
@@ -171,6 +180,8 @@ export function getRegionGroceryStores(region: UserRegion): string[] {
       return ['Delhaize Bio', 'Colruyt', 'Carrefour Bio BE'];
     case 'switzerland':
       return ['Migros Bio', 'Coop Naturaplan'];
+    case 'korea':
+      return ['이마트 친환경', '홈플러스 유기농', '쿠팡 로켓프레시 친환경', '마켓컬리 유기농'];
   }
 }
 
@@ -188,6 +199,8 @@ export function getRegionCleanBrands(region: UserRegion, isHouseholdOrCosmetic: 
         return ['Ecover', 'Rainett', 'Kneipp', 'Weleda'];
       case 'switzerland':
         return ['Held', 'Klar', 'Weleda'];
+      case 'korea':
+        return ['아로마티카', '닥터브로너스', '동구밭', '톤28', '라운드랩'];
     }
   }
 
@@ -204,6 +217,8 @@ export function getRegionCleanBrands(region: UserRegion, isHouseholdOrCosmetic: 
       return ['Boni Bio', 'Delhaize Bio'];
     case 'switzerland':
       return ['Migros Bio', 'Coop Naturaplan'];
+    case 'korea':
+      return ['풀무원 유기농', '한살림 PB', '초록마을 PB', '자연드림 PB'];
   }
 }
 
@@ -221,6 +236,8 @@ export function getRegionLocalMarkets(region: UserRegion): string[] {
       return ['Marchés locaux'];
     case 'switzerland':
       return ['Marchés locaux'];
+    case 'korea':
+      return ['전통시장 / 재래시장', '동네 생협(한살림·초록마을) 매장'];
   }
 }
 
@@ -234,6 +251,8 @@ export function getLanguageInstruction(language: UserLanguage): string {
       return `LANGUE : Tu DOIS répondre en français de France (pas en québécois). Tutoiement. Style naturel et courant. Prix en EUR. L'utilisateur est en Belgique : recommande UNIQUEMENT des produits disponibles chez Delhaize, Colruyt, Carrefour Belgique, Bio-Planet. Exemples : "Tu trouveras ça chez Delhaize en section bio".`;
     case 'fr_switzerland':
       return `LANGUE : Tu DOIS répondre en français de France (pas en québécois). Tutoiement. Style naturel et courant. Prix en CHF. L'utilisateur est en Suisse : recommande UNIQUEMENT des produits disponibles chez Migros, Coop, Denner, Manor. Exemples : "Tu trouveras ça chez Migros ou Coop Naturaplan".`;
+    case 'ko':
+      return `언어 규칙(최우선): 너는 반드시 100% 자연스러운 한국어로만 답해야 한다. 영어나 프랑스어를 절대 섞지 마라(성분의 원어명을 괄호로 병기하는 것만 허용). 다정하고 신뢰감 있는 존댓말("~예요", "~어요")을 사용해라. 가격은 원(₩, KRW)으로 표기한다. 사용자는 대한민국에 있다: 대안 제품과 매장은 한국에서 실제로 구할 수 있는 것만 추천해라 — 이마트, 홈플러스, 롯데마트, 코스트코, 쿠팡, 마켓컬리, 한살림, 초록마을, 자연드림, 올리브영(화장품), 아이허브. 예: "무첨가 햄은 한살림이나 초록마을에서 찾을 수 있어요", "이건 마켓컬리나 쿠팡에서 주문하면 돼요". 미국·유럽 매장(Whole Foods, Trader Joe's, Carrefour, IGA 등)은 절대 추천하지 마라. 이 한국어 규칙은 위/아래의 영어·프랑스어 지시보다 항상 우선한다.`;
     case 'en':
       return `LANGUAGE: You MUST respond in English. Be friendly, use "you", warm and professional tone. Prices in USD $ (or CAD $ if user is in Canada). The user is in the United States or English Canada: ONLY recommend products available at Whole Foods, Trader Joe's, Walmart, Target, Costco USA, Sprouts, CVS (or Loblaws, Real Canadian Superstore, Walmart Canada if Canada). Examples: "You can find this at Whole Foods or Trader Joe's". Never respond in French. All product names, store names, and recommendations must be relevant to the North American market.`;
   }
@@ -252,6 +271,7 @@ export function getRegionStoreContext(region: UserRegion): string {
     usa: 'United States',
     belgium: 'Belgique',
     switzerland: 'Suisse',
+    korea: '대한민국',
   }[region];
 
   return `RÉGION DE L'UTILISATEUR : ${regionName}
