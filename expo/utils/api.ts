@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { getHealthProfileAnalysisPrompt } from '@/utils/healthProfile';
-import { t, isEnglish } from '@/utils/i18n';
+import { t, isEnglish, isKorean, getDeviceLanguage, pick } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote } from '@/constants/ingredientsDatabase';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 import {
@@ -185,10 +185,9 @@ function cosmeticTierToRisk(tier: CosmeticTier): RiskLevel {
 
 /** Localized classification label shown for a cosmetic ingredient. */
 function cosmeticCircLabel(tier: CosmeticTier): string {
-  const en = isEnglish();
-  if (tier === 'toxic') return en ? 'Recognized hazardous' : 'Dangereux reconnu';
-  if (tier === 'disputed') return en ? 'Controversial — divided science' : 'Controversé — science partagée';
-  return en ? 'No known risk' : 'Sans risque connu';
+  if (tier === 'toxic') return pick({ en: 'Recognized hazardous', fr: 'Dangereux reconnu', ko: '유해 확인됨' });
+  if (tier === 'disputed') return pick({ en: 'Controversial — divided science', fr: 'Controversé — science partagée', ko: '논란 — 과학적 의견 갈림' });
+  return pick({ en: 'No known risk', fr: 'Sans risque connu', ko: '알려진 위험 없음' });
 }
 
 /** Build a SubstanceDetected for one cosmetic INCI ingredient (deterministic, no AI). */
@@ -209,11 +208,13 @@ function buildCosmeticSubstance(name: string): SubstanceDetected {
   return {
     nom: name,
     code: null,
-    classification_circ: isEnglish() ? 'No known risk' : 'Sans risque connu',
+    classification_circ: pick({ en: 'No known risk', fr: 'Sans risque connu', ko: '알려진 위험 없음' }),
     niveau_risque: 'aucun',
-    explication: isEnglish()
-      ? `${name} is a functional cosmetic ingredient with no known risk in our database.`
-      : `${name} est un ingrédient cosmétique fonctionnel, sans risque connu dans notre base.`,
+    explication: pick({
+      en: `${name} is a functional cosmetic ingredient with no known risk in our database.`,
+      fr: `${name} est un ingrédient cosmétique fonctionnel, sans risque connu dans notre base.`,
+      ko: `${name}은(는) 데이터베이스에서 알려진 위험이 없는 기능성 화장품 성분입니다.`,
+    }),
     source_exposition: null,
     descriptionPending: false,
   };
@@ -719,7 +720,9 @@ The description MUST ALWAYS, no exception:
   "erreur": ""
 }`;
 
-const AI_PROMPT = isEnglish() ? AI_PROMPT_EN : AI_PROMPT_FR;
+// Korean reuses the English instruction scaffold; the runtime language lock below
+// forces Korean OUTPUT, which overrides the English-only wording inside AI_PROMPT_EN.
+const AI_PROMPT = (isEnglish() || isKorean()) ? AI_PROMPT_EN : AI_PROMPT_FR;
 
 // ═══════════════════════════════════════════════════════════════════════
 // APPEL À L'IA
@@ -733,8 +736,19 @@ async function callAI(
   console.log('[API] Calling OpenAI — description-only mode...');
 
   // 🌐 LANGUAGE LOCK — passed explicitly at runtime so the model can NEVER mix languages.
-  const targetEnglish = isEnglish();
-  const languageLock = targetEnglish
+  const lang = getDeviceLanguage();
+  const targetEnglish = lang === 'en';
+  const languageLock = lang === 'ko'
+    ? `╔═══════════════════════════════════════════════╗
+║  출력 언어 잠금 — 한국어만 사용              ║
+╚═══════════════════════════════════════════════╝
+앱 언어는 한국어입니다. 이 규칙은 아래의 다른 모든 규칙보다 우선합니다.
+- 모든 성분명("nom")과 모든 설명("explication")은 반드시 한국어로만 작성해야 합니다.
+- 라벨/OCR 텍스트가 프랑스어, 영어 또는 다른 언어라면, 작성하기 전에 모든 용어를 한국어로 번역하세요.
+- JSON 출력 전체가 100% 한국어여야 합니다. 언어가 섞인 필드는 절대 안 됩니다. (성분명 옆에 원어를 괄호로 병기하는 것은 허용됩니다.)
+
+`
+    : targetEnglish
     ? `╔═══════════════════════════════════════════════╗
 ║  OUTPUT LANGUAGE LOCK — ENGLISH ONLY          ║
 ╚═══════════════════════════════════════════════╝
@@ -773,16 +787,20 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
           .join('\n')
       : null;
 
-    const ocrHeader = isEnglish()
-      ? '\n\n═══ GOOGLE VISION OCR — RAW TEXT ═══\nPRIMARY source for the ingredient list. NEVER omit an ingredient that appears in the OCR.\n--- FULL OCR TEXT ---\n'
-      : '\n\n═══ OCR GOOGLE VISION — TEXTE BRUT ═══\nSource PRINCIPALE pour les ingrédients. N\'omets JAMAIS un ingrédient de l\'OCR.\n--- TEXTE OCR COMPLET ---\n';
+    const ocrHeader = pick({
+      en: '\n\n═══ GOOGLE VISION OCR — RAW TEXT ═══\nPRIMARY source for the ingredient list. NEVER omit an ingredient that appears in the OCR.\n--- FULL OCR TEXT ---\n',
+      fr: '\n\n═══ OCR GOOGLE VISION — TEXTE BRUT ═══\nSource PRINCIPALE pour les ingrédients. N\'omets JAMAIS un ingrédient de l\'OCR.\n--- TEXTE OCR COMPLET ---\n',
+      ko: '\n\n═══ GOOGLE VISION OCR — 원문 텍스트 ═══\n성분 목록의 주요 출처입니다. OCR에 나타난 성분을 절대 빠뜨리지 마세요.\n--- 전체 OCR 텍스트 ---\n',
+    });
     systemParts.push(ocrHeader);
     systemParts.push(cleanedOcr.substring(0, 8000));
     if (cleanedBlock && cleanedBlock.length > 10) {
       systemParts.push(
-        isEnglish()
-          ? '\n--- INGREDIENTS BLOCK (highest priority) ---\n'
-          : '\n--- BLOC INGRÉDIENTS (priorité max) ---\n',
+        pick({
+          en: '\n--- INGREDIENTS BLOCK (highest priority) ---\n',
+          fr: '\n--- BLOC INGRÉDIENTS (priorité max) ---\n',
+          ko: '\n--- 성분 블록 (최우선) ---\n',
+        }),
       );
       systemParts.push(cleanedBlock.substring(0, 4000));
     }
@@ -799,9 +817,11 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
         content: [
           {
             type: 'text',
-            text: targetEnglish
-              ? 'Read every ingredient on the label and write a FRANK, EDUCATIONAL description for each. DO NOT classify ingredients — that is done automatically by the system. DO NOT reassure the user about processed ingredients. Write EVERYTHING (names and descriptions) in ENGLISH ONLY — translate any French term first, no French word allowed.'
-              : 'Lis chaque ingrédient de l\'étiquette et écris une description FRANCHE et PÉDAGOGIQUE pour chacun. NE CLASSIFIE PAS les ingrédients — c\'est fait automatiquement par le système. NE RASSURE PAS l\'utilisateur sur les ingrédients transformés. Écris TOUT (noms et descriptions) en FRANÇAIS UNIQUEMENT — traduis tout terme anglais d\'abord, aucun mot anglais autorisé.'
+            text: pick({
+              en: 'Read every ingredient on the label and write a FRANK, EDUCATIONAL description for each. DO NOT classify ingredients — that is done automatically by the system. DO NOT reassure the user about processed ingredients. Write EVERYTHING (names and descriptions) in ENGLISH ONLY — translate any French term first, no French word allowed.',
+              fr: 'Lis chaque ingrédient de l\'étiquette et écris une description FRANCHE et PÉDAGOGIQUE pour chacun. NE CLASSIFIE PAS les ingrédients — c\'est fait automatiquement par le système. NE RASSURE PAS l\'utilisateur sur les ingrédients transformés. Écris TOUT (noms et descriptions) en FRANÇAIS UNIQUEMENT — traduis tout terme anglais d\'abord, aucun mot anglais autorisé.',
+              ko: '라벨의 모든 성분을 읽고 각 성분에 대해 솔직하고 교육적인 설명을 작성하세요. 성분을 분류하지 마세요 — 분류는 시스템이 자동으로 합니다. 가공 성분에 대해 사용자를 안심시키지 마세요. 모든 것(성분명과 설명)을 한국어로만 작성하세요.',
+            })
           },
           ...(hasOcrIngredients ? [] : [{ type: 'image' as const, image: imageBase64 }]),
         ],
@@ -809,7 +829,7 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
     ],
     schema: aiAnalysisSchema,
     toolName: 'record_analysis',
-    toolDescription: isEnglish() ? 'Record the product description.' : 'Enregistre la description du produit.',
+    toolDescription: pick({ en: 'Record the product description.', fr: 'Enregistre la description du produit.', ko: '제품 설명을 기록합니다.' }),
     maxTokens: 2500,
   });
 
@@ -955,19 +975,23 @@ function entryHasCancerBasis(entry: IngredientEntry | null): boolean {
 
 /** Closing clause for a cancer/disease-grounded ultra-processed ingredient. */
 function diseaseClause(en: boolean): string {
-  return en
-    ? ' It is a marker of ultra-processed food linked to chronic inflammation and an increased risk of cancer and metabolic disease. Avoid regular consumption.'
-    : ' C\'est un marqueur d\'aliment ultra-transformé lié à l\'inflammation chronique et à un risque accru de cancer et de maladies métaboliques. À éviter au quotidien.';
+  return pick({
+    en: ' It is a marker of ultra-processed food linked to chronic inflammation and an increased risk of cancer and metabolic disease. Avoid regular consumption.',
+    fr: ' C\'est un marqueur d\'aliment ultra-transformé lié à l\'inflammation chronique et à un risque accru de cancer et de maladies métaboliques. À éviter au quotidien.',
+    ko: ' 만성 염증과 암 및 대사 질환 위험 증가와 관련된 초가공식품의 지표입니다. 정기적인 섭취를 피하세요.',
+  });
 }
 
 /** Neutral NOVA 4 closer for ultra-processed ingredients WITHOUT a real cancer/disease basis. */
 function novaClause(en: boolean, noteAlreadyHasMarker: boolean): string {
   if (noteAlreadyHasMarker) {
-    return en ? ' Avoid regular consumption (NOVA 4).' : ' À éviter au quotidien (NOVA 4).';
+    return pick({ en: ' Avoid regular consumption (NOVA 4).', fr: ' À éviter au quotidien (NOVA 4).', ko: ' 정기적인 섭취를 피하세요 (NOVA 4).' });
   }
-  return en
-    ? ' Avoid regular consumption — a marker of ultra-processed food (NOVA 4).'
-    : ' Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).';
+  return pick({
+    en: ' Avoid regular consumption — a marker of ultra-processed food (NOVA 4).',
+    fr: ' Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).',
+    ko: ' 정기적인 섭취를 피하세요 — 초가공식품의 지표입니다 (NOVA 4).',
+  });
 }
 
 // Force a SPECIFIC, negative description for red/orange ingredients (fallback generator level).
@@ -990,30 +1014,40 @@ function buildNegativeDescription(name: string, risk: RiskLevel, entry: Ingredie
   const circInfo = entry?.circ ? ' (' + entry.circ + ')' : '';
   if (risk === 'danger') {
     if (cancerBasis) {
-      return en
-        ? name + ' is classified as a carcinogen' + circInfo + ' by the WHO/IARC — the same category of substances that cause cancer. Regular exposure damages cells and increases cancer risk, and it is especially harmful to children and pregnant women. This ingredient has NO health benefit; the food industry uses it only for preservation, color, or texture. Avoid it.'
-        : name + ' est classé cancérigène' + circInfo + ' par l\'OMS/CIRC — la même catégorie de substances qui causent le cancer. Une exposition régulière endommage les cellules et augmente le risque de cancer, et c\'est particulièrement nocif pour les enfants et les femmes enceintes. Cet ingrédient n\'a AUCUN bénéfice santé ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. À éviter.';
+      return pick({
+        en: name + ' is classified as a carcinogen' + circInfo + ' by the WHO/IARC — the same category of substances that cause cancer. Regular exposure damages cells and increases cancer risk, and it is especially harmful to children and pregnant women. This ingredient has NO health benefit; the food industry uses it only for preservation, color, or texture. Avoid it.',
+        fr: name + ' est classé cancérigène' + circInfo + ' par l\'OMS/CIRC — la même catégorie de substances qui causent le cancer. Une exposition régulière endommage les cellules et augmente le risque de cancer, et c\'est particulièrement nocif pour les enfants et les femmes enceintes. Cet ingrédient n\'a AUCUN bénéfice santé ; l\'industrie ne l\'utilise que pour la conservation, la couleur ou la texture. À éviter.',
+        ko: name + '은(는) WHO/IARC가 분류한 발암물질' + circInfo + '입니다 — 암을 유발하는 물질과 같은 범주입니다. 정기적인 노출은 세포를 손상시키고 암 위험을 높이며, 특히 어린이와 임산부에게 해롭습니다. 이 성분은 건강상 이점이 전혀 없으며, 식품 업계는 보존·착색·조질 용도로만 사용합니다. 피하세요.',
+      });
     }
     // Dangerous but NOT carcinogenic (toxic / banned additive) — no fabricated cancer claim.
-    return en
-      ? name + ' is a toxic industrial substance' + circInfo + ', banned or restricted in food in several countries. It accumulates in the body and damages organs, with no health benefit whatsoever. Avoid it completely.'
-      : name + ' est une substance industrielle toxique' + circInfo + ', interdite ou restreinte dans l\'alimentation de plusieurs pays. Elle s\'accumule dans l\'organisme et endommage les organes, sans aucun bénéfice santé. À éviter totalement.';
+    return pick({
+      en: name + ' is a toxic industrial substance' + circInfo + ', banned or restricted in food in several countries. It accumulates in the body and damages organs, with no health benefit whatsoever. Avoid it completely.',
+      fr: name + ' est une substance industrielle toxique' + circInfo + ', interdite ou restreinte dans l\'alimentation de plusieurs pays. Elle s\'accumule dans l\'organisme et endommage les organes, sans aucun bénéfice santé. À éviter totalement.',
+      ko: name + '은(는) 여러 나라에서 식품 사용이 금지되거나 제한된 독성 산업 물질' + circInfo + '입니다. 체내에 축적되어 장기를 손상시키며 건강상 이점이 전혀 없습니다. 완전히 피하세요.',
+    });
   }
   // Orange (ultra-processed).
   if (cancerBasis) {
-    return en
-      ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents or high heat) that strips any nutritional value and creates compounds promoting chronic inflammation, obesity, type 2 diabetes and an increased risk of cancer. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.'
-      : name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé chimique (raffinage, hydrogénation, solvants, haute température) qui détruit toute valeur nutritive et crée des composés favorisant l\'inflammation chronique, l\'obésité, le diabète de type 2 et un risque accru de cancer. Il n\'a aucun bénéfice santé réel et c\'est un marqueur d\'aliment ultra-transformé (NOVA 4). À éviter au quotidien.';
+    return pick({
+      en: name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced through heavy chemical processing (refining, hydrogenation, solvents or high heat) that strips any nutritional value and creates compounds promoting chronic inflammation, obesity, type 2 diabetes and an increased risk of cancer. It has no real health benefit and is a marker of ultra-processed food (NOVA 4). Avoid regular consumption.',
+      fr: name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé chimique (raffinage, hydrogénation, solvants, haute température) qui détruit toute valeur nutritive et crée des composés favorisant l\'inflammation chronique, l\'obésité, le diabète de type 2 et un risque accru de cancer. Il n\'a aucun bénéfice santé réel et c\'est un marqueur d\'aliment ultra-transformé (NOVA 4). À éviter au quotidien.',
+      ko: name + '은(는) 초가공 산업 성분' + circInfo + '입니다. 정제·수소화·용매·고온 등 강력한 화학 공정으로 생산되어 영양가가 사라지고 만성 염증, 비만, 제2형 당뇨, 암 위험 증가를 유발하는 물질을 생성합니다. 실질적인 건강 이점이 없으며 초가공식품의 지표입니다(NOVA 4). 정기적인 섭취를 피하세요.',
+    });
   }
   // Ultra-processed WITHOUT a proven cancer/disease basis (synthetic vitamins, industrial minerals/salts…).
-  return en
-    ? name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced by a heavy industrial process that strips away any real nutritional value — a whole, natural food never needs it. Avoid regular consumption — a marker of ultra-processed food (NOVA 4).'
-    : name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé industriel qui le prive de toute vraie valeur nutritive — un aliment entier et naturel n\'en a jamais besoin. Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).';
+  return pick({
+    en: name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced by a heavy industrial process that strips away any real nutritional value — a whole, natural food never needs it. Avoid regular consumption — a marker of ultra-processed food (NOVA 4).',
+    fr: name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé industriel qui le prive de toute vraie valeur nutritive — un aliment entier et naturel n\'en a jamais besoin. Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).',
+    ko: name + '은(는) 초가공 산업 성분' + circInfo + '입니다. 진짜 영양가를 없애는 강력한 산업 공정으로 만들어집니다 — 온전하고 자연스러운 식품에는 절대 필요 없는 성분입니다. 정기적인 섭취를 피하세요 — 초가공식품의 지표입니다(NOVA 4).',
+  });
 }
 
 // BUG 1 FIX — No more generic fallback. Every description must be specific.
 function buildPositiveFallback(name: string, note: string | undefined): string {
-  const en = isEnglish();
+  // Korean reuses the English wording here (deep green-ingredient fallback) so a Korean
+  // user never sees French; the primary path (DB note / AI) already returns Korean.
+  const en = getDeviceLanguage() !== 'fr';
   if (note && note.trim() && !hasNegativeTone(note)) return note;
   // Use the specific ingredient name to craft a real description.
   const lowerName = name.toLowerCase();
@@ -1183,7 +1217,7 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
       return {
         nom: name,
         code: null,
-        classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
+        classification_circ: pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
         niveau_risque: fallbackRisk,
         explication: '',
         source_exposition: null,
@@ -1246,9 +1280,11 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     }
 
     // BUG 1 FIX — No more generic fallback for unknown ingredients.
-    const explication = ing.explication || (isEnglish()
-      ? `${ing.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`
-      : `${ing.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`);
+    const explication = ing.explication || pick({
+      en: `${ing.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`,
+      fr: `${ing.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`,
+      ko: `${ing.nom}은(는) ToxiScan 데이터베이스에 등록되어 있지 않습니다. 현재 데이터로는 건강 영향을 판단할 수 없습니다.`,
+    });
     // Fallback STRICT : un ingrédient inconnu = JAUNE par défaut (modération).
     // Un vrai ingrédient sain (eau, sel, œuf, épice…) doit être dans la base. Si on ne le connaît pas,
     // on ne peut PAS supposer qu'il est sain — surtout dans un produit industriel.
@@ -1264,7 +1300,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     return {
       nom: ing.nom,
       code: null,
-      classification_circ: isEnglish() ? 'Not classified by IARC' : 'Non classé par le CIRC',
+      classification_circ: pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
       niveau_risque: fallbackRisk,
       explication: finalExplication,
       source_exposition: null,
@@ -1314,19 +1350,18 @@ export interface InstantScan {
 
 /** Localized human label used when no real product name could be identified. */
 function genericProductName(category: ProductCategory): string {
-  const en = isEnglish();
   switch (category) {
-    case 'beverage':        return en ? 'Beverage' : 'Boisson';
-    case 'cosmetic':        return en ? 'Cosmetic product' : 'Produit cosmétique';
-    case 'household':       return en ? 'Household product' : 'Produit ménager';
-    case 'kitchen_utensil': return en ? 'Kitchen item' : 'Ustensile de cuisine';
-    case 'clothing':        return en ? 'Textile item' : 'Article textile';
-    case 'electronics':     return en ? 'Electronic device' : 'Appareil électronique';
-    case 'furniture':       return en ? 'Furniture item' : 'Meuble';
-    case 'toy':             return en ? 'Toy' : 'Jouet';
-    case 'food':            return en ? 'Food product' : 'Produit alimentaire';
+    case 'beverage':        return pick({ en: 'Beverage', fr: 'Boisson', ko: '음료' });
+    case 'cosmetic':        return pick({ en: 'Cosmetic product', fr: 'Produit cosmétique', ko: '화장품' });
+    case 'household':       return pick({ en: 'Household product', fr: 'Produit ménager', ko: '생활용품' });
+    case 'kitchen_utensil': return pick({ en: 'Kitchen item', fr: 'Ustensile de cuisine', ko: '주방용품' });
+    case 'clothing':        return pick({ en: 'Textile item', fr: 'Article textile', ko: '섬유 제품' });
+    case 'electronics':     return pick({ en: 'Electronic device', fr: 'Appareil électronique', ko: '전자기기' });
+    case 'furniture':       return pick({ en: 'Furniture item', fr: 'Meuble', ko: '가구' });
+    case 'toy':             return pick({ en: 'Toy', fr: 'Jouet', ko: '장난감' });
+    case 'food':            return pick({ en: 'Food product', fr: 'Produit alimentaire', ko: '식품' });
     case 'other':
-    default:                return en ? 'Scanned product' : 'Produit scanné';
+    default:                return pick({ en: 'Scanned product', fr: 'Produit scanné', ko: '스캔한 제품' });
   }
 }
 
@@ -1418,9 +1453,11 @@ function finalizeInstant(result: UniversalAnalysisResult): UniversalAnalysisResu
     if (!explication) {
       explication = s.niveau_risque === 'danger' || s.niveau_risque === 'probable'
         ? buildNegativeDescription(s.nom, s.niveau_risque, lookupIngredient(s.nom))
-        : isEnglish()
-          ? `${s.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`
-          : `${s.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`;
+        : pick({
+            en: `${s.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`,
+            fr: `${s.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`,
+            ko: `${s.nom}은(는) ToxiScan 데이터베이스에 등록되어 있지 않습니다. 현재 데이터로는 건강 영향을 판단할 수 없습니다.`,
+          });
     }
     return { ...s, explication, descriptionPending: false };
   });

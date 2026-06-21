@@ -36,6 +36,7 @@ export interface AdditiveInfo {
   category: AdditiveCategory;
   description: string;
   descriptionEn?: string;
+  descriptionKo?: string;
 }
 
 export interface DetectedIngredient {

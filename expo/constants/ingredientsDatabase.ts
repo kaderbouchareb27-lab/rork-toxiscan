@@ -1,4 +1,4 @@
-import { isEnglish } from '@/utils/i18n';
+import { getDeviceLanguage } from '@/utils/i18n';
 
 export type RiskLevel = 'danger' | 'probable' | 'possible' | 'aucun';
 
@@ -11,16 +11,21 @@ export interface IngredientEntry {
   readonly note?: string;
   /** English description — served directly when the app language is English (no AI translation). */
   readonly noteEn?: string;
+  /** Korean description — served directly when the app language is Korean (no AI translation). */
+  readonly noteKo?: string;
 }
 
 /**
  * Returns the ingredient note in the current app language, directly from the database.
- * English apps get `noteEn` (falling back to `note` only if a translation is missing),
- * French apps always get `note`. No AI translation call is ever needed.
+ * Korean apps get `noteKo` (falling back to English then French), English apps get
+ * `noteEn` (falling back to `note`), French apps always get `note`. No AI translation needed.
  */
 export function getLocalizedNote(entry: IngredientEntry | null | undefined): string | undefined {
   if (!entry) return undefined;
-  return isEnglish() ? (entry.noteEn ?? entry.note) : entry.note;
+  const lang = getDeviceLanguage();
+  if (lang === 'ko') return entry.noteKo ?? entry.noteEn ?? entry.note;
+  if (lang === 'en') return entry.noteEn ?? entry.note;
+  return entry.note;
 }
 
 export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [

@@ -1,4 +1,4 @@
-import { isEnglish } from '@/utils/i18n';
+import { getDeviceLanguage } from '@/utils/i18n';
 
 /**
  * COSMETIC ANALYSIS — completely separate from the food engine.
@@ -21,11 +21,15 @@ export interface CosmeticEntry {
   readonly displayName: string;
   /** English display name. */
   readonly displayNameEn: string;
+  /** Korean display name (optional — falls back to English). */
+  readonly displayNameKo?: string;
   readonly tier: CosmeticTier;
   /** French explanation. */
   readonly note: string;
   /** English explanation. */
   readonly noteEn: string;
+  /** Korean explanation (optional — falls back to English). */
+  readonly noteKo?: string;
   /** True when the ingredient is specifically risky during pregnancy. */
   readonly pregnancyDanger?: boolean;
 }
@@ -572,12 +576,18 @@ export function classifyCosmeticIngredient(name: string): CosmeticEntry | null {
 
 /** Localized note for a cosmetic entry. */
 export function getCosmeticNote(entry: CosmeticEntry): string {
-  return isEnglish() ? entry.noteEn : entry.note;
+  const lang = getDeviceLanguage();
+  if (lang === 'ko') return entry.noteKo ?? entry.noteEn;
+  if (lang === 'en') return entry.noteEn;
+  return entry.note;
 }
 
 /** Localized display name for a cosmetic entry. */
 export function getCosmeticDisplayName(entry: CosmeticEntry): string {
-  return isEnglish() ? entry.displayNameEn : entry.displayName;
+  const lang = getDeviceLanguage();
+  if (lang === 'ko') return entry.displayNameKo ?? entry.displayNameEn;
+  if (lang === 'en') return entry.displayNameEn;
+  return entry.displayName;
 }
 
 // ═══════════════════════════════════════════════════════════════════════

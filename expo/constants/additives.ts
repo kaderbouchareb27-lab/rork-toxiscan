@@ -1,5 +1,5 @@
 import { AdditiveInfo, RiskGroup, ProductCategory, AdditiveCategory } from '@/types';
-import { t, isEnglish } from '@/utils/i18n';
+import { t, isEnglish, getDeviceLanguage, pick } from '@/utils/i18n';
 
 export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // ═══════════════════════════════════════════════════════════════
@@ -582,7 +582,11 @@ export function findAdditiveByName(
  * Returns the description in the active language, falling back to FR if no EN.
  */
 export function getAdditiveDescription(a: AdditiveInfo): string {
-  if (isEnglish() && a.descriptionEn && a.descriptionEn.trim().length > 0) {
+  const lang = getDeviceLanguage();
+  if (lang === 'ko' && a.descriptionKo && a.descriptionKo.trim().length > 0) {
+    return a.descriptionKo;
+  }
+  if ((lang === 'en' || lang === 'ko') && a.descriptionEn && a.descriptionEn.trim().length > 0) {
     return a.descriptionEn;
   }
   return a.description;
@@ -642,21 +646,18 @@ export function getRiskBadgeInfo(
 ): { label: string; sublabel: string; color: string } {
   // Food — preserve existing labels (handled via i18n)
   if (category === 'food') {
-    const enFood = isEnglish();
     switch (group) {
       case 'group1':
         return { label: t('risk_danger_label'), sublabel: t('risk_danger_sub_g1'), color: '#D0260F' };
       case 'group2a':
-        return { label: enFood ? 'HARMFUL' : 'NOCIF', sublabel: t('risk_warning_sub'), color: '#E8730A' };
+        return { label: pick({ fr: 'NOCIF', en: 'HARMFUL', ko: '유해' }), sublabel: t('risk_warning_sub'), color: '#E8730A' };
       case 'group2b':
-        return { label: enFood ? 'AVOID' : 'À ÉVITER', sublabel: t('risk_caution_sub'), color: '#EAB308' };
+        return { label: pick({ fr: 'À ÉVITER', en: 'AVOID', ko: '피하세요' }), sublabel: t('risk_caution_sub'), color: '#EAB308' };
       case 'none':
       default:
         return { label: t('risk_approved_label'), sublabel: t('risk_approved_sub'), color: '#2E9E34' };
     }
   }
-
-  const en = isEnglish();
 
   // Cosmetic — uses the separate TOXIC / DISPUTED / APPROVED scale.
   if (category === 'cosmetic') {
@@ -664,21 +665,21 @@ export function getRiskBadgeInfo(
       case 'group1':
       case 'group2a':
         return {
-          label: en ? 'TOXIC' : 'TOXIQUE',
-          sublabel: en ? 'Recognized hazardous ingredient — avoid this product' : 'Ingrédient reconnu dangereux — à éviter',
+          label: pick({ fr: 'TOXIQUE', en: 'TOXIC', ko: '독성' }),
+          sublabel: pick({ fr: 'Ingrédient reconnu dangereux — à éviter', en: 'Recognized hazardous ingredient — avoid this product', ko: '유해 성분으로 확인됨 — 이 제품을 피하세요' }),
           color: '#7C3AED',
         };
       case 'group2b':
         return {
-          label: en ? 'DISPUTED' : 'CONTESTÉ',
-          sublabel: en ? 'Controversial — divided science, use with caution' : 'Controversé — science partagée, à utiliser avec prudence',
+          label: pick({ fr: 'CONTESTÉ', en: 'DISPUTED', ko: '논란 있음' }),
+          sublabel: pick({ fr: 'Controversé — science partagée, à utiliser avec prudence', en: 'Controversial — divided science, use with caution', ko: '논란 — 과학적 의견이 갈림, 주의해서 사용' }),
           color: '#EAB308',
         };
       case 'none':
       default:
         return {
-          label: en ? 'APPROVED' : 'APPROUVÉ',
-          sublabel: en ? 'No known risk — clean for your skin' : 'Sans risque connu — clean pour ta peau',
+          label: pick({ fr: 'APPROUVÉ', en: 'APPROVED', ko: '승인됨' }),
+          sublabel: pick({ fr: 'Sans risque connu — clean pour ta peau', en: 'No known risk — clean for your skin', ko: '알려진 위험 없음 — 피부에 안전' }),
           color: '#2E9E34',
         };
     }
@@ -688,27 +689,27 @@ export function getRiskBadgeInfo(
   switch (group) {
     case 'group1':
       return {
-        label: en ? 'CARCINOGENIC' : 'CANCÉRIGÈNE',
-        sublabel: en ? 'Classified carcinogenic by IARC — avoid all contact' : 'Classé cancérigène par le CIRC — éviter tout contact',
+        label: pick({ fr: 'CANCÉRIGÈNE', en: 'CARCINOGENIC', ko: '발암성' }),
+        sublabel: pick({ fr: 'Classé cancérigène par le CIRC — éviter tout contact', en: 'Classified carcinogenic by IARC — avoid all contact', ko: 'IARC가 발암물질로 분류 — 모든 접촉을 피하세요' }),
         color: '#D0260F',
       };
     case 'group2a':
       return {
-        label: en ? 'HAZARDOUS' : 'DANGEREUX',
-        sublabel: en ? 'Toxic if ingested or inhaled' : 'Toxique en cas d\'ingestion ou d\'inhalation',
+        label: pick({ fr: 'DANGEREUX', en: 'HAZARDOUS', ko: '위험' }),
+        sublabel: pick({ fr: 'Toxique en cas d\'ingestion ou d\'inhalation', en: 'Toxic if ingested or inhaled', ko: '섭취하거나 흡입하면 독성' }),
         color: '#E8730A',
       };
     case 'group2b':
       return {
-        label: en ? 'CAUTION' : 'PRÉCAUTION',
-        sublabel: en ? 'Keep away from children, avoid prolonged contact' : 'Tenir hors de portée des enfants, éviter contact prolongé',
+        label: pick({ fr: 'PRÉCAUTION', en: 'CAUTION', ko: '주의' }),
+        sublabel: pick({ fr: 'Tenir hors de portée des enfants, éviter contact prolongé', en: 'Keep away from children, avoid prolonged contact', ko: '어린이 손이 닿지 않는 곳에 보관, 장시간 접촉을 피하세요' }),
         color: '#EAB308',
       };
     case 'none':
     default:
       return {
-        label: en ? 'SAFE' : 'SÉCURITAIRE',
-        sublabel: en ? 'Safe for use' : 'Sûr à l\'usage',
+        label: pick({ fr: 'SÉCURITAIRE', en: 'SAFE', ko: '안전' }),
+        sublabel: pick({ fr: 'Sûr à l\'usage', en: 'Safe for use', ko: '사용해도 안전' }),
         color: '#2E9E34',
       };
   }
