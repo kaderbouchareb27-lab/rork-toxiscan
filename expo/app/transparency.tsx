@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Brain, Shield, Eye } from 'lucide-react-native';
 import Colors from '@/constants/colors';
-import { isEnglish } from '@/utils/i18n';
+import { pick } from '@/utils/i18n';
 
 export default function TransparencyScreen() {
   console.log('[Transparency] Rendering transparency screen');
@@ -12,28 +12,28 @@ export default function TransparencyScreen() {
         <View style={styles.iconCircle}>
           <Eye color={Colors.primary} size={28} strokeWidth={1.5} />
         </View>
-        <Text style={styles.title}>{isEnglish() ? "How Dr.Toxi uses artificial intelligence" : "Comment Dr.Toxi utilise l'intelligence artificielle"}</Text>
+        <Text style={styles.title}>{pick({ en: 'How Dr.Toxi uses artificial intelligence', fr: "Comment Dr.Toxi utilise l'intelligence artificielle", ko: 'Dr.Toxi가 인공지능을 사용하는 방법' })}</Text>
       </View>
 
       <View style={styles.highlightCard}>
-        <Text style={styles.highlightText}>{isEnglish() ? 'Dr.Toxi believes in total transparency. You deserve to know how each feature works.' : 'Dr.Toxi croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.'}</Text>
+        <Text style={styles.highlightText}>{pick({ en: 'Dr.Toxi believes in total transparency. You deserve to know how each feature works.', fr: 'Dr.Toxi croit en la transparence totale. Vous méritez de savoir comment fonctionne chaque fonctionnalité.', ko: 'Dr.Toxi는 완전한 투명성을 믿습니다. 여러분은 각 기능이 어떻게 작동하는지 알 권리가 있습니다.' })}</Text>
       </View>
 
       <View style={styles.providerCard}>
-        <Text style={styles.providerLabel}>{isEnglish() ? 'AI providers used' : "Modèles d'IA utilisés"}</Text>
-        <Text style={styles.providerValue}>{isEnglish() ? 'OpenAI GPT-4o (vision + text) and GPT-4o-mini, accessed via the Rork AI Toolkit. Used only for photo analysis and Dr. Toxi chat responses.' : "OpenAI GPT-4o (vision + texte) et GPT-4o-mini, accédés via le Rork AI Toolkit. Utilisés uniquement pour l'analyse photo et les réponses du chat Dr. Toxi."}</Text>
+        <Text style={styles.providerLabel}>{pick({ en: 'AI providers used', fr: "Modèles d'IA utilisés", ko: '사용된 AI 모델' })}</Text>
+        <Text style={styles.providerValue}>{pick({ en: 'OpenAI GPT-4o (vision + text) and GPT-4o-mini, accessed via the Rork AI Toolkit. Used only for photo analysis and Dr. Toxi chat responses.', fr: "OpenAI GPT-4o (vision + texte) et GPT-4o-mini, accédés via le Rork AI Toolkit. Utilisés uniquement pour l'analyse photo et les réponses du chat Dr. Toxi.", ko: 'OpenAI GPT-4o(비전 + 텍스트)와 GPT-4o-mini를 Rork AI Toolkit을 통해 사용합니다. 사진 분석과 Dr. Toxi 채팅 응답에만 사용됩니다.' })}</Text>
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Dr.Toxi uses AI in two areas:' : "Dr.Toxi utilise l'IA à deux endroits :"}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Dr.Toxi uses AI in two areas:', fr: "Dr.Toxi utilise l'IA à deux endroits :", ko: 'Dr.Toxi는 두 가지 영역에서 AI를 사용합니다:' })}</Text>
 
       <View style={styles.featureCard}>
         <View style={styles.featureIcon}>
           <Brain color={Colors.primary} size={20} strokeWidth={1.5} />
         </View>
         <View style={styles.featureContent}>
-          <Text style={styles.featureTitle}>{isEnglish() ? '1. Universal photo analysis' : '1. Analyse photo universelle'}</Text>
+          <Text style={styles.featureTitle}>{pick({ en: '1. Universal photo analysis', fr: '1. Analyse photo universelle', ko: '1. 범용 사진 분석' })}</Text>
           <Text style={styles.featureDescription}>
-            {isEnglish() ? 'When you photograph an everyday product or object, our AI analyzes the photo to identify the object, its materials, and evaluate potentially carcinogenic substances.' : "Quand vous photographiez un produit ou objet du quotidien, notre IA analyse la photo pour identifier l'objet, ses matériaux et évaluer les substances potentiellement cancérigènes."}
+            {pick({ en: 'When you photograph an everyday product or object, our AI analyzes the photo to identify the object, its materials, and evaluate potentially carcinogenic substances.', fr: "Quand vous photographiez un produit ou objet du quotidien, notre IA analyse la photo pour identifier l'objet, ses matériaux et évaluer les substances potentiellement cancérigènes.", ko: '일상 제품이나 물건을 촬영하면 AI가 사진을 분석해 물건과 소재를 식별하고 잠재적 발암 물질을 평가합니다.' })}
           </Text>
         </View>
       </View>
@@ -43,32 +43,32 @@ export default function TransparencyScreen() {
           <Shield color={Colors.primary} size={20} strokeWidth={1.5} />
         </View>
         <View style={styles.featureContent}>
-          <Text style={styles.featureTitle}>{isEnglish() ? '2. Dr. Toxi (expert chatbot)' : '2. Dr. Toxi (chatbot expert)'}</Text>
+          <Text style={styles.featureTitle}>{pick({ en: '2. Dr. Toxi (expert chatbot)', fr: '2. Dr. Toxi (chatbot expert)', ko: '2. Dr. Toxi (전문가 챗봇)' })}</Text>
           <Text style={styles.featureDescription}>
-            {isEnglish() ? 'Answers your questions about everyday toxic substances: food additives, plastics, cosmetics, kitchen utensils, and more.' : 'Répond à vos questions sur les substances toxiques du quotidien : additifs alimentaires, plastiques, cosmétiques, ustensiles de cuisine et plus encore.'}
+            {pick({ en: 'Answers your questions about everyday toxic substances: food additives, plastics, cosmetics, kitchen utensils, and more.', fr: 'Répond à vos questions sur les substances toxiques du quotidien : additifs alimentaires, plastiques, cosmétiques, ustensiles de cuisine et plus encore.', ko: '식품 첨가물, 플라스틱, 화장품, 주방용품 등 일상 속 독성 물질에 대한 질문에 답합니다.' })}
           </Text>
         </View>
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'What AI does NOT do' : "Ce que l'IA ne fait PAS"}</Text>
+      <Text style={styles.heading}>{pick({ en: 'What AI does NOT do', fr: "Ce que l'IA ne fait PAS", ko: 'AI가 하지 않는 것' })}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text={isEnglish() ? 'Barcode scan risk badges are based on IARC/WHO classifications, not AI' : "Les badges de risque des scans code-barres sont basés sur les classifications CIRC/OMS, pas sur l'IA"} />
-        <BulletItem text={isEnglish() ? 'AI does not make any medical diagnosis' : "L'IA ne pose aucun diagnostic médical"} />
-        <BulletItem text={isEnglish() ? 'AI does not replace a healthcare professional' : "L'IA ne remplace pas un professionnel de santé"} />
-        <BulletItem text={isEnglish() ? 'AI does not create false alerts on natural and healthy products' : "L'IA ne crée pas de fausses alertes sur les produits naturels et sains"} />
+        <BulletItem text={pick({ en: 'Barcode scan risk badges are based on IARC/WHO classifications, not AI', fr: "Les badges de risque des scans code-barres sont basés sur les classifications CIRC/OMS, pas sur l'IA", ko: '바코드 스캔 위험 배지는 AI가 아니라 IARC/WHO 분류에 기반합니다' })} />
+        <BulletItem text={pick({ en: 'AI does not make any medical diagnosis', fr: "L'IA ne pose aucun diagnostic médical", ko: 'AI는 어떤 의학적 진단도 내리지 않습니다' })} />
+        <BulletItem text={pick({ en: 'AI does not replace a healthcare professional', fr: "L'IA ne remplace pas un professionnel de santé", ko: 'AI는 의료 전문가를 대체하지 않습니다' })} />
+        <BulletItem text={pick({ en: 'AI does not create false alerts on natural and healthy products', fr: "L'IA ne crée pas de fausses alertes sur les produits naturels et sains", ko: 'AI는 자연스럽고 건강한 제품에 거짓 경고를 만들지 않습니다' })} />
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Your data and AI' : "Vos données et l'IA"}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Your data and AI', fr: "Vos données et l'IA", ko: '여러분의 데이터와 AI' })}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text={isEnglish() ? 'Photos and messages are processed securely by our AI' : 'Photos et messages sont traités par notre IA de manière sécurisée'} />
-        <BulletItem text={isEnglish() ? 'Nothing is retained after processing by our AI' : "Rien n'est conservé après le traitement par notre IA"} />
-        <BulletItem text={isEnglish() ? 'No data is used to train AI models' : "Aucune donnée n'est utilisée pour entraîner des modèles IA"} />
-        <BulletItem text={isEnglish() ? 'Your scans remain stored locally on your device' : 'Vos scans restent stockés localement sur votre appareil'} />
+        <BulletItem text={pick({ en: 'Photos and messages are processed securely by our AI', fr: 'Photos et messages sont traités par notre IA de manière sécurisée', ko: '사진과 메시지는 AI가 안전하게 처리합니다' })} />
+        <BulletItem text={pick({ en: 'Nothing is retained after processing by our AI', fr: "Rien n'est conservé après le traitement par notre IA", ko: 'AI 처리 후에는 아무것도 보관되지 않습니다' })} />
+        <BulletItem text={pick({ en: 'No data is used to train AI models', fr: "Aucune donnée n'est utilisée pour entraîner des modèles IA", ko: 'AI 모델 학습에 데이터를 사용하지 않습니다' })} />
+        <BulletItem text={pick({ en: 'Your scans remain stored locally on your device', fr: 'Vos scans restent stockés localement sur votre appareil', ko: '스캔 기록은 기기에 로컬로 저장됩니다' })} />
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Why this transparency?' : 'Pourquoi cette transparence ?'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Why this transparency?', fr: 'Pourquoi cette transparence ?', ko: '왜 이런 투명성인가요?' })}</Text>
       <Text style={styles.body}>
-        {isEnglish() ? 'Because you have the right to know exactly how a tool you use for your health works. No black box, no mystery. Every result is based on official and verifiable scientific classifications.' : 'Parce que vous avez le droit de savoir exactement comment fonctionne un outil que vous utilisez pour votre santé. Pas de boîte noire, pas de mystère. Chaque résultat est basé sur des classifications scientifiques officielles et vérifiables.'}
+        {pick({ en: 'Because you have the right to know exactly how a tool you use for your health works. No black box, no mystery. Every result is based on official and verifiable scientific classifications.', fr: 'Parce que vous avez le droit de savoir exactement comment fonctionne un outil que vous utilisez pour votre santé. Pas de boîte noire, pas de mystère. Chaque résultat est basé sur des classifications scientifiques officielles et vérifiables.', ko: '여러분이 건강을 위해 사용하는 도구가 정확히 어떻게 작동하는지 알 권리가 있기 때문입니다. 블랙박스도, 비밀도 없습니다. 모든 결과는 공식적이고 검증 가능한 과학적 분류에 기반합니다.' })}
       </Text>
 
       <View style={styles.spacer} />

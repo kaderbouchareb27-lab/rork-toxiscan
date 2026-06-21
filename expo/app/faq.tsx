@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from '
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { isEnglish } from '@/utils/i18n';
+import { getDeviceLanguage, pick } from '@/utils/i18n';
 
 interface FAQItem {
   question: string;
@@ -36,8 +36,24 @@ const FAQ_DATA_EN: FAQItem[] = [
   { question: 'Does Dr.Toxi only analyze food?', answer: 'No. Dr.Toxi can analyze everything around you: food, cosmetics, household products, kitchen utensils, clothing, containers. Photograph any object and Dr.Toxi will tell you if it contains potentially carcinogenic materials.' },
 ];
 
+const FAQ_DATA_KO: FAQItem[] = [
+  { question: 'Dr.Toxi는 어떻게 작동하나요?', answer: '제품의 성분표를 촬영하거나 바코드를 스캔하세요. Dr.Toxi가 성분을 식별하고 IARC/WHO 분류와 비교합니다.' },
+  { question: '배지는 무엇을 의미하나요?', answer: '빨강(위험): IARC가 발암물질로 분류한 물질(1군, 2A 또는 2B군).\n주황(주의): IARC가 분류하지는 않았지만 비만, 염증 또는 호르몬 교란을 통해 암을 촉진하는 논란성 물질.\n초록(승인): 암과 알려진 연관성 없음.' },
+  { question: '성분 사진은 어떻게 작동하나요?', answer: '제품 뒷면의 성분표를 촬영하세요. AI가 사진을 분석하고 각 성분을 추출해 위험하게 분류되는지 확인합니다.' },
+  { question: '데이터는 어디서 오나요?', answer: '전 세계 암 연구(IARC/WHO, EFSA, FDA, NTP, INSERM)로 보강된 Dr.Toxi 독자 데이터베이스입니다. 전 세계에서 새로운 성분이 발암성 또는 초가공으로 선언될 때마다 지속적으로 업데이트됩니다.' },
+  { question: 'Dr.Toxi가 의학적 조언을 대체하나요?', answer: '아니요. Dr.Toxi는 정보 도구입니다. 의료 전문가의 조언을 절대 대체하지 않습니다.' },
+  { question: '제 사진은 저장되나요?', answer: '아니요. 사진은 AI가 분석한 후 삭제됩니다. 저장되거나 공유되지 않습니다.' },
+  { question: '바코드로 제품을 찾을 수 없나요?', answer: '제품 촬영 기능을 사용해 사진으로 직접 제품을 분석하세요.' },
+  { question: '가장 정확한 방법은?', answer: '1. 성분표 사진 — 가장 정확하며 권장됩니다\n2. 바코드 스캔 — 제품이 데이터베이스에 있으면 매우 정확합니다\n3. 제품 앞면 사진 — 좋은 추정치이지만 정확한 성분은 다를 수 있습니다' },
+  { question: '제 데이터는 안전한가요?', answer: '네. 우리는 여러분의 데이터를 절대 판매하지 않습니다. 자세한 내용은 개인정보 처리방침을 확인하세요.' },
+  { question: 'Dr.Toxi는 식품만 분석하나요?', answer: '아니요. Dr.Toxi는 주변의 모든 것을 분석할 수 있습니다: 식품, 화장품, 생활용품, 주방용품, 의류, 용기. 어떤 물건이든 촬영하면 Dr.Toxi가 잠재적 발암 물질이 들어 있는지 알려줍니다.' },
+];
+
 function getFaqData(): FAQItem[] {
-  return isEnglish() ? FAQ_DATA_EN : FAQ_DATA_FR;
+  const lang = getDeviceLanguage();
+  if (lang === 'ko') return FAQ_DATA_KO;
+  if (lang === 'en') return FAQ_DATA_EN;
+  return FAQ_DATA_FR;
 }
 
 export default function FAQScreen() {
@@ -53,8 +69,8 @@ export default function FAQScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{isEnglish() ? 'Frequently asked questions' : 'Questions fréquentes'}</Text>
-      <Text style={styles.subtitle}>{isEnglish() ? `${getFaqData().length} questions to understand everything` : `${getFaqData().length} questions pour tout comprendre`}</Text>
+      <Text style={styles.title}>{pick({ en: 'Frequently asked questions', fr: 'Questions fréquentes', ko: '자주 묻는 질문' })}</Text>
+      <Text style={styles.subtitle}>{pick({ en: `${getFaqData().length} questions to understand everything`, fr: `${getFaqData().length} questions pour tout comprendre`, ko: `모두 이해하기 위한 질문 ${getFaqData().length}가지` })}</Text>
 
       {getFaqData().map((item, index) => {
         const isExpanded = expanded === index;

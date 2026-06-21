@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
-import { t, isEnglish } from '@/utils/i18n';
+import { t, pick } from '@/utils/i18n';
 import Colors from '@/constants/colors';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
@@ -101,14 +101,13 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
  * Cosmetic verdict badge — the separate 🟣 TOXIC / 🟡 DISPUTED / 🟢 APPROVED scale.
  */
 function getCosmeticVerdictBadge(level: VerdictLevel): VerdictBadge {
-  const en = isEnglish();
-  const eyebrow = en ? 'COSMETIC VERDICT' : 'VERDICT COSMÉTIQUE';
+  const eyebrow = pick({ en: 'COSMETIC VERDICT', fr: 'VERDICT COSMÉTIQUE', ko: '화장품 판정' });
   switch (level) {
     case 'danger':
       return {
         label: t('cosmetic_badge_toxic'),
         eyebrow,
-        sublabel: en ? 'Avoid this product' : 'À éviter',
+        sublabel: pick({ en: 'Avoid this product', fr: 'À éviter', ko: '사용하지 마세요' }),
         color: '#7C3AED',
         softColor: '#F3EEFD',
         glowColor: 'rgba(124, 58, 237, 0.20)',
@@ -119,7 +118,7 @@ function getCosmeticVerdictBadge(level: VerdictLevel): VerdictBadge {
       return {
         label: t('cosmetic_badge_disputed'),
         eyebrow,
-        sublabel: en ? 'Use with caution' : 'À utiliser avec prudence',
+        sublabel: pick({ en: 'Use with caution', fr: 'À utiliser avec prudence', ko: '주의해서 사용하세요' }),
         color: Colors.caution,
         softColor: '#FFF8DB',
         glowColor: 'rgba(234, 179, 8, 0.25)',
@@ -129,7 +128,7 @@ function getCosmeticVerdictBadge(level: VerdictLevel): VerdictBadge {
       return {
         label: t('cosmetic_badge_approved'),
         eyebrow,
-        sublabel: en ? 'Clean formula' : 'Formule clean',
+        sublabel: pick({ en: 'Clean formula', fr: 'Formule clean', ko: '클린 포뮬러' }),
         color: Colors.safe,
         softColor: '#EAF8EC',
         glowColor: 'rgba(46, 158, 52, 0.22)',

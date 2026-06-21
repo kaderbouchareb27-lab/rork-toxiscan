@@ -878,6 +878,12 @@ const NEGATIVE_MARKERS_FOR_GREEN = [
   'pétrochimie', 'petrochimie', 'petrochemical',
   'perturbateur', 'perturbe', 'disrupt',
   'glycémique élevé', 'glycemique eleve', 'high glycemic', 'index glycemique eleve',
+  // Korean negative markers — let the engine recognize a genuinely negative Korean
+  // description (AI or DB note) so it is KEPT instead of replaced with a generic one.
+  '발암', '암 위험', '암을', '암과', '암 및', '염증', '비만', '당뇨', '독성', '독소',
+  '피하세요', '제한하세요', '제한하는', '초가공', '정제', '합성', '인공', '화학적', '용매', '헥산',
+  '트랜스지방', '종양', '질환', '유해', '내분비 교란', '교란 물질', '신경독', '지방간',
+  '대사 질환', '대사 증후군', '혈당', '오메가-6', '발암물질', '발암 물질', '중금속', '축적',
 ];
 
 function hasNegativeTone(text: string): boolean {
@@ -918,6 +924,9 @@ const POSITIVE_SPIN_MARKERS = [
   'easily digestible', 'easy to digest', 'facile a digerer', 'facilement digestible', 'gentle on',
   'prebiotic', 'prebiotique', 'probiotic', 'probiotique',
   'wholesome', 'nourishing', 'nutritious', 'nutritif', 'nutritive', 'good source', 'great source',
+  // Korean positive markers — flag reassuring spin wrongly placed on a red/orange ingredient.
+  '건강에 좋', '풍부합니다', '풍부한', '유익균', '항산화', '항염', '면역력', '훌륭',
+  '좋은 선택', '도움을 줍니다', '안심하고', '몸에 좋', '효능',
 ];
 
 function hasPositiveSpin(text: string): boolean {
@@ -939,6 +948,9 @@ const DISEASE_LINK_MARKERS = [
   'maladie', 'disease',
   'neurotoxi', 'perturbateur endocrinien', 'endocrine',
   'rénaux', 'renaux', 'rénale', 'renale', 'kidney',
+  // Korean disease-link markers.
+  '발암', '암 위험', '암을', '암 및', '염증', '비만', '당뇨', '심혈관', '지방간',
+  '대사 질환', '대사 증후군', '종양', '신장', '내분비 교란', '갑상선',
 ];
 
 function hasDiseaseLink(text: string): boolean {
@@ -1048,73 +1060,72 @@ function buildNegativeDescription(name: string, risk: RiskLevel, entry: Ingredie
 
 // BUG 1 FIX — No more generic fallback. Every description must be specific.
 function buildPositiveFallback(name: string, note: string | undefined): string {
-  // Korean reuses the English wording here (deep green-ingredient fallback) so a Korean
-  // user never sees French; the primary path (DB note / AI) already returns Korean.
-  const en = getDeviceLanguage() !== 'fr';
   if (note && note.trim() && !hasNegativeTone(note)) return note;
   // Use the specific ingredient name to craft a real description.
   const lowerName = name.toLowerCase();
   if (lowerName.includes('eau') || lowerName.includes('water')) {
-    return en ? 'Water is essential to life. It hydrates, transports nutrients, and regulates body temperature. Excellent for health.' : "L'eau est essentielle à la vie. Elle hydrate, transporte les nutriments et régule la température corporelle. Excellente pour la santé.";
+    return pick({ en: 'Water is essential to life. It hydrates, transports nutrients, and regulates body temperature. Excellent for health.', fr: "L'eau est essentielle à la vie. Elle hydrate, transporte les nutriments et régule la température corporelle. Excellente pour la santé.", ko: '물은 생명에 필수적입니다. 수분을 공급하고 영양소를 운반하며 체온을 조절합니다. 건강에 매우 좋습니다.' });
   }
   if (lowerName.includes('sel') || lowerName.includes('salt')) {
-    return en ? 'Natural mineral essential for body function (water balance, nerve transmission). Healthy when consumed in moderation.' : 'Minéral essentiel au bon fonctionnement du corps (équilibre hydrique, transmission nerveuse). Sain consommé avec modération.';
+    return pick({ en: 'Natural mineral essential for body function (water balance, nerve transmission). Healthy when consumed in moderation.', fr: 'Minéral essentiel au bon fonctionnement du corps (équilibre hydrique, transmission nerveuse). Sain consommé avec modération.', ko: '체내 기능(수분 균형, 신경 전달)에 필수적인 천연 미네랄입니다. 적당히 섭취하면 건강에 좋습니다.' });
   }
   if (lowerName.includes('huile') && (lowerName.includes('olive') || lowerName.includes('vierge'))) {
-    return en ? 'Cold-pressed virgin olive oil rich in monounsaturated fats and antioxidants. Excellent for heart health.' : "Huile d'olive vierge pressée à froid, riche en graisses mono-insaturées et antioxydants. Excellente pour la santé cardiovasculaire.";
+    return pick({ en: 'Cold-pressed virgin olive oil rich in monounsaturated fats and antioxidants. Excellent for heart health.', fr: "Huile d'olive vierge pressée à froid, riche en graisses mono-insaturées et antioxydants. Excellente pour la santé cardiovasculaire.", ko: '저온 압착한 엑스트라 버진 올리브유로 단일불포화지방과 항산화 물질이 풍부합니다. 심장 건강에 매우 좋습니다.' });
   }
   if (lowerName.includes('épice') || lowerName.includes('spice') || lowerName.includes('herb') || lowerName.includes('herbe') || lowerName.includes('poivre') || lowerName.includes('pepper') || lowerName.includes('cumin') || lowerName.includes('curcuma') || lowerName.includes('gingembre') || lowerName.includes('cannelle') || lowerName.includes('paprika') || lowerName.includes('piment') || lowerName.includes('basilic') || lowerName.includes('origan') || lowerName.includes('thym') || lowerName.includes('romarin')) {
-    return en ? 'Natural spice/herb with antioxidants and anti-inflammatory compounds. Adds flavor without calories. Excellent for home cooking.' : 'Épice ou herbe aromatique naturelle riche en antioxydants et composés anti-inflammatoires. Apporte saveur sans calories. Excellente pour la cuisine maison.';
+    return pick({ en: 'Natural spice/herb with antioxidants and anti-inflammatory compounds. Adds flavor without calories. Excellent for home cooking.', fr: 'Épice ou herbe aromatique naturelle riche en antioxydants et composés anti-inflammatoires. Apporte saveur sans calories. Excellente pour la cuisine maison.', ko: '항산화 물질과 항염 성분이 풍부한 천연 향신료/허브입니다. 칼로리 없이 풍미를 더합니다. 집밥 요리에 훌륭합니다.' });
   }
   if (lowerName.includes('farine') && (lowerName.includes('complète') || lowerName.includes('whole'))) {
-    return en ? 'Whole grain flour rich in fiber, B vitamins, and minerals. Provides lasting energy and supports digestive health.' : 'Farine complète riche en fibres, vitamines B et minéraux. Apporte énergie durable et soutient la santé digestive.';
+    return pick({ en: 'Whole grain flour rich in fiber, B vitamins, and minerals. Provides lasting energy and supports digestive health.', fr: 'Farine complète riche en fibres, vitamines B et minéraux. Apporte énergie durable et soutient la santé digestive.', ko: '식이섬유, 비타민 B, 미네랄이 풍부한 통곡물 가루입니다. 지속적인 에너지를 주고 소화 건강을 돕습니다.' });
   }
   if (lowerName.includes('farine') || lowerName.includes('flour')) {
-    return en ? 'Staple grain rich in complex carbohydrates and fiber. Provides lasting energy to the body.' : 'Céréale de base riche en glucides complexes et fibres. Apporte de l\'énergie durable au corps.';
+    return pick({ en: 'Staple grain rich in complex carbohydrates and fiber. Provides lasting energy to the body.', fr: 'Céréale de base riche en glucides complexes et fibres. Apporte de l\'énergie durable au corps.', ko: '복합 탄수화물과 식이섬유가 풍부한 기본 곡물입니다. 몸에 지속적인 에너지를 공급합니다.' });
   }
   if (lowerName.includes('lait') || lowerName.includes('milk')) {
-    return en ? 'Natural source of calcium, protein, and vitamin D. Supports bone health and muscle function.' : 'Source naturelle de calcium, protéines et vitamine D. Soutient la santé osseuse et musculaire.';
+    return pick({ en: 'Natural source of calcium, protein, and vitamin D. Supports bone health and muscle function.', fr: 'Source naturelle de calcium, protéines et vitamine D. Soutient la santé osseuse et musculaire.', ko: '칼슘, 단백질, 비타민 D의 천연 공급원입니다. 뼈 건강과 근육 기능을 돕습니다.' });
   }
   if (lowerName.includes('œuf') || lowerName.includes('oeuf') || lowerName.includes('egg')) {
-    return en ? 'Whole eggs are a complete protein source rich in choline and B vitamins. Excellent nutritional value.' : 'Œuf entier, source de protéines complètes riche en choline et vitamines B. Excellente valeur nutritionnelle.';
+    return pick({ en: 'Whole eggs are a complete protein source rich in choline and B vitamins. Excellent nutritional value.', fr: 'Œuf entier, source de protéines complètes riche en choline et vitamines B. Excellente valeur nutritionnelle.', ko: '달걀은 콜린과 비타민 B가 풍부한 완전 단백질 공급원입니다. 영양가가 매우 높습니다.' });
   }
   if (lowerName.includes('fromage') || lowerName.includes('cheese') || lowerName.includes('mozzarella') || lowerName.includes('parmesan') || lowerName.includes('cheddar') || lowerName.includes('gouda') || lowerName.includes('emmental')) {
-    return en ? 'Traditional cheese, a source of protein and calcium. Contributes flavor and satiety.' : 'Fromage traditionnel, source de protéines et de calcium. Apporte goût et satiété.';
+    return pick({ en: 'Traditional cheese, a source of protein and calcium. Contributes flavor and satiety.', fr: 'Fromage traditionnel, source de protéines et de calcium. Apporte goût et satiété.', ko: '전통 치즈로 단백질과 칼슘의 공급원입니다. 풍미와 포만감을 더합니다.' });
   }
   if (lowerName.includes('poulet') || lowerName.includes('chicken') || lowerName.includes('dinde') || lowerName.includes('turkey') || lowerName.includes('canard') || lowerName.includes('duck')) {
-    return en ? 'Lean poultry rich in high-quality protein, B vitamins, and selenium. Excellent for muscle building.' : 'Volaille maigre riche en protéines de qualité, vitamines B et sélénium. Excellent pour la construction musculaire.';
+    return pick({ en: 'Lean poultry rich in high-quality protein, B vitamins, and selenium. Excellent for muscle building.', fr: 'Volaille maigre riche en protéines de qualité, vitamines B et sélénium. Excellent pour la construction musculaire.', ko: '양질의 단백질, 비타민 B, 셀레늄이 풍부한 담백한 가금류입니다. 근육 형성에 훌륭합니다.' });
   }
   if (lowerName.includes('bœuf') || lowerName.includes('boeuf') || lowerName.includes('beef') || lowerName.includes('porc') || lowerName.includes('pork') || lowerName.includes('agneau') || lowerName.includes('lamb') || lowerName.includes('veau') || lowerName.includes('veal')) {
-    return en ? 'Fresh unprocessed meat, a source of complete proteins, heme iron, and B12. Choose fresh cuts cooked simply.' : 'Viande fraîche non transformée, source de protéines complètes, fer héminique et B12. Préférer les morceaux frais cuisinés simplement.';
+    return pick({ en: 'Fresh unprocessed meat, a source of complete proteins, heme iron, and B12. Choose fresh cuts cooked simply.', fr: 'Viande fraîche non transformée, source de protéines complètes, fer héminique et B12. Préférer les morceaux frais cuisinés simplement.', ko: '가공하지 않은 신선한 고기로 완전 단백질, 헴철, 비타민 B12의 공급원입니다. 신선한 부위를 간단하게 조리해 드세요.' });
   }
   if (lowerName.includes('poisson') || lowerName.includes('fish') || lowerName.includes('saumon') || lowerName.includes('salmon') || lowerName.includes('thon') || lowerName.includes('tuna') || lowerName.includes('cabillaud') || lowerName.includes('cod')) {
-    return en ? 'Fresh fish, rich in high-quality protein and omega-3 fatty acids. Excellent for cardiovascular and brain health.' : 'Poisson frais riche en protéines de qualité et oméga-3. Excellent pour la santé cardiovasculaire et cérébrale.';
+    return pick({ en: 'Fresh fish, rich in high-quality protein and omega-3 fatty acids. Excellent for cardiovascular and brain health.', fr: 'Poisson frais riche en protéines de qualité et oméga-3. Excellent pour la santé cardiovasculaire et cérébrale.', ko: '양질의 단백질과 오메가-3가 풍부한 신선한 생선입니다. 심혈관과 뇌 건강에 매우 좋습니다.' });
   }
   if (lowerName.includes('fruit') || lowerName.includes('légume') || lowerName.includes('legume') || lowerName.includes('vegetable') || lowerName.includes('pomme') || lowerName.includes('apple') || lowerName.includes('banane') || lowerName.includes('carotte') || lowerName.includes('carrot') || lowerName.includes('tomate') || lowerName.includes('tomato')) {
-    return en ? 'Whole fruit or vegetable, rich in fiber, vitamins, minerals, and antioxidants. Essential for a balanced diet.' : 'Fruit ou légume entier, riche en fibres, vitamines, minéraux et antioxydants. Essentiel pour une alimentation équilibrée.';
+    return pick({ en: 'Whole fruit or vegetable, rich in fiber, vitamins, minerals, and antioxidants. Essential for a balanced diet.', fr: 'Fruit ou légume entier, riche en fibres, vitamines, minéraux et antioxydants. Essentiel pour une alimentation équilibrée.', ko: '식이섬유, 비타민, 미네랄, 항산화 물질이 풍부한 온전한 과일/채소입니다. 균형 잡힌 식단에 필수적입니다.' });
   }
   if (lowerName.includes('vinaigre') || lowerName.includes('vinegar')) {
-    return en ? 'Natural vinegar from fermentation. Low-calorie flavor enhancer, beneficial for digestion.' : 'Vinaigre naturel issu de fermentation. Rehausseur de goût peu calorique, bénéfique pour la digestion.';
+    return pick({ en: 'Natural vinegar from fermentation. Low-calorie flavor enhancer, beneficial for digestion.', fr: 'Vinaigre naturel issu de fermentation. Rehausseur de goût peu calorique, bénéfique pour la digestion.', ko: '발효로 만든 천연 식초입니다. 칼로리가 낮은 풍미 증진제로 소화에 도움을 줍니다.' });
   }
   if (lowerName.includes('miel') || lowerName.includes('honey')) {
-    return en ? 'Natural honey, rich in antioxidants and enzymes. A healthier sweetener than refined sugar when used in moderation.' : 'Miel naturel riche en antioxydants et enzymes. Édulcorant plus sain que le sucre raffiné, à utiliser avec modération.';
+    return pick({ en: 'Natural honey, rich in antioxidants and enzymes. A healthier sweetener than refined sugar when used in moderation.', fr: 'Miel naturel riche en antioxydants et enzymes. Édulcorant plus sain que le sucre raffiné, à utiliser avec modération.', ko: '항산화 물질과 효소가 풍부한 천연 꿀입니다. 적당히 사용하면 정제 설탕보다 건강한 감미료입니다.' });
   }
   if (lowerName.includes('levure') || lowerName.includes('yeast') || lowerName.includes('ferment') || lowerName.includes('culture')) {
-    return en ? 'Natural fermentation agent. Essential for bread and fermented foods. Beneficial for gut health.' : 'Agent de fermentation naturel. Essentiel pour le pain et les aliments fermentés. Bénéfique pour la flore intestinale.';
+    return pick({ en: 'Natural fermentation agent. Essential for bread and fermented foods. Beneficial for gut health.', fr: 'Agent de fermentation naturel. Essentiel pour le pain et les aliments fermentés. Bénéfique pour la flore intestinale.', ko: '천연 발효제입니다. 빵과 발효 식품에 필수적이며 장 건강에 유익합니다.' });
   }
   if (lowerName.includes('cacao') || lowerName.includes('cocoa') || lowerName.includes('chocolat') || lowerName.includes('chocolate')) {
-    return en ? 'Cocoa is rich in flavonoids and magnesium. Natural source of antioxidants with cardiovascular benefits.' : 'Cacao riche en flavonoïdes et magnésium. Source naturelle d\'antioxydants aux bénéfices cardiovasculaires.';
+    return pick({ en: 'Cocoa is rich in flavonoids and magnesium. Natural source of antioxidants with cardiovascular benefits.', fr: 'Cacao riche en flavonoïdes et magnésium. Source naturelle d\'antioxydants aux bénéfices cardiovasculaires.', ko: '코코아는 플라보노이드와 마그네슘이 풍부합니다. 심혈관에 이로운 천연 항산화 공급원입니다.' });
   }
   if (lowerName.includes('riz') || lowerName.includes('rice') || lowerName.includes('avoine') || lowerName.includes('oats') || lowerName.includes('quinoa') || lowerName.includes('céréale') || lowerName.includes('cereal') || lowerName.includes('grain')) {
-    return en ? 'Whole grain, a healthy source of complex carbohydrates and fiber. Provides slow-release energy.' : 'Céréale complète, source saine de glucides complexes et fibres. Fournit une énergie à libération lente.';
+    return pick({ en: 'Whole grain, a healthy source of complex carbohydrates and fiber. Provides slow-release energy.', fr: 'Céréale complète, source saine de glucides complexes et fibres. Fournit une énergie à libération lente.', ko: '복합 탄수화물과 식이섬유가 풍부한 건강한 통곡물입니다. 천천히 방출되는 에너지를 제공합니다.' });
   }
   if (lowerName.includes('noix') || lowerName.includes('nut') || lowerName.includes('amande') || lowerName.includes('almond') || lowerName.includes('noisette') || lowerName.includes('hazelnut') || lowerName.includes('cajou') || lowerName.includes('cashew') || lowerName.includes('pistache') || lowerName.includes('graine') || lowerName.includes('seed')) {
-    return en ? 'Nuts and seeds are rich in healthy fats, protein, fiber, and minerals. Excellent for heart health and satiety.' : 'Noix et graines riches en bonnes graisses, protéines, fibres et minéraux. Excellentes pour la santé cardiovasculaire et la satiété.';
+    return pick({ en: 'Nuts and seeds are rich in healthy fats, protein, fiber, and minerals. Excellent for heart health and satiety.', fr: 'Noix et graines riches en bonnes graisses, protéines, fibres et minéraux. Excellentes pour la santé cardiovasculaire et la satiété.', ko: '견과류와 씨앗은 건강한 지방, 단백질, 식이섬유, 미네랄이 풍부합니다. 심장 건강과 포만감에 훌륭합니다.' });
   }
   // Fallback descriptions must still be specific, not generic.
-  return en
-    ? `${name} is a natural ingredient. It is a source of nutrients that contributes to the nutritional value of this product.`
-    : `${name} est un ingrédient naturel. C\'est une source de nutriments qui contribue à la valeur nutritionnelle de ce produit.`;
+  return pick({
+    en: `${name} is a natural ingredient. It is a source of nutrients that contributes to the nutritional value of this product.`,
+    fr: `${name} est un ingrédient naturel. C'est une source de nutriments qui contribue à la valeur nutritionnelle de ce produit.`,
+    ko: `${name}은(는) 천연 성분입니다. 이 제품의 영양 가치에 기여하는 영양소의 공급원입니다.`,
+  });
 }
 
 // Markers used to classify UNKNOWN ingredients (not in the database). Shared between the
@@ -1596,61 +1607,77 @@ export async function analyzeUniversalPhoto(imageBase64: string): Promise<Univer
 // ═══════════════════════════════════════════════════════════════════════
 
 function generateResume(badge: RiskLevel, substances: SubstanceDetected[]): string {
-  const en = isEnglish();
   const dangerSubst = substances.filter(s => s.niveau_risque === 'danger');
 
   if (badge === 'danger') {
     const names = dangerSubst.slice(0, 2).map(s => s.nom).join(', ');
-    return en
-      ? `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic (${names}). I strongly advise against consuming it — look for a healthier alternative.`
-      : `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes (${names}). Je te deconseille fortement d'en consommer — cherche une alternative plus saine.`;
+    return pick({
+      en: `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic (${names}). I strongly advise against consuming it — look for a healthier alternative.`,
+      fr: `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes (${names}). Je te deconseille fortement d'en consommer — cherche une alternative plus saine.`,
+      ko: `이 제품에는 초가공 성분이 너무 많고, 그중 일부는 발암 가능성이 있습니다 (${names}). 섭취를 강력히 권하지 않습니다 — 더 건강한 대안을 찾아보세요.`,
+    });
   }
 
   if (badge === 'probable') {
-    return en
-      ? `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic. Consume it very occasionally and prefer a natural alternative.`
-      : `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes. Consomme-le tres occasionnellement et prefere une alternative naturelle.`;
+    return pick({
+      en: `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic. Consume it very occasionally and prefer a natural alternative.`,
+      fr: `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes. Consomme-le tres occasionnellement et prefere une alternative naturelle.`,
+      ko: `이 제품에는 초가공 성분이 너무 많고, 그중 일부는 발암 가능성이 있습니다. 아주 가끔만 드시고 천연 대안을 선택하세요.`,
+    });
   }
 
   if (badge === 'possible') {
-    return en
-      ? `This product contains a few processed or controversial ingredients. You can consume it occasionally.`
-      : `Ce produit contient quelques ingrédients transformés ou controversés. Tu peux en consommer occasionnellement, mais évite d'en faire un aliment du quotidien.`;
+    return pick({
+      en: `This product contains a few processed or controversial ingredients. You can consume it occasionally.`,
+      fr: `Ce produit contient quelques ingrédients transformés ou controversés. Tu peux en consommer occasionnellement, mais évite d'en faire un aliment du quotidien.`,
+      ko: `이 제품에는 가공되었거나 논란이 있는 성분이 몇 가지 들어 있습니다. 가끔은 드셔도 되지만 매일 먹는 식품으로 삼지는 마세요.`,
+    });
   }
 
-  return en
-    ? `This product is overall very good. The vast majority of ingredients are natural and healthy.`
-    : `Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains.`;
+  return pick({
+    en: `This product is overall very good. The vast majority of ingredients are natural and healthy.`,
+    fr: `Ce produit est globalement très bon. La grande majorité des ingrédients sont naturels et sains.`,
+    ko: `이 제품은 전반적으로 매우 좋습니다. 대부분의 성분이 자연스럽고 건강합니다.`,
+  });
 }
 
 function generateRecommendations(badge: RiskLevel, substances: SubstanceDetected[]): string[] {
-  const en = isEnglish();
   const recs: string[] = [];
 
   const pregnancyIssues = substances.filter(s =>
     DANGER_PREGNANCY.some(p => normalizeForLookup(s.nom).includes(normalizeForLookup(p)))
   );
   if (pregnancyIssues.length > 0) {
-    recs.push(en
-      ? '⚠️ This product contains substances not recommended during pregnancy. Consult a healthcare professional.'
-      : '⚠️ Ce produit contient des substances déconseillées pendant la grossesse. Consulte un professionnel de santé.');
+    recs.push(pick({
+      en: '⚠️ This product contains substances not recommended during pregnancy. Consult a healthcare professional.',
+      fr: '⚠️ Ce produit contient des substances déconseillées pendant la grossesse. Consulte un professionnel de santé.',
+      ko: '⚠️ 이 제품에는 임신 중 권장되지 않는 성분이 들어 있습니다. 의료 전문가와 상담하세요.',
+    }));
   }
 
   if (badge === 'danger' || badge === 'probable') {
-    recs.push(en
-      ? 'Look for organic alternatives without controversial additives.'
-      : 'Privilégie des alternatives bio sans additifs controversés.');
-    recs.push(en
-      ? 'Read labels carefully and avoid ultra-processed products.'
-      : 'Lis attentivement les étiquettes et évite les produits ultra-transformés.');
+    recs.push(pick({
+      en: 'Look for organic alternatives without controversial additives.',
+      fr: 'Privilégie des alternatives bio sans additifs controversés.',
+      ko: '논란이 있는 첨가물이 없는 유기농 대안을 우선하세요.',
+    }));
+    recs.push(pick({
+      en: 'Read labels carefully and avoid ultra-processed products.',
+      fr: 'Lis attentivement les étiquettes et évite les produits ultra-transformés.',
+      ko: '라벨을 꼼꼼히 읽고 초가공 제품을 피하세요.',
+    }));
   } else if (badge === 'possible') {
-    recs.push(en
-      ? 'Consume in moderation as part of a balanced diet.'
-      : 'Consomme avec modération dans le cadre d\'une alimentation équilibrée.');
+    recs.push(pick({
+      en: 'Consume in moderation as part of a balanced diet.',
+      fr: 'Consomme avec modération dans le cadre d\'une alimentation équilibrée.',
+      ko: '균형 잡힌 식단의 일부로 적당히 드세요.',
+    }));
   } else {
-    recs.push(en
-      ? 'Continue choosing products with simple and natural ingredients.'
-      : 'Continue de choisir des produits avec des ingrédients simples et naturels.');
+    recs.push(pick({
+      en: 'Continue choosing products with simple and natural ingredients.',
+      fr: 'Continue de choisir des produits avec des ingrédients simples et naturels.',
+      ko: '간단하고 자연스러운 성분의 제품을 계속 선택하세요.',
+    }));
   }
 
   return recs;
@@ -1661,25 +1688,29 @@ function generateRecommendations(badge: RiskLevel, substances: SubstanceDetected
 // ─────────────────────────────────────────────────────────────────────
 
 function generateCosmeticResume(badge: RiskLevel, substances: SubstanceDetected[]): string {
-  const en = isEnglish();
   if (badge === 'danger') {
     const names = substances.filter((s) => s.niveau_risque === 'danger').slice(0, 2).map((s) => s.nom).join(', ');
-    return en
-      ? `This cosmetic contains ingredients recognized as hazardous${names ? ` (${names})` : ''} — endocrine disruptors or substances linked to cancer. Avoid it and choose a clean alternative.`
-      : `Ce cosmétique contient des ingrédients reconnus dangereux${names ? ` (${names})` : ''} — perturbateurs endocriniens ou substances liées au cancer. À éviter, choisis une alternative clean.`;
+    return pick({
+      en: `This cosmetic contains ingredients recognized as hazardous${names ? ` (${names})` : ''} — endocrine disruptors or substances linked to cancer. Avoid it and choose a clean alternative.`,
+      fr: `Ce cosmétique contient des ingrédients reconnus dangereux${names ? ` (${names})` : ''} — perturbateurs endocriniens ou substances liées au cancer. À éviter, choisis une alternative clean.`,
+      ko: `이 화장품에는 위험한 것으로 알려진 성분${names ? ` (${names})` : ''}이 들어 있습니다 — 내분비 교란 물질이나 암과 관련된 물질입니다. 사용을 피하고 클린 대안을 선택하세요.`,
+    });
   }
   if (badge === 'possible') {
-    return en
-      ? `This cosmetic contains several controversial ingredients with divided science. Use it occasionally and prefer a cleaner formula.`
-      : `Ce cosmétique contient plusieurs ingrédients controversés à la science partagée. À utiliser occasionnellement, préfère une formule plus clean.`;
+    return pick({
+      en: `This cosmetic contains several controversial ingredients with divided science. Use it occasionally and prefer a cleaner formula.`,
+      fr: `Ce cosmétique contient plusieurs ingrédients controversés à la science partagée. À utiliser occasionnellement, préfère une formule plus clean.`,
+      ko: `이 화장품에는 과학적 의견이 갈리는 논란성 성분이 여러 개 들어 있습니다. 가끔만 사용하고 더 클린한 포뮬러를 선택하세요.`,
+    });
   }
-  return en
-    ? `This cosmetic is made of ingredients with no known risk. A clean choice for your skin.`
-    : `Ce cosmétique est composé d'ingrédients sans risque connu. Un choix clean pour ta peau.`;
+  return pick({
+    en: `This cosmetic is made of ingredients with no known risk. A clean choice for your skin.`,
+    fr: `Ce cosmétique est composé d'ingrédients sans risque connu. Un choix clean pour ta peau.`,
+    ko: `이 화장품은 알려진 위험이 없는 성분으로 만들어졌습니다. 피부를 위한 클린한 선택입니다.`,
+  });
 }
 
 function generateCosmeticRecommendations(badge: RiskLevel, substances: SubstanceDetected[]): string[] {
-  const en = isEnglish();
   const recs: string[] = [];
 
   const hasPregnancyRisk = substances.some((s) => {
@@ -1687,26 +1718,36 @@ function generateCosmeticRecommendations(badge: RiskLevel, substances: Substance
     return classifyCosmeticIngredient(s.nom)?.pregnancyDanger === true;
   });
   if (hasPregnancyRisk) {
-    recs.push(en
-      ? '⚠️ This product contains ingredients to avoid during pregnancy. Ask a healthcare professional.'
-      : '⚠️ Ce produit contient des ingrédients à éviter pendant la grossesse. Demande conseil à un professionnel de santé.');
+    recs.push(pick({
+      en: '⚠️ This product contains ingredients to avoid during pregnancy. Ask a healthcare professional.',
+      fr: '⚠️ Ce produit contient des ingrédients à éviter pendant la grossesse. Demande conseil à un professionnel de santé.',
+      ko: '⚠️ 이 제품에는 임신 중 피해야 할 성분이 들어 있습니다. 의료 전문가에게 상담하세요.',
+    }));
   }
 
   if (badge === 'danger') {
-    recs.push(en
-      ? 'Avoid this product and pick a "clean" / EWG Verified alternative.'
-      : 'Évite ce produit et choisis une alternative « clean » / EWG Verified.');
-    recs.push(en
-      ? 'Check the INCI list on the EWG Skin Deep or Yuka app before buying.'
-      : 'Vérifie la liste INCI sur l\'app EWG Skin Deep ou Yuka avant d\'acheter.');
+    recs.push(pick({
+      en: 'Avoid this product and pick a "clean" / EWG Verified alternative.',
+      fr: 'Évite ce produit et choisis une alternative « clean » / EWG Verified.',
+      ko: '이 제품을 피하고 "클린" / EWG 인증 대안을 선택하세요.',
+    }));
+    recs.push(pick({
+      en: 'Check the INCI list on the EWG Skin Deep or Yuka app before buying.',
+      fr: 'Vérifie la liste INCI sur l\'app EWG Skin Deep ou Yuka avant d\'acheter.',
+      ko: '구매 전 EWG Skin Deep 또는 Yuka 앱에서 성분(INCI) 목록을 확인하세요.',
+    }));
   } else if (badge === 'possible') {
-    recs.push(en
-      ? 'Limit use and prefer fragrance-free, silicone-free formulas when possible.'
-      : 'Limite l\'usage et préfère des formules sans parfum ni silicone quand c\'est possible.');
+    recs.push(pick({
+      en: 'Limit use and prefer fragrance-free, silicone-free formulas when possible.',
+      fr: 'Limite l\'usage et préfère des formules sans parfum ni silicone quand c\'est possible.',
+      ko: '사용을 제한하고 가능하면 무향·무실리콘 포뮬러를 선택하세요.',
+    }));
   } else {
-    recs.push(en
-      ? 'Clean formula — you can use it with confidence.'
-      : 'Formule clean — tu peux l\'utiliser en confiance.');
+    recs.push(pick({
+      en: 'Clean formula — you can use it with confidence.',
+      fr: 'Formule clean — tu peux l\'utiliser en confiance.',
+      ko: '클린 포뮬러입니다 — 안심하고 사용하세요.',
+    }));
   }
 
   return recs;
@@ -1814,18 +1855,18 @@ export function universalResultToScannedProduct(
 interface LocalizedAlternative {
   readonly fr: { nom: string; raison: string };
   readonly en: { nom: string; raison: string };
+  readonly ko: { nom: string; raison: string };
 }
 
 const ADDITIVE_ALTERNATIVES: Record<string, readonly LocalizedAlternative[]> = {
-  'en:e250': [{ fr: { nom: 'Jambon sans nitrites (Fleury Michon)', raison: 'Sans conservateurs cancérogènes' }, en: { nom: 'Nitrite-free deli ham', raison: 'No carcinogenic preservatives' } }],
-  'en:e249': [{ fr: { nom: 'Charcuterie bio sans nitrites', raison: 'Conservation naturelle sans nitrites' }, en: { nom: 'Organic nitrite-free deli meat', raison: 'Naturally preserved without nitrites' } }],
-  'en:e951': [{ fr: { nom: 'Stévia ou érythritol', raison: 'Édulcorants naturels' }, en: { nom: 'Stevia or erythritol', raison: 'Natural sweeteners' } }],
-  'palm-oil': [{ fr: { nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3 anti-inflammatoires' }, en: { nom: 'Extra virgin olive oil', raison: 'Rich in anti-inflammatory omega-3' } }],
-  'pfas': [{ fr: { nom: 'Contenants en verre ou inox', raison: 'Sans polluants éternels' }, en: { nom: 'Glass or stainless steel containers', raison: 'Free of forever chemicals (PFAS)' } }],
+  'en:e250': [{ fr: { nom: 'Jambon sans nitrites (Fleury Michon)', raison: 'Sans conservateurs cancérogènes' }, en: { nom: 'Nitrite-free deli ham', raison: 'No carcinogenic preservatives' }, ko: { nom: '무첨가(무아질산염) 햄', raison: '발암성 보존료 없음' } }],
+  'en:e249': [{ fr: { nom: 'Charcuterie bio sans nitrites', raison: 'Conservation naturelle sans nitrites' }, en: { nom: 'Organic nitrite-free deli meat', raison: 'Naturally preserved without nitrites' }, ko: { nom: '유기농 무아질산염 가공육', raison: '아질산염 없이 자연 보존' } }],
+  'en:e951': [{ fr: { nom: 'Stévia ou érythritol', raison: 'Édulcorants naturels' }, en: { nom: 'Stevia or erythritol', raison: 'Natural sweeteners' }, ko: { nom: '스테비아 또는 에리스리퇴', raison: '천연 감미료' } }],
+  'palm-oil': [{ fr: { nom: 'Huile d\'olive extra vierge', raison: 'Riche en oméga-3 anti-inflammatoires' }, en: { nom: 'Extra virgin olive oil', raison: 'Rich in anti-inflammatory omega-3' }, ko: { nom: '엑스트라 버진 올리브유', raison: '항염 오메가-3 풍부' } }],
+  'pfas': [{ fr: { nom: 'Contenants en verre ou inox', raison: 'Sans polluants éternels' }, en: { nom: 'Glass or stainless steel containers', raison: 'Free of forever chemicals (PFAS)' }, ko: { nom: '유리 또는 스테인리스 용기', raison: '영구 화학물질(PFAS) 없음' } }],
 };
 
 export function generateBarcodeAlternatives(detectedAdditives: { code: string; name: string; group: string }[]): { nom: string; raison: string }[] {
-  const en = isEnglish();
   const seen = new Set<string>();
   const alternatives: { nom: string; raison: string }[] = [];
 
@@ -1833,7 +1874,7 @@ export function generateBarcodeAlternatives(detectedAdditives: { code: string; n
     const alts = ADDITIVE_ALTERNATIVES[additive.code];
     if (alts) {
       for (const alt of alts) {
-        const localized = en ? alt.en : alt.fr;
+        const localized = pick({ en: alt.en, fr: alt.fr, ko: alt.ko });
         if (!seen.has(localized.nom)) {
           seen.add(localized.nom);
           alternatives.push(localized);

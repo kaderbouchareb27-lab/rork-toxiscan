@@ -39,7 +39,7 @@ import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected } 
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
 import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { useLocation } from '@/providers/LocationProvider';
-import { t, isEnglish } from '@/utils/i18n';
+import { t, isEnglish, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
@@ -234,12 +234,12 @@ function truncateName(name: string, max: number = 60): string {
 
 function getRegionDisplayName(region: ReturnType<typeof detectRegion>['region']): string {
   switch (region) {
-    case 'quebec':       return isEnglish() ? 'Quebec' : 'Québec';
-    case 'canada_other': return 'Canada';
-    case 'france':       return 'France';
-    case 'usa':          return 'USA';
-    case 'belgium':      return isEnglish() ? 'Belgium' : 'Belgique';
-    case 'switzerland':  return isEnglish() ? 'Switzerland' : 'Suisse';
+    case 'quebec':       return pick({ en: 'Quebec', fr: 'Québec', ko: '퀘벡' });
+    case 'canada_other': return pick({ en: 'Canada', fr: 'Canada', ko: '캐나다' });
+    case 'france':       return pick({ en: 'France', fr: 'France', ko: '프랑스' });
+    case 'usa':          return pick({ en: 'USA', fr: 'USA', ko: '미국' });
+    case 'belgium':      return pick({ en: 'Belgium', fr: 'Belgique', ko: '벨기에' });
+    case 'switzerland':  return pick({ en: 'Switzerland', fr: 'Suisse', ko: '스위스' });
     default:             return '';
   }
 }
@@ -565,7 +565,7 @@ function BrandChips({ brands }: { brands: string[] }) {
           testID="brands-show-more"
         >
           <Text style={styles.brandChipMoreText}>
-            {isEnglish() ? `+${hiddenCount} more` : `+${hiddenCount} autres`}
+            {pick({ en: `+${hiddenCount} more`, fr: `+${hiddenCount} autres`, ko: `+${hiddenCount}개 더` })}
           </Text>
         </TouchableOpacity>
       ) : null}
@@ -712,9 +712,11 @@ export default function ProductScreen() {
   }, [ingredientsList]);
 
   const getApprovedDescription = useCallback((name: string): string => {
-    return isEnglish()
-      ? `${name} is a natural or commonly accepted ingredient with no identified health risk at typical food levels.`
-      : `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`;
+    return pick({
+      en: `${name} is a natural or commonly accepted ingredient with no identified health risk at typical food levels.`,
+      fr: `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`,
+      ko: `${name}은(는) 일반적인 식품 섭취량에서 알려진 건강 위험이 없는 천연 또는 통상적으로 인정된 성분입니다.`,
+    });
   }, []);
 
   const additiveCategory = useMemo(
@@ -949,7 +951,7 @@ export default function ProductScreen() {
                       <View style={styles.allIngPendingRow}>
                         <ActivityIndicator size="small" color={Colors.primary} />
                         <Text style={styles.allIngPendingText}>
-                          {isEnglish() ? 'Generating description…' : 'Génération de la description…'}
+                          {pick({ en: 'Generating description…', fr: 'Génération de la description…', ko: '설명을 생성하는 중…' })}
                         </Text>
                       </View>
                     ) : description ? (
@@ -979,7 +981,7 @@ export default function ProductScreen() {
                 <View style={styles.locationPill}>
                   <MapPin color="#2E9E34" size={13} />
                   <Text style={styles.locationPillText} numberOfLines={1}>
-                    {isEnglish() ? 'Suggestions near' : 'Suggestions proches de'} {locationLabel}
+                    {pick({ en: 'Suggestions near', fr: 'Suggestions proches de', ko: '내 주변 추천' })} {locationLabel}
                   </Text>
                 </View>
               ) : Platform.OS !== 'web' ? (
@@ -993,15 +995,15 @@ export default function ProductScreen() {
                   <MapPin color="#FFFFFF" size={15} />
                   <Text style={styles.enableLocationText}>
                     {isResolving
-                      ? (isEnglish() ? 'Locating…' : 'Localisation…')
-                      : (isEnglish() ? 'Suggest stores near me' : 'Magasins près de chez moi')}
+                      ? pick({ en: 'Locating…', fr: 'Localisation…', ko: '위치 찾는 중…' })
+                      : pick({ en: 'Suggest stores near me', fr: 'Magasins près de chez moi', ko: '내 주변 매장 추천' })}
                   </Text>
                 </TouchableOpacity>
               ) : null}
               <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
 
               <Text style={styles.bioStoresSubtitle}>
-                {isEnglish() ? 'Real advice for this product' : 'Conseils concrets pour ce produit'}
+                {pick({ en: 'Real advice for this product', fr: 'Conseils concrets pour ce produit', ko: '이 제품에 대한 실질적인 조언' })}
               </Text>
               {scannedAdvice ? (
                 <View style={styles.scannedAdviceCallout}>
@@ -1023,7 +1025,7 @@ export default function ProductScreen() {
                 <View style={styles.mapsHintRow}>
                   <Navigation color="#2E9E34" size={12} />
                   <Text style={styles.mapsHintText}>
-                    {isEnglish() ? 'Tap a store to find it near you in Maps' : 'Touchez un magasin pour le trouver près de vous dans Plans'}
+                    {pick({ en: 'Tap a store to find it near you in Maps', fr: 'Touchez un magasin pour le trouver près de vous dans Plans', ko: '매장을 누르면 지도에서 내 주변 위치를 찾을 수 있습니다' })}
                   </Text>
                 </View>
               ) : null}

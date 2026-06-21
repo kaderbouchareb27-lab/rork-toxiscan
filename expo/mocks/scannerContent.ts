@@ -1,4 +1,4 @@
-import { isEnglish } from '@/utils/i18n';
+import { getDeviceLanguage } from '@/utils/i18n';
 
 export interface HealthAlert {
   id: string;
@@ -97,7 +97,45 @@ const HEALTH_ALERTS_EN: HealthAlert[] = [
   },
 ];
 
-export const HEALTH_ALERTS: HealthAlert[] = isEnglish() ? HEALTH_ALERTS_EN : HEALTH_ALERTS_FR;
+const HEALTH_ALERTS_KO: HealthAlert[] = [
+  {
+    id: 'alert-1',
+    title: '미국: FDA가 식품에서 Red 3(에리트로신)를 공식 금지',
+    summary: 'FDA는 마침내 섭취하는 식품과 의약품에서 Red 3(E127) 색소를 금지했습니다. 발암 가능 물질로 분류된 이 색소는 동물에서 갑상선암과의 연관성이 입증되었음에도 수십 년간 사탕, 케이크, 의약품에 사용되어 왔습니다. 제조사는 2027년 1월까지 제품을 재배합해야 합니다.',
+    source: 'FDA - Federal Register, 2025년 1월',
+    date: '2025-01-15',
+  },
+  {
+    id: 'alert-2',
+    title: '캐나다: 이산화티타늄 E171 함유 제품 회수',
+    summary: '캐나다 보건부는 사탕, 소스, 화장품에 사용되는 백색 색소 이산화티타늄(E171) 함유 제품에 대한 모니터링을 강화했습니다. 유럽 EFSA는 유전독성 우려로 이 물질을 식품 첨가물로 안전하지 않다고 봅니다. E171은 이미 2020년부터 프랑스에서 금지되었습니다.',
+    source: '캐나다 보건부 / EFSA',
+    date: '2025-02-10',
+  },
+  {
+    id: 'alert-3',
+    title: '프랑스: 가공육 속 아질산염 위험을 확인한 새 연구',
+    summary: 'ANSES의 연구는 가공육 속 아질산염(E249, E250) 섭취와 대장암 위험 증가 사이의 연관성을 확인했습니다. 이 기관은 첨가된 아질산염과 질산염 노출을 줄일 것을 권고합니다. 아질산염은 2015년부터 IARC에 의해 확인된 발암물질(1군)로 분류되었습니다.',
+    source: 'ANSES - 프랑스 국립 보건안전청',
+    date: '2025-03-01',
+  },
+  {
+    id: 'alert-4',
+    title: 'WHO: 아스파탐, 발암 가능 등급 유지',
+    summary: '국제암연구소(IARC)는 아스파탐(E951)을 2B군(발암 가능)으로 분류한 것을 유지합니다. 일일 허용 섭취량은 변하지 않았지만, 전문가들은 특히 다이어트 음료와 무설탕 제품을 정기적으로 섭취하는 사람들에게 주의를 권고합니다.',
+    source: 'WHO / IARC - 발암물질 분류',
+    date: '2025-01-28',
+  },
+  {
+    id: 'alert-5',
+    title: '유럽: 영구 화학물질 PFAS, 식품 포장재에서 발견',
+    summary: '유럽 조사는 피자 박스, 전자레인지 팝콘 봉지, 패스트푸드 포장지 등 많은 식품 포장재에서 PFAS(과불화화합물)의 존재를 밝혔습니다. 이 영구 화학물질은 신장암 및 고환암과 관련이 있습니다.',
+    source: '유럽 화학물질청(ECHA)',
+    date: '2025-02-20',
+  },
+];
+
+export const HEALTH_ALERTS: HealthAlert[] = getDeviceLanguage() === 'ko' ? HEALTH_ALERTS_KO : getDeviceLanguage() === 'en' ? HEALTH_ALERTS_EN : HEALTH_ALERTS_FR;
 
 const DAILY_FACTS_FR: DailyFact[] = [
   { id: 'fact-1', text: 'Le cancer colorectal a augmenté de 45% chez les moins de 50 ans depuis 1990.' },
@@ -177,7 +215,46 @@ const DAILY_FACTS_EN: DailyFact[] = [
   { id: 'fact-36', text: 'Cadmium is a heavy metal classified as a Group 1 carcinogen by the IARC, found in foods like cocoa, whole grains, and shellfish. Regular exposure increases the risk of kidney and lung cancer.' },
 ];
 
-export const DAILY_FACTS: DailyFact[] = isEnglish() ? DAILY_FACTS_EN : DAILY_FACTS_FR;
+const DAILY_FACTS_KO: DailyFact[] = [
+  { id: 'fact-1', text: '대장암은 1990년 이후 50세 미만에서 45% 증가했습니다.' },
+  { id: 'fact-2', text: '플라스틱을 전자레인지에 데우면 음식에 미세플라스틱이 방출됩니다.' },
+  { id: 'fact-3', text: '가공육 속 아질산염은 2015년부터 확인된 발암물질로 분류되었습니다.' },
+  { id: 'fact-4', text: '브로콜리에는 알려진 가장 강력한 항암 성분 중 하나인 설포라판이 들어 있습니다.' },
+  { id: 'fact-5', text: '긁힌 테플론 팬은 IARC가 발암 가능 물질로 분류한 PFOA를 방출할 수 있습니다.' },
+  { id: 'fact-6', text: '강황은 1만 2천 편 이상의 논문이 있는, 항암 특성으로 가장 많이 연구된 향신료입니다.' },
+  { id: 'fact-7', text: '아조 색소(E102, E110, E129)는 여러 나라에서 어린이용 식품에 금지되어 있습니다.' },
+  { id: 'fact-8', text: '유리병은 플라스틱과 달리 음식에 어떤 화학물질도 방출하지 않습니다.' },
+  { id: 'fact-9', text: 'WHO는 더 나은 식단과 생활습관으로 암의 30~50%를 예방할 수 있다고 추정합니다.' },
+  { id: 'fact-10', text: '1군 발암물질인 포름알데히드는 세탁하지 않은 일부 새 옷에서 발견됩니다.' },
+  { id: 'fact-11', text: '엑스트라 버진 올리브유에는 이부프로펜만큼 강력한 항염 성분인 올레오칸탈이 들어 있습니다.' },
+  { id: 'fact-12', text: '이산화티타늄(E171)은 2020년부터 프랑스에서 금지되었지만 캐나다와 미국에서는 여전히 합법입니다.' },
+  { id: 'fact-13', text: '플라스틱 티백은 우려낼 때마다 수십억 개의 미세플라스틱을 컵에 방출합니다.' },
+  { id: 'fact-14', text: '글루탐산나트륨(MSG)은 라벨에서 40가지가 넘는 다른 이름으로 숨어 있습니다.' },
+  { id: 'fact-15', text: '통조림은 종종 내분비 교란 물질인 BPA가 든 코팅으로 처리됩니다.' },
+  { id: 'fact-16', text: '주철과 스테인리스는 고온 조리에 가장 안전한 재료입니다.' },
+  { id: 'fact-17', text: '천연 향료는 하나의 이름 아래 최대 100가지의 서로 다른 화학물질을 포함할 수 있습니다.' },
+  { id: 'fact-18', text: '유럽에서 금지된 Red 40은 북미에서 가장 많이 쓰이는 식용 색소입니다.' },
+  { id: 'fact-19', text: '새 옷을 입기 전에 세탁하면 잔류 포름알데히드의 상당 부분이 제거됩니다.' },
+  { id: 'fact-20', text: '영구 화학물질로 불리는 PFAS는 환경에서 분해되는 데 수천 년이 걸립니다.' },
+  { id: 'fact-21', text: 'Consumer Reports에 따르면 PFAS(영구 화학물질)가 거의 모든 분유 브랜드에서 발견되었습니다.' },
+  { id: 'fact-22', text: '일부 치약에 든 트리클로산은 비누에서 금지된 내분비 교란 물질입니다.' },
+  { id: 'fact-23', text: '비듬 샴푸에 든 콜타르(석탄 타르)는 확인된 1군 발암물질로 분류됩니다.' },
+  { id: 'fact-24', text: '방수 의류에는 발암성 영구 화학물질인 PFAS가 자주 들어 있습니다.' },
+  { id: 'fact-25', text: '가죽 무두질에 쓰이는 6가 크롬은 IARC가 확인한 1군 발암물질입니다.' },
+  { id: 'fact-26', text: '표백제는 확인된 발암물질인 다이옥신을 생성합니다. 과탄산소다를 사용하세요.' },
+  { id: 'fact-27', text: '아기 물티슈에는 포름알데히드를 방출하는 보존제 DMDM 하이단토인이 들어 있을 수 있습니다.' },
+  { id: 'fact-28', text: '폴리스티렌(플라스틱 #6)은 특히 뜨거운 음식과 함께 발암 가능 물질인 스티렌을 방출할 수 있습니다.' },
+  { id: 'fact-29', text: '매니큐어에 든 톨루엔은 신경독성입니다. 3-free 또는 5-free 매니큐어를 찾으세요.' },
+  { id: 'fact-30', text: '섬유 속 아조 색소는 피부 접촉 시 발암성 방향족 아민을 방출할 수 있습니다.' },
+  { id: 'fact-31', text: '드라이클리닝에 쓰이는 퍼클로로에틸렌은 발암 추정 2A군으로 분류됩니다.' },
+  { id: 'fact-32', text: '액상 분유 캔의 BPA는 유방암과 관련된 내분비 교란 물질입니다.' },
+  { id: 'fact-33', text: '멜라민 식기는 가열하면 포름알데히드를 방출할 수 있습니다. 절대 전자레인지에 사용하지 마세요.' },
+  { id: 'fact-34', text: '생활용품 속 이소티아졸리논(MIT, CMIT)은 강력한 알레르겐입니다.' },
+  { id: 'fact-35', text: '일부 염색약에 든 납은 확인된 발암물질이자 신경독성 물질입니다.' },
+  { id: 'fact-36', text: '카드뮴은 IARC가 1군 발암물질로 분류한 중금속으로 코코아, 통곡물, 갑각류 같은 식품에 들어 있습니다. 정기적인 노출은 신장암과 폐암 위험을 높입니다.' },
+];
+
+export const DAILY_FACTS: DailyFact[] = getDeviceLanguage() === 'ko' ? DAILY_FACTS_KO : getDeviceLanguage() === 'en' ? DAILY_FACTS_EN : DAILY_FACTS_FR;
 
 const QUIZ_QUESTIONS_FR: QuizQuestion[] = [
   {
@@ -345,7 +422,30 @@ const QUIZ_QUESTIONS_EN: QuizQuestion[] = [
   { id: 'quiz-20', question: 'What does a "5-free" nail polish mean?', options: ['It costs $5', 'It is free of 5 toxic substances (toluene, formaldehyde, DBP, etc.)', 'It dries in 5 minutes'], correctIndex: 1, explanation: 'A "5-free" polish is formulated without the 5 most toxic substances: toluene (neurotoxic), formaldehyde (carcinogen), DBP (phthalate), formaldehyde resin, and synthetic camphor.' },
 ];
 
-export const QUIZ_QUESTIONS: QuizQuestion[] = isEnglish() ? QUIZ_QUESTIONS_EN : QUIZ_QUESTIONS_FR;
+const QUIZ_QUESTIONS_KO: QuizQuestion[] = [
+  { id: 'quiz-1', question: '유럽에서는 금지되었지만 북미에서는 허용된 식용 색소는?', options: ['E150d (캐러멜)', 'Red 40 (E129)', 'E100 (커큐민)'], correctIndex: 1, explanation: 'Red 40(Allura Red, E129)은 가장 논란이 많은 아조 색소 중 하나입니다. 어린이 과잉행동과의 연관성, 잠재적 발암 위험 때문에 여러 유럽 국가에서 금지되어 있습니다.' },
+  { id: 'quiz-2', question: '플라스틱은 몇 도에서 독성 물질을 방출하기 시작할까요?', options: ['50°C', '70°C', '100°C'], correctIndex: 1, explanation: '70°C부터 플라스틱은 BPA와 프탈레이트 같은 내분비 교란 물질을 방출하기 시작합니다. 그래서 플라스틱 용기에 음식을 담아 전자레인지에 데우면 안 됩니다.' },
+  { id: 'quiz-3', question: '연구에 따르면 항암 식품 1위는?', options: ['브로콜리', '당근', '토마토'], correctIndex: 0, explanation: '브로콜리에는 몸의 해독 효소를 활성화하고 암세포 성장을 억제하는 성분인 설포라판이 들어 있습니다. 항암 특성으로 가장 많이 연구된 식품입니다.' },
+  { id: 'quiz-4', question: 'IARC가 확인된 발암물질(1군)로 분류한 첨가물은?', options: ['아스파탐 (E951)', '아질산나트륨 (E250)', '구연산 (E330)'], correctIndex: 1, explanation: '가공육의 보존제로 쓰이는 아질산염(E249, E250)은 IARC가 확인된 발암물질(1군)로 분류합니다. 위에서 발암성 니트로사민을 형성합니다.' },
+  { id: 'quiz-5', question: '음식을 보관하기에 가장 안전한 재료는?', options: ['식품용 플라스틱', '알루미늄', '유리'], correctIndex: 2, explanation: '유리는 화학적으로 불활성입니다: 온도와 관계없이 음식에 어떤 물질도 방출하지 않습니다. 식품 보관에 가장 안전한 재료입니다.' },
+  { id: 'quiz-6', question: '라벨의 천연 향료는 무엇을 의미할까요?', options: ['과일이나 채소의 순수 추출물', '수십 가지 화학물질을 포함할 수 있음', '건강에 무해함'], correctIndex: 1, explanation: '천연 향료라는 용어는 오해를 부릅니다: 일부는 합성으로 생산되는 것을 포함해 최대 100가지의 서로 다른 화학물질을 포함할 수 있습니다. 규정은 제조사에 성분 상세 공개를 요구하지 않습니다.' },
+  { id: 'quiz-7', question: 'PFAS(영구 화학물질)는 환경에서 얼마나 오래 지속될까요?', options: ['10년', '100년', '수천 년'], correctIndex: 2, explanation: 'PFAS는 화학 구조 때문에 사실상 분해되지 않아 영구 화학물질로 불립니다. 물, 토양, 인체에 수천 년 동안 축적됩니다.' },
+  { id: 'quiz-8', question: '새 옷을 살 때 가장 좋은 습관은?', options: ['바로 입기', '입기 전에 세탁하기', '24시간 환기하기'], correctIndex: 1, explanation: '새 옷에는 구김 방지제로 쓰이는 포름알데히드(IARC 1군)가 자주 들어 있습니다. 첫 세탁으로 잠재적 발암성 화학 잔류물의 상당 부분이 제거됩니다.' },
+  { id: 'quiz-9', question: '해바라기유가 문제로 여겨지는 이유는?', options: ['콜레스테롤이 들어 있다', '염증을 유발하는 오메가-6가 풍부하다', '항상 GMO이다'], correctIndex: 1, explanation: '해바라기유는 염증을 유발하는 지방산인 오메가-6가 매우 풍부합니다. 만성 염증은 많은 암의 발생에 관여하는 알려진 요인입니다. 엑스트라 버진 올리브유를 선택하세요.' },
+  { id: 'quiz-10', question: '이산화티타늄(E171)이 식품에 금지된 나라는?', options: ['캐나다', '미국', '프랑스'], correctIndex: 2, explanation: '프랑스는 유전독성 우려로 2020년 식품에서 E171을 금지했고, 2022년 유럽연합이 뒤따랐습니다. 캐나다와 미국에서는 여전히 합법입니다.' },
+  { id: 'quiz-11', question: '글루탐산(MSG)은 라벨에서 어떤 이름으로 숨을 수 있을까요?', options: ['비타민 C', '효모 추출물', '엽산'], correctIndex: 1, explanation: '효모 추출물은 글루탐산나트륨의 숨은 형태입니다. 제조사는 의무 표시를 우회하기 위해 사용합니다. 다른 숨은 이름: 가수분해 단백질, 천연 향료, 효모 자가분해물.' },
+  { id: 'quiz-12', question: 'WHO에 따르면 예방 가능한 암의 비율은?', options: ['10~20%', '30~50%', '70~80%'], correctIndex: 1, explanation: 'WHO는 더 나은 식단, 독성 물질 회피, 건강한 생활습관으로 암의 30~50%를 예방할 수 있다고 추정합니다. 그래서 우리 제품에 무엇이 들었는지 아는 것이 중요합니다.' },
+  { id: 'quiz-13', question: 'Consumer Reports에 따르면 거의 모든 분유에서 발견된 물질은?', options: ['비타민 D', 'PFAS (영구 화학물질)', '칼슘'], correctIndex: 1, explanation: 'PFAS(과불화화합물)가 검사한 거의 모든 분유 브랜드에서 발견되었습니다. 이 영구 화학물질은 발암성·내분비 교란 물질이며 아기의 면역 체계를 약화시킵니다.' },
+  { id: 'quiz-14', question: '아기 물티슈에서 포름알데히드를 방출하는 보존제는?', options: ['비타민 E', 'DMDM 하이단토인', '글리세린'], correctIndex: 1, explanation: 'DMDM 하이단토인은 확인된 IARC 1군 발암물질인 포름알데히드를 서서히 방출하는 보존제입니다. 많은 아기 물티슈, 크림, 샴푸에서 발견됩니다.' },
+  { id: 'quiz-15', question: '비듬 샴푸에서 확인된 1군 발암물질은?', options: ['징크 피리치온', '콜타르(석탄 타르)', '케토코나졸'], correctIndex: 1, explanation: '일부 비듬 샴푸에 쓰이는 콜타르(석탄 타르)는 IARC가 확인한 1군 발암물질로 분류됩니다. 티트리 오일 같은 천연 대안을 선택하세요.' },
+  { id: 'quiz-16', question: 'BPA가 들어 있는 플라스틱 종류는?', options: ['플라스틱 #1 (PET)', '플라스틱 #7 (폴리카보네이트)', '플라스틱 #5 (PP)'], correctIndex: 1, explanation: '폴리카보네이트(플라스틱 #7)에는 유방암 및 전립선암과 관련된 내분비 교란 물질 BPA가 들어 있습니다. 더 안전한 유리, 스테인리스, 플라스틱 #5(PP) 용기를 선택하세요.' },
+  { id: 'quiz-17', question: '표백제를 소독제로 피해야 하는 이유는?', options: ['냄새가 나쁘다', '발암성 다이옥신을 생성한다', '비싸다'], correctIndex: 1, explanation: '표백제(차아염소산나트륨)는 확인된 발암물질로 분류되는 다이옥신을 생성합니다. 과탄산소다는 소독에 효과적인 천연 대안입니다.' },
+  { id: 'quiz-18', question: '방수 의류에서 발암성을 띠는 물질은?', options: ['처리된 면', 'PFAS / PFC', '일반 폴리에스터'], correctIndex: 1, explanation: '의류를 방수·방오·방추 처리하는 데 쓰이는 PFAS(과불화화합물)는 발암성 영구 화학물질이자 내분비 교란 물질입니다.' },
+  { id: 'quiz-19', question: '멜라민 식기가 위험한 이유는?', options: ['쉽게 깨진다', '가열하면 포름알데히드를 방출한다', '색이 변한다'], correctIndex: 1, explanation: '멜라민 식기는 가열하면 포름알데히드(1군 발암물질)를 방출할 수 있습니다. 절대 전자레인지에 사용하거나 아주 뜨거운 음식을 담지 마세요.' },
+  { id: 'quiz-20', question: '5-free 매니큐어는 무엇을 의미할까요?', options: ['5달러이다', '5가지 독성 물질(톨루엔, 포름알데히드, DBP 등)이 없다', '5분 만에 마른다'], correctIndex: 1, explanation: '5-free 매니큐어는 가장 독성이 강한 5가지 물질 없이 배합됩니다: 톨루엔(신경독), 포름알데히드(발암물질), DBP(프탈레이트), 포름알데히드 수지, 합성 캄포.' },
+];
+
+export const QUIZ_QUESTIONS: QuizQuestion[] = getDeviceLanguage() === 'ko' ? QUIZ_QUESTIONS_KO : getDeviceLanguage() === 'en' ? QUIZ_QUESTIONS_EN : QUIZ_QUESTIONS_FR;
 
 export function getTodayAlerts(): HealthAlert[] {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);

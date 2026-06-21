@@ -13,7 +13,7 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { useOnboarding } from '@/providers/OnboardingProvider';
-import { t, isEnglish } from '@/utils/i18n';
+import { t, pick } from '@/utils/i18n';
 
 export default function AIConsentScreen() {
   const { acceptAIConsent } = useOnboarding();
@@ -47,9 +47,9 @@ export default function AIConsentScreen() {
 
         <View style={styles.techCard}>
           <Text style={styles.techLabel}>{t('tech_used')}</Text>
-          <Text style={styles.techValue}>{isEnglish() ? 'GPT-4o (OpenAI) — text + vision analysis' : 'GPT-4o (OpenAI) — analyse texte + vision'}</Text>
-          <Text style={styles.techValue}>{isEnglish() ? 'Google Cloud Vision — label reading (OCR)' : "Google Cloud Vision — lecture d'étiquettes (OCR)"}</Text>
-          <Text style={styles.techValue}>{isEnglish() ? 'Dr.Toxi proprietary database — enriched with global cancer research (IARC/WHO, EFSA, FDA, NTP, INSERM) and continuously updated each time a new ingredient is declared carcinogenic or ultra-processed worldwide.' : "Base de données propriétaire Dr.Toxi — enrichie par les recherches mondiales sur le cancer (CIRC/OMS, EFSA, FDA, NTP, INSERM) et mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde."}</Text>
+          <Text style={styles.techValue}>{pick({ en: 'GPT-4o (OpenAI) — text + vision analysis', fr: 'GPT-4o (OpenAI) — analyse texte + vision', ko: 'GPT-4o (OpenAI) — 텍스트 + 비전 분석' })}</Text>
+          <Text style={styles.techValue}>{pick({ en: 'Google Cloud Vision — label reading (OCR)', fr: "Google Cloud Vision — lecture d'étiquettes (OCR)", ko: 'Google Cloud Vision — 라벨 읽기 (OCR)' })}</Text>
+          <Text style={styles.techValue}>{pick({ en: 'Dr.Toxi proprietary database — enriched with global cancer research (IARC/WHO, EFSA, FDA, NTP, INSERM) and continuously updated each time a new ingredient is declared carcinogenic or ultra-processed worldwide.', fr: "Base de données propriétaire Dr.Toxi — enrichie par les recherches mondiales sur le cancer (CIRC/OMS, EFSA, FDA, NTP, INSERM) et mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde.", ko: 'Dr.Toxi 독자 데이터베이스 — 전 세계 암 연구(IARC/WHO, EFSA, FDA, NTP, INSERM)로 보강되며, 전 세계에서 새로운 성분이 발암성 또는 초가공으로 선언될 때마다 지속적으로 업데이트됩니다.' })}</Text>
         </View>
 
         <Text style={styles.disclaimerText}>

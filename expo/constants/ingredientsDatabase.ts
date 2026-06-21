@@ -17,13 +17,16 @@ export interface IngredientEntry {
 
 /**
  * Returns the ingredient note in the current app language, directly from the database.
- * Korean apps get `noteKo` (falling back to English then French), English apps get
- * `noteEn` (falling back to `note`), French apps always get `note`. No AI translation needed.
+ * Korean apps get `noteKo` ONLY — never an English/French fallback, so a Korean user never
+ * sees a foreign-language note. When `noteKo` is absent we return undefined and the
+ * Korean-aware description builders (buildNegativeDescription / buildPositiveFallback)
+ * generate a fully Korean description instead. English apps get `noteEn` (falling back to
+ * `note`), French apps always get `note`.
  */
 export function getLocalizedNote(entry: IngredientEntry | null | undefined): string | undefined {
   if (!entry) return undefined;
   const lang = getDeviceLanguage();
-  if (lang === 'ko') return entry.noteKo ?? entry.noteEn ?? entry.note;
+  if (lang === 'ko') return entry.noteKo;
   if (lang === 'en') return entry.noteEn ?? entry.note;
   return entry.note;
 }

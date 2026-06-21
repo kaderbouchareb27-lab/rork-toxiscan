@@ -1,61 +1,61 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Colors from '@/constants/colors';
-import { isEnglish } from '@/utils/i18n';
+import { pick } from '@/utils/i18n';
 
 export default function PrivacyScreen() {
   console.log('[Privacy] Rendering privacy screen');
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{isEnglish() ? 'Privacy Policy' : 'Politique de confidentialité'}</Text>
-      <Text style={styles.updated}>{isEnglish() ? 'Last updated: March 2026' : 'Dernière mise à jour : mars 2026'}</Text>
+      <Text style={styles.title}>{pick({ en: 'Privacy Policy', fr: 'Politique de confidentialité', ko: '개인정보 처리방침' })}</Text>
+      <Text style={styles.updated}>{pick({ en: 'Last updated: March 2026', fr: 'Dernière mise à jour : mars 2026', ko: '최종 업데이트: 2026년 3월' })}</Text>
 
       <View style={styles.highlightCard}>
-        <Text style={styles.highlightText}>{isEnglish() ? 'Dr.Toxi respects your privacy. We never sell your data.' : 'Dr.Toxi respecte votre vie privée. Nous ne vendons jamais vos données.'}</Text>
+        <Text style={styles.highlightText}>{pick({ en: 'Dr.Toxi respects your privacy. We never sell your data.', fr: 'Dr.Toxi respecte votre vie privée. Nous ne vendons jamais vos données.', ko: 'Dr.Toxi는 여러분의 개인정보를 존중합니다. 우리는 여러분의 데이터를 절대 판매하지 않습니다.' })}</Text>
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Data collected' : 'Données collectées'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Data collected', fr: 'Données collectées', ko: '수집하는 데이터' })}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text={isEnglish() ? 'Ingredient list photos (analyzed by our AI, not stored)' : "Photos de listes d'ingrédients (analysées par notre IA, non conservées)"} />
-        <BulletItem text={isEnglish() ? 'Your scan history (stored locally on your device only)' : 'Historique de vos scans (stocké localement sur votre appareil uniquement)'} />
-        <BulletItem text={isEnglish() ? 'Messages sent to Dr. Toxi (processed by our AI, not stored)' : 'Messages envoyés à Dr. Toxi (traités par notre IA, non conservés)'} />
+        <BulletItem text={pick({ en: 'Ingredient list photos (analyzed by our AI, not stored)', fr: "Photos de listes d'ingrédients (analysées par notre IA, non conservées)", ko: '성분표 사진(AI가 분석하며 저장하지 않음)' })} />
+        <BulletItem text={pick({ en: 'Your scan history (stored locally on your device only)', fr: 'Historique de vos scans (stocké localement sur votre appareil uniquement)', ko: '스캔 기록(기기에만 로컬 저장)' })} />
+        <BulletItem text={pick({ en: 'Messages sent to Dr. Toxi (processed by our AI, not stored)', fr: 'Messages envoyés à Dr. Toxi (traités par notre IA, non conservés)', ko: 'Dr. Toxi에 보낸 메시지(AI가 처리하며 저장하지 않음)' })} />
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Data NOT collected' : 'Données NON collectées'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Data NOT collected', fr: 'Données NON collectées', ko: '수집하지 않는 데이터' })}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text={isEnglish() ? 'NO name, email, phone, or location' : 'PAS de nom, email, téléphone ou localisation'} />
-        <BulletItem text={isEnglish() ? 'NO selling data to third parties' : 'PAS de vente de données à des tiers'} />
-        <BulletItem text={isEnglish() ? 'NO targeted advertising' : 'PAS de publicité ciblée'} />
-        <BulletItem text={isEnglish() ? 'NO intrusive trackers or analytics' : 'PAS de trackers ou analytics intrusifs'} />
+        <BulletItem text={pick({ en: 'NO name, email, phone, or location', fr: 'PAS de nom, email, téléphone ou localisation', ko: '이름, 이메일, 전화번호, 위치 없음' })} />
+        <BulletItem text={pick({ en: 'NO selling data to third parties', fr: 'PAS de vente de données à des tiers', ko: '제3자에게 데이터 판매 없음' })} />
+        <BulletItem text={pick({ en: 'NO targeted advertising', fr: 'PAS de publicité ciblée', ko: '타겟 광고 없음' })} />
+        <BulletItem text={pick({ en: 'NO intrusive trackers or analytics', fr: 'PAS de trackers ou analytics intrusifs', ko: '침투적인 추적기나 분석 도구 없음' })} />
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Artificial Intelligence' : 'Intelligence artificielle'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Artificial Intelligence', fr: 'Intelligence artificielle', ko: '인공지능' })}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text={isEnglish() ? 'Dr.Toxi uses artificial intelligence to analyze ingredient photos and for the Dr. Toxi chatbot' : "Dr.Toxi utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi"} />
-        <BulletItem text={isEnglish() ? 'Photos and messages are processed securely by our AI' : 'Les photos et messages sont traités par notre IA de manière sécurisée'} />
-        <BulletItem text={isEnglish() ? 'Our AI does not retain data beyond processing' : 'Notre IA ne conserve pas les données au-delà du traitement'} />
-        <BulletItem text={isEnglish() ? 'Results are for informational purposes and do not constitute medical advice' : 'Les résultats sont à titre informatif et ne constituent pas un avis médical'} />
+        <BulletItem text={pick({ en: 'Dr.Toxi uses artificial intelligence to analyze ingredient photos and for the Dr. Toxi chatbot', fr: "Dr.Toxi utilise l'intelligence artificielle pour analyser les photos d'ingrédients et pour le chatbot Dr. Toxi", ko: 'Dr.Toxi는 성분 사진 분석과 Dr. Toxi 챗봇에 인공지능을 사용합니다' })} />
+        <BulletItem text={pick({ en: 'Photos and messages are processed securely by our AI', fr: 'Les photos et messages sont traités par notre IA de manière sécurisée', ko: '사진과 메시지는 AI가 안전하게 처리합니다' })} />
+        <BulletItem text={pick({ en: 'Our AI does not retain data beyond processing', fr: 'Notre IA ne conserve pas les données au-delà du traitement', ko: '우리 AI는 처리 후 데이터를 보관하지 않습니다' })} />
+        <BulletItem text={pick({ en: 'Results are for informational purposes and do not constitute medical advice', fr: 'Les résultats sont à titre informatif et ne constituent pas un avis médical', ko: '결과는 정보 제공 목적이며 의학적 조언이 아닙니다' })} />
       </View>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Product database' : 'Base de données produits'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Product database', fr: 'Base de données produits', ko: '제품 데이터베이스' })}</Text>
       <Text style={styles.body}>
-        {isEnglish() ? 'Product analysis is powered by the Dr.Toxi proprietary database, enriched with global cancer research from international authorities (IARC/WHO, EFSA, FDA, NTP, INSERM). The database is updated continuously each time a new ingredient is declared carcinogenic or ultra-processed anywhere in the world.' : "L'analyse des produits est propulsée par la base de données propriétaire Dr.Toxi, enrichie par les recherches mondiales sur le cancer issues des autorités internationales (CIRC/OMS, EFSA, FDA, NTP, INSERM). La base est mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde."}
+        {pick({ en: 'Product analysis is powered by the Dr.Toxi proprietary database, enriched with global cancer research from international authorities (IARC/WHO, EFSA, FDA, NTP, INSERM). The database is updated continuously each time a new ingredient is declared carcinogenic or ultra-processed anywhere in the world.', fr: "L'analyse des produits est propulsée par la base de données propriétaire Dr.Toxi, enrichie par les recherches mondiales sur le cancer issues des autorités internationales (CIRC/OMS, EFSA, FDA, NTP, INSERM). La base est mise à jour en continu à chaque nouvel ingrédient déclaré cancérigène ou ultra-transformé dans le monde.", ko: '제품 분석은 국제 기관(IARC/WHO, EFSA, FDA, NTP, INSERM)의 전 세계 암 연구로 보강된 Dr.Toxi 독자 데이터베이스로 구동됩니다. 데이터베이스는 전 세계에서 새로운 성분이 발암성 또는 초가공으로 선언될 때마다 지속적으로 업데이트됩니다.' })}
       </Text>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Local storage' : 'Stockage local'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Local storage', fr: 'Stockage local', ko: '로컬 저장' })}</Text>
       <Text style={styles.body}>
-        {isEnglish() ? 'Your scan history and preferences are stored only on your device via AsyncStorage. This data never leaves your phone and is not synced to our servers.' : 'Votre historique de scans et vos préférences sont stockés uniquement sur votre appareil via AsyncStorage. Ces données ne quittent jamais votre téléphone et ne sont pas synchronisées vers nos serveurs.'}
+        {pick({ en: 'Your scan history and preferences are stored only on your device via AsyncStorage. This data never leaves your phone and is not synced to our servers.', fr: 'Votre historique de scans et vos préférences sont stockés uniquement sur votre appareil via AsyncStorage. Ces données ne quittent jamais votre téléphone et ne sont pas synchronisées vers nos serveurs.', ko: '스캔 기록과 환경설정은 AsyncStorage를 통해 기기에만 저장됩니다. 이 데이터는 절대 휴대폰을 벗어나지 않으며 우리 서버와 동기화되지 않습니다.' })}
       </Text>
 
-      <Text style={styles.heading}>{isEnglish() ? 'Your rights' : 'Vos droits'}</Text>
+      <Text style={styles.heading}>{pick({ en: 'Your rights', fr: 'Vos droits', ko: '여러분의 권리' })}</Text>
       <View style={styles.bulletGroup}>
-        <BulletItem text={isEnglish() ? "Delete your history at any time in the app (History → trash icon)" : "Supprimer votre historique à tout moment dans l'app (Historique → icône corbeille)"} />
-        <BulletItem text={isEnglish() ? 'Contact us for any deletion request or question' : 'Nous contacter pour toute demande de suppression ou question'} />
-        <BulletItem text={isEnglish() ? 'Uninstall the app to delete all local data' : "Désinstaller l'app pour supprimer toutes les données locales"} />
+        <BulletItem text={pick({ en: "Delete your history at any time in the app (History → trash icon)", fr: "Supprimer votre historique à tout moment dans l'app (Historique → icône corbeille)", ko: '앱에서 언제든지 기록을 삭제할 수 있습니다(기록 → 휴지통 아이콘)' })} />
+        <BulletItem text={pick({ en: 'Contact us for any deletion request or question', fr: 'Nous contacter pour toute demande de suppression ou question', ko: '삭제 요청이나 문의는 언제든 연락하세요' })} />
+        <BulletItem text={pick({ en: 'Uninstall the app to delete all local data', fr: "Désinstaller l'app pour supprimer toutes les données locales", ko: '앱을 삭제하면 모든 로컬 데이터가 삭제됩니다' })} />
       </View>
 
       <View style={styles.contactCard}>
-        <Text style={styles.contactLabel}>{isEnglish() ? 'Contact' : 'Contact'}</Text>
+        <Text style={styles.contactLabel}>{pick({ en: 'Contact', fr: 'Contact', ko: '문의' })}</Text>
         <Text style={styles.contactEmail}>contact@toxiscan.com</Text>
       </View>
 
