@@ -49,6 +49,10 @@ export interface MealAlternatives {
 
 const CARCINOGEN_CATEGORIES: readonly MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b'];
 const JUNK_FAMILY_CATEGORIES: readonly MealCategory[] = ['processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'additive'];
+// Categories rendered as an ORANGE dot in the UI (see MEAL_CATEGORY_COLORS). The coherence
+// floor keys off this exact set so the final tier can never contradict the number of orange
+// dots the user sees in the ingredient list (spec).
+const ORANGE_TIER_CATEGORIES: readonly MealCategory[] = ['processed', 'added_sugar', 'refined_oil', 'refined_flour'];
 
 export function isCarcinogenCategory(c: MealCategory): boolean {
   return CARCINOGEN_CATEGORIES.includes(c);
@@ -89,6 +93,13 @@ const INCIDENTAL_HEALTHY_TOKENS = ['milk', 'lait', 'cream', 'creme', 'latte', '�
 // A meal whose MAIN element is a viennoiserie / pastry / sweet dessert can NEVER be green
 // (spec guardrail). Tokens picked to avoid collisions (no 'pie'/'tart'/'macaron').
 const DESSERT_BASE_TOKENS = ['croissant', 'viennoiserie', 'pastry', 'patisserie', 'brioche', 'cake', 'gateau', 'donut', 'doughnut', 'muffin', 'cupcake', 'cookie', 'biscuit', 'dessert', 'tarte', 'waffle', 'gaufre', 'pancake', 'crepe', 'beignet', 'churro', 'brownie', 'pudding', 'glace', 'gelato', 'candy', 'bonbon', 'danish', 'scone', 'chausson', '디저트', '케이크', '쿠키', '도넛', '크루아상', '아이스크림', '페이스트리', '와플', '파이'];
+
+// Fast-food / quick-service / industrial-production signals. A dish from this context is
+// NEVER an idealized homemade recipe: it carries documented manufacturing markers (processed
+// cheese & dough, refined frying oil, excess salt) even when not individually visible (spec).
+const FAST_FOOD_NAME_TOKENS = ['fast food', 'fast-food', 'fastfood', 'junk food', 'junkfood', 'malbouffe', 'restauration rapide', 'a emporter', 'takeaway', 'take-away', 'take out', 'take-out', 'drive-in', 'mcdo', 'mcdonald', 'burger king', 'kfc', 'domino', 'pizza hut', 'papa john', 'subway', 'five guys', 'taco bell', 'wendy', 'popeyes', 'chipotle', 'little caesars', 'sbarro', 'chick-fil', 'in-n-out', 'shake shack', 'dairy queen', 'jollibee', 'nando', 'lotteria', 'panda express', '패스트푸드', '맥도날드', '버거킹', '롯데리아', '피자헛', '도미노'];
+// Cheese names: on a fast-food dish these are industrial processed blends, not fresh cheese.
+const CHEESE_NAME_TOKENS = ['cheese', 'fromage', 'mozzarella', 'mozza', 'cheddar', 'queso', 'formaggio', 'gouda', 'emmental', 'gruyere', 'parmesan', 'provolone', '치즈', '모짜렐라', '체다'];
 
 function isRefinedFlourName(n: string): boolean {
   if (WHOLE_GRAIN_TOKENS.some((t) => n.includes(t))) return false;
@@ -133,6 +144,70 @@ function hasDessertBase(ingredients: MealIngredient[], dishName?: string): boole
   const haystacks = ingredients.map((i) => normalize(i.name));
   if (dishName) haystacks.push(normalize(dishName));
   return haystacks.some((h) => DESSERT_BASE_TOKENS.some((tk) => h.includes(tk)));
+}
+
+/** True when a dish name names a fast-food chain or explicitly calls it fast food / takeaway. */
+function isFastFoodName(name: string): boolean {
+  const n = normalize(name);
+  return FAST_FOOD_NAME_TOKENS.some((tk) => n.includes(normalize(tk)));
+}
+
+function isCheeseName(name: string): boolean {
+  const n = normalize(name);
+  return CHEESE_NAME_TOKENS.some((tk) => n.includes(tk));
+}
+
+/**
+ * Applies the documented fast-food / industrial manufacturing markers to a detected meal
+ * (spec): industrial cheese is processed (not fresh), refined frying oil and excess salt are
+ * standard. Mutates the list in place, de-duplicating by category so a marker is never stacked
+ * twice. Guarantees a mass-produced dish is never scored like an idealized homemade recipe.
+ */
+function applyFastFoodMarkers(ingredients: MealIngredient[]): void {
+  // 1. Industrial cheese is a processed blend, not fresh — bump any benign cheese to processed.
+  for (const ing of ingredients) {
+    if (isCheeseName(ing.name) && (ing.category === 'healthy' || ing.category === 'neutral')) {
+      ing.category = 'processed';
+      ing.isGrave = false;
+      if (!ing.note) {
+        ing.note = pick({
+          en: 'Industrial fast-food cheese — usually a processed blend, not fresh cheese.',
+          fr: 'Fromage de fast-food industriel — souvent un mélange transformé, pas du fromage frais.',
+          ko: '패스트푸드 가공 치즈 — 신선한 치즈가 아닌 가공 혼합물인 경우가 많습니다.',
+        });
+      }
+    }
+  }
+  // 2. Refined frying / cooking oil — a fast-food standard, even when not visible.
+  if (!ingredients.some((i) => i.category === 'refined_oil')) {
+    ingredients.push({
+      id: newMealIngredientId(),
+      name: pick({ en: 'Refined oil', fr: 'Huile raffinée', ko: '정제유' }),
+      category: 'refined_oil',
+      isGrave: false,
+      note: pick({
+        en: 'Industrial frying & cooking oil, refined at high heat — a fast-food standard.',
+        fr: 'Huile de friture et de cuisson industrielle, raffinée à haute température — un standard du fast-food.',
+        ko: '고온에서 정제된 산업용 튀김·조리유 — 패스트푸드의 표준입니다.',
+      }),
+      intensity: 'normal',
+    });
+  }
+  // 3. Excess salt — fast-food dishes are among the saltiest on the market.
+  if (!ingredients.some((i) => i.category === 'excess_salt')) {
+    ingredients.push({
+      id: newMealIngredientId(),
+      name: pick({ en: 'Excess salt', fr: 'Excès de sel', ko: '과도한 나트륨' }),
+      category: 'excess_salt',
+      isGrave: false,
+      note: pick({
+        en: 'Fast-food dishes are among the saltiest on the market, far above daily needs.',
+        fr: 'Les plats de fast-food sont parmi les plus salés du marché, bien au-delà des besoins quotidiens.',
+        ko: '패스트푸드는 시장에서 가장 짠 음식 중 하나로 일일 권장량을 훨씬 초과합니다.',
+      }),
+      intensity: 'normal',
+    });
+  }
 }
 
 function familyFromName(name: string, fallback: MealCategory): MealCategory {
@@ -261,6 +336,15 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   // can NEVER be green. Yellow minimum (floor 5) — e.g. a chocolate croissant.
   if (hasDessertBase(ingredients, dishName)) score = Math.max(score, 5);
 
+  // COHERENCE FLOOR (spec): the final tier must never contradict the ORANGE dots the user
+  // sees in the ingredient list. Like the IARC floor, but for accumulation — a meal showing
+  // 2+ orange (ultra-processed) ingredients can never read "good meal" (green): yellow minimum.
+  // 3+ orange ingredients land at "toxic" (orange) minimum. Salt/additive (yellow dots) still
+  // add accumulation points but don't trigger this floor on their own.
+  const orangeCount = ingredients.filter((i) => ORANGE_TIER_CATEGORIES.includes(i.category)).length;
+  if (orangeCount >= 3) score = Math.max(score, 6);
+  else if (orangeCount >= 2) score = Math.max(score, 4);
+
   // ── Bounds (spec §4 + the 10/10 tightening) ──
   // The full 10 is RESERVED for a CIRC group-1 carcinogen (processed/cured meat, nitrites)
   // COMBINED with heavy accumulation (added sugar + refined oils + ultra-processing).
@@ -290,6 +374,8 @@ const safeString = (fallback = '') =>
 
 const detectSchema = z.object({
   dish_name: safeString(''),
+  // Whether the dish comes from a fast-food / quick-service / industrial context (spec).
+  is_fast_food: z.preprocess((v) => v === true || v === 'true' || v === 1, z.boolean()),
   ingredients: z.preprocess(
     (v) => (Array.isArray(v) ? v : []),
     z.array(
@@ -326,9 +412,15 @@ CLASSIFICATION GUIDANCE:
 - "neutral" is RESERVED for ingredients with truly no nutritional impact: water, plain spices, herbs, black coffee, tea, vinegar. A clearly SWEET or PROCESSED item (chocolate powder, syrups, sweet sauces, frosting, sweet toppings) is NEVER "neutral" — classify it as added_sugar (or processed).
 - Milk and cream are "healthy" at most; as an incidental drink component they do NOT make a sugary/pastry meal healthy.
 
+FAST-FOOD / INDUSTRIAL CONTEXT (spec — critical, do NOT skip):
+- Judge whether the dish comes from a FAST-FOOD / quick-service / industrial / mass-produced setting. Photo signals: branded wrappers, cardboard boxes, fast-food trays, paper bags, uniform machine-made shapes, glossy melted processed cheese, deep-fried glaze, a chain's signature plating. Text signals: the user names a chain (McDonald's, Burger King, KFC, Domino's, Pizza Hut, Subway, Quick…) or says "fast food", "takeaway", "junk food".
+- Output a top-level boolean "is_fast_food": true when this context is present, otherwise false.
+- When is_fast_food is true, do NOT decompose the dish as an idealized homemade recipe. Apply the documented fast-food manufacturing markers EVEN IF not individually visible: the cheese is industrial/processed (category "processed", never "healthy"), refined frying/cooking oil is used (include a refined_oil ingredient), and the dish is heavily salted (include an excess_salt ingredient). Fast-food pizzas, burgers and fried items are among the saltiest, oiliest and most processed foods on the market — your ingredient list must reflect that, not a clean home kitchen.
+- A genuinely homemade or made-to-order restaurant dish keeps is_fast_food false and is analyzed normally.
+
 GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food as "carcinogenic". Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty / refined). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
 
-Return 4 to 12 ingredients. Output JSON only.`;
+Return 4 to 12 ingredients plus the top-level "is_fast_food" boolean. Output JSON only.`;
 
 const DETECT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. You analyze a PHOTO of a real meal.
 
@@ -338,7 +430,7 @@ ${MEAL_INGREDIENT_RULES}`;
 
 // Text re-analysis prompt. The user has TYPED or CORRECTED the dish themselves, so their
 // words are authoritative and OVERRIDE any earlier photo guess (spec: manual input wins).
-const DETECT_FROM_TEXT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. The user has TYPED or CORRECTED the exact dish themselves. Their description is AUTHORITATIVE and OVERRIDES any earlier photo-based guess: analyze EXACTLY the dish they name and NEVER substitute or revert to a different dish.
+const DETECT_FROM_TEXT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. The user has TYPED or CORRECTED the exact dish themselves. Their description is AUTHORITATIVE and OVERRIDES any earlier photo-based guess: analyze EXACTLY the dish they name and NEVER substitute or revert to a different dish. If the user's words name a fast-food chain or call the dish fast food / takeaway / junk food, treat that as authoritative fast-food context: set is_fast_food true and apply the fast-food markers below.
 
 TASK:
 1. Use the user's own words as dish_name (fix only obvious spelling) — do NOT rename it to a different dish.
@@ -377,7 +469,14 @@ function buildDetectedMeal(raw: z.infer<typeof detectSchema>, fallbackName: stri
     const intensity: 'normal' | 'high' = item.intensity === 'high' ? 'high' : 'normal';
     ingredients.push({ id: newMealIngredientId(), name, category, isGrave, note: item.note.trim(), intensity });
   }
-  return { dishName: raw.dish_name.trim() || fallbackName, ingredients };
+  const dishName = raw.dish_name.trim() || fallbackName;
+  // Fast-food / industrial context — flagged by the AI from the photo, or detected from a chain
+  // name / explicit mention in the dish name: apply the documented manufacturing markers so a
+  // mass-produced dish is never scored like an idealized homemade recipe (spec).
+  if (raw.is_fast_food || isFastFoodName(dishName) || isFastFoodName(fallbackName)) {
+    applyFastFoodMarkers(ingredients);
+  }
+  return { dishName, ingredients };
 }
 
 /**
