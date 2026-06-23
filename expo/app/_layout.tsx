@@ -15,6 +15,10 @@ import {
   DMSans_800ExtraBold,
 } from "@expo-google-fonts/dm-sans";
 import { Fonts } from "@/constants/typography";
+import { suppressBenignWebWarnings } from "@/utils/suppressWebWarnings";
+
+// Silence the benign react-native-web ScrollView `collapsable` DOM warning on web.
+suppressBenignWebWarnings();
 
 // Apply DM Sans as the default font globally to every <Text> / <TextInput>.
 function applyDefaultFont() {

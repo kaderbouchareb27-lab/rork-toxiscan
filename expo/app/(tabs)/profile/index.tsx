@@ -136,6 +136,24 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
+          style={styles.healthProfileCard}
+          onPress={() => handleMenuPress('/health-profile')}
+          activeOpacity={0.8}
+          testID="health-profile-card"
+        >
+          <View style={styles.healthProfileLeft}>
+            <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.healthProfileAvatar} />
+            <View style={styles.healthProfileInfo}>
+              <Text style={styles.healthProfileTitle}>{t('health_profile_card_title')}</Text>
+              <Text style={styles.healthProfileSubtitle}>
+                {healthActiveCount > 0 ? tf('health_profile_active', healthActiveCount) : t('health_profile_card_empty')}
+              </Text>
+            </View>
+          </View>
+          <ChevronRight color={Colors.primary} size={18} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={styles.badgesCard}
           onPress={() => handleMenuPress('/badges')}
           activeOpacity={0.8}
@@ -157,24 +175,6 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight color={Colors.textTertiary} size={16} />
           </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.healthProfileCard}
-          onPress={() => handleMenuPress('/health-profile')}
-          activeOpacity={0.8}
-          testID="health-profile-card"
-        >
-          <View style={styles.healthProfileLeft}>
-            <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.healthProfileAvatar} />
-            <View style={styles.healthProfileInfo}>
-              <Text style={styles.healthProfileTitle}>{t('health_profile_card_title')}</Text>
-              <Text style={styles.healthProfileSubtitle}>
-                {healthActiveCount > 0 ? tf('health_profile_active', healthActiveCount) : t('health_profile_card_empty')}
-              </Text>
-            </View>
-          </View>
-          <ChevronRight color={Colors.primary} size={18} />
         </TouchableOpacity>
 
         <TouchableOpacity
