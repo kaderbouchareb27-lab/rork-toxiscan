@@ -455,9 +455,31 @@ You're here to help, reassure, inform, and guide. Every answer should leave the 
 // Korean reuses the English scaffold; the Korean language instruction injected by
 // getChatRegionPrompt() (appended AFTER this prompt) forces Korean OUTPUT and
 // overrides the English-only wording inside the English scaffold.
+const MEAL_SCAN_KNOWLEDGE_EN = `
+
+--- MEAL SCAN MODE ("Scan my meal") ---
+ToxiScan has a separate "Scan my meal" mode: the user photographs a REAL meal and gets a TOXICITY SCORE out of 10 (higher = WORSE — always say "toxicity", never "health score"). Tiers: 0-3 green (good meal), 4-5 yellow (moderate), 6-8 orange (toxic, find better), 9-10 red (very toxic).
+How the score works: ANY ingredient classified IARC (group 1/2A/2B — e.g. processed/cured meats, nitrites) sets a FLOOR of 6. Each junk family present (added sugar, refined oil, ultra-processing, excess salt, additives/colorings) adds points. Raw foods, vegetables and clean cooking lower it. Accumulation alone caps around 8-9; a full 10 needs IARC + heavy accumulation.
+GOLDEN RULE (NEVER break it): a high score from accumulation (sugar, fat, processed) is NOT "carcinogenic". Always distinguish GRAVE = dangerous / IARC (carcinogenic) from NOT HEALTHY = processed / sugary / fatty. A sugar-loaded cake is "ultra-processed and very sweet" (score ~9), NEVER "carcinogenic".
+If the user asks about their meal score or why a meal landed on a tier, explain it warmly with this exact logic.
+
+--- TOXIC LOAD badge ---
+On a PRODUCT scan, when a product contains more than 8 ingredients flagged ULTRA-PROCESSED (orange), ToxiScan adds a global "TOXIC LOAD" badge (FR "DANGER CUMULÉ", KO "과다 위험"). Explain it as a CUMULATIVE risk: it is not one single dangerous ingredient, but the accumulation of 8+ ultra-processed ingredients that burdens the body over time. It is NOT the same thing as "carcinogenic".`;
+
+const MEAL_SCAN_KNOWLEDGE_FR = `
+
+--- MODE SCAN REPAS (« Scanner mon assiette ») ---
+ToxiScan a un mode séparé « Scanner mon assiette » : l'utilisateur photographie un VRAI repas et obtient un SCORE DE TOXICITÉ sur 10 (plus c'est HAUT, plus c'est MAUVAIS — dis toujours « toxicité »). Paliers : 0-3 vert (bon repas), 4-5 jaune (moyen), 6-8 orange (toxique, trouver mieux), 9-10 rouge (très toxique).
+Calcul : TOUT ingrédient classé CIRC (groupe 1/2A/2B — charcuteries, nitrites…) fixe un PLANCHER de 6. Chaque famille de malbouffe présente (sucre ajouté, huile raffinée, ultra-transformation, excès de sel, additifs/colorants) fait monter le score. Les aliments bruts, légumes et cuissons saines le font descendre. L'accumulation seule plafonne vers 8-9 ; le 10 plein exige CIRC + accumulation massive.
+RÈGLE D'OR (à NE JAMAIS violer) : un score élevé par accumulation (sucre, gras, transformé) n'est PAS « cancérigène ». Distingue toujours GRAVE = dangereux / CIRC (cancérigène) de PAS SAIN = transformé / sucré / gras. Un gâteau bourré de sucre est « ultra-transformé et très sucré » (score ~9), JAMAIS « cancérigène ».
+Si l'utilisateur pose une question sur son score de repas, explique-le chaleureusement avec cette logique.
+
+--- Badge DANGER CUMULÉ ---
+Sur un scan PRODUIT, quand un produit contient plus de 8 ingrédients marqués ULTRA-TRANSFORMÉ (orange), ToxiScan ajoute un badge global « DANGER CUMULÉ » (EN "TOXIC LOAD", KO "과다 위험"). Explique-le comme un risque CUMULATIF : ce n'est pas un seul ingrédient dangereux, mais l'accumulation de plus de 8 ingrédients ultra-transformés qui charge le corps. Ce n'est PAS la même chose que « cancérigène ».`;
+
 export const DR_TOXI_SYSTEM_PROMPT = (isEnglish() || isKorean())
-  ? DATABASE_HEADER_EN + DR_TOXI_SYSTEM_PROMPT_EN
-  : DATABASE_HEADER_FR + DR_TOXI_SYSTEM_PROMPT_FR;
+  ? DATABASE_HEADER_EN + DR_TOXI_SYSTEM_PROMPT_EN + MEAL_SCAN_KNOWLEDGE_EN
+  : DATABASE_HEADER_FR + DR_TOXI_SYSTEM_PROMPT_FR + MEAL_SCAN_KNOWLEDGE_FR;
 
 export function getQuickSuggestions(): string[] {
   return [

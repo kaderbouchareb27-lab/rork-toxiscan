@@ -202,6 +202,8 @@ export default function PaywallScreen() {
       case 'favorite': return t('paywall_favorite');
       case 'alerts': return t('paywall_alerts');
       case 'scan': return t('paywall_scan');
+      case 'meal': return t('paywall_meal');
+      case 'report': return t('paywall_report');
       default: return t('paywall_default');
     }
   };
@@ -213,6 +215,8 @@ export default function PaywallScreen() {
       case 'favorite': return t('paywall_sub_favorite');
       case 'alerts': return t('paywall_sub_alerts');
       case 'scan': return t('paywall_sub_scan');
+      case 'meal': return t('paywall_sub_meal');
+      case 'report': return t('paywall_sub_report');
       default: return t('paywall_sub_default');
     }
   };
@@ -244,10 +248,10 @@ export default function PaywallScreen() {
         <Text style={styles.subtitle}>{getContextSubtitle()}</Text>
 
         <View style={styles.benefitsContainer}>
+          <BenefitRow text={t('benefit_unlimited_meal_scans')} />
+          <BenefitRow text={t('benefit_weekly_report')} />
+          <BenefitRow text={t('benefit_recommendations')} />
           <BenefitRow text={t('benefit_unlimited_drtoxi')} />
-          <BenefitRow text={t('benefit_unlimited_history')} />
-          <BenefitRow text={t('benefit_favorites')} />
-          <BenefitRow text={t('benefit_notifications')} />
         </View>
 
         {(offeringsLoading || retrying) && !currentOffering ? (

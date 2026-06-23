@@ -119,6 +119,18 @@ function lookupIngredient(ingredientName: string): IngredientEntry | null {
 // statements, NOT ingredients. They must never be parsed or badged.
 const ALLERGEN_LINE_REGEX = /^(contains|contient|may contain|peut contenir)\s*:/i;
 
+/**
+ * Cross-references a single ingredient name against the shared food ingredient database.
+ * Used by the meal-scan engine so a detected meal ingredient (e.g. "huile végétale") inherits
+ * the exact same classification as the product scanner — keeping both modes consistent.
+ * Returns the matched risk level + IARC/CIRC label, or null when the ingredient is unknown.
+ */
+export function classifyFoodIngredient(name: string): { risk: RiskLevel; circ: string } | null {
+  const entry = lookupIngredient(name);
+  if (!entry) return null;
+  return { risk: entry.risk, circ: entry.circ };
+}
+
 // A compound ingredient like "Sugars (sugar, dextrose)" that lists refined sugar or dextrose
 // among its sub-ingredients must always classify as ULTRA-PROCESSED (orange), never CAUTION.
 const REFINED_SUGAR_TOKENS = ['sugars', 'sugar', 'sucres', 'sucre', 'dextrose'] as const;

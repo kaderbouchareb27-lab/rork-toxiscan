@@ -25,6 +25,7 @@ import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { t, tf } from '@/utils/i18n';
+import MealDashboard from '@/components/MealDashboard';
 
 export default function ProfileScreen() {
   const { stats } = useScanHistory();
@@ -99,6 +100,8 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>{t('profile_title')}</Text>
+
+        <MealDashboard />
 
         <TouchableOpacity
           style={[styles.card, isPro ? styles.proCard : styles.freeCard]}

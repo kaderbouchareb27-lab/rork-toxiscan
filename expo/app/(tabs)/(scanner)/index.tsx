@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Camera, Shirt, Droplets, UtensilsCrossed, Leaf, SprayCan, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
+import { Camera, Shirt, Droplets, UtensilsCrossed, Utensils, Leaf, SprayCan, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -43,7 +43,7 @@ export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasAcceptedAIConsent } = useOnboarding();
-  const { canScan, consumeScan, isPro, scanRemaining, scanLimit } = useSubscription();
+  const { isPro, consumeScan, canMealScan, mealScanRemaining, mealScanLimit } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -293,13 +293,60 @@ export default function ScannerScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    if (!canScan) {
-      console.log('[Scanner] Daily scan limit reached, showing paywall');
-      router.push('/paywall?source=scan');
+    await requestCameraAndProceed();
+  }, [requestCameraAndProceed]);
+
+  // ── Meal scan entry — a SEPARATE workflow that routes to /meal/confirm ──
+  const launchMealCamera = useCallback(async () => {
+    try {
+      const { status } = await ImagePicker.getCameraPermissionsAsync();
+      let granted = status === 'granted';
+      if (!granted && status !== 'denied') {
+        const req = await ImagePicker.requestCameraPermissionsAsync();
+        granted = req.status === 'granted';
+      }
+      if (!granted) {
+        Alert.alert(t('camera_disabled_title'), t('camera_disabled_msg'), [
+          { text: t('open_settings'), onPress: () => { if (Platform.OS !== 'web') void Linking.openSettings(); } },
+        ]);
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.6, allowsEditing: false });
+      if (!result.canceled && result.assets[0]) {
+        router.push(`/meal/confirm?uri=${encodeURIComponent(result.assets[0].uri)}`);
+      }
+    } catch (error) {
+      console.warn('[Scanner] Meal camera error:', error);
+      Alert.alert(t('error_generic'), t('error_open_camera'));
+    }
+  }, []);
+
+  const launchMealGallery = useCallback(async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.6, allowsEditing: false });
+      if (!result.canceled && result.assets[0]) {
+        router.push(`/meal/confirm?uri=${encodeURIComponent(result.assets[0].uri)}`);
+      }
+    } catch (error) {
+      console.warn('[Scanner] Meal gallery error:', error);
+    }
+  }, []);
+
+  const handleScanMeal = useCallback(() => {
+    if (Platform.OS !== 'web') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    if (!canMealScan) {
+      console.log('[Scanner] Meal scan limit reached, showing paywall');
+      router.push('/paywall?source=meal');
       return;
     }
-    await requestCameraAndProceed();
-  }, [requestCameraAndProceed, canScan]);
+    Alert.alert(t('scan_entry_meal_title'), t('meal_estimate_hint'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('gallery'), onPress: () => void launchMealGallery() },
+      { text: t('camera'), onPress: () => void launchMealCamera() },
+    ]);
+  }, [canMealScan, launchMealCamera, launchMealGallery]);
 
   const isLoading = photoMutation.isPending;
 
@@ -487,41 +534,53 @@ export default function ScannerScreen() {
             </View>
 
             <View style={styles.actionSection}>
-              <Animated.View style={{ transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }}>
+              <Text style={styles.sectionLabel}>{t('scan_section_label')}</Text>
+
+              <Animated.View style={[styles.entryCardWrap, { transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }]}>
                 <TouchableOpacity
-                  style={styles.scanButton}
+                  style={styles.entryCard}
                   onPress={handleTakePhoto}
                   onPressIn={handleButtonPressIn}
                   onPressOut={handleButtonPressOut}
-                  activeOpacity={0.88}
+                  activeOpacity={0.9}
                   testID="photo-button"
                 >
-                  <LinearGradient
-                    colors={['#2E9E34', '#2E9E34', '#2E9E34']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.scanButtonGradient}
-                  >
-                    <View style={styles.scanButtonLead}>
-                      <View style={styles.scanButtonIconWrap}>
-                        <Camera color="#FFFFFF" size={22} strokeWidth={2.1} />
-                      </View>
-                      <Text style={styles.scanButtonText}>{t('photo_product')}</Text>
+                  <View style={styles.entryIconProduct}>
+                    <Camera color="#0A2A1D" size={24} strokeWidth={2.1} />
+                  </View>
+                  <View style={styles.entryTextCol}>
+                    <Text style={styles.entryTitle}>{t('scan_entry_product_title')}</Text>
+                    <Text style={styles.entryDesc}>{t('scan_entry_product_desc')}</Text>
+                    <View style={styles.freePill}>
+                      <Text style={styles.freePillText}>{t('product_scan_free_badge')}</Text>
                     </View>
-                    <ChevronRight color="#FFFFFF" size={24} strokeWidth={2.1} />
-                  </LinearGradient>
+                  </View>
+                  <ChevronRight color="#9AA39E" size={22} strokeWidth={2} />
                 </TouchableOpacity>
               </Animated.View>
 
-              <Text style={styles.scanHint}>
-                {t('scan_hint')}
-              </Text>
-
-              {!isPro && (
-                <Text style={styles.scanCounterText} testID="scan-counter">
-                  {tf('free_scans_counter', scanRemaining, scanLimit)}
-                </Text>
-              )}
+              <TouchableOpacity
+                style={[styles.entryCard, styles.entryCardMeal]}
+                onPress={handleScanMeal}
+                activeOpacity={0.9}
+                testID="meal-button"
+              >
+                <View style={styles.entryIconMeal}>
+                  <Utensils color="#FFFFFF" size={24} strokeWidth={2.1} />
+                </View>
+                <View style={styles.entryTextCol}>
+                  <Text style={styles.entryTitle}>{t('scan_entry_meal_title')}</Text>
+                  <Text style={styles.entryDesc}>{t('scan_entry_meal_desc')}</Text>
+                  {!isPro ? (
+                    <Text style={styles.mealCounterText}>{tf('meal_scans_counter', mealScanRemaining, mealScanLimit)}</Text>
+                  ) : (
+                    <View style={styles.freePill}>
+                      <Text style={styles.freePillText}>{t('meal_scan_unlimited')}</Text>
+                    </View>
+                  )}
+                </View>
+                <ChevronRight color="#2E9E34" size={22} strokeWidth={2} />
+              </TouchableOpacity>
 
               <View style={styles.scanTypesRow}>
                 <View style={styles.scanTypeItem}>
@@ -868,6 +927,97 @@ const styles = StyleSheet.create({
     color: '#A94F05',
     textAlign: 'center' as const,
     paddingHorizontal: 20,
+  },
+  sectionLabel: {
+    alignSelf: 'flex-start' as const,
+    fontSize: 12.5,
+    fontWeight: '700' as const,
+    color: '#6B7069',
+    letterSpacing: 0.4,
+    marginBottom: 14,
+    textTransform: 'uppercase' as const,
+  },
+  entryCardWrap: {
+    width: '100%',
+  },
+  entryCard: {
+    width: '100%',
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: '#ECE5D8',
+    shadowColor: '#2F281F',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.07,
+    shadowRadius: 22,
+    elevation: 4,
+    marginBottom: 12,
+  },
+  entryCardMeal: {
+    borderColor: 'rgba(46,158,52,0.4)',
+    borderWidth: 1.5,
+    backgroundColor: '#F7FDF9',
+  },
+  entryIconProduct: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#F1EDE3',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  entryIconMeal: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#2E9E34',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    shadowColor: '#2E9E34',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  entryTextCol: {
+    flex: 1,
+  },
+  entryTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: '#11120F',
+    letterSpacing: -0.3,
+  },
+  entryDesc: {
+    fontSize: 13.5,
+    color: '#5E635E',
+    marginTop: 3,
+    lineHeight: 18,
+  },
+  freePill: {
+    alignSelf: 'flex-start' as const,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(46,158,52,0.12)',
+  },
+  freePillText: {
+    fontSize: 11,
+    fontWeight: '800' as const,
+    color: '#0B7A2D',
+    letterSpacing: 0.2,
+  },
+  mealCounterText: {
+    marginTop: 8,
+    fontSize: 12,
+    fontWeight: '800' as const,
+    color: '#A94F05',
   },
   scanTypesRow: {
     flexDirection: 'row' as const,

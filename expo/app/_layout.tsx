@@ -39,6 +39,7 @@ import { OnboardingProvider } from "@/providers/OnboardingProvider";
 import { QuizProvider } from "@/providers/QuizProvider";
 import { LocationProvider } from "@/providers/LocationProvider";
 import { HealthProfileProvider } from "@/providers/HealthProfileProvider";
+import { MealHistoryProvider } from "@/providers/MealHistoryProvider";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -147,6 +148,9 @@ function RootLayoutNav() {
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="privacy" options={{ title: t('nav_privacy') }} />
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
+      <Stack.Screen name="meal/confirm" options={{ headerShown: false }} />
+      <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="weekly-report" options={{ headerShown: false }} />
       <Stack.Screen name="quiz" options={{ headerShown: false }} />
       <Stack.Screen name="terms" options={{ title: t('nav_terms') }} />
       <Stack.Screen name="transparency" options={{ title: t('nav_transparency') }} />
@@ -179,6 +183,7 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <SafeAreaProvider>
               <SubscriptionProvider>
+              <MealHistoryProvider>
               <ScanHistoryProvider>
                 <BadgesProvider>
                   <OnboardingProvider>
@@ -192,6 +197,7 @@ export default function RootLayout() {
                   </OnboardingProvider>
                 </BadgesProvider>
               </ScanHistoryProvider>
+              </MealHistoryProvider>
             </SubscriptionProvider>
           </SafeAreaProvider>
         </GestureHandlerRootView>

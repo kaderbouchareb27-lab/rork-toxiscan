@@ -17,25 +17,22 @@ if (Platform.OS !== 'web') {
   }
 }
 
-const USAGE_KEY = 'toxiscan_daily_usage';
-const FREE_DRTOXI_LIMIT = 3;
+// Freemium model (spec §13): product scan is FREE & UNLIMITED (the hook). Monetization
+// is concentrated on the meal scan + Dr. Toxi chat, with LIFETIME counters (not per-day,
+// so a reinstall is the only reset — counters live locally for now).
+const LIFETIME_USAGE_KEY = 'toxiscan_lifetime_usage';
+const FREE_DRTOXI_LIMIT = 6; // lifetime chat messages
+const FREE_MEAL_SCAN_LIMIT = 3; // lifetime meal scans
 const FREE_HISTORY_LIMIT = 3;
-const FREE_SCAN_LIMIT = 3;
 const ENTITLEMENT_ID = 'toxiscan_pro';
 
-interface DailyUsage {
-  date: string;
+interface LifetimeUsage {
+  mealScanCount: number;
   drToxiCount: number;
-  scanCount: number;
 }
 
-function getTodayString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
-
-function getDefaultUsage(): DailyUsage {
-  return { date: getTodayString(), drToxiCount: 0, scanCount: 0 };
+function getDefaultUsage(): LifetimeUsage {
+  return { mealScanCount: 0, drToxiCount: 0 };
 }
 
 function getRCToken(): string {
@@ -61,7 +58,7 @@ if (isNative) {
 
 export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   const [isPro, setIsPro] = useState<boolean>(false);
-  const [usage, setUsage] = useState<DailyUsage>(getDefaultUsage());
+  const [usage, setUsage] = useState<LifetimeUsage>(getDefaultUsage());
   const queryClient = useQueryClient();
 
   const customerInfoQuery = useQuery({
@@ -112,18 +109,14 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   });
 
   const usageQuery = useQuery({
-    queryKey: ['dailyUsage'],
+    queryKey: ['lifetimeUsage'],
     queryFn: async () => {
-      const stored = await AsyncStorage.getItem(USAGE_KEY);
+      const stored = await AsyncStorage.getItem(LIFETIME_USAGE_KEY);
       if (!stored) return getDefaultUsage();
-      const parsed = JSON.parse(stored) as Partial<DailyUsage>;
-      if (parsed.date !== getTodayString()) {
-        return getDefaultUsage();
-      }
+      const parsed = JSON.parse(stored) as Partial<LifetimeUsage>;
       return {
-        date: parsed.date,
+        mealScanCount: parsed.mealScanCount ?? 0,
         drToxiCount: parsed.drToxiCount ?? 0,
-        scanCount: parsed.scanCount ?? 0,
       };
     },
   });
@@ -140,11 +133,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   useEffect(() => {
     if (usageQuery.data) {
-      if (usageQuery.data.date !== getTodayString()) {
-        setUsage(getDefaultUsage());
-      } else {
-        setUsage(usageQuery.data);
-      }
+      setUsage(usageQuery.data);
     }
   }, [usageQuery.data]);
 
@@ -164,8 +153,8 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   }, [queryClient]);
 
   const saveUsageMutation = useMutation({
-    mutationFn: async (newUsage: DailyUsage) => {
-      await AsyncStorage.setItem(USAGE_KEY, JSON.stringify(newUsage));
+    mutationFn: async (newUsage: LifetimeUsage) => {
+      await AsyncStorage.setItem(LIFETIME_USAGE_KEY, JSON.stringify(newUsage));
       return newUsage;
     },
   });
@@ -216,6 +205,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     },
   });
 
+  // ── Dr. Toxi chat — 6 free messages, LIFETIME (the verdict of a meal scan is NOT a chat message) ──
   const drToxiRemaining = useMemo(() => {
     if (isPro) return Infinity;
     return Math.max(0, FREE_DRTOXI_LIMIT - usage.drToxiCount);
@@ -223,34 +213,38 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const canUseDrToxi = useMemo(() => isPro || usage.drToxiCount < FREE_DRTOXI_LIMIT, [isPro, usage.drToxiCount]);
 
-  const scanRemaining = useMemo(() => {
-    if (isPro) return Infinity;
-    return Math.max(0, FREE_SCAN_LIMIT - usage.scanCount);
-  }, [isPro, usage.scanCount]);
-
-  const canScan = useMemo(() => isPro || usage.scanCount < FREE_SCAN_LIMIT, [isPro, usage.scanCount]);
-
   const consumeDrToxi = useCallback(() => {
     if (isPro) return;
-    const today = getTodayString();
-    const current = usage.date === today ? usage : getDefaultUsage();
-    const updated: DailyUsage = { ...current, date: today, drToxiCount: current.drToxiCount + 1 };
-    setUsage(updated);
-    saveUsageMutation.mutate(updated);
-    console.log('[Subscription] Dr. Toxi message consumed:', updated.drToxiCount, '/', FREE_DRTOXI_LIMIT);
-  }, [isPro, usage, saveUsageMutation]);
+    setUsage((current) => {
+      const updated: LifetimeUsage = { ...current, drToxiCount: current.drToxiCount + 1 };
+      saveUsageMutation.mutate(updated);
+      console.log('[Subscription] Dr. Toxi message consumed (lifetime):', updated.drToxiCount, '/', FREE_DRTOXI_LIMIT);
+      return updated;
+    });
+  }, [isPro, saveUsageMutation]);
 
-  const consumeScan = useCallback(() => {
+  // ── Meal scan — 3 free, LIFETIME (full verdict each time) ──
+  const mealScanRemaining = useMemo(() => {
+    if (isPro) return Infinity;
+    return Math.max(0, FREE_MEAL_SCAN_LIMIT - usage.mealScanCount);
+  }, [isPro, usage.mealScanCount]);
+
+  const canMealScan = useMemo(() => isPro || usage.mealScanCount < FREE_MEAL_SCAN_LIMIT, [isPro, usage.mealScanCount]);
+
+  const consumeMealScan = useCallback(() => {
     if (isPro) return;
-    const today = getTodayString();
-    const current = usage.date === today ? usage : getDefaultUsage();
-    const updated: DailyUsage = { ...current, date: today, scanCount: current.scanCount + 1 };
-    setUsage(updated);
-    saveUsageMutation.mutate(updated);
-    console.log('[Subscription] Scan consumed:', updated.scanCount, '/', FREE_SCAN_LIMIT);
-  }, [isPro, usage, saveUsageMutation]);
+    setUsage((current) => {
+      const updated: LifetimeUsage = { ...current, mealScanCount: current.mealScanCount + 1 };
+      saveUsageMutation.mutate(updated);
+      console.log('[Subscription] Meal scan consumed (lifetime):', updated.mealScanCount, '/', FREE_MEAL_SCAN_LIMIT);
+      return updated;
+    });
+  }, [isPro, saveUsageMutation]);
 
-
+  // ── Product scan — FREE & UNLIMITED (no counter) ──
+  const consumeScan = useCallback(() => {
+    // Product scans are unlimited; nothing to consume.
+  }, []);
 
   const purchasePackage = useCallback((pkg: PurchasesPackage) => {
     return purchaseMutation.mutateAsync(pkg);
@@ -270,23 +264,31 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   return useMemo(() => ({
     isPro,
+    // Dr. Toxi chat (lifetime)
     drToxiRemaining,
     canUseDrToxi,
     consumeDrToxi,
-    canScan,
-    scanRemaining,
+    drToxiLimit: FREE_DRTOXI_LIMIT,
+    // Meal scan (lifetime)
+    canMealScan,
+    mealScanRemaining,
+    consumeMealScan,
+    mealScanLimit: FREE_MEAL_SCAN_LIMIT,
+    // Product scan (unlimited)
+    canScan: true,
+    scanRemaining: Infinity,
     consumeScan,
+    scanLimit: Infinity,
+    // Purchases
     restorePurchase,
     purchasePackage,
     currentOffering,
     purchaseInProgress: purchaseMutation.isPending,
     restoreInProgress: restoreMutation.isPending,
-    drToxiLimit: FREE_DRTOXI_LIMIT,
-    scanLimit: FREE_SCAN_LIMIT,
     freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
     offeringsLoading: offeringsQuery.isLoading,
     offeringsError: offeringsQuery.isError,
     refetchOfferings,
-  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, canScan, scanRemaining, consumeScan, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isFetching, offeringsQuery.isError, refetchOfferings]);
+  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, canMealScan, mealScanRemaining, consumeMealScan, consumeScan, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isError, refetchOfferings]);
 });
