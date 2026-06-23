@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { isEnglish, pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
@@ -149,19 +149,41 @@ export default function DrToxiVerdict({ level, isCosmetic = false }: DrToxiVerdi
     ? pick({ en: 'COSMETIC VERDICT', fr: 'VERDICT COSMÉTIQUE', ko: '화장품 판정' })
     : pick({ en: 'RISK VERDICT', fr: 'VERDICT SANTÉ', ko: '건강 판정' });
 
+  // The avatar plays a one-time entrance (fade + scale-in) and then STAYS
+  // permanently next to the badge — it must never animate back out.
+  const avatarOpacity = useRef(new Animated.Value(0)).current;
+  const avatarScale = useRef(new Animated.Value(0.62)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(avatarOpacity, {
+        toValue: 1,
+        duration: 340,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.spring(avatarScale, {
+        toValue: 1,
+        friction: 6,
+        tension: 90,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+    ]).start();
+  }, [avatarOpacity, avatarScale]);
+
   return (
     <View
       style={[styles.container, { backgroundColor: config.accentColor, shadowColor: config.accentColor }]}
       testID="dr-toxi-verdict"
     >
       <View style={styles.headerRow}>
-        <View style={styles.avatarBubble}>
+        <Animated.View style={[styles.avatarBubble, { opacity: avatarOpacity, transform: [{ scale: avatarScale }] }]}>
           <Image
             source={{ uri: config.avatarUri ?? DR_TOXI_DEFAULT_AVATAR_URI }}
             style={styles.avatar}
             contentFit="contain"
+            transition={200}
           />
-        </View>
+        </Animated.View>
         <View style={styles.headerText}>
           <Text style={styles.eyebrow}>{eyebrow}</Text>
           <Text style={styles.label}>{config.label}</Text>

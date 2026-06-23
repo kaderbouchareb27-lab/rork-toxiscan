@@ -28,7 +28,9 @@ import { t, tf, pick } from '@/utils/i18n';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import {
+  MEAL_TIER_AVATARS,
   MEAL_TIER_COLORS,
+  MEAL_TIER_SOFT,
   MEAL_CATEGORY_COLORS,
   mealCategoryLabel,
   mealTierLabel,
@@ -212,7 +214,9 @@ function StepScan() {
       <View style={styles.tierLegend}>
         {TIER_ORDER.map((tier) => (
           <View key={tier} style={styles.tierChip}>
-            <View style={[styles.tierDot, { backgroundColor: MEAL_TIER_COLORS[tier] }]} />
+            <View style={[styles.tierAvatarRing, { backgroundColor: MEAL_TIER_SOFT[tier], borderColor: MEAL_TIER_COLORS[tier] }]}>
+              <Image source={{ uri: MEAL_TIER_AVATARS[tier] }} style={styles.tierAvatarImg} contentFit="contain" />
+            </View>
             <Text style={styles.tierChipText}>{mealTierLabel(tier)}</Text>
           </View>
         ))}
@@ -478,20 +482,30 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 14,
   },
-  tierLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 9 },
+  tierLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
   tierChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
-    paddingHorizontal: 13,
-    paddingVertical: 8,
+    gap: 9,
+    paddingLeft: 6,
+    paddingRight: 15,
+    paddingVertical: 6,
     borderRadius: 999,
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  tierDot: { width: 10, height: 10, borderRadius: 5 },
-  tierChipText: { fontSize: 13, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.1 },
+  tierAvatarRing: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    overflow: 'hidden',
+  },
+  tierAvatarImg: { width: 30, height: 30 },
+  tierChipText: { fontSize: 13.5, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.1 },
 
   mockCard: {
     width: '100%',
