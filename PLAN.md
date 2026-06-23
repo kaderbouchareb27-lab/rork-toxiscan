@@ -29,6 +29,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 ### Historique
 - Liste chronologique de tous les produits scannés
 - Filtres rapides par niveau de risque
+- Statistiques de scans avec répartition par badge (résumé en haut de la liste)
 - Réouverture d'une fiche produit en un tap
 
 ### Dr. Toxi — Assistant IA
@@ -47,7 +48,6 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 ### Profil
 - Statut d'abonnement
 - Profil santé : préférences mémorisées par Dr. Toxi (situation + priorités alimentaires + note libre), stockées uniquement sur l'appareil
-- Statistiques de scans avec répartition par badge
 - Pages légales : Politique de confidentialité, FAQ (accordéon), Transparence IA
 - Lien de contact et restauration d'achat
 

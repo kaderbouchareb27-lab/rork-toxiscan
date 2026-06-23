@@ -19,7 +19,6 @@ import Colors from '@/constants/colors';
 import { router } from 'expo-router';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
-import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -28,13 +27,10 @@ import { t, tf } from '@/utils/i18n';
 import MealDashboard from '@/components/MealDashboard';
 
 export default function ProfileScreen() {
-  const { stats } = useScanHistory();
   const { isPro } = useSubscription();
   const { totalCorrect, totalAnswered } = useQuiz();
   const { unlockedCount, totalCount, shareCount } = useBadges();
   const { activeCount: healthActiveCount } = useHealthProfile();
-
-  const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
 
   const handleContact = useCallback(async () => {
     console.log('[Profile] Contact tapped');
@@ -181,20 +177,6 @@ export default function ProfileScreen() {
           <ChevronRight color={Colors.primary} size={18} />
         </TouchableOpacity>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('statistics')}</Text>
-          <Text style={styles.statsTotal}>{tf('products_analyzed', stats.total)}</Text>
-
-          {stats.total > 0 && (
-            <View style={styles.statsBreakdown}>
-              <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
-              <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#E8730A" />
-              <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#EAB308" />
-              <StatBar label={t('stat_safe')} count={stats.safe} max={maxStat} color="#2E9E34" />
-            </View>
-          )}
-        </View>
-
         <TouchableOpacity
           style={styles.quizCard}
           onPress={() => {
@@ -312,19 +294,6 @@ function CategoryItem({ icon, label }: { icon: React.ReactNode; label: string })
   );
 }
 
-function StatBar({ label, count, max, color }: { label: string; count: number; max: number; color: string }) {
-  const widthPercent = max > 0 ? (count / max) * 100 : 0;
-  return (
-    <View style={styles.statRow}>
-      <Text style={styles.statLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{label}</Text>
-      <View style={styles.statBarBackground}>
-        <View style={[styles.statBarFill, { width: `${Math.max(widthPercent, 2)}%`, backgroundColor: color }]} />
-      </View>
-      <Text style={styles.statCount}>{count}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -434,43 +403,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700' as const,
     color: Colors.white,
-  },
-  statsTotal: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    marginBottom: 16,
-  },
-  statsBreakdown: {
-    gap: 12,
-  },
-  statRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  statLabel: {
-    width: 86,
-    fontSize: 12,
-    color: Colors.textSecondary,
-    fontWeight: '500' as const,
-  },
-  statBarBackground: {
-    flex: 1,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.surfaceSecondary,
-    overflow: 'hidden',
-  },
-  statBarFill: {
-    height: 10,
-    borderRadius: 5,
-  },
-  statCount: {
-    width: 28,
-    fontSize: 14,
-    fontWeight: '700' as const,
-    color: Colors.text,
-    textAlign: 'right' as const,
   },
   menuItem: {
     flexDirection: 'row',

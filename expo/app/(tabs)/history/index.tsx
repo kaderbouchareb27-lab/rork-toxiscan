@@ -27,7 +27,7 @@ import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { RiskGroup, ScannedProduct } from '@/types';
-import { t, getDateLocale } from '@/utils/i18n';
+import { t, tf, getDateLocale } from '@/utils/i18n';
 import { getDisplayBrand } from '@/utils/api';
 import { getDrToxiBadgeAvatarForRiskGroup } from '@/constants/drToxiAvatars';
 
@@ -101,6 +101,19 @@ function RiskStatusIcon({ group, color, size = 16 }: { group: RiskGroup; color: 
   return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
 }
 
+function StatBar({ label, count, max, color }: { label: string; count: number; max: number; color: string }) {
+  const widthPercent = max > 0 ? (count / max) * 100 : 0;
+  return (
+    <View style={styles.statRow}>
+      <Text style={styles.statLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{label}</Text>
+      <View style={styles.statBarBackground}>
+        <View style={[styles.statBarFill, { width: `${Math.max(widthPercent, 2)}%`, backgroundColor: color }]} />
+      </View>
+      <Text style={styles.statCount}>{count}</Text>
+    </View>
+  );
+}
+
 function SkeletonRow() {
   const opacity = useRef(new Animated.Value(0.35)).current;
 
@@ -140,11 +153,12 @@ function HistorySkeleton() {
 
 export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { clearHistory, history, isLoading } = useScanHistory();
+  const { clearHistory, history, isLoading, stats } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
   const totalHistoryCount = history.length;
+  const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
   const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
 
   const handleProductPress = useCallback((barcode: string) => {
@@ -263,6 +277,22 @@ export default function HistoryScreen() {
     );
   }, [handleProductPress]);
 
+  const renderStatsHeader = useCallback(() => {
+    if (stats.total === 0) return null;
+    return (
+      <View style={styles.statsCard}>
+        <Text style={styles.statsCardTitle}>{t('statistics')}</Text>
+        <Text style={styles.statsCardTotal}>{tf('products_analyzed', stats.total)}</Text>
+        <View style={styles.statsBreakdown}>
+          <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
+          <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#E8730A" />
+          <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#EAB308" />
+          <StatBar label={t('stat_safe')} count={stats.safe} max={maxStat} color="#2E9E34" />
+        </View>
+      </View>
+    );
+  }, [stats, maxStat]);
+
   const renderFooter = useCallback(() => {
     if (!showPremiumUpsell) return null;
     return (
@@ -301,10 +331,6 @@ export default function HistoryScreen() {
             <Trash2 color={Colors.textSecondary} size={18} strokeWidth={2.2} />
           </TouchableOpacity>
         )}
-      </View>
-
-      <View style={styles.summaryRow}>
-        <Text style={styles.summaryText}>{totalHistoryCount} {t('history_scan_count')}</Text>
       </View>
 
       <View style={styles.filtersContainer}>
@@ -380,6 +406,7 @@ export default function HistoryScreen() {
           renderItem={renderProduct}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={renderStatsHeader}
           ListFooterComponent={renderFooter}
         />
       )}
@@ -430,15 +457,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 18,
     elevation: 2,
-  },
-  summaryRow: {
-    paddingHorizontal: 20,
-    paddingTop: 2,
-  },
-  summaryText: {
-    fontSize: 13,
-    fontWeight: '800' as const,
-    color: Colors.textTertiary,
   },
   filtersContainer: {
     paddingVertical: 14,
@@ -499,6 +517,64 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     textAlign: 'center',
     fontWeight: '900' as const,
+  },
+  statsCard: {
+    backgroundColor: 'rgba(255,255,255,0.97)',
+    borderRadius: 26,
+    borderWidth: 1.5,
+    borderColor: Colors.borderLight,
+    padding: 18,
+    marginBottom: 16,
+    shadowColor: '#0E2011',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.06,
+    shadowRadius: 22,
+    elevation: 2,
+  },
+  statsCardTitle: {
+    fontSize: 17,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    letterSpacing: -0.3,
+  },
+  statsCardTotal: {
+    fontSize: 13,
+    fontWeight: '800' as const,
+    color: Colors.textTertiary,
+    marginTop: 3,
+    marginBottom: 16,
+  },
+  statsBreakdown: {
+    gap: 12,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  statLabel: {
+    width: 92,
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: '800' as const,
+  },
+  statBarBackground: {
+    flex: 1,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.surfaceSecondary,
+    overflow: 'hidden',
+  },
+  statBarFill: {
+    height: 10,
+    borderRadius: 5,
+  },
+  statCount: {
+    width: 28,
+    fontSize: 14,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    textAlign: 'right' as const,
   },
   listContent: {
     paddingHorizontal: 20,

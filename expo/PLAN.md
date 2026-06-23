@@ -57,6 +57,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 ### Historique
 - [x] Liste chronologique des produits scannés
 - [x] Filtres rapides par niveau de risque
+- [x] Statistiques de scans avec répartition par badge (résumé en haut de la liste)
 - [x] Réouverture d'une fiche produit en un tap
 - [x] Gratuit : historique du jour uniquement (effacé le lendemain)
 - [x] Pro : historique permanent sauvegardé
@@ -74,7 +75,6 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 ### Profil
 - [x] Statut d'abonnement (Gratuit / Pro)
 - [x] Profil santé : préférences mémorisées par Dr. Toxi (situation + priorités alimentaires + note libre), stockées uniquement sur l'appareil
-- [x] Statistiques de scans avec répartition par badge
 - [x] Pages légales : Politique de confidentialité, FAQ, Transparence IA
 - [x] Lien de contact et restauration d'achat
 - [x] Accès paywall depuis Profil
