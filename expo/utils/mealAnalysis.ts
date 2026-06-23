@@ -18,6 +18,7 @@ export type MealCategory =
   | 'processed'
   | 'added_sugar'
   | 'refined_oil'
+  | 'refined_flour'
   | 'excess_salt'
   | 'additive'
   | 'healthy'
@@ -47,7 +48,7 @@ export interface MealAlternatives {
 }
 
 const CARCINOGEN_CATEGORIES: readonly MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b'];
-const JUNK_FAMILY_CATEGORIES: readonly MealCategory[] = ['processed', 'added_sugar', 'refined_oil', 'excess_salt', 'additive'];
+const JUNK_FAMILY_CATEGORIES: readonly MealCategory[] = ['processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'additive'];
 
 export function isCarcinogenCategory(c: MealCategory): boolean {
   return CARCINOGEN_CATEGORIES.includes(c);
@@ -68,26 +69,83 @@ function normalize(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-const SUGAR_TOKENS = ['sugar', 'sucre', 'sirop', 'syrup', 'dextrose', 'glucose', 'fructose', 'saccharose', 'sucrose', 'maltodextrin', '설탕', '시럽', '당'];
+// Sweet / added-sugar signals. Includes chocolate (sweetened chocolate powder, spreads,
+// candy) so a clearly sweet topping is NEVER mislabeled "neutral" (spec fix §2). Pure
+// unsweetened cocoa/cacao is deliberately EXCLUDED so the database can keep it green.
+const SUGAR_TOKENS = ['sugar', 'sucre', 'sirop', 'syrup', 'dextrose', 'glucose', 'fructose', 'saccharose', 'sucrose', 'maltodextrin', 'chocolat', 'chocolate', 'choco', 'caramel', 'nutella', 'praline', 'candy', 'bonbon', 'frosting', 'icing', 'glaze', 'confiture', 'marmalade', 'jam', '설탕', '시럽', '당', '초콜릿', '사탕', '잼', '카라멜'];
 const OIL_TOKENS = ['oil', 'huile', 'graisse', 'margarine', 'shortening', '기름', '유'];
 const SALT_TOKENS = ['salt', 'sel', 'sodium', 'soy sauce', 'sauce soja', 'gochujang', 'doenjang', 'ganjang', '간장', '소금', '된장', '고추장'];
 const ADDITIVE_TOKENS = ['colorant', 'colour', 'color', 'dye', 'additive', 'additif', 'e1', 'e2', 'e4', 'e5', 'msg', 'glutamate', 'nitrite', 'benzoate', 'sulfite', '색소', '첨가물'];
 
-function familyFromName(name: string, fallback: MealCategory): MealCategory {
+// Refined flour / refined carbs family (spec fix §3): white flour, viennoiseries, pastries,
+// white bread. Whole-grain variants are excluded — they stay healthy.
+const REFINED_FLOUR_TOKENS = ['flour', 'farine', 'viennoiserie', 'pastry', 'patisserie', 'croissant', 'brioche', 'baguette', 'pain', 'bun', 'dough', 'biscuit', 'cookie', 'cake', 'gateau', 'donut', 'doughnut', 'muffin', 'cupcake', 'bagel', 'pancake', 'waffle', 'gaufre', 'crepe', 'toast', 'scone', 'danish', 'pretzel', 'pita', '밀가루', '빵', '크루아상', '페이스트리', '베이글', '케이크', '쿠키', '도넛'];
+const WHOLE_GRAIN_TOKENS = ['complet', 'complete', 'whole', 'wholemeal', 'wholegrain', 'integral', 'multigrain', 'multicereal', 'seigle', 'rye', 'sarrasin', 'buckwheat', 'bran', '통밀', '현미', '잡곡', '호밀'];
+
+// Genuinely-healthy items that are only INCIDENTAL to a drink/dish (the milk in a coffee,
+// a splash of cream) must NOT earn the health bonus (spec fix §4).
+const INCIDENTAL_HEALTHY_TOKENS = ['milk', 'lait', 'cream', 'creme', 'latte', '우유', '크림', '라떼'];
+
+// A meal whose MAIN element is a viennoiserie / pastry / sweet dessert can NEVER be green
+// (spec guardrail). Tokens picked to avoid collisions (no 'pie'/'tart'/'macaron').
+const DESSERT_BASE_TOKENS = ['croissant', 'viennoiserie', 'pastry', 'patisserie', 'brioche', 'cake', 'gateau', 'donut', 'doughnut', 'muffin', 'cupcake', 'cookie', 'biscuit', 'dessert', 'tarte', 'waffle', 'gaufre', 'pancake', 'crepe', 'beignet', 'churro', 'brownie', 'pudding', 'glace', 'gelato', 'candy', 'bonbon', 'danish', 'scone', 'chausson', '디저트', '케이크', '쿠키', '도넛', '크루아상', '아이스크림', '페이스트리', '와플', '파이'];
+
+function isRefinedFlourName(n: string): boolean {
+  if (WHOLE_GRAIN_TOKENS.some((t) => n.includes(t))) return false;
+  return REFINED_FLOUR_TOKENS.some((t) => n.includes(t));
+}
+
+/**
+ * Returns the junk family a name clearly belongs to, or null if none. Used as the
+ * classification fallback and to rescue items the AI/database mislabeled.
+ */
+function junkFamilyFromName(name: string): MealCategory | null {
   const n = normalize(name);
   if (SUGAR_TOKENS.some((t) => n.includes(t))) return 'added_sugar';
   if (OIL_TOKENS.some((t) => n.includes(t))) return 'refined_oil';
   if (ADDITIVE_TOKENS.some((t) => n.includes(t))) return 'additive';
   if (SALT_TOKENS.some((t) => n.includes(t))) return 'excess_salt';
-  return fallback;
+  if (isRefinedFlourName(n)) return 'refined_flour';
+  return null;
+}
+
+/**
+ * NARROW rescue used ONLY on items the database/AI marked benign (healthy/neutral). Limited
+ * to SWEET and REFINED-FLOUR signals so genuinely healthy foods (virgin olive oil, salt as a
+ * seasoning, vegetables) are never wrongly demoted (spec fix §2/§3).
+ */
+function benignOverrideFromName(name: string): MealCategory | null {
+  const n = normalize(name);
+  if (SUGAR_TOKENS.some((t) => n.includes(t))) return 'added_sugar';
+  if (isRefinedFlourName(n)) return 'refined_flour';
+  return null;
+}
+
+/** Incidental drink components (milk/cream in a coffee) — excluded from the health bonus. */
+function isIncidentalHealthy(name: string): boolean {
+  const n = normalize(name);
+  if (n.includes('laitue') || n.includes('lettuce')) return false; // lettuce is a real vegetable
+  return INCIDENTAL_HEALTHY_TOKENS.some((t) => n.includes(t));
+}
+
+/** True when the dish's main element is a viennoiserie / pastry / sweet dessert. */
+function hasDessertBase(ingredients: MealIngredient[], dishName?: string): boolean {
+  const haystacks = ingredients.map((i) => normalize(i.name));
+  if (dishName) haystacks.push(normalize(dishName));
+  return haystacks.some((h) => DESSERT_BASE_TOKENS.some((tk) => h.includes(tk)));
+}
+
+function familyFromName(name: string, fallback: MealCategory): MealCategory {
+  return junkFamilyFromName(name) ?? fallback;
 }
 
 function normalizeAiCategory(raw: string): MealCategory {
   const k = normalize(raw).replace(/[\s-]+/g, '_');
-  const all: MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b', 'processed', 'added_sugar', 'refined_oil', 'excess_salt', 'additive', 'healthy', 'neutral'];
+  const all: MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b', 'processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'additive', 'healthy', 'neutral'];
   if ((all as string[]).includes(k)) return k as MealCategory;
   if (k.includes('carcinogen') || k.includes('cancer')) return 'carcinogen_2b';
   if (k.includes('sugar') || k.includes('sucre')) return 'added_sugar';
+  if (k.includes('flour') || k.includes('farine') || k.includes('refined_carb') || k.includes('refined_flour') || k.includes('refined_grain')) return 'refined_flour';
   if (k.includes('oil') || k.includes('huile')) return 'refined_oil';
   if (k.includes('salt') || k.includes('sel') || k.includes('sodium')) return 'excess_salt';
   if (k.includes('additive') || k.includes('color') || k.includes('additif')) return 'additive';
@@ -110,14 +168,24 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
     if (db.risk === 'danger') return { category: 'carcinogen_g1', isGrave: true };
     if (db.risk === 'probable') return { category: familyFromName(name, 'processed'), isGrave: false };
     if (db.risk === 'possible') return { category: familyFromName(name, 'additive'), isGrave: false };
-    return { category: 'healthy', isGrave: false };
+    // db.risk === 'aucun' (database says benign): still rescue clearly sweet / refined-flour
+    // items the database keeps green (e.g. chocolate powder, white flour) so a pastry or a
+    // sweet topping never counts as healthy (spec fix §2/§3).
+    const benign = benignOverrideFromName(name);
+    return benign ? { category: benign, isGrave: false } : { category: 'healthy', isGrave: false };
   }
   if (aiCategoryHint) {
     const cat = normalizeAiCategory(aiCategoryHint);
+    // SAFETY NET: the AI must not bury a clearly sweet / refined item under "neutral" or
+    // "healthy". When the NAME signals sugar or refined flour, trust the name (spec §2).
+    if (cat === 'neutral' || cat === 'healthy') {
+      const benign = benignOverrideFromName(name);
+      if (benign) return { category: benign, isGrave: false };
+    }
     return { category: cat, isGrave: isCarcinogenCategory(cat) };
   }
   // Final fallback for manually-typed items: catch obvious junk families by name
-  // (e.g. "2 sucres", "huile", "sel") so the live score reacts to manual edits.
+  // (e.g. "2 sucres", "croissant", "huile", "sel") so the live score reacts to manual edits.
   return { category: familyFromName(name, 'neutral'), isGrave: false };
 }
 
@@ -126,7 +194,7 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
 // confirmation screen can recompute it LIVE on every manual edit.
 // ─────────────────────────────────────────────────────────────────────
 
-export function computeMealScore(ingredients: MealIngredient[]): number {
+export function computeMealScore(ingredients: MealIngredient[], dishName?: string): number {
   if (ingredients.length === 0) return 0;
 
   // The most serious carcinogen present. Group 1 (processed/cured meat, nitrites) is
@@ -144,10 +212,12 @@ export function computeMealScore(ingredients: MealIngredient[]): number {
   const processedCount = ingredients.filter((i) => i.category === 'processed').length;
   const additiveCount = ingredients.filter((i) => i.category === 'additive').length;
   const saltCount = ingredients.filter((i) => i.category === 'excess_salt').length;
+  const flourCount = ingredients.filter((i) => i.category === 'refined_flour').length;
 
   const hasSugar = sugarCount > 0;
   const hasOil = oilCount > 0;
   const hasProcessed = processedCount > 0;
+  const hasFlour = flourCount > 0;
 
   let accumulation = 0;
   // Sugar by INTENSITY (spec §4 tightening): present → +1, massive/dominant → +2.
@@ -157,27 +227,39 @@ export function computeMealScore(ingredients: MealIngredient[]): number {
   if (hasProcessed) accumulation += Math.min(processedCount, 3);
   if (additiveCount > 0) accumulation += Math.min(additiveCount, 2);
   if (saltCount > 0) accumulation += 1;
+  // Refined flour / refined carbs family (spec fix §3): white flour, viennoiseries, pastries, white bread.
+  if (hasFlour) accumulation += 1;
   accumulation = Math.min(accumulation, 8);
 
-  // TEMPS 3 — health bonus: raw foods, vegetables, clean cooking bring it down.
-  const healthyCount = ingredients.filter((i) => i.category === 'healthy').length;
+  // TEMPS 3 — health bonus: ONLY genuine whole foods that actually compose the meal
+  // (vegetables, fruits, whole grains, lean grilled/steamed proteins). Incidental drink
+  // components (the milk in a coffee, a splash of cream) never count (spec fix §4).
+  const effectiveHealthy = ingredients.filter((i) => i.category === 'healthy' && !isIncidentalHealthy(i.name)).length;
   let bonus = 0;
   if (!hasCarcinogen) {
-    if (healthyCount >= 3) bonus = -2;
-    else if (healthyCount >= 1) bonus = -1;
+    if (effectiveHealthy >= 3) bonus = -2;
+    else if (effectiveHealthy >= 1) bonus = -1;
   }
+  // The bonus must NEVER pull a junky meal into green: when added sugar coexists with
+  // ultra-processing / refined oil / refined flour, cancel the discount (spec fix §4).
+  const junkyContext = hasSugar && (hasProcessed || hasOil || hasFlour || additiveCount > 0);
+  if (junkyContext) bonus = 0;
 
   let score = base + accumulation + bonus;
 
   // Ultra-processed "bomb" nudges (no carcinogen, nothing fresh): push junk/desserts
   // into the 8-9 range so an ultra-sweet dessert doesn't land at 6-7.
   const junkFamilies = JUNK_FAMILY_CATEGORIES.filter((fam) => ingredients.some((i) => i.category === fam)).length;
-  if (!hasCarcinogen && healthyCount === 0) {
+  if (!hasCarcinogen && effectiveHealthy === 0) {
     if (junkFamilies >= 4) score += 1; // many junk families stacked together
     if (massiveSugar && junkFamilies >= 2) score += 1; // dominant-sugar dessert / pastry
   }
 
   score = Math.max(0, Math.min(10, score));
+
+  // GUARDRAIL (spec): a meal whose MAIN element is a viennoiserie / pastry / sweet dessert
+  // can NEVER be green. Yellow minimum (floor 5) — e.g. a chocolate croissant.
+  if (hasDessertBase(ingredients, dishName)) score = Math.max(score, 5);
 
   // ── Bounds (spec §4 + the 10/10 tightening) ──
   // The full 10 is RESERVED for a CIRC group-1 carcinogen (processed/cured meat, nitrites)
@@ -229,10 +311,10 @@ const DETECT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC cl
 
 TASK:
 1. Identify the dish in a few words (dish_name).
-2. List the ingredients you can reasonably infer are in this dish (photo + typical recipe). Include the usual hidden ones a real recipe would contain (oils, sugar, sauces, condiments) but stay realistic — do not invent rare additives.
+2. ALWAYS identify the MAIN / BASE food of the dish FIRST — the pastry, bread, dough, batter, noodles, rice or protein the dish is built on — not only the toppings or fillings. A "chocolate croissant" MUST list the viennoiserie pastry itself (refined flour + butter), not just the chocolate. A "pizza" must list the dough; a "burger" the bun and the patty. THEN add toppings, sauces and the usual hidden ingredients a real recipe contains (oils, sugar, sauces, condiments). Stay realistic — do not invent rare additives.
 3. For EACH ingredient set:
    - name: the ingredient name in the user's language.
-   - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | excess_salt | additive | healthy | neutral
+   - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | refined_flour | excess_salt | additive | healthy | neutral
    - is_grave: true ONLY if dangerous / IARC-classified (carcinogen). NEVER true for merely processed/sugary/fatty food.
    - intensity: "high" ONLY for added_sugar when the sugar is MASSIVE / DOMINANT (desserts, pastries, candy, sodas, sweet drinks, syrupy dishes); otherwise "normal". Always "normal" for non-sugar ingredients.
    - note: ONE short, frank, educational sentence about this ingredient, in the user's language.
@@ -240,9 +322,13 @@ TASK:
 CLASSIFICATION GUIDANCE:
 - Processed / cured meat (ham, bacon, sausage, hot dog, salami, pepperoni, nitrites) → carcinogen_g1 (IARC Group 1, GRAVE).
 - Red meat cooked in the dish (beef patty, ground beef, steak, pork, lamb) → carcinogen_2a (IARC Group 2A, GRAVE — it raises the score but is NOT Group 1).
-- Refined / vegetable oils (palm, canola, sunflower, soy, deep-frying oil) → refined_oil. Visibly industrial components (white bun, refined flour, industrial sauces) → processed.
+- Refined oils (palm, canola, sunflower, soy, deep-frying oil) → refined_oil.
+- Refined-flour / refined-carb base (white flour, viennoiserie & pastry dough, white bread, croissant, brioche, cake, cookies, donuts, white bun) → refined_flour. Whole-grain / wholemeal bread → healthy.
+- Other visibly industrial components (processed cheese, industrial sauces, nuggets) → processed.
+- "neutral" is RESERVED for ingredients with truly no nutritional impact: water, plain spices, herbs, black coffee, tea, vinegar. A clearly SWEET or PROCESSED item (chocolate powder, syrups, sweet sauces, frosting, sweet toppings) is NEVER "neutral" — classify it as added_sugar (or processed).
+- Milk and cream are "healthy" at most; as an incidental drink component they do NOT make a sugary/pastry meal healthy.
 
-GOLDEN RULE (spec §4): NEVER label sugar, fat or processed food as "carcinogenic". Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
+GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food as "carcinogenic". Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty / refined). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
 
 Return 4 to 12 ingredients. Output JSON only.`;
 
@@ -344,7 +430,7 @@ ${ingredientLines}
 
 WRITE:
 1. verdict_text: a broken-down, ingredient-by-ingredient verdict (e.g. "The ham contains sodium nitrites (carcinogenic). The oil is refined. The cheese is fine. The tomato is healthy."). Pedagogical, clear, 3-6 sentences. Tone: ${TONE_BY_TIER[tier]}.
-   GOLDEN RULE: NEVER call sugar/fat/processed food "carcinogenic". Distinguish SERIOUS (dangerous/IARC) from NOT HEALTHY (processed/sugary/fatty).
+   GOLDEN RULE: NEVER call sugar/fat/refined flour/processed food "carcinogenic". Distinguish SERIOUS (dangerous/IARC) from NOT HEALTHY (processed/sugary/fatty/refined).
 ${needsAlternatives
       ? `2. alternative_home: a HEALTHY and SIMILAR homemade version of the SAME dish (stay close to the craving — a pizza lover wants a better pizza, not a salad). One or two sentences.
 3. alternative_restaurant: what TYPE of dish to pick instead next time at a restaurant. One sentence.`

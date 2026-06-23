@@ -50,7 +50,7 @@ export default function MealConfirmScreen() {
   const [newName, setNewName] = useState<string>('');
   const [statusIndex, setStatusIndex] = useState<number>(0);
 
-  const score = useMemo(() => computeMealScore(ingredients), [ingredients]);
+  const score = useMemo(() => computeMealScore(ingredients, dishName), [ingredients, dishName]);
   const tier = useMemo(() => scoreToTier(score), [score]);
 
   const detectMutation = useMutation({
@@ -111,7 +111,7 @@ export default function MealConfirmScreen() {
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setPhase('generating');
     try {
-      const finalScore = computeMealScore(ingredients);
+      const finalScore = computeMealScore(ingredients, dishName);
       const finalTier = scoreToTier(finalScore);
       const verdict = await generateMealVerdict(dishName, ingredients, finalScore, finalTier);
       const id = `meal_${Date.now().toString(36)}`;

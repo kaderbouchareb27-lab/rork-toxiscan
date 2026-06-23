@@ -42,6 +42,7 @@ export const MEAL_CATEGORY_COLORS: Record<MealCategory, string> = {
   processed: '#E8730A',
   refined_oil: '#E8730A',
   added_sugar: '#E8730A',
+  refined_flour: '#E8730A',
   excess_salt: '#EAB308',
   additive: '#EAB308',
   healthy: '#2E9E34',
@@ -61,6 +62,8 @@ export function mealCategoryLabel(c: MealCategory): string {
       return t('mcat_added_sugar');
     case 'refined_oil':
       return t('mcat_refined_oil');
+    case 'refined_flour':
+      return t('mcat_refined_flour');
     case 'excess_salt':
       return t('mcat_excess_salt');
     case 'additive':

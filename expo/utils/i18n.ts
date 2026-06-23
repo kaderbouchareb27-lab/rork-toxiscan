@@ -574,6 +574,7 @@ const translations = {
   mcat_processed: { fr: 'Ultra-transformé', en: 'Ultra-processed', ko: '초가공' },
   mcat_added_sugar: { fr: 'Sucre ajouté', en: 'Added sugar', ko: '첨가당' },
   mcat_refined_oil: { fr: 'Huile raffinée', en: 'Refined oil', ko: '정제유' },
+  mcat_refined_flour: { fr: 'Farine raffinée', en: 'Refined flour', ko: '정제 밀가루' },
   mcat_excess_salt: { fr: 'Excès de sel', en: 'Excess salt', ko: '나트륨 과다' },
   mcat_additive: { fr: 'Additif', en: 'Additive', ko: '첨가물' },
   mcat_healthy: { fr: 'Sain', en: 'Healthy', ko: '건강함' },

@@ -24,7 +24,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { t, tf, pick } from '@/utils/i18n';
+import { t, pick } from '@/utils/i18n';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import {
@@ -46,8 +46,8 @@ import {
 } from '@/utils/reminderPrefs';
 import { requestNotificationPermission, syncMealReminders } from '@/utils/notifications';
 
-const PRESENTATION_STEPS = 3;
-const TOTAL_STEPS = 4;
+const PRESENTATION_STEPS = 2;
+const TOTAL_STEPS = 3;
 
 const TIER_ORDER: MealTier[] = ['green', 'yellow', 'orange', 'red'];
 
@@ -163,8 +163,7 @@ export default function MealOnboardingScreen() {
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
             {step === 0 ? <StepScan /> : null}
-            {step === 1 ? <StepBreakdown /> : null}
-            {step === 2 ? <StepReport /> : null}
+            {step === 1 ? <StepValue /> : null}
           </ScrollView>
         )}
       </Animated.View>
@@ -243,7 +242,7 @@ function MockIngredient({ name, category, grave }: { name: string; category: Mea
   );
 }
 
-function StepBreakdown() {
+function StepValue() {
   return (
     <View style={styles.stepWrap}>
       <StepHeroAvatar />
@@ -271,47 +270,14 @@ function StepBreakdown() {
           </Text>
         </View>
       </View>
-    </View>
-  );
-}
 
-function StepReport() {
-  const distribution: { tier: MealTier; count: number }[] = [
-    { tier: 'green', count: 4 },
-    { tier: 'yellow', count: 2 },
-    { tier: 'orange', count: 1 },
-    { tier: 'red', count: 0 },
-  ];
-  const maxCount = 4;
-  return (
-    <View style={styles.stepWrap}>
-      <StepHeroAvatar />
-      <Text style={styles.title}>{t('mob_3_title')}</Text>
-      <Text style={styles.body}>{t('mob_3_body')}</Text>
-
-      <View style={styles.dashCard}>
-        <Text style={styles.dashLabel}>{t('mob_3_dashboard_label')}</Text>
-        <View style={styles.dashRow}>
-          <ToxicityScoreRing score={3} tier="green" size={96} stroke={10} label={t('weekly_avg_short')} />
-          <View style={styles.dashBars}>
-            {distribution.map((d) => (
-              <View key={d.tier} style={styles.dashBarRow}>
-                <View style={[styles.dashBarTrack]}>
-                  <View
-                    style={[
-                      styles.dashBarFill,
-                      { width: `${Math.max(6, (d.count / maxCount) * 100)}%`, backgroundColor: MEAL_TIER_COLORS[d.tier] },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.dashBarCount}>{d.count}</Text>
-              </View>
-            ))}
-          </View>
+      <View style={styles.weeklyStrip}>
+        <View style={styles.weeklyIcon}>
+          <TrendingUp color={Colors.primary} size={18} strokeWidth={2.2} />
         </View>
-        <View style={styles.dashTrend}>
-          <TrendingUp color={Colors.primary} size={15} strokeWidth={2.2} />
-          <Text style={styles.dashTrendText}>{tf('weekly_trend_up', 20)}</Text>
+        <View style={styles.flex}>
+          <Text style={styles.weeklyLabel}>{t('mob_3_title')}</Text>
+          <Text style={styles.weeklyText}>{t('mob_3_body')}</Text>
         </View>
       </View>
     </View>
@@ -562,29 +528,28 @@ const styles = StyleSheet.create({
   altLabel: { fontSize: 12, fontWeight: '800' as const, color: Colors.primary, letterSpacing: 0.3, textTransform: 'uppercase' as const },
   altText: { fontSize: 14, color: Colors.text, lineHeight: 20, marginTop: 4 },
 
-  dashCard: {
+  weeklyStrip: {
     width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     backgroundColor: Colors.surface,
-    borderRadius: 22,
-    padding: 18,
+    borderRadius: 18,
+    padding: 16,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginTop: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    marginTop: 14,
   },
-  dashLabel: { fontSize: 12, fontWeight: '700' as const, color: Colors.textTertiary, letterSpacing: 0.4, textTransform: 'uppercase' as const, marginBottom: 12 },
-  dashRow: { flexDirection: 'row', alignItems: 'center', gap: 18 },
-  dashBars: { flex: 1, gap: 9 },
-  dashBarRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dashBarTrack: { flex: 1, height: 10, borderRadius: 5, backgroundColor: Colors.surfaceSecondary, overflow: 'hidden' },
-  dashBarFill: { height: 10, borderRadius: 5 },
-  dashBarCount: { width: 16, fontSize: 13, fontWeight: '700' as const, color: Colors.text, textAlign: 'right' },
-  dashTrend: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 16 },
-  dashTrendText: { fontSize: 13, fontWeight: '600' as const, color: Colors.primary, flex: 1 },
+  weeklyIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: 'rgba(46,158,52,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  weeklyLabel: { fontSize: 14.5, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.2 },
+  weeklyText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 3 },
 
   notifScroll: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 20, alignItems: 'center' },
   notifIconWrap: {
