@@ -556,6 +556,14 @@ const translations = {
   meal_generating_verdict: { fr: 'Dr. Toxi rédige son verdict…', en: 'Dr. Toxi is writing the verdict…', ko: 'Dr. Toxi가 판정을 작성하는 중…' },
   meal_analysis_failed: { fr: "Impossible d'analyser ce repas. Reprends la photo avec une bonne lumière.", en: 'Unable to analyze this meal. Retake the photo with good lighting.', ko: '이 식사를 분석할 수 없어요. 밝은 곳에서 다시 촬영하세요.' },
   meal_remove_ingredient: { fr: 'Retirer', en: 'Remove', ko: '삭제' },
+  meal_dish_name_placeholder: { fr: 'Nom du plat', en: 'Dish name', ko: '음식 이름' },
+  meal_dish_name_hint: { fr: "Pas le bon plat ? Corrige le nom, puis re-analyse.", en: 'Wrong dish? Fix the name, then re-analyze.', ko: '음식이 틀렸나요? 이름을 고친 뒤 다시 분석하세요.' },
+  meal_reanalyze: { fr: 'Ré-analyser ce plat', en: 'Re-analyze this dish', ko: '이 음식 다시 분석' },
+  meal_reanalyzing_title: { fr: 'Je ré-analyse ton plat…', en: 'Re-analyzing your dish…', ko: '음식을 다시 분석하는 중…' },
+  meal_reanalyzing_status: { fr: 'Je pars de ta correction…', en: 'Starting from your correction…', ko: '수정한 내용을 반영하는 중…' },
+  meal_reanalyze_failed: { fr: 'Impossible de ré-analyser ce plat. Réessaie.', en: "Couldn't re-analyze this dish. Try again.", ko: '이 음식을 다시 분석할 수 없어요. 다시 시도하세요.' },
+  meal_edit_ingredient: { fr: 'Modifier cet ingrédient', en: 'Edit this ingredient', ko: '이 재료 수정' },
+  meal_save: { fr: 'Enregistrer', en: 'Save', ko: '저장' },
 
   // ===== MEAL SCAN — TIERS & BADGE =====
   meal_toxicity_level: { fr: 'Niveau de toxicité', en: 'Toxicity level', ko: '독성 수준' },

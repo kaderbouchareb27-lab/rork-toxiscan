@@ -307,11 +307,9 @@ const detectSchema = z.object({
   ),
 });
 
-const DETECT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. You analyze a PHOTO of a real meal.
-
-TASK:
-1. Identify the dish in a few words (dish_name).
-2. ALWAYS identify the MAIN / BASE food of the dish FIRST — the pastry, bread, dough, batter, noodles, rice or protein the dish is built on — not only the toppings or fillings. A "chocolate croissant" MUST list the viennoiserie pastry itself (refined flour + butter), not just the chocolate. A "pizza" must list the dough; a "burger" the bun and the patty. THEN add toppings, sauces and the usual hidden ingredients a real recipe contains (oils, sugar, sauces, condiments). Stay realistic — do not invent rare additives.
+// Shared ingredient rules — kept identical between photo detection and text re-analysis so a
+// dish classifies the same way whether it was seen or named by the user.
+const MEAL_INGREDIENT_RULES = `2. ALWAYS identify the MAIN / BASE food of the dish FIRST — the pastry, bread, dough, batter, noodles, rice or protein the dish is built on — not only the toppings or fillings. A "chocolate croissant" MUST list the viennoiserie pastry itself (refined flour + butter), not just the chocolate. A "pizza" must list the dough; a "burger" the bun and the patty. THEN add toppings, sauces and the usual hidden ingredients a real recipe contains (oils, sugar, sauces, condiments). Stay realistic — do not invent rare additives.
 3. For EACH ingredient set:
    - name: the ingredient name in the user's language.
    - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | refined_flour | excess_salt | additive | healthy | neutral
@@ -332,38 +330,41 @@ GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food 
 
 Return 4 to 12 ingredients. Output JSON only.`;
 
+const DETECT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. You analyze a PHOTO of a real meal.
+
+TASK:
+1. Identify the dish in a few words (dish_name).
+${MEAL_INGREDIENT_RULES}`;
+
+// Text re-analysis prompt. The user has TYPED or CORRECTED the dish themselves, so their
+// words are authoritative and OVERRIDE any earlier photo guess (spec: manual input wins).
+const DETECT_FROM_TEXT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. The user has TYPED or CORRECTED the exact dish themselves. Their description is AUTHORITATIVE and OVERRIDES any earlier photo-based guess: analyze EXACTLY the dish they name and NEVER substitute or revert to a different dish.
+
+TASK:
+1. Use the user's own words as dish_name (fix only obvious spelling) — do NOT rename it to a different dish.
+${MEAL_INGREDIENT_RULES}`;
+
 const DETECT_INSTRUCTION = pick({
   en: 'Analyze this meal photo and return the dish name and its ingredients.',
   fr: "Analyse cette photo de repas et retourne le nom du plat et ses ingrédients.",
   ko: '이 식사 사진을 분석해서 음식 이름과 재료를 알려주세요.',
 });
 
+function detectFromTextInstruction(dishName: string): string {
+  return pick({
+    en: `The user states this meal is exactly: "${dishName}". Analyze THIS dish — list the real ingredients of a typical "${dishName}" (including its main / base food) and classify each one. Do not revert to any other dish.`,
+    fr: `L'utilisateur indique que ce repas est exactement : « ${dishName} ». Analyse CE plat — liste les vrais ingrédients d'un(e) « ${dishName} » typique (y compris son aliment principal / de base) et classe chacun. Ne reviens jamais à un autre plat.`,
+    ko: `사용자가 이 식사는 정확히 "${dishName}"라고 합니다. 이 음식을 분석하세요 — 일반적인 "${dishName}"의 실제 재료(주재료 포함)를 나열하고 각각 분류하세요. 다른 음식으로 되돌리지 마세요.`,
+  });
+}
+
 export interface DetectedMeal {
   dishName: string;
   ingredients: MealIngredient[];
 }
 
-/**
- * STEP 1 — vision detection. Returns the dish name + a classified ingredient list
- * (each ingredient cross-referenced against the local database in priority).
- */
-export async function detectMealFromPhoto(imageBase64: string): Promise<DetectedMeal> {
-  const system = DETECT_SYSTEM + getAnalysisRegionPrompt();
-  const raw = await aiGenerateObject({
-    system,
-    schema: detectSchema,
-    maxTokens: 1600,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          { type: 'text', text: DETECT_INSTRUCTION },
-          { type: 'image', image: imageBase64 },
-        ],
-      },
-    ],
-  });
-
+/** Shared post-processing: dedupe + cross-reference each detected ingredient against the DB. */
+function buildDetectedMeal(raw: z.infer<typeof detectSchema>, fallbackName: string): DetectedMeal {
   const seen = new Set<string>();
   const ingredients: MealIngredient[] = [];
   for (const item of raw.ingredients) {
@@ -376,11 +377,47 @@ export async function detectMealFromPhoto(imageBase64: string): Promise<Detected
     const intensity: 'normal' | 'high' = item.intensity === 'high' ? 'high' : 'normal';
     ingredients.push({ id: newMealIngredientId(), name, category, isGrave, note: item.note.trim(), intensity });
   }
+  return { dishName: raw.dish_name.trim() || fallbackName, ingredients };
+}
 
-  return {
-    dishName: raw.dish_name.trim() || pick({ en: 'My meal', fr: 'Mon repas', ko: '내 식사' }),
-    ingredients,
-  };
+/**
+ * STEP 1 — vision detection. Returns the dish name + a classified ingredient list
+ * (each ingredient cross-referenced against the local database in priority).
+ */
+export async function detectMealFromPhoto(imageBase64: string): Promise<DetectedMeal> {
+  const raw = await aiGenerateObject({
+    system: DETECT_SYSTEM + getAnalysisRegionPrompt(),
+    schema: detectSchema,
+    maxTokens: 1600,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: DETECT_INSTRUCTION },
+          { type: 'image', image: imageBase64 },
+        ],
+      },
+    ],
+  });
+  return buildDetectedMeal(raw, pick({ en: 'My meal', fr: 'Mon repas', ko: '내 식사' }));
+}
+
+/**
+ * TEXT RE-ANALYSIS — the user corrected (or typed) the dish name. The text is the source of
+ * truth: we re-detect the ingredient list for THAT dish (never the photo guess), cross-reference
+ * each ingredient against the local database, then the score recomputes from the fresh list.
+ */
+export async function detectMealFromText(dishName: string): Promise<DetectedMeal> {
+  const cleanName = dishName.trim();
+  const raw = await aiGenerateObject({
+    system: DETECT_FROM_TEXT_SYSTEM + getAnalysisRegionPrompt(),
+    schema: detectSchema,
+    maxTokens: 1600,
+    messages: [{ role: 'user', content: detectFromTextInstruction(cleanName) }],
+  });
+  const detected = buildDetectedMeal(raw, cleanName);
+  // The user's typed name is authoritative — keep it verbatim over any AI rewrite.
+  return { dishName: cleanName || detected.dishName, ingredients: detected.ingredients };
 }
 
 // ═══════════════════════════════════════════════════════════════════════

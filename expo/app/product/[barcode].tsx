@@ -1216,7 +1216,7 @@ export default function ProductScreen() {
       </ScrollView>
 
       <View style={styles.offscreenContainer} pointerEvents="none">
-        <View ref={shareCardRef} collapsable={false}>
+        <View ref={shareCardRef} {...(Platform.OS === 'web' ? {} : { collapsable: false as const })}>
           <ShareImageCard
             productName={product.name} brand={product.brand} riskGroup={product.riskGroup}
             photoUri={product.photoUri} thumbnailBase64={product.thumbnailBase64} imageUrl={product.imageUrl}
