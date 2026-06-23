@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { t } from '@/utils/i18n';
+import { loadReminderPrefs, type MealReminder, type ReminderSlot } from '@/utils/reminderPrefs';
 
 // Local notifications only (no remote push) — fully supported in Expo Go.
 // Foreground presentation so reminders show even while the app is open.
@@ -18,10 +19,22 @@ try {
 }
 
 const REMINDER_CHANNEL = 'meal-reminders';
-const NOON_HOUR = 12;
-const EVENING_HOUR = 20;
 const FRIDAY_REPORT_HOUR = 21;
 const FRIDAY_WEEKDAY = 6; // expo: 1=Sunday … 6=Friday
+/** How many days ahead one-off reminders are pre-scheduled (re-synced on launch & after each scan). */
+const SCHEDULE_DAYS_AHEAD = 7;
+
+/** Localized copy for each reminder slot. */
+function reminderCopy(slot: ReminderSlot): { title: string; body: string } {
+  switch (slot) {
+    case 'morning':
+      return { title: t('notif_morning_title'), body: t('notif_morning_body') };
+    case 'noon':
+      return { title: t('notif_noon_title'), body: t('notif_noon_body') };
+    case 'evening':
+      return { title: t('notif_evening_title'), body: t('notif_evening_body') };
+  }
+}
 
 const isNative = Platform.OS !== 'web';
 
@@ -61,30 +74,43 @@ function sameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-function atHour(base: Date, dayOffset: number, hour: number): Date {
+function atTime(base: Date, dayOffset: number, hour: number, minute: number): Date {
   const d = new Date(base);
   d.setDate(d.getDate() + dayOffset);
-  d.setHours(hour, 0, 0, 0);
+  d.setHours(hour, minute, 0, 0);
   return d;
 }
 
 /**
- * Smart anti-spam reminders (spec §9): schedules noon + 8pm "scan your meal"
- * reminders for the next few days and the Friday 21:00 weekly report. If the
- * user already scanned a meal today, today's reminders are skipped so we never
- * nag someone who has already logged a meal.
+ * Schedules the user's chosen meal reminders + the Friday 21:00 weekly report.
  *
- * Re-run on app launch and after every meal scan so the schedule stays fresh.
+ * Driven entirely by the user's preferences (onboarding §2 / settings): only the
+ * reminders they enabled are scheduled, each at the exact time THEY picked — nothing
+ * hardcoded. If the user hasn't opted into notifications (or permission isn't granted),
+ * nothing is scheduled and any existing reminders are cleared (we respect the choice).
+ *
+ * Anti-spam: if a meal was already scanned today, today's reminders are skipped so we
+ * never nag someone who has already logged a meal. Re-run on app launch and after every
+ * meal scan so the rolling schedule stays fresh.
  */
 export async function syncMealReminders(meals: { scannedAt: string }[]): Promise<void> {
   if (!isNative) return;
   try {
-    const settings = await Notifications.getPermissionsAsync();
-    if (!settings.granted && settings.ios?.status !== Notifications.IosAuthorizationStatus.PROVISIONAL) {
-      return;
-    }
     await ensureAndroidChannel();
     await Notifications.cancelAllScheduledNotificationsAsync();
+
+    const prefs = await loadReminderPrefs();
+    if (!prefs.notificationsEnabled) {
+      console.log('[Notifications] Notifications disabled by user — nothing scheduled.');
+      return;
+    }
+
+    const settings = await Notifications.getPermissionsAsync();
+    const granted = settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+    if (!granted) {
+      console.log('[Notifications] Permission not granted — nothing scheduled.');
+      return;
+    }
 
     const now = new Date();
     const scannedToday = meals.some((m) => {
@@ -92,28 +118,30 @@ export async function syncMealReminders(meals: { scannedAt: string }[]): Promise
       return !Number.isNaN(d.getTime()) && sameDay(d, now);
     });
 
-    // Next 4 days of reminders. Skip today's if a meal was already scanned today.
-    for (let dayOffset = 0; dayOffset <= 4; dayOffset++) {
+    const allSlots: { slot: ReminderSlot; r: MealReminder }[] = [
+      { slot: 'morning', r: prefs.morning },
+      { slot: 'noon', r: prefs.noon },
+      { slot: 'evening', r: prefs.evening },
+    ];
+    const slots = allSlots.filter((x) => x.r.enabled);
+
+    // Rolling window of one-off reminders. Skip today's if a meal was already scanned today.
+    for (let dayOffset = 0; dayOffset <= SCHEDULE_DAYS_AHEAD; dayOffset++) {
       const skipToday = dayOffset === 0 && scannedToday;
       if (skipToday) continue;
 
-      const noon = atHour(now, dayOffset, NOON_HOUR);
-      if (noon.getTime() > now.getTime()) {
+      for (const { slot, r } of slots) {
+        const when = atTime(now, dayOffset, r.hour, r.minute);
+        if (when.getTime() <= now.getTime()) continue;
+        const { title, body } = reminderCopy(slot);
         await Notifications.scheduleNotificationAsync({
-          content: { title: t('notif_noon_title'), body: t('notif_noon_body') },
-          trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: noon, channelId: REMINDER_CHANNEL },
-        });
-      }
-      const evening = atHour(now, dayOffset, EVENING_HOUR);
-      if (evening.getTime() > now.getTime()) {
-        await Notifications.scheduleNotificationAsync({
-          content: { title: t('notif_evening_title'), body: t('notif_evening_body') },
-          trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: evening, channelId: REMINDER_CHANNEL },
+          content: { title, body },
+          trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: when, channelId: REMINDER_CHANNEL },
         });
       }
     }
 
-    // Weekly report — every Friday at 21:00 (always on, the premium hook).
+    // Weekly report — every Friday at 21:00 (the premium hook), tied to notifications being on.
     await Notifications.scheduleNotificationAsync({
       content: { title: t('notif_friday_title'), body: t('notif_friday_body') },
       trigger: {
@@ -125,7 +153,7 @@ export async function syncMealReminders(meals: { scannedAt: string }[]): Promise
       },
     });
 
-    console.log('[Notifications] Meal reminders synced. scannedToday:', scannedToday);
+    console.log('[Notifications] Reminders synced.', { enabled: slots.map((s) => s.slot), scannedToday });
   } catch (e) {
     console.log('[Notifications] syncMealReminders failed:', e);
   }

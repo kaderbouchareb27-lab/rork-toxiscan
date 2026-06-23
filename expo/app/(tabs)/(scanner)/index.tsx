@@ -42,7 +42,7 @@ const LOADER_BAR_SEGMENT = 78;
 export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
-  const { hasSeenOnboarding, hasAcceptedAIConsent } = useOnboarding();
+  const { hasSeenOnboarding, hasAcceptedAIConsent, hasSeenMealOnboarding } = useOnboarding();
   const { isPro, consumeScan, canMealScan, mealScanRemaining, mealScanLimit } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -56,7 +56,10 @@ export default function ScannerScreen() {
     } else if (hasSeenOnboarding === false) {
       console.log('[Scanner] User has not seen onboarding, redirecting...');
       router.replace('/onboarding');
-    } else if (hasSeenOnboarding === true) {
+    } else if (hasSeenMealOnboarding === false) {
+      console.log('[Scanner] User has not seen meal onboarding, redirecting...');
+      router.replace('/meal-onboarding');
+    } else if (hasSeenOnboarding === true && hasSeenMealOnboarding === true) {
       console.log('[Scanner] User ready to scan');
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -71,7 +74,7 @@ export default function ScannerScreen() {
         ])
       ).start();
     }
-  }, [hasSeenOnboarding, hasAcceptedAIConsent, fadeAnim, pulseAnim]);
+  }, [hasSeenOnboarding, hasAcceptedAIConsent, hasSeenMealOnboarding, fadeAnim, pulseAnim]);
 
   const photoMutation = useMutation({
     mutationFn: async (imageUri: string) => {
@@ -444,7 +447,7 @@ export default function ScannerScreen() {
     outputRange: [-LOADER_BAR_SEGMENT, LOADER_BAR_WIDTH],
   });
 
-  if (hasAcceptedAIConsent === null || hasSeenOnboarding === null) {
+  if (hasAcceptedAIConsent === null || hasSeenOnboarding === null || hasSeenMealOnboarding === null) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#2E9E34" />

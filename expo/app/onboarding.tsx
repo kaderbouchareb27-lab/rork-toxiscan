@@ -43,7 +43,7 @@ const RESULT_ROWS: ResultRowConfig[] = [
 const BARCODE_BARS: number[] = [2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 1, 2, 3, 1, 1, 2];
 
 export default function OnboardingScreen() {
-  const { completeOnboarding } = useOnboarding();
+  const { completeOnboarding, hasSeenMealOnboarding } = useOnboarding();
   const buttonScale = useRef(new Animated.Value(1)).current;
   const fade = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(0)).current;
@@ -67,10 +67,16 @@ export default function OnboardingScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    console.log('[Onboarding] Completing onboarding → home');
     completeOnboarding();
-    router.replace('/');
-  }, [completeOnboarding]);
+    // New users continue straight into the meal-scan onboarding; otherwise go home.
+    if (hasSeenMealOnboarding === false) {
+      console.log('[Onboarding] Completing onboarding → meal onboarding');
+      router.replace('/meal-onboarding');
+    } else {
+      console.log('[Onboarding] Completing onboarding → home');
+      router.replace('/');
+    }
+  }, [completeOnboarding, hasSeenMealOnboarding]);
 
   const handleStart = useCallback(() => {
     Animated.sequence([

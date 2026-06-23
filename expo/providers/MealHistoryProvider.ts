@@ -9,7 +9,7 @@ import {
   MealCategory,
 } from '@/utils/mealAnalysis';
 import { getDeviceLanguage } from '@/utils/i18n';
-import { syncMealReminders, requestNotificationPermission } from '@/utils/notifications';
+import { syncMealReminders } from '@/utils/notifications';
 
 const STORAGE_KEY = 'toxiscan_meals';
 const MAX_MEALS = 200;
@@ -99,9 +99,10 @@ export const [MealHistoryProvider, useMeals] = createContextHook(() => {
     setMeals((prev) => {
       const updated = [meal, ...prev].slice(0, MAX_MEALS);
       saveMutation.mutate(updated);
-      // Ask for notification permission the first time a meal is logged (value-first),
-      // then (re)schedule the reminders + Friday report.
-      void requestNotificationPermission().then(() => syncMealReminders(updated));
+      // Permission is handled by the meal onboarding / settings. Here we just keep the
+      // rolling schedule fresh (respecting the user's saved prefs); since a meal was just
+      // logged, today's reminders are skipped (anti-spam).
+      void syncMealReminders(updated);
       return updated;
     });
   }, [saveMutation]);
