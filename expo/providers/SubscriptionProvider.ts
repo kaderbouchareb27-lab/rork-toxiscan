@@ -1,8 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
+import {
+  loadLifetimeUsage,
+  incrementLifetimeUsage,
+  tagAppUserId,
+  type LifetimeUsage,
+} from '@/utils/usageStore';
 
 type PurchasesPackage = any;
 type CustomerInfo = any;
@@ -18,18 +23,13 @@ if (Platform.OS !== 'web') {
 }
 
 // Freemium model (spec §13): product scan is FREE & UNLIMITED (the hook). Monetization
-// is concentrated on the meal scan + Dr. Toxi chat, with LIFETIME counters (not per-day,
-// so a reinstall is the only reset — counters live locally for now).
-const LIFETIME_USAGE_KEY = 'toxiscan_lifetime_usage';
+// is concentrated on the meal scan + Dr. Toxi chat, with LIFETIME counters (not per-day).
+// The counters are persisted in the device Keychain (utils/usageStore) so an
+// uninstall/reinstall can NEVER reset them, and are tagged with the RevenueCat appUserID.
 const FREE_DRTOXI_LIMIT = 6; // lifetime chat messages
 const FREE_MEAL_SCAN_LIMIT = 3; // lifetime meal scans
 const FREE_HISTORY_LIMIT = 3;
 const ENTITLEMENT_ID = 'toxiscan_pro';
-
-interface LifetimeUsage {
-  mealScanCount: number;
-  drToxiCount: number;
-}
 
 function getDefaultUsage(): LifetimeUsage {
   return { mealScanCount: 0, drToxiCount: 0 };
@@ -110,15 +110,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const usageQuery = useQuery({
     queryKey: ['lifetimeUsage'],
-    queryFn: async () => {
-      const stored = await AsyncStorage.getItem(LIFETIME_USAGE_KEY);
-      if (!stored) return getDefaultUsage();
-      const parsed = JSON.parse(stored) as Partial<LifetimeUsage>;
-      return {
-        mealScanCount: parsed.mealScanCount ?? 0,
-        drToxiCount: parsed.drToxiCount ?? 0,
-      };
-    },
+    queryFn: async () => loadLifetimeUsage(),
   });
 
   useEffect(() => {
@@ -152,10 +144,22 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     };
   }, [queryClient]);
 
-  const saveUsageMutation = useMutation({
-    mutationFn: async (newUsage: LifetimeUsage) => {
-      await AsyncStorage.setItem(LIFETIME_USAGE_KEY, JSON.stringify(newUsage));
-      return newUsage;
+  // Persist the RevenueCat appUserID alongside the counters for traceability.
+  useEffect(() => {
+    const appUserId = customerInfoQuery.data?.originalAppUserId as string | undefined;
+    if (appUserId) void tagAppUserId(appUserId);
+  }, [customerInfoQuery.data]);
+
+  // Increments a lifetime counter in the persistent (Keychain-backed) store and
+  // reconciles local state to the authoritative, monotonic value.
+  const incrementUsageMutation = useMutation({
+    mutationFn: async (field: 'mealScanCount' | 'drToxiCount') => {
+      const appUserId = customerInfoQuery.data?.originalAppUserId as string | undefined;
+      return incrementLifetimeUsage(field, appUserId);
+    },
+    onSuccess: (updated) => {
+      setUsage(updated);
+      queryClient.setQueryData(['lifetimeUsage'], updated);
     },
   });
 
@@ -215,13 +219,10 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const consumeDrToxi = useCallback(() => {
     if (isPro) return;
-    setUsage((current) => {
-      const updated: LifetimeUsage = { ...current, drToxiCount: current.drToxiCount + 1 };
-      saveUsageMutation.mutate(updated);
-      console.log('[Subscription] Dr. Toxi message consumed (lifetime):', updated.drToxiCount, '/', FREE_DRTOXI_LIMIT);
-      return updated;
-    });
-  }, [isPro, saveUsageMutation]);
+    // Optimistic bump for instant gating; the mutation persists & reconciles to the max.
+    setUsage((current) => ({ ...current, drToxiCount: current.drToxiCount + 1 }));
+    incrementUsageMutation.mutate('drToxiCount');
+  }, [isPro, incrementUsageMutation]);
 
   // ── Meal scan — 3 free, LIFETIME (full verdict each time) ──
   const mealScanRemaining = useMemo(() => {
@@ -233,13 +234,10 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const consumeMealScan = useCallback(() => {
     if (isPro) return;
-    setUsage((current) => {
-      const updated: LifetimeUsage = { ...current, mealScanCount: current.mealScanCount + 1 };
-      saveUsageMutation.mutate(updated);
-      console.log('[Subscription] Meal scan consumed (lifetime):', updated.mealScanCount, '/', FREE_MEAL_SCAN_LIMIT);
-      return updated;
-    });
-  }, [isPro, saveUsageMutation]);
+    // Optimistic bump for instant gating; the mutation persists & reconciles to the max.
+    setUsage((current) => ({ ...current, mealScanCount: current.mealScanCount + 1 }));
+    incrementUsageMutation.mutate('mealScanCount');
+  }, [isPro, incrementUsageMutation]);
 
   // ── Product scan — FREE & UNLIMITED (no counter) ──
   const consumeScan = useCallback(() => {

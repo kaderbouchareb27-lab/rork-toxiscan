@@ -33,6 +33,12 @@ export interface MealIngredient {
   isGrave: boolean;
   /** Short educational note (language-aware). Empty for manually added items. */
   note: string;
+  /**
+   * Sugar INTENSITY (spec §4 tightening). Only meaningful for `added_sugar`:
+   * 'high' = massive / dominant sugar (desserts, pastries, sodas) → +2 to the score,
+   * otherwise present sugar → +1. Defaults to 'normal' when omitted.
+   */
+  intensity?: 'normal' | 'high';
 }
 
 export interface MealAlternatives {
@@ -110,7 +116,9 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
     const cat = normalizeAiCategory(aiCategoryHint);
     return { category: cat, isGrave: isCarcinogenCategory(cat) };
   }
-  return { category: 'neutral', isGrave: false };
+  // Final fallback for manually-typed items: catch obvious junk families by name
+  // (e.g. "2 sucres", "huile", "sel") so the live score reacts to manual edits.
+  return { category: familyFromName(name, 'neutral'), isGrave: false };
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -121,22 +129,32 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
 export function computeMealScore(ingredients: MealIngredient[]): number {
   if (ingredients.length === 0) return 0;
 
-  const graveCount = ingredients.filter((i) => i.isGrave || isCarcinogenCategory(i.category)).length;
+  // The most serious carcinogen present. Group 1 (processed/cured meat, nitrites) is
+  // distinguished from Group 2A/2B (e.g. red meat) — only Group 1 can unlock a full 10.
+  const hasG1 = ingredients.some((i) => i.category === 'carcinogen_g1');
+  const hasCarcinogen = ingredients.some((i) => isCarcinogenCategory(i.category) || i.isGrave);
 
   // TEMPS 1 — floor set by the most serious ingredient (IARC group 1/2A/2B).
-  const base = graveCount > 0 ? 6 : 1;
+  const base = hasCarcinogen ? 6 : 1;
 
   // TEMPS 2 — accumulation: each junk family makes the score climb.
   const sugarCount = ingredients.filter((i) => i.category === 'added_sugar').length;
+  const massiveSugar = ingredients.some((i) => i.category === 'added_sugar' && i.intensity === 'high');
   const oilCount = ingredients.filter((i) => i.category === 'refined_oil').length;
   const processedCount = ingredients.filter((i) => i.category === 'processed').length;
   const additiveCount = ingredients.filter((i) => i.category === 'additive').length;
   const saltCount = ingredients.filter((i) => i.category === 'excess_salt').length;
 
+  const hasSugar = sugarCount > 0;
+  const hasOil = oilCount > 0;
+  const hasProcessed = processedCount > 0;
+
   let accumulation = 0;
-  if (sugarCount > 0) accumulation += Math.min(sugarCount, 3); // massive sugar → up to +3
-  if (oilCount > 0) accumulation += Math.min(oilCount, 2);
-  if (processedCount > 0) accumulation += Math.min(processedCount, 3);
+  // Sugar by INTENSITY (spec §4 tightening): present → +1, massive/dominant → +2.
+  // Several distinct added-sugar sources is also treated as a massive dose.
+  if (hasSugar) accumulation += (massiveSugar || sugarCount >= 2) ? 2 : 1;
+  if (hasOil) accumulation += Math.min(oilCount, 2);
+  if (hasProcessed) accumulation += Math.min(processedCount, 3);
   if (additiveCount > 0) accumulation += Math.min(additiveCount, 2);
   if (saltCount > 0) accumulation += 1;
   accumulation = Math.min(accumulation, 8);
@@ -144,22 +162,32 @@ export function computeMealScore(ingredients: MealIngredient[]): number {
   // TEMPS 3 — health bonus: raw foods, vegetables, clean cooking bring it down.
   const healthyCount = ingredients.filter((i) => i.category === 'healthy').length;
   let bonus = 0;
-  if (graveCount === 0) {
+  if (!hasCarcinogen) {
     if (healthyCount >= 3) bonus = -2;
     else if (healthyCount >= 1) bonus = -1;
   }
 
   let score = base + accumulation + bonus;
 
-  // Ultra-processed bomb: 4+ junk families and nothing fresh → nudge up.
+  // Ultra-processed "bomb" nudges (no carcinogen, nothing fresh): push junk/desserts
+  // into the 8-9 range so an ultra-sweet dessert doesn't land at 6-7.
   const junkFamilies = JUNK_FAMILY_CATEGORIES.filter((fam) => ingredients.some((i) => i.category === fam)).length;
-  if (graveCount === 0 && junkFamilies >= 4 && healthyCount === 0) score += 1;
+  if (!hasCarcinogen && healthyCount === 0) {
+    if (junkFamilies >= 4) score += 1; // many junk families stacked together
+    if (massiveSugar && junkFamilies >= 2) score += 1; // dominant-sugar dessert / pastry
+  }
 
-  // Bounds: accumulation alone caps at 9; the full 10 needs IARC + massive accumulation.
   score = Math.max(0, Math.min(10, score));
-  if (graveCount === 0) score = Math.min(score, 9);
-  if (score === 10 && !(graveCount > 0 && accumulation >= 4)) score = 9;
-  if (graveCount === 0) score = Math.max(score, 1);
+
+  // ── Bounds (spec §4 + the 10/10 tightening) ──
+  // The full 10 is RESERVED for a CIRC group-1 carcinogen (processed/cured meat, nitrites)
+  // COMBINED with heavy accumulation (added sugar + refined oils + ultra-processing).
+  // A group 2A/2B carcinogen (e.g. red meat) or pure accumulation CAPS AT 9 — never a full
+  // 10, so an ordinary dish (burger + fries with red meat) can't reach 10.
+  const heavyAccumulation = hasSugar && hasOil && hasProcessed;
+  const canReachTen = hasG1 && heavyAccumulation;
+  if (!canReachTen) score = Math.min(score, 9);
+  if (!hasCarcinogen) score = Math.max(score, 1);
 
   return Math.round(score);
 }
@@ -187,6 +215,10 @@ const detectSchema = z.object({
         name: safeString(''),
         category: safeString('neutral'),
         is_grave: z.preprocess((v) => v === true || v === 'true' || v === 1, z.boolean()),
+        intensity: z.preprocess(
+          (v) => (v === 'high' || v === 'massive' || v === 'dominant' ? 'high' : 'normal'),
+          z.enum(['normal', 'high']),
+        ),
         note: safeString(''),
       }),
     ),
@@ -202,7 +234,13 @@ TASK:
    - name: the ingredient name in the user's language.
    - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | excess_salt | additive | healthy | neutral
    - is_grave: true ONLY if dangerous / IARC-classified (carcinogen). NEVER true for merely processed/sugary/fatty food.
+   - intensity: "high" ONLY for added_sugar when the sugar is MASSIVE / DOMINANT (desserts, pastries, candy, sodas, sweet drinks, syrupy dishes); otherwise "normal". Always "normal" for non-sugar ingredients.
    - note: ONE short, frank, educational sentence about this ingredient, in the user's language.
+
+CLASSIFICATION GUIDANCE:
+- Processed / cured meat (ham, bacon, sausage, hot dog, salami, pepperoni, nitrites) → carcinogen_g1 (IARC Group 1, GRAVE).
+- Red meat cooked in the dish (beef patty, ground beef, steak, pork, lamb) → carcinogen_2a (IARC Group 2A, GRAVE — it raises the score but is NOT Group 1).
+- Refined / vegetable oils (palm, canola, sunflower, soy, deep-frying oil) → refined_oil. Visibly industrial components (white bun, refined flour, industrial sauces) → processed.
 
 GOLDEN RULE (spec §4): NEVER label sugar, fat or processed food as "carcinogenic". Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
 
@@ -249,7 +287,8 @@ export async function detectMealFromPhoto(imageBase64: string): Promise<Detected
     if (seen.has(key)) continue;
     seen.add(key);
     const { category, isGrave } = classifyMealIngredient(name, item.category);
-    ingredients.push({ id: newMealIngredientId(), name, category, isGrave, note: item.note.trim() });
+    const intensity: 'normal' | 'high' = item.intensity === 'high' ? 'high' : 'normal';
+    ingredients.push({ id: newMealIngredientId(), name, category, isGrave, note: item.note.trim(), intensity });
   }
 
   return {

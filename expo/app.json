@@ -57,7 +57,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "ToxiScan utilise ta localisation pour te proposer des magasins bio et des alternatives saines près de chez toi."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
