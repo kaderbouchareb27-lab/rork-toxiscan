@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { aiGenerateObject } from '@/utils/aiApi';
+import { aiGenerateObject, MEAL_VISION_MODEL_ID } from '@/utils/aiApi';
 import { classifyFoodIngredient } from '@/utils/api';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { pick } from '@/utils/i18n';
@@ -615,6 +615,7 @@ export async function detectMealFromPhoto(imageBase64: string): Promise<Detected
     system: mealLanguageLock() + '\n\n' + DETECT_SYSTEM + getAnalysisRegionPrompt(),
     schema: detectSchema,
     maxTokens: 1600,
+    model: MEAL_VISION_MODEL_ID,
     messages: [
       {
         role: 'user',
@@ -639,6 +640,7 @@ export async function detectMealFromText(dishName: string): Promise<DetectedMeal
     system: mealLanguageLock() + '\n\n' + DETECT_FROM_TEXT_SYSTEM + getAnalysisRegionPrompt(),
     schema: detectSchema,
     maxTokens: 1600,
+    model: MEAL_VISION_MODEL_ID,
     messages: [{ role: 'user', content: detectFromTextInstruction(cleanName) }],
   });
   const detected = buildDetectedMeal(raw, cleanName);

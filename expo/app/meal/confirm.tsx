@@ -53,6 +53,9 @@ export default function MealConfirmScreen() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
   const [statusIndex, setStatusIndex] = useState<number>(0);
+  // True once the user manually adds / edits / removes an ingredient. When set, a dish-name
+  // change must NEVER silently re-detect from text and wipe those manual corrections (Bug B).
+  const [ingredientsEdited, setIngredientsEdited] = useState<boolean>(false);
 
   const score = useMemo(() => computeMealScore(ingredients, dishName), [ingredients, dishName]);
   const tier = useMemo(() => scoreToTier(score), [score]);
@@ -62,14 +65,15 @@ export default function MealConfirmScreen() {
   const detectMutation = useMutation({
     mutationFn: async (imageUri: string) => {
       const base64 = Platform.OS === 'web'
-        ? await compressImageWeb(imageUri, 900)
-        : await compressImageNative(imageUri, 900, 0.6);
+        ? await compressImageWeb(imageUri, 1024)
+        : await compressImageNative(imageUri, 1024, 0.72);
       return detectMealFromPhoto(base64);
     },
     onSuccess: (detected) => {
       setDishName(detected.dishName);
       setAnalyzedName(detected.dishName);
       setIngredients(detected.ingredients);
+      setIngredientsEdited(false);
       setEditingId(null);
       setPhase('ready');
       if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -90,6 +94,7 @@ export default function MealConfirmScreen() {
       setDishName(detected.dishName);
       setAnalyzedName(detected.dishName);
       setIngredients(detected.ingredients);
+      setIngredientsEdited(false);
       setEditingId(null);
       Keyboard.dismiss();
       if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -122,6 +127,7 @@ export default function MealConfirmScreen() {
     if (!name) return;
     const { category, isGrave } = classifyMealIngredient(name);
     setIngredients((prev) => [...prev, { id: newMealIngredientId(), name, category, isGrave, note: '' }]);
+    setIngredientsEdited(true);
     setNewName('');
     Keyboard.dismiss();
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -129,6 +135,7 @@ export default function MealConfirmScreen() {
 
   const handleRemove = useCallback((id: string) => {
     setIngredients((prev) => prev.filter((i) => i.id !== id));
+    setIngredientsEdited(true);
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
@@ -147,9 +154,10 @@ export default function MealConfirmScreen() {
   }, []);
 
   const handleEditCommit = useCallback(() => {
+    const text = editingText.trim();
+    if (editingId && text) setIngredientsEdited(true);
     setIngredients((prev) => {
       if (!editingId) return prev;
-      const text = editingText.trim();
       if (!text) return prev;
       // Renaming reclassifies the item locally so the live score reacts immediately.
       return prev.map((i) => {
@@ -174,7 +182,10 @@ export default function MealConfirmScreen() {
 
     // Safety net: if the dish name was corrected but not re-analyzed yet, re-detect now so the
     // verdict, score and ingredients all reflect the user's correction (manual input wins).
-    if (finalName && finalName !== analyzedName.trim()) {
+    // BUT if the user manually curated the ingredient list, those corrections are authoritative
+    // and must be kept verbatim — never wiped by a text re-detection (Bug B). They can still
+    // force a full re-detection via the explicit "Re-analyze" button.
+    if (finalName && finalName !== analyzedName.trim() && !ingredientsEdited) {
       try {
         const detected = await detectMealFromText(finalName);
         finalName = detected.dishName;
@@ -182,6 +193,7 @@ export default function MealConfirmScreen() {
         setDishName(detected.dishName);
         setAnalyzedName(detected.dishName);
         setIngredients(detected.ingredients);
+        setIngredientsEdited(false);
         setEditingId(null);
       } catch (e) {
         console.error('[MealConfirm] Re-analysis before result failed:', e instanceof Error ? e.message : e);
@@ -221,7 +233,7 @@ export default function MealConfirmScreen() {
       setPhase('ready');
       Alert.alert(t('error_analysis_title'), t('error_chat_generic'));
     }
-  }, [ingredients, dishName, analyzedName, photoUri, addMeal, consumeMealScan, phase, reanalyzeMutation.isPending]);
+  }, [ingredients, dishName, analyzedName, photoUri, addMeal, consumeMealScan, phase, reanalyzeMutation.isPending, ingredientsEdited]);
 
   const isReanalyzing = reanalyzeMutation.isPending;
   if (phase === 'analyzing' || isReanalyzing) {

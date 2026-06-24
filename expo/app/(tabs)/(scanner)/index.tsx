@@ -322,7 +322,7 @@ export default function ScannerScreen() {
         ]);
         return;
       }
-      const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.6, allowsEditing: false });
+      const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.85, allowsEditing: false });
       if (!result.canceled && result.assets[0]) {
         router.push(`/meal/confirm?uri=${encodeURIComponent(result.assets[0].uri)}`);
       }
@@ -334,7 +334,7 @@ export default function ScannerScreen() {
 
   const launchMealGallery = useCallback(async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.6, allowsEditing: false });
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.85, allowsEditing: false });
       if (!result.canceled && result.assets[0]) {
         router.push(`/meal/confirm?uri=${encodeURIComponent(result.assets[0].uri)}`);
       }

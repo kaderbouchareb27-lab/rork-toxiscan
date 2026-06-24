@@ -2,6 +2,14 @@ import { z } from 'zod';
 import { pick } from '@/utils/i18n';
 
 const MODEL_ID = 'gpt-4.1-nano';
+/**
+ * Stronger multimodal model for the meal-scan VISION step and the authoritative text
+ * re-analysis. gpt-4.1-nano is too weak at fine-grained food recognition — it tends to
+ * fall back to the most statistically common dish, which made real photos be misread
+ * (e.g. salmon + broccoli purée returned as "chicken, fries & sauce"). gpt-4o is validated
+ * for food-image recognition and far more reliable, so the meal flow passes it explicitly.
+ */
+export const MEAL_VISION_MODEL_ID = 'gpt-4o';
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 
 function getOpenAIConfig(): { url: string; apiKey: string } {
@@ -50,7 +58,7 @@ function normalizeContent(
 
 async function callChatCompletions(body: Record<string, unknown>): Promise<any> {
   const { url, apiKey } = getOpenAIConfig();
-  console.log('[AI] Calling', MODEL_ID, 'directly via OpenAI API');
+  console.log('[AI] Calling', body.model ?? MODEL_ID, 'directly via OpenAI API');
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -83,9 +91,10 @@ export async function aiGenerateText(params: {
   system?: string;
   messages: AIMessage[];
   maxTokens?: number;
+  model?: string;
 }): Promise<string> {
   const body: Record<string, unknown> = {
-    model: MODEL_ID,
+    model: params.model ?? MODEL_ID,
     max_tokens: params.maxTokens ?? 2048,
     messages: buildMessages(params.system, params.messages),
   };
@@ -122,6 +131,7 @@ export async function aiGenerateObject<T>(params: {
   toolName?: string;
   toolDescription?: string;
   maxTokens?: number;
+  model?: string;
 }): Promise<T> {
   const jsonInstruction = pick({
     en: '\n\nIMPORTANT: Respond ONLY with a valid JSON object (no text before or after, no backticks). The JSON object must contain all the fields described above.',
@@ -131,7 +141,7 @@ export async function aiGenerateObject<T>(params: {
   const systemWithJson = (params.system ?? '') + jsonInstruction;
 
   const body: Record<string, unknown> = {
-    model: MODEL_ID,
+    model: params.model ?? MODEL_ID,
     max_tokens: params.maxTokens ?? 4096,
     messages: buildMessages(systemWithJson, params.messages),
     response_format: { type: 'json_object' },
