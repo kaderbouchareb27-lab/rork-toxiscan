@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // REFERENCE / ANCHOR FOODS — popular dishes from the app's core locales
 // (🇰🇷 Korea, 🇺🇸 USA, 🇫🇷 France) plus the Italian, 🇯🇵 Japanese, 🇲🇽 Mexican,
-// 🇮🇳 Indian and 🌏 Southeast-Asian classics everyone scans.
+// 🇮🇳 Indian, 🌏 Southeast-Asian and 🌍 North-African / Maghreb classics everyone scans.
 // The meal AI is a universal DETECTOR but it tends to IDEALIZE a dish
 // into a clean homemade recipe, which scores popular junk far too leniently.
 //
@@ -38,6 +38,7 @@ export type FoodOrigin =
   | 'mexico'
   | 'india'
   | 'southeast_asia'
+  | 'north_africa'
   | 'global';
 
 export interface ReferenceFood {
@@ -259,4 +260,33 @@ export const REFERENCE_FOODS: readonly ReferenceFood[] = [
   { id: 'satay', keywords: ['satay', 'sate ayam'], origin: 'southeast_asia', floor: 4, markers: ['added_sugar'] },
   { id: 'roti_canai', keywords: ['roti canai', 'roti prata', 'roti telur'], origin: 'southeast_asia', floor: 5, markers: ['refined_flour', 'refined_oil'] },
   { id: 'nasi_lemak', keywords: ['nasi lemak'], origin: 'southeast_asia', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+
+  // ─────────────────── 🌍 NORTH AFRICA / MAGHREB (+ 🇪🇬 EGYPT) ───────────────────
+  // (couscous aux légumes, tajine/tagine, harira, chorba, chakchouka, salade méchouia,
+  //  brochettes grillées… deliberately absent — slow-cooked & veg-forward, stay green.
+  //  merguez is already covered by the 'sausage' anchor above.)
+  { id: 'brik_bourek', keywords: ['brik', 'brick a oeuf', 'bourek', 'borek', 'briouat', 'briwat'], origin: 'north_africa', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'pastilla', keywords: ['pastilla', 'bastilla', 'bsteeya'], origin: 'north_africa', floor: 5, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'msemen', keywords: ['msemen', 'msemmen', 'msmen', 'rghaif', 'mlawi', 'meloui'], origin: 'north_africa', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'baghrir', keywords: ['baghrir', 'baghrira'], origin: 'north_africa', floor: 4, markers: ['refined_flour', 'added_sugar'] },
+  { id: 'harcha', keywords: ['harcha', 'harsha'], origin: 'north_africa', floor: 4, markers: ['refined_flour'] },
+  { id: 'sfenj', keywords: ['sfenj', 'bambalouni', 'maghrebi doughnut'], origin: 'north_africa', floor: 6, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'maakouda', keywords: ['maakouda', 'maaqouda', 'makouda'], origin: 'north_africa', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'makroud', keywords: ['makroud', 'makrout', 'maqrout', 'mkharka'], origin: 'north_africa', floor: 6, markers: ['added_sugar', 'refined_oil', 'refined_flour'] },
+  { id: 'chebakia', keywords: ['chebakia', 'chebbakia', 'griwech', 'griouech', 'mchewek'], origin: 'north_africa', floor: 6, markers: ['added_sugar', 'refined_oil', 'refined_flour'] },
+  { id: 'zlabia', keywords: ['zlabia', 'zalabia', 'zlabya'], origin: 'north_africa', floor: 7, markers: ['added_sugar', 'refined_oil', 'refined_flour'] },
+  { id: 'corne_gazelle', keywords: ['corne de gazelle', 'cornes de gazelle', 'kaab el ghzal', 'gazelle horn'], origin: 'north_africa', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'mhalbi', keywords: ['mhalbi', 'mhalabia', 'muhallabia'], origin: 'north_africa', floor: 4, markers: ['added_sugar'] },
+  { id: 'koshari', keywords: ['koshari', 'kushari', 'koushari'], origin: 'north_africa', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'falafel', keywords: ['falafel', 'taameya', 'taamiya'], origin: 'north_africa', floor: 4, markers: ['refined_oil'] },
+  // (méchoui / roast lamb deliberately omitted — the engine already floors red meat via IARC,
+  //  and the keyword would collide with the healthy 'salade méchouia'.)
+
+  // Pan-Arab / Mediterranean sweets eaten across the Maghreb & Middle East (cross-regional → global)
+  { id: 'baklava', keywords: ['baklava', 'baklawa', 'baklaba'], origin: 'global', floor: 6, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'kunafa', keywords: ['kunafa', 'knafeh', 'kanafeh', 'kenafa', 'kunefe'], origin: 'global', floor: 6, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'loukoum', keywords: ['loukoum', 'lokum', 'turkish delight', 'rahat loukoum'], origin: 'global', floor: 6, markers: ['added_sugar'] },
+  { id: 'halva', keywords: ['halva', 'halwa'], origin: 'global', floor: 6, markers: ['added_sugar'] },
+  { id: 'maamoul', keywords: ['maamoul', 'mamoul', 'maamool'], origin: 'global', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'basbousa', keywords: ['basbousa', 'basboussa', 'namoura', 'revani'], origin: 'global', floor: 6, markers: ['added_sugar', 'refined_flour'] },
 ];

@@ -5,7 +5,7 @@ import { aiGenerateObject } from '@/utils/aiApi';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { getHealthProfileAnalysisPrompt } from '@/utils/healthProfile';
 import { t, isEnglish, isKorean, getDeviceLanguage, pick } from '@/utils/i18n';
-import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote } from '@/constants/ingredientsDatabase';
+import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote, localizedCirc } from '@/constants/ingredientsDatabase';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 import {
   classifyCosmeticIngredient,
@@ -1038,7 +1038,7 @@ function buildNegativeDescription(name: string, risk: RiskLevel, entry: Ingredie
     return note + novaClause(en, noteHasMarker);
   }
   // 2) No usable note → build a specific description from the ingredient name.
-  const circInfo = entry?.circ ? ' (' + entry.circ + ')' : '';
+  const circInfo = entry?.circ ? ' (' + localizedCirc(entry.circ) + ')' : '';
   if (risk === 'danger') {
     if (cancerBasis) {
       return pick({

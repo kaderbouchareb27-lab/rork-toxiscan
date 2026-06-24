@@ -31,6 +31,108 @@ export function getLocalizedNote(entry: IngredientEntry | null | undefined): str
   return entry.note;
 }
 
+/**
+ * Localized labels for the `circ` classification field. The database stores `circ` in
+ * French (e.g. 'Groupe 1', 'Ultra-transformé', 'Perturbateur endocrinien'). These strings
+ * get appended in parentheses to ingredient explanations, so without translation a Korean
+ * or English user would read raw French inside an otherwise localized sentence. Keep this
+ * map in sync whenever a new `circ` value is introduced in the database below.
+ */
+const CIRC_LABELS: Readonly<Record<string, { readonly en: string; readonly ko: string }>> = {
+  'Naturel': { en: 'Natural', ko: '천연' },
+  'Naturel transformé': { en: 'Processed natural', ko: '가공된 천연' },
+  'Naturel — à modérer': { en: 'Natural — in moderation', ko: '천연 — 적당히' },
+  'Ultra-transformé': { en: 'Ultra-processed', ko: '초가공' },
+  'Ultra-transformé léger': { en: 'Lightly ultra-processed', ko: '경도 초가공' },
+  'Transformé': { en: 'Processed', ko: '가공' },
+  'Groupe 1': { en: 'Group 1', ko: 'IARC 1군' },
+  'Groupe 1 (arsenic)': { en: 'Group 1 (arsenic)', ko: 'IARC 1군(비소)' },
+  'Groupe 2A': { en: 'Group 2A', ko: 'IARC 2A군' },
+  'Groupe 2A (3-MCPD/glycidol)': { en: 'Group 2A (3-MCPD/glycidol)', ko: 'IARC 2A군(3-MCPD/글리시돌)' },
+  'Groupe 2B': { en: 'Group 2B', ko: 'IARC 2B군' },
+  'Groupe 2B — interdit mondial': { en: 'Group 2B — banned worldwide', ko: 'IARC 2B군 — 전 세계 금지' },
+  'Amplificateur de goût': { en: 'Flavor enhancer', ko: '향미증진제' },
+  'Allergène': { en: 'Allergen', ko: '알레르기 유발' },
+  'Perturbateur endocrinien': { en: 'Endocrine disruptor', ko: '내분비 교란' },
+  'Perturbateur microbiome': { en: 'Microbiome disruptor', ko: '장내 미생물 교란' },
+  'Hyperactivité': { en: 'Hyperactivity', ko: '과잉행동 유발' },
+  'Industriel': { en: 'Industrial', ko: '산업 가공' },
+  'Excès phosphates': { en: 'Excess phosphates', ko: '인산염 과다' },
+  'Controversé': { en: 'Controversial', ko: '논란' },
+  'Sucre raffiné': { en: 'Refined sugar', ko: '정제당' },
+  'Sucre concentré': { en: 'Concentrated sugar', ko: '농축당' },
+  'Sucre naturel': { en: 'Natural sugar', ko: '천연당' },
+  'Sucre complet': { en: 'Whole sugar', ko: '비정제당' },
+  'Sucre transformé': { en: 'Processed sugar', ko: '가공당' },
+  'Sucre peu raffiné': { en: 'Lightly refined sugar', ko: '경도 정제당' },
+  'Sucre hydrolysé industriel': { en: 'Industrial hydrolyzed sugar', ko: '산업 가수분해당' },
+  'Fructose isolé': { en: 'Isolated fructose', ko: '분리 과당' },
+  'Neurotoxique': { en: 'Neurotoxic', ko: '신경독성' },
+  'Gélifiant marin': { en: 'Marine gelling agent', ko: '해조 겔화제' },
+  'Toxique avéré': { en: 'Proven toxic', ko: '독성 확인' },
+  'Toxique': { en: 'Toxic', ko: '독성' },
+  'Sel industriel': { en: 'Industrial salt', ko: '정제염' },
+  'Substitut de sel industriel': { en: 'Industrial salt substitute', ko: '산업 소금 대체물' },
+  'Sel ammonium': { en: 'Ammonium salt', ko: '암모늄염' },
+  'Caustique industriel': { en: 'Industrial caustic', ko: '공업용 가성제' },
+  'Vitamine E synthétique': { en: 'Synthetic vitamin E', ko: '합성 비타민 E' },
+  'Vitamine B3 de synthèse': { en: 'Synthetic vitamin B3', ko: '합성 비타민 B3' },
+  'Vitamine B5 de synthèse': { en: 'Synthetic vitamin B5', ko: '합성 비타민 B5' },
+  'Vitamine B6 de synthèse': { en: 'Synthetic vitamin B6', ko: '합성 비타민 B6' },
+  'Vitamine B12 de synthèse': { en: 'Synthetic vitamin B12', ko: '합성 비타민 B12' },
+  'Souvent synthétique': { en: 'Often synthetic', ko: '대개 합성' },
+  'Additif de synthèse': { en: 'Synthetic additive', ko: '합성 첨가물' },
+  'Antioxydant synthétique': { en: 'Synthetic antioxidant', ko: '합성 산화방지제' },
+  'Antioxydant industriel': { en: 'Industrial antioxidant', ko: '산업 산화방지제' },
+  'Levant industriel': { en: 'Industrial leavening', ko: '공업용 팽창제' },
+  'Acidifiant industriel': { en: 'Industrial acidifier', ko: '공업용 산도조절제' },
+  'Excitotoxine': { en: 'Excitotoxin', ko: '흥분독소' },
+  'Conservateur': { en: 'Preservative', ko: '보존료' },
+  'Colorant à éviter': { en: 'Coloring to avoid', ko: '기피 색소' },
+  'Coloré artificiellement': { en: 'Artificially colored', ko: '인공 착색' },
+  'Élevage industriel': { en: 'Factory farming', ko: '공장식 축산' },
+  'Édulcorant purifié': { en: 'Purified sweetener', ko: '정제 감미료' },
+  'Stabilisant': { en: 'Stabilizer', ko: '안정제' },
+  'Source ambiguë': { en: 'Ambiguous source', ko: '출처 불분명' },
+  'Raffinée riche oméga-6': { en: 'Refined, high omega-6', ko: '정제 오메가-6 과다' },
+  'Origine animale industrielle': { en: 'Industrial animal origin', ko: '산업 동물성 원료' },
+  'OGM possible': { en: 'Possible GMO', ko: 'GMO 가능성' },
+  'Nanoparticules': { en: 'Nanoparticles', ko: '나노입자' },
+  'Nanoparticules métalliques': { en: 'Metallic nanoparticles', ko: '금속 나노입자' },
+  'Métal inerte': { en: 'Inert metal', ko: '불활성 금속' },
+  'Lubrifiant industriel': { en: 'Industrial lubricant', ko: '공업용 윤활제' },
+  'Laxatif': { en: 'Laxative effect', ko: '설사 유발' },
+  'Interdit UE': { en: 'Banned in the EU', ko: 'EU 금지' },
+  'Interdit UE/Australie/Singapour': { en: 'Banned EU/Australia/Singapore', ko: 'EU·호주·싱가포르 금지' },
+  'Interdit FDA (cancer)': { en: 'Banned by the FDA (cancer)', ko: 'FDA 금지(암)' },
+  'Inflammation intestinale': { en: 'Intestinal inflammation', ko: '장 염증' },
+  'Glutamate caché': { en: 'Hidden glutamate', ko: '숨은 글루타메이트' },
+  'Gaz pétrolier': { en: 'Petroleum gas', ko: '석유 가스' },
+  'Formation de benzène': { en: 'Benzene formation', ko: '벤젠 생성' },
+  'Extraction industrielle': { en: 'Industrial extraction', ko: '산업 추출' },
+  'Céréale transformée': { en: 'Processed cereal', ko: '가공 곡물' },
+  'Blé raffiné': { en: 'Refined wheat', ko: '정제 밀' },
+  'Contamination métaux lourds': { en: 'Heavy metal contamination', ko: '중금속 오염' },
+  'Contamination mercure': { en: 'Mercury contamination', ko: '수은 오염' },
+  'Composition opaque': { en: 'Opaque composition', ko: '성분 불투명' },
+  'Chélateur industriel': { en: 'Industrial chelator', ko: '공업용 킬레이트제' },
+  'Acide aminé': { en: 'Amino acid', ko: '아미노산' },
+};
+
+/**
+ * Returns the `circ` classification in the current app language. French is the source of
+ * truth, so French apps get the value verbatim; Korean and English apps get the translated
+ * label, falling back to the raw value for any string not present in the map.
+ */
+export function localizedCirc(circ: string): string {
+  if (!circ) return circ;
+  const lang = getDeviceLanguage();
+  if (lang === 'fr') return circ;
+  const mapped = CIRC_LABELS[circ];
+  if (!mapped) return circ;
+  return lang === 'ko' ? mapped.ko : mapped.en;
+}
+
 export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
 
   // ═══════════════════════════════════════════════════════════════

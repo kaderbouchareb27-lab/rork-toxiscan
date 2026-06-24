@@ -50,7 +50,7 @@ export const COSMETICS_DATABASE: readonly CosmeticEntry[] = [
     tier: 'toxic',
     note: 'Cancérigène avéré (CIRC Groupe 1) — cancer du nasopharynx, leucémie. Irrite yeux, peau et voies respiratoires. À éviter absolument.',
     noteEn: 'Confirmed carcinogen (IARC Group 1) — nasopharyngeal cancer, leukemia. Irritates eyes, skin and airways. Absolutely avoid.',
-    noteKo: '단정 발암 물질(IARC 1그룹) — 비인두암, 백혈병. 눈·피부·호흡기를 자극합니다. 반드시 피하세요.',
+    noteKo: '확정 발암물질(IARC 1군) — 비인두암, 백혈병. 눈·피부·호흡기를 자극합니다. 반드시 피하세요.',
     pregnancyDanger: true,
   },
   {
