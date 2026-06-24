@@ -1,7 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════════
-// REFERENCE / ANCHOR FOODS — popular dishes from the app's three locales
-// (🇰🇷 Korea, 🇺🇸 USA, 🇫🇷 France) plus the Italian / global classics everyone
-// scans. The meal AI is a universal DETECTOR but it tends to IDEALIZE a dish
+// REFERENCE / ANCHOR FOODS — popular dishes from the app's core locales
+// (🇰🇷 Korea, 🇺🇸 USA, 🇫🇷 France) plus the Italian, 🇯🇵 Japanese, 🇲🇽 Mexican,
+// 🇮🇳 Indian and 🌏 Southeast-Asian classics everyone scans.
+// The meal AI is a universal DETECTOR but it tends to IDEALIZE a dish
 // into a clean homemade recipe, which scores popular junk far too leniently.
 //
 // Each anchor pins a dish to reality with TWO deterministic levers used by the
@@ -28,7 +29,16 @@ export type FoodMarker = Extract<
   'processed' | 'added_sugar' | 'refined_oil' | 'refined_flour' | 'excess_salt' | 'additive'
 >;
 
-export type FoodOrigin = 'korea' | 'usa' | 'france' | 'italy' | 'global';
+export type FoodOrigin =
+  | 'korea'
+  | 'usa'
+  | 'france'
+  | 'italy'
+  | 'japan'
+  | 'mexico'
+  | 'india'
+  | 'southeast_asia'
+  | 'global';
 
 export interface ReferenceFood {
   /** Canonical English id, for documentation only. */
@@ -70,6 +80,17 @@ export const REFERENCE_FOODS: readonly ReferenceFood[] = [
   { id: 'bingsu', keywords: ['bingsu', 'patbingsu', 'bingsoo', '빙수'], origin: 'korea', floor: 5, markers: ['added_sugar'] },
   { id: 'soju', keywords: ['soju', '소주'], origin: 'korea', floor: 6 },
   { id: 'spam', keywords: ['spam', 'luncheon meat', '스팸'], origin: 'korea', floor: 6, markers: ['processed', 'excess_salt'] },
+  { id: 'galbi', keywords: ['galbi', 'kalbi', 'galbijjim', 'la galbi', 'short ribs', '갈비', '갈비찜'], origin: 'korea', floor: 6, markers: ['added_sugar', 'excess_salt'] },
+  { id: 'dakgalbi', keywords: ['dakgalbi', 'dak galbi', '닭갈비'], origin: 'korea', floor: 5, markers: ['added_sugar', 'refined_oil'] },
+  { id: 'jeyuk_bokkeum', keywords: ['jeyuk bokkeum', 'jeyukbokkeum', 'spicy stir-fried pork', '제육볶음'], origin: 'korea', floor: 5, markers: ['added_sugar', 'refined_oil'] },
+  { id: 'tangsuyuk', keywords: ['tangsuyuk', 'sweet and sour pork', '탕수육'], origin: 'korea', floor: 6, industrial: true, markers: ['refined_flour', 'added_sugar', 'refined_oil'] },
+  { id: 'gamjatang', keywords: ['gamjatang', 'gamja tang', 'pork bone soup', '감자탕'], origin: 'korea', floor: 5, markers: ['excess_salt'] },
+  { id: 'korean_pancake', keywords: ['pajeon', 'haemul pajeon', 'kimchijeon', 'buchimgae', 'bindaetteok', 'korean pancake', '파전', '부침개'], origin: 'korea', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'gopchang', keywords: ['gopchang', 'makchang', '곱창', '막창'], origin: 'korea', floor: 5, markers: ['excess_salt'] },
+  { id: 'malatang', keywords: ['malatang', 'mala xiang guo', '마라탕'], origin: 'korea', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+  { id: 'bungeoppang', keywords: ['bungeoppang', 'gukhwappang', 'fish-shaped bread', '붕어빵', '국화빵'], origin: 'korea', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'yakgwa', keywords: ['yakgwa', '약과'], origin: 'korea', floor: 6, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'dalgona', keywords: ['dalgona', 'ppopgi', '달고나'], origin: 'korea', floor: 6, markers: ['added_sugar'] },
 
   // ───────────────────────── 🇺🇸 USA ─────────────────────────
   { id: 'burger', keywords: ['burger', 'hamburger', 'cheeseburger', 'whopper', 'big mac', '버거', '햄버거'], origin: 'usa', floor: 5, markers: ['refined_flour'] },
@@ -101,6 +122,21 @@ export const REFERENCE_FOODS: readonly ReferenceFood[] = [
   { id: 'sugary_cereal', keywords: ['cereal', 'cereales', 'frosted flakes', 'corn flakes', 'cornflakes', '시리얼'], origin: 'usa', floor: 5, markers: ['added_sugar', 'refined_flour'] },
   { id: 'pbj', keywords: ['pb&j', 'pbj', 'peanut butter and jelly', 'peanut butter jelly'], origin: 'usa', floor: 4, markers: ['added_sugar', 'refined_flour'] },
   { id: 'caramel_popcorn', keywords: ['caramel popcorn', 'buttered popcorn', 'popcorn caramel', 'popcorn sucre'], origin: 'usa', floor: 5, markers: ['added_sugar'] },
+  { id: 'meatloaf', keywords: ['meatloaf', 'meat loaf', 'pain de viande'], origin: 'usa', floor: 5, markers: ['processed', 'excess_salt'] },
+  { id: 'chili_con_carne', keywords: ['chili con carne', 'chilli con carne'], origin: 'usa', floor: 4, markers: ['excess_salt'] },
+  { id: 'grilled_cheese', keywords: ['grilled cheese', 'grilled-cheese'], origin: 'usa', floor: 5, markers: ['refined_flour', 'processed'] },
+  { id: 'pulled_pork', keywords: ['pulled pork', 'porc effiloche'], origin: 'usa', floor: 5, markers: ['added_sugar'] },
+  { id: 'cornbread', keywords: ['cornbread', 'corn bread'], origin: 'usa', floor: 4, markers: ['refined_flour', 'added_sugar'] },
+  { id: 'biscuits_gravy', keywords: ['biscuits and gravy', 'biscuit and gravy', 'sausage gravy'], origin: 'usa', floor: 6, markers: ['refined_flour', 'refined_oil', 'excess_salt'] },
+  { id: 'sloppy_joe', keywords: ['sloppy joe'], origin: 'usa', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'chicken_sandwich', keywords: ['chicken sandwich', 'fried chicken sandwich', 'crispy chicken sandwich', 'chicken burger'], origin: 'usa', floor: 5, markers: ['refined_flour'] },
+  { id: 'jerky', keywords: ['beef jerky', 'jerky'], origin: 'usa', floor: 6, markers: ['processed', 'excess_salt'] },
+  { id: 'pop_tart', keywords: ['pop tart', 'pop-tart', 'poptart', 'toaster pastry'], origin: 'usa', floor: 6, industrial: true, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'snack_cake', keywords: ['twinkie', 'snack cake', 'swiss roll'], origin: 'usa', floor: 6, industrial: true, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'granola_bar', keywords: ['granola bar', 'cereal bar', 'barre de cereales'], origin: 'usa', floor: 5, markers: ['added_sugar'] },
+  { id: 'deli_meat', keywords: ['deli meat', 'ham sandwich', 'jambon', 'sliced ham', 'turkey slices', 'cold cut', 'cold cuts'], origin: 'usa', floor: 6, markers: ['processed', 'excess_salt'] },
+  { id: 'sausage', keywords: ['sausage', 'saucisse', 'merguez', 'chipolata', 'bratwurst'], origin: 'usa', floor: 6, markers: ['processed', 'excess_salt'] },
+  { id: 'pepperoni', keywords: ['pepperoni', 'salami', 'chorizo', 'cured meat'], origin: 'usa', floor: 6, markers: ['processed', 'excess_salt'] },
 
   // ───────────────────────── 🇫🇷 FRANCE ─────────────────────────
   { id: 'croissant', keywords: ['croissant', '크루아상'], origin: 'france', floor: 5, markers: ['refined_flour'] },
@@ -125,6 +161,17 @@ export const REFERENCE_FOODS: readonly ReferenceFood[] = [
   { id: 'blanquette', keywords: ['blanquette'], origin: 'france', floor: 5, markers: ['excess_salt'] },
   { id: 'cordon_bleu', keywords: ['cordon bleu'], origin: 'france', floor: 6, industrial: true, markers: ['refined_flour', 'processed'] },
   { id: 'confit_canard', keywords: ['confit de canard', 'duck confit'], origin: 'france', floor: 5, markers: ['excess_salt'] },
+  { id: 'brioche', keywords: ['brioche', 'pain au lait', 'pain brioche'], origin: 'france', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'chausson_pommes', keywords: ['chausson aux pommes', 'apple turnover'], origin: 'france', floor: 5, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'madeleine', keywords: ['madeleine', 'financier', 'canele'], origin: 'france', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'creme_brulee', keywords: ['creme brulee', 'creme caramel', 'creme catalane'], origin: 'france', floor: 5, markers: ['added_sugar'] },
+  { id: 'mousse_chocolat', keywords: ['mousse au chocolat', 'chocolate mousse'], origin: 'france', floor: 5, markers: ['added_sugar'] },
+  { id: 'kouign_amann', keywords: ['kouign amann', 'kouign-amann'], origin: 'france', floor: 6, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'palmier', keywords: ['palmier', 'chouquette', 'pain aux raisins'], origin: 'france', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'choucroute', keywords: ['choucroute', 'sauerkraut'], origin: 'france', floor: 6, markers: ['processed', 'excess_salt'] },
+  { id: 'boeuf_bourguignon', keywords: ['boeuf bourguignon', 'beef bourguignon', 'coq au vin'], origin: 'france', floor: 4, markers: ['excess_salt'] },
+  { id: 'andouillette', keywords: ['andouillette', 'boudin noir', 'boudin'], origin: 'france', floor: 6, markers: ['processed', 'excess_salt'] },
+  { id: 'confiserie', keywords: ['nougat', 'calisson', 'pate de fruits', 'marshmallow', 'guimauve'], origin: 'france', floor: 5, markers: ['added_sugar'] },
 
   // ───────────────────── 🇮🇹 ITALY / 🌍 GLOBAL ─────────────────────
   { id: 'pizza', keywords: ['pizza', '피자'], origin: 'italy', floor: 4, markers: ['refined_flour'] },
@@ -132,7 +179,7 @@ export const REFERENCE_FOODS: readonly ReferenceFood[] = [
   { id: 'lasagna', keywords: ['lasagna', 'lasagne', 'bolognese', 'bolognaise'], origin: 'italy', floor: 5, markers: ['refined_flour'] },
   { id: 'pasta', keywords: ['pasta', 'pates', 'spaghetti', 'penne', 'tagliatelle', 'fettuccine', '파스타'], origin: 'italy', floor: 3, markers: ['refined_flour'] },
   { id: 'risotto', keywords: ['risotto'], origin: 'italy', floor: 4, markers: ['excess_salt'] },
-  { id: 'kebab', keywords: ['kebab', 'kebap', 'doner', 'durum', 'shawarma', 'chawarma', '케밥'], origin: 'global', floor: 6, industrial: true, markers: ['refined_flour', 'processed'] },
+  { id: 'kebab', keywords: ['kebab', 'kebap', 'doner', 'durum', 'shawarma', 'chawarma', 'gyro', 'gyros', '케밥'], origin: 'global', floor: 6, industrial: true, markers: ['refined_flour', 'processed'] },
   { id: 'tacos_burrito', keywords: ['tacos', 'taco', 'burrito', 'quesadilla', 'fajita', 'enchilada'], origin: 'global', floor: 5, markers: ['refined_flour', 'processed', 'refined_oil'] },
   { id: 'fish_and_chips', keywords: ['fish and chips', 'fish n chips', 'fish & chips'], origin: 'global', floor: 6, markers: ['refined_oil', 'refined_flour', 'excess_salt'] },
   { id: 'fried_rice', keywords: ['fried rice', 'riz frit', 'nasi goreng', '볶음밥'], origin: 'global', floor: 4, markers: ['refined_oil', 'excess_salt'] },
@@ -144,4 +191,72 @@ export const REFERENCE_FOODS: readonly ReferenceFood[] = [
   { id: 'cake', keywords: ['gateau', 'cupcake', 'muffin', 'birthday cake', 'layer cake', 'sponge cake', '케이크', '머핀'], origin: 'global', floor: 6, markers: ['added_sugar', 'refined_flour'] },
   { id: 'candy_chocolate', keywords: ['chocolate bar', 'milk chocolate', 'chocolat au lait', 'candy', 'bonbon', 'gummies', 'haribo', '사탕'], origin: 'global', floor: 6, markers: ['added_sugar'] },
   { id: 'pretzel', keywords: ['pretzel', 'bretzel'], origin: 'global', floor: 4, markers: ['refined_flour', 'excess_salt'] },
+  { id: 'gnocchi', keywords: ['gnocchi'], origin: 'italy', floor: 3, markers: ['refined_flour'] },
+  { id: 'ravioli', keywords: ['ravioli', 'tortellini', 'tortelloni', 'agnolotti'], origin: 'italy', floor: 4, markers: ['refined_flour'] },
+  { id: 'focaccia', keywords: ['focaccia', 'panini', 'panino', 'ciabatta'], origin: 'italy', floor: 4, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'calzone', keywords: ['calzone', 'stromboli'], origin: 'italy', floor: 5, markers: ['refined_flour'] },
+  { id: 'arancini', keywords: ['arancini', 'arancino', 'suppli'], origin: 'italy', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'tiramisu', keywords: ['tiramisu'], origin: 'italy', floor: 6, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'cannoli', keywords: ['cannoli', 'cannolo'], origin: 'italy', floor: 6, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'bubble_tea', keywords: ['bubble tea', 'boba', 'milk tea', 'tapioca tea', '버블티'], origin: 'global', floor: 6, markers: ['added_sugar'] },
+  { id: 'chow_mein', keywords: ['chow mein', 'lo mein', 'chao mian', 'yakisoba'], origin: 'global', floor: 5, markers: ['refined_flour', 'refined_oil', 'excess_salt'] },
+  { id: 'sweet_and_sour', keywords: ['sweet and sour', 'general tso', 'orange chicken', 'sesame chicken'], origin: 'global', floor: 6, industrial: true, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'bao_bun', keywords: ['bao bun', 'baozi', 'char siu bao', 'steamed bun', 'mantou'], origin: 'global', floor: 4, markers: ['refined_flour'] },
+  { id: 'samosa', keywords: ['samosa', 'samoussa'], origin: 'global', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'naan', keywords: ['naan', 'cheese naan', 'garlic naan'], origin: 'global', floor: 4, markers: ['refined_flour'] },
+  { id: 'butter_chicken', keywords: ['butter chicken', 'tikka masala', 'chicken tikka masala', 'korma', 'massaman'], origin: 'global', floor: 5, markers: ['refined_oil'] },
+  { id: 'biryani', keywords: ['biryani', 'biriyani'], origin: 'global', floor: 4, markers: ['refined_oil'] },
+  { id: 'empanada', keywords: ['empanada', 'empanadas'], origin: 'global', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'egg_tart', keywords: ['egg tart', 'dan tat', 'pastel de nata', 'portuguese tart', '에그타르트'], origin: 'global', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'mochi', keywords: ['mochi', 'daifuku', 'dorayaki', 'taiyaki'], origin: 'global', floor: 5, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'sausage_roll', keywords: ['sausage roll', 'meat pie', 'pork pie'], origin: 'global', floor: 6, markers: ['processed', 'refined_flour', 'excess_salt'] },
+  { id: 'potato_chips', keywords: ['potato chips', 'crisps', 'pringles', 'doritos'], origin: 'global', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+
+  // ───────────────────────── 🇯🇵 JAPAN ─────────────────────────
+  // (sushi, sashimi, edamame, miso soup, onigiri… deliberately absent — stay green)
+  { id: 'japanese_curry', keywords: ['japanese curry', 'katsu curry', 'kare raisu', 'curry rice', 'カレー'], origin: 'japan', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'katsudon', keywords: ['katsudon', 'カツ丼'], origin: 'japan', floor: 6, markers: ['refined_flour', 'refined_oil', 'added_sugar'] },
+  { id: 'gyudon', keywords: ['gyudon', 'oyakodon', 'butadon', '牛丼'], origin: 'japan', floor: 4, markers: ['added_sugar', 'excess_salt'] },
+  { id: 'karaage', keywords: ['karaage', 'kara-age', 'chicken karaage', '가라아게'], origin: 'japan', floor: 6, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'tempura', keywords: ['tempura', '天ぷら', '텐푸라'], origin: 'japan', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'takoyaki', keywords: ['takoyaki', '타코야키'], origin: 'japan', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'okonomiyaki', keywords: ['okonomiyaki', '오코노미야키'], origin: 'japan', floor: 5, markers: ['refined_flour', 'refined_oil', 'added_sugar'] },
+  { id: 'yakitori', keywords: ['yakitori', 'yakiton', '야키토리'], origin: 'japan', floor: 4, markers: ['added_sugar', 'excess_salt'] },
+
+  // ───────────────────────── 🇲🇽 MEXICO ─────────────────────────
+  // (tacos/burrito/quesadilla/nachos/churros already covered above; guacamole,
+  //  ceviche, pico de gallo deliberately absent — stay green)
+  { id: 'tamale', keywords: ['tamale', 'tamales', 'tamal'], origin: 'mexico', floor: 5, markers: ['refined_oil'] },
+  { id: 'chilaquiles', keywords: ['chilaquiles'], origin: 'mexico', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'mexican_fried', keywords: ['chimichanga', 'flauta', 'flautas', 'taquito', 'taquitos', 'rolled taco'], origin: 'mexico', floor: 6, industrial: true, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'carnitas', keywords: ['carnitas', 'al pastor', 'barbacoa'], origin: 'mexico', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+  { id: 'elote', keywords: ['elote', 'esquites', 'mexican street corn'], origin: 'mexico', floor: 4, markers: ['refined_oil', 'excess_salt'] },
+  { id: 'horchata', keywords: ['horchata'], origin: 'mexico', floor: 5, markers: ['added_sugar'] },
+  { id: 'tres_leches', keywords: ['tres leches', 'pastel de tres leches'], origin: 'mexico', floor: 6, markers: ['added_sugar', 'refined_flour'] },
+  { id: 'tortilla_chips', keywords: ['tortilla chips', 'totopos', 'corn chips'], origin: 'mexico', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+  { id: 'refried_beans', keywords: ['refried beans', 'frijoles refritos'], origin: 'mexico', floor: 4, markers: ['refined_oil'] },
+
+  // ───────────────────────── 🇮🇳 INDIA ─────────────────────────
+  // (butter chicken / biryani / samosa / naan already covered above; dal, plain
+  //  roti/chapati, idli, tandoori veg, raita deliberately absent — stay green)
+  { id: 'pakora', keywords: ['pakora', 'onion bhaji', 'aloo tikki'], origin: 'india', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'gulab_jamun', keywords: ['gulab jamun'], origin: 'india', floor: 7, markers: ['added_sugar', 'refined_flour', 'refined_oil'] },
+  { id: 'jalebi', keywords: ['jalebi', 'imarti'], origin: 'india', floor: 7, markers: ['added_sugar', 'refined_oil', 'refined_flour'] },
+  { id: 'paratha', keywords: ['paratha', 'poori', 'bhatura', 'bhature'], origin: 'india', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'indian_chaat', keywords: ['chaat', 'pani puri', 'bhel puri', 'sev puri', 'vada pav', 'pav bhaji'], origin: 'india', floor: 5, markers: ['refined_oil', 'refined_flour'] },
+  { id: 'mango_lassi', keywords: ['mango lassi', 'sweet lassi'], origin: 'india', floor: 4, markers: ['added_sugar'] },
+  { id: 'paneer_curry', keywords: ['malai kofta', 'paneer butter masala', 'paneer makhani', 'shahi paneer', 'butter paneer'], origin: 'india', floor: 5, markers: ['refined_oil'] },
+
+  // ───────────────────── 🇹🇭 🇻🇳 SOUTHEAST ASIA ─────────────────────
+  // (pad thai / fried rice / fried spring rolls / dumplings / bao already covered;
+  //  pho, fresh summer rolls, som tam, tom yum deliberately absent — stay green)
+  { id: 'thai_curry', keywords: ['thai curry', 'green curry', 'red curry', 'panang'], origin: 'southeast_asia', floor: 4, markers: ['added_sugar', 'excess_salt'] },
+  { id: 'mango_sticky_rice', keywords: ['mango sticky rice', 'khao niao mamuang'], origin: 'southeast_asia', floor: 5, markers: ['added_sugar'] },
+  { id: 'banh_mi', keywords: ['banh mi'], origin: 'southeast_asia', floor: 5, markers: ['refined_flour', 'processed'] },
+  { id: 'bun_cha', keywords: ['bun cha'], origin: 'southeast_asia', floor: 4, markers: ['added_sugar', 'excess_salt'] },
+  { id: 'laksa', keywords: ['laksa'], origin: 'southeast_asia', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+  { id: 'char_kway_teow', keywords: ['char kway teow', 'char kuey teow', 'kway teow'], origin: 'southeast_asia', floor: 5, markers: ['refined_oil', 'excess_salt'] },
+  { id: 'satay', keywords: ['satay', 'sate ayam'], origin: 'southeast_asia', floor: 4, markers: ['added_sugar'] },
+  { id: 'roti_canai', keywords: ['roti canai', 'roti prata', 'roti telur'], origin: 'southeast_asia', floor: 5, markers: ['refined_flour', 'refined_oil'] },
+  { id: 'nasi_lemak', keywords: ['nasi lemak'], origin: 'southeast_asia', floor: 5, markers: ['refined_oil', 'excess_salt'] },
 ];
