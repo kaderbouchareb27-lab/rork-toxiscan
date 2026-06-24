@@ -45,6 +45,7 @@ const translations = {
   // ===== SCANNER =====
   protect_health: { fr: 'Protégez votre santé au quotidien', en: 'Protect your health every day', ko: '매일 건강을 지키세요' },
   home_premium_label: { fr: 'Scanner intelligent', en: 'Smart scanner', ko: '스마트 스캐너' },
+  home_authority_label: { fr: 'CIRC/OMS', en: 'IARC/WHO', ko: 'IARC/WHO' },
   home_database_label: { fr: 'Base clean', en: 'Clean database', ko: '클린 데이터베이스' },
   home_instant_label: { fr: 'Instantané', en: 'Instant', ko: '즉시' },
   photo_product: { fr: "Photographier l'étiquette", en: 'Photograph the label', ko: '라벨 촬영하기' },

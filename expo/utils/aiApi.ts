@@ -1,9 +1,14 @@
 import { z } from 'zod';
 import { pick } from '@/utils/i18n';
 
+/**
+ * Default model for text-only AI calls: Dr. Toxi chat (aiGenerateText) and
+ * product-label description enrichment (aiGenerateObject via callAI). Fast and
+ * cost-effective for text classification / conversation — does NOT handle images.
+ */
 const MODEL_ID = 'gpt-4.1-nano';
 /**
- * Stronger multimodal model for the meal-scan VISION step and the authoritative text
+ * Multimodal model for the meal-scan VISION step and the authoritative text
  * re-analysis. gpt-4.1-nano is too weak at fine-grained food recognition — it tends to
  * fall back to the most statistically common dish, which made real photos be misread
  * (e.g. salmon + broccoli purée returned as "chicken, fries & sauce"). gpt-4o is validated

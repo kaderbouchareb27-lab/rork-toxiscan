@@ -30,7 +30,7 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import DailyFact from '@/components/DailyFact';
-import { t, tf } from '@/utils/i18n';
+import { t, tf, pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -530,7 +530,7 @@ export default function ScannerScreen() {
                 <View style={styles.trustStrip}>
                   <View style={styles.trustItem}>
                     <ShieldCheck color="#183A2E" size={17} strokeWidth={1.9} />
-                    <Text style={styles.trustText}>CIRC/OMS</Text>
+                    <Text style={styles.trustText}>{pick({ fr: 'CIRC/OMS', en: 'IARC/WHO', ko: 'IARC/WHO' })}</Text>
                   </View>
                   <View style={styles.trustItem}>
                     <Database color="#183A2E" size={17} strokeWidth={1.9} />

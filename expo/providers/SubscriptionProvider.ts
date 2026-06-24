@@ -24,8 +24,8 @@ if (Platform.OS !== 'web') {
   }
 }
 
-// Freemium model (spec §13): product scan is FREE & UNLIMITED (the hook). Monetization
-// is concentrated on the meal scan + Dr. Toxi chat, with LIFETIME counters (not per-day).
+// Freemium model (spec §13): product scan is 3 FREE PER LOCAL DAY (resets daily).
+// Meal scan (3) and Dr. Toxi chat (6) are LIFETIME counters.
 // The counters are persisted in the device Keychain (utils/usageStore) so an
 // uninstall/reinstall can NEVER reset them, and are tagged with the RevenueCat appUserID.
 const FREE_DRTOXI_LIMIT = 6; // lifetime chat messages

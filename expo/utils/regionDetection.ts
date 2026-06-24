@@ -68,7 +68,7 @@ export function detectRegion(): RegionInfo {
       language = 'fr_france';
     } else if (regionCode === 'BE') {
       region = 'belgium';
-      language = languageCode === 'fr' ? 'fr_belgium' : 'fr_belgium';
+      language = 'fr_belgium';
     } else if (regionCode === 'CH') {
       region = 'switzerland';
       language = languageCode === 'fr' ? 'fr_switzerland' : 'fr_switzerland';
