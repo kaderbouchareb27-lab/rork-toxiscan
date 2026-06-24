@@ -3,6 +3,7 @@ import { aiGenerateObject } from '@/utils/aiApi';
 import { classifyFoodIngredient } from '@/utils/api';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { pick } from '@/utils/i18n';
+import { REFERENCE_FOODS, type ReferenceFood, type FoodMarker } from '@/constants/referenceFoods';
 
 // ═══════════════════════════════════════════════════════════════════════
 // MEAL SCAN — types
@@ -210,6 +211,99 @@ function applyFastFoodMarkers(ingredients: MealIngredient[]): void {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// REFERENCE / ANCHOR FOODS — pin popular dishes to a realistic toxicity so the
+// AI's idealized "clean homemade recipe" view can never score known junk too
+// green. See constants/referenceFoods.ts for the database.
+// ─────────────────────────────────────────────────────────────────────
+
+/** A single localized junk-family marker, used to keep the breakdown coherent with the floor. */
+function markerIngredient(cat: FoodMarker): MealIngredient {
+  const info: Record<FoodMarker, { name: string; note: string }> = {
+    processed: {
+      name: pick({ en: 'Ultra-processed component', fr: 'Composant ultra-transformé', ko: '초가공 성분' }),
+      note: pick({
+        en: 'Industrial ultra-processed ingredient — not part of a clean home recipe.',
+        fr: 'Ingrédient industriel ultra-transformé — pas une recette maison propre.',
+        ko: '산업용 초가공 재료 — 깨끗한 가정식 재료가 아닙니다.',
+      }),
+    },
+    added_sugar: {
+      name: pick({ en: 'Added sugar', fr: 'Sucre ajouté', ko: '첨가당' }),
+      note: pick({
+        en: 'Added sugar — empty calories that spike blood sugar.',
+        fr: 'Sucre ajouté — calories vides qui font grimper la glycémie.',
+        ko: '첨가당 — 혈당을 급격히 올리는 빈 칼로리.',
+      }),
+    },
+    refined_oil: {
+      name: pick({ en: 'Refined oil', fr: 'Huile raffinée', ko: '정제유' }),
+      note: pick({
+        en: 'Refined cooking oil, high in pro-inflammatory omega-6.',
+        fr: 'Huile de cuisson raffinée, riche en oméga-6 pro-inflammatoires.',
+        ko: '염증을 유발하는 오메가-6가 많은 정제 조리유.',
+      }),
+    },
+    refined_flour: {
+      name: pick({ en: 'Refined flour', fr: 'Farine raffinée', ko: '정제 밀가루' }),
+      note: pick({
+        en: 'Refined white flour / dough — fast carbs stripped of fiber.',
+        fr: 'Farine blanche raffinée / pâte — glucides rapides sans fibres.',
+        ko: '정제 흰 밀가루·반죽 — 식이섬유가 제거된 빠른 탄수화물.',
+      }),
+    },
+    excess_salt: {
+      name: pick({ en: 'Excess salt', fr: 'Excès de sel', ko: '과도한 나트륨' }),
+      note: pick({
+        en: 'High in salt, well above daily needs.',
+        fr: 'Riche en sel, bien au-delà des besoins quotidiens.',
+        ko: '일일 권장량을 훨씬 초과하는 높은 나트륨.',
+      }),
+    },
+    additive: {
+      name: pick({ en: 'Industrial additives', fr: 'Additifs industriels', ko: '산업용 첨가물' }),
+      note: pick({
+        en: 'Industrial additives — flavor enhancers, preservatives, colorings.',
+        fr: 'Additifs industriels — exhausteurs de goût, conservateurs, colorants.',
+        ko: '산업용 첨가물 — 향미증진제, 보존료, 착색료.',
+      }),
+    },
+  };
+  const { name, note } = info[cat];
+  return { id: newMealIngredientId(), name, category: cat, isGrave: false, note, intensity: 'normal' };
+}
+
+/** Ensures each given junk-family marker is present in the list (deduped by category). */
+function ensureMarkers(ingredients: MealIngredient[], cats: readonly FoodMarker[]): void {
+  for (const cat of cats) {
+    if (ingredients.some((i) => i.category === cat)) continue;
+    ingredients.push(markerIngredient(cat));
+  }
+}
+
+/**
+ * Matches a dish name against the reference / anchor food database (longest keyword wins).
+ * Returns the anchor whose floor + markers pin the dish to a realistic toxicity, or null for
+ * an unknown / genuinely-healthy dish (which the engine scores green by default).
+ */
+export function matchReferenceFood(dishName: string | undefined): ReferenceFood | null {
+  if (!dishName) return null;
+  const n = normalize(dishName);
+  if (!n) return null;
+  let best: ReferenceFood | null = null;
+  let bestLen = 0;
+  for (const food of REFERENCE_FOODS) {
+    for (const kw of food.keywords) {
+      const k = normalize(kw);
+      if (k.length > bestLen && n.includes(k)) {
+        best = food;
+        bestLen = k.length;
+      }
+    }
+  }
+  return best;
+}
+
 function familyFromName(name: string, fallback: MealCategory): MealCategory {
   return junkFamilyFromName(name) ?? fallback;
 }
@@ -345,6 +439,13 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   if (orangeCount >= 3) score = Math.max(score, 6);
   else if (orangeCount >= 2) score = Math.max(score, 4);
 
+  // REFERENCE / ANCHOR FOOD FLOOR (spec): a popular indulgent dish (pizza, burger, fried
+  // chicken, tteokbokki, ramyeon, croissant, donut…) carries a known realistic minimum, so the
+  // AI's idealized "clean homemade recipe" view can never push it too green. Genuinely healthy
+  // dishes have no anchor and stay green. Keyed on the dish name → recomputes live on edits.
+  const anchor = matchReferenceFood(dishName);
+  if (anchor) score = Math.max(score, anchor.floor);
+
   // ── Bounds (spec §4 + the 10/10 tightening) ──
   // The full 10 is RESERVED for a CIRC group-1 carcinogen (processed/cured meat, nitrites)
   // COMBINED with heavy accumulation (added sugar + refined oils + ultra-processing).
@@ -418,6 +519,8 @@ FAST-FOOD / INDUSTRIAL CONTEXT (spec — critical, do NOT skip):
 - When is_fast_food is true, do NOT decompose the dish as an idealized homemade recipe. Apply the documented fast-food manufacturing markers EVEN IF not individually visible: the cheese is industrial/processed (category "processed", never "healthy"), refined frying/cooking oil is used (include a refined_oil ingredient), and the dish is heavily salted (include an excess_salt ingredient). Fast-food pizzas, burgers and fried items are among the saltiest, oiliest and most processed foods on the market — your ingredient list must reflect that, not a clean home kitchen.
 - A genuinely homemade or made-to-order restaurant dish keeps is_fast_food false and is analyzed normally.
 
+POPULAR DISHES (pizza, burger, fried chicken, fries, tacos, kebab, ramen / ramyeon, tteokbokki, japchae, pasta, lasagna, croissant, pain au chocolat, donut, cake, ice cream…): these everyday restaurant, street-food and packaged dishes — Korean, American and French comfort foods included — are NOT idealized homemade recipes either. Always surface their real refined and processed building blocks: the refined-flour dough / bun / noodles / pastry, the frying or cooking oil, the sugar in sweet sauces and desserts, and the salt — never a stripped-down clean version.
+
 GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food as "carcinogenic". Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty / refined). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
 
 Return 4 to 12 ingredients plus the top-level "is_fast_food" boolean. Output JSON only.`;
@@ -470,11 +573,20 @@ function buildDetectedMeal(raw: z.infer<typeof detectSchema>, fallbackName: stri
     ingredients.push({ id: newMealIngredientId(), name, category, isGrave, note: item.note.trim(), intensity });
   }
   const dishName = raw.dish_name.trim() || fallbackName;
-  // Fast-food / industrial context — flagged by the AI from the photo, or detected from a chain
-  // name / explicit mention in the dish name: apply the documented manufacturing markers so a
-  // mass-produced dish is never scored like an idealized homemade recipe (spec).
-  if (raw.is_fast_food || isFastFoodName(dishName) || isFastFoodName(fallbackName)) {
+  // Reference / anchor food — match the dish against the popular-dishes database so a known
+  // indulgent dish carries its definitional refined / processed / sweet markers (spec).
+  const anchor = matchReferenceFood(dishName) ?? matchReferenceFood(fallbackName);
+  // Fast-food / industrial context — flagged by the AI from the photo, detected from a chain
+  // name in the dish name, or inherent to the anchored dish (deep-fried, instant, chain street
+  // food): apply the documented manufacturing markers so a mass-produced dish is never scored
+  // like an idealized homemade recipe (spec).
+  if (raw.is_fast_food || isFastFoodName(dishName) || isFastFoodName(fallbackName) || anchor?.industrial) {
     applyFastFoodMarkers(ingredients);
+  }
+  // Inject the anchor's definitional junk markers (deduped) so the breakdown the user sees
+  // stays coherent with the reference-food score floor applied in computeMealScore.
+  if (anchor?.markers && anchor.markers.length > 0) {
+    ensureMarkers(ingredients, anchor.markers);
   }
   return { dishName, ingredients };
 }
