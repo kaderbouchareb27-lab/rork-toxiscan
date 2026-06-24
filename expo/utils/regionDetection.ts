@@ -1,5 +1,6 @@
 import * as Localization from 'expo-localization';
 import { Platform } from 'react-native';
+import { getDeviceLanguage } from '@/utils/i18n';
 
 export type UserRegion = 'quebec' | 'france' | 'usa' | 'belgium' | 'switzerland' | 'canada_other' | 'korea';
 export type UserLanguage = 'fr_quebec' | 'fr_france' | 'en' | 'fr_belgium' | 'fr_switzerland' | 'ko';
@@ -293,23 +294,66 @@ function getLocationContext(): string {
   return `\n\nLOCALISATION PRÉCISE DE L'UTILISATEUR : ${where}.\nQuand tu recommandes des magasins, des bouchers, des marchés bio ou des marques, privilégie ceux qui existent réellement à ${loc.city ?? loc.subregion ?? loc.country} ou dans la région environnante. Cite quand c'est utile des enseignes ou chaînes connues présentes dans cette ville/région (ex. à Calgary : Community Natural Foods, Blush Lane Organic Market, Sunnyside Natural Market, Co-op, Save-On-Foods ; à Montréal : Avril, Rachelle Béry, Marché Jean-Talon ; à Paris : Biocoop, Naturalia, marché Raspail). Si tu n'es pas sûr qu'une enseigne existe à ${loc.city ?? loc.subregion}, reste générique (« un magasin bio local », « ta boucherie de quartier ») plutôt que d'inventer.`;
 }
 
-export function getAnalysisRegionPrompt(): string {
+/**
+ * The language the AI must WRITE its answer in. This ALWAYS mirrors the app UI language
+ * (the exact same source the whole interface uses — {@link getDeviceLanguage}) and is
+ * deliberately DECOUPLED from the GPS / region code.
+ *
+ * Why this exists: {@link detectRegion} promotes a device whose REGION is Korea
+ * (regionCode "KR") to the Korean language even when the device LANGUAGE is English or
+ * French. That made an English-language phone used in Korea receive Korean AI text (dish
+ * names, ingredient notes, verdicts) under an English UI. Keying the response language off
+ * getDeviceLanguage guarantees the AI output language can never contradict the visible UI.
+ */
+export function getResponseLanguage(): UserLanguage {
+  const appLang = getDeviceLanguage();
+  if (appLang === 'ko') return 'ko';
+  if (appLang === 'en') return 'en';
+  // French: keep the regional variant (Québec / Belgique / Suisse / France) from the
+  // locale so currency + store wording match. All Latin-script → no cross-language bleed.
   const { language } = detectRegion();
-  const region = getStoreRegion();
+  return language.startsWith('fr') ? language : 'fr_france';
+}
+
+/**
+ * The store / brand region injected INTO the AI prompts. Kept consistent with the response
+ * language so an English or French answer never names Korean-script stores (이마트…) and a
+ * Korean answer never names Western stores. Within one language family GPS is still honored
+ * (a French answer in Belgium → Delhaize), since those names are all Latin-script.
+ */
+export function getResponseStoreRegion(): UserRegion {
+  const appLang = getDeviceLanguage();
+  const gps = getStoreRegion();
+  if (appLang === 'ko') return 'korea';
+  if (appLang === 'en') {
+    return gps === 'usa' || gps === 'canada_other' || gps === 'quebec' ? gps : 'usa';
+  }
+  return gps === 'france' || gps === 'belgium' || gps === 'switzerland' || gps === 'quebec'
+    ? gps
+    : 'france';
+}
+
+export function getAnalysisRegionPrompt(): string {
+  const language = getResponseLanguage();
+  const region = getResponseStoreRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
-  const locationContext = getLocationContext();
+  // Only attach the precise GPS location (and its "stores near you" rule) when the user's
+  // physical region actually matches the response language, so an English/French answer is
+  // never steered toward naming local foreign-language stores.
+  const locationContext = region === getStoreRegion() ? getLocationContext() : '';
 
   return `\n\n--- CONTEXTE RÉGIONAL AUTOMATIQUE ---\n${storeContext}${locationContext}\n${langInstruction}\nIMPORTANT : Le résumé (resume), les recommandations et les alternatives doivent être dans la langue de l'utilisateur et référencer uniquement des magasins/marques de sa région.`;
 }
 
 export function getChatRegionPrompt(): string {
-  const { language, regionCode } = detectRegion();
-  const region = getStoreRegion();
+  const { regionCode } = detectRegion();
+  const language = getResponseLanguage();
+  const region = getResponseStoreRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
 
-  const preciseLocation = getLocationContext();
+  const preciseLocation = region === getStoreRegion() ? getLocationContext() : '';
   const hasLocation = (regionCode && regionCode.length > 0) || preciseLocation.length > 0;
 
   const geoRules = hasLocation

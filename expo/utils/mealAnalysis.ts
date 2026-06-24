@@ -553,6 +553,21 @@ function detectFromTextInstruction(dishName: string): string {
   });
 }
 
+/**
+ * Hard language lock for the meal flow, resolved at request time from the APP language.
+ * The dish name, EVERY ingredient name, EVERY note and the verdict must be written in that
+ * language ONLY — never mixed. Mirrors the product scanner's lock and guarantees Korean can
+ * never leak into an English app (or vice-versa), even when the dish or the photo's text is
+ * in another language. Prepended to every meal AI system prompt.
+ */
+function mealLanguageLock(): string {
+  return pick({
+    en: 'ABSOLUTE LANGUAGE RULE (overrides everything below): the app language is ENGLISH. Write dish_name, EVERY ingredient name, EVERY note and the verdict in ENGLISH ONLY. Translate any foreign dish or ingredient into English (keep the original in parentheses only when truly useful). NEVER output a Korean or French word. The entire JSON must be 100% English.',
+    fr: "RÈGLE DE LANGUE ABSOLUE (prime sur tout ce qui suit) : la langue de l'app est le FRANÇAIS. Écris dish_name, CHAQUE nom d'ingrédient, CHAQUE note et le verdict en FRANÇAIS UNIQUEMENT. Traduis tout plat ou ingrédient étranger en français (garde l'original entre parenthèses seulement si c'est vraiment utile). N'écris JAMAIS un mot coréen ou anglais. Tout le JSON doit être 100% français.",
+    ko: '절대 언어 규칙(아래의 모든 규칙에 우선): 앱 언어는 한국어입니다. dish_name, 모든 재료 이름, 모든 note, 그리고 verdict를 반드시 한국어로만 작성하세요. 외국 음식이나 재료는 한국어로 번역하세요(정말 필요할 때만 원어를 괄호로 병기). 영어나 프랑스어 단어를 절대 쓰지 마세요. 전체 JSON은 100% 한국어여야 합니다.',
+  });
+}
+
 export interface DetectedMeal {
   dishName: string;
   ingredients: MealIngredient[];
@@ -597,7 +612,7 @@ function buildDetectedMeal(raw: z.infer<typeof detectSchema>, fallbackName: stri
  */
 export async function detectMealFromPhoto(imageBase64: string): Promise<DetectedMeal> {
   const raw = await aiGenerateObject({
-    system: DETECT_SYSTEM + getAnalysisRegionPrompt(),
+    system: mealLanguageLock() + '\n\n' + DETECT_SYSTEM + getAnalysisRegionPrompt(),
     schema: detectSchema,
     maxTokens: 1600,
     messages: [
@@ -621,7 +636,7 @@ export async function detectMealFromPhoto(imageBase64: string): Promise<Detected
 export async function detectMealFromText(dishName: string): Promise<DetectedMeal> {
   const cleanName = dishName.trim();
   const raw = await aiGenerateObject({
-    system: DETECT_FROM_TEXT_SYSTEM + getAnalysisRegionPrompt(),
+    system: mealLanguageLock() + '\n\n' + DETECT_FROM_TEXT_SYSTEM + getAnalysisRegionPrompt(),
     schema: detectSchema,
     maxTokens: 1600,
     messages: [{ role: 'user', content: detectFromTextInstruction(cleanName) }],
@@ -688,7 +703,7 @@ ${needsAlternatives
 Respond in the user's app language. Output JSON only.`;
 
   const raw = await aiGenerateObject({
-    system: system + getAnalysisRegionPrompt(),
+    system: mealLanguageLock() + '\n\n' + system + getAnalysisRegionPrompt(),
     schema: verdictSchema,
     maxTokens: 900,
     messages: [
