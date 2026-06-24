@@ -9,7 +9,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 ## Modèle économique
 
 ### GRATUIT
-- [x] Scans/photos de produits illimités
+- [x] 3 scans/photos de produits gratuits par jour (remis à zéro chaque jour, puis paywall ou attendre le lendemain)
 - [x] Résultats avec badges de couleur (rouge, orange, jaune, vert)
 - [x] Substances détectées avec explications
 - [x] Recommandations et alternatives plus saines
@@ -22,6 +22,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Historique des scans du jour uniquement (non persisté le lendemain)
 
 ### PREMIUM ToxiScan Pro (2,99$/mois ou 29,99$/an)
+- [x] Scans de produits illimités (plus de limite quotidienne)
 - [x] Dr. Toxi illimité
 - [x] Historique permanent de tous les scans (sauvegardé)
 - [x] Alertes en temps réel des nouveaux produits interdits, toxiques ou cancérigènes
@@ -52,7 +53,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Suggestions d'alternatives plus saines
 - [x] Gros bouton "Partager ce résultat" sur chaque fiche
 - [x] Magasins bio recommandés
-- [x] Scans totalement illimités et gratuits
+- [x] 3 scans de produits gratuits par jour, illimités avec Pro
 
 ### Historique
 - [x] Liste chronologique des produits scannés

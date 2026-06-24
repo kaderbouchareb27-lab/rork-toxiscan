@@ -43,7 +43,7 @@ export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasAcceptedAIConsent, hasSeenMealOnboarding } = useOnboarding();
-  const { isPro, consumeScan, canMealScan, mealScanRemaining, mealScanLimit } = useSubscription();
+  const { isPro, consumeScan, canScan, scanRemaining, scanLimit, canMealScan, mealScanRemaining, mealScanLimit } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -296,8 +296,16 @@ export default function ScannerScreen() {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+    if (!canScan) {
+      console.log('[Scanner] Daily product scan limit reached, routing to paywall');
+      if (Platform.OS !== 'web') {
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      }
+      router.push('/paywall?source=product');
+      return;
+    }
     await requestCameraAndProceed();
-  }, [requestCameraAndProceed]);
+  }, [canScan, requestCameraAndProceed]);
 
   // ── Meal scan entry — a SEPARATE workflow that routes to /meal/confirm ──
   const launchMealCamera = useCallback(async () => {
@@ -554,9 +562,13 @@ export default function ScannerScreen() {
                   <View style={styles.entryTextCol}>
                     <Text style={styles.entryTitle}>{t('scan_entry_product_title')}</Text>
                     <Text style={styles.entryDesc}>{t('scan_entry_product_desc')}</Text>
-                    <View style={styles.freePill}>
-                      <Text style={styles.freePillText}>{t('product_scan_free_badge')}</Text>
-                    </View>
+                    {!isPro ? (
+                      <Text style={styles.mealCounterText}>{tf('product_scans_counter', scanRemaining, scanLimit)}</Text>
+                    ) : (
+                      <View style={styles.freePill}>
+                        <Text style={styles.freePillText}>{t('product_scan_unlimited')}</Text>
+                      </View>
+                    )}
                   </View>
                   <ChevronRight color="#9AA39E" size={22} strokeWidth={2} />
                 </TouchableOpacity>

@@ -539,6 +539,10 @@ const translations = {
   meal_scans_counter: { fr: (remaining: number, limit: number) => `${remaining}/${limit} scans repas gratuits — Illimité avec Pro`, en: (remaining: number, limit: number) => `${remaining}/${limit} free meal scans — Unlimited with Pro`, ko: (remaining: number, limit: number) => `무료 식사 스캔 ${remaining}/${limit} — Pro로 무제한` },
   meal_scan_unlimited: { fr: 'Scans repas illimités', en: 'Unlimited meal scans', ko: '무제한 식사 스캔' },
   product_scan_free_badge: { fr: 'Gratuit et illimité', en: 'Free and unlimited', ko: '무료 무제한' },
+  product_scans_counter: { fr: (remaining: number, limit: number) => `${remaining}/${limit} scans gratuits aujourd'hui — Illimité avec Pro`, en: (remaining: number, limit: number) => `${remaining}/${limit} free scans today — Unlimited with Pro`, ko: (remaining: number, limit: number) => `오늘 무료 스캔 ${remaining}/${limit} — Pro로 무제한` },
+  product_scan_unlimited: { fr: 'Scans produits illimités', en: 'Unlimited product scans', ko: '무제한 제품 스캔' },
+  product_scan_limit_title: { fr: 'Limite quotidienne atteinte', en: 'Daily limit reached', ko: '오늘 한도 도달' },
+  product_scan_limit_msg: { fr: 'Tu as utilisé tes 3 scans produits gratuits du jour. Passe à Pro pour scanner sans limite, ou reviens demain.', en: "You've used your 3 free product scans for today. Go Pro to scan without limits, or come back tomorrow.", ko: '오늘 무료 제품 스캔 3회를 모두 사용했어요. 무제한으로 스캔하려면 Pro로 업그레이드하거나 내일 다시 오세요.' },
 
   // ===== MEAL SCAN — ANALYSIS / CONFIRM =====
   meal_analyzing_title: { fr: 'Analyse de ton assiette', en: 'Analyzing your meal', ko: '식사를 분석하는 중' },
@@ -645,6 +649,7 @@ const translations = {
   paywall_report: { fr: 'Ton bilan complet t’attend', en: 'Your full report awaits', ko: '전체 리포트가 기다려요' },
   paywall_sub_report: { fr: 'Rapport hebdo complet, tendance et recommandations de Dr. Toxi.', en: 'Full weekly report, trend and Dr. Toxi recommendations.', ko: '주간 전체 리포트, 추세, Dr. Toxi 맞춤 추천.' },
   benefit_unlimited_meal_scans: { fr: 'Scans repas illimités', en: 'Unlimited meal scans', ko: '무제한 식사 스캔' },
+  benefit_unlimited_product_scans: { fr: 'Scans de produits illimités', en: 'Unlimited product scans', ko: '무제한 제품 스캔' },
   benefit_weekly_report: { fr: 'Rapport hebdo complet + tendance', en: 'Full weekly report + trend', ko: '주간 전체 리포트 + 추세' },
   benefit_recommendations: { fr: 'Recommandations personnalisées', en: 'Personalized recommendations', ko: '맞춤 추천' },
 

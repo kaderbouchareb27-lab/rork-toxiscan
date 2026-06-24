@@ -248,6 +248,7 @@ export default function PaywallScreen() {
         <Text style={styles.subtitle}>{getContextSubtitle()}</Text>
 
         <View style={styles.benefitsContainer}>
+          <BenefitRow text={t('benefit_unlimited_product_scans')} />
           <BenefitRow text={t('benefit_unlimited_meal_scans')} />
           <BenefitRow text={t('benefit_weekly_report')} />
           <BenefitRow text={t('benefit_recommendations')} />

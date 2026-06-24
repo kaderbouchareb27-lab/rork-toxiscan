@@ -5,6 +5,8 @@ import createContextHook from '@nkzw/create-context-hook';
 import {
   loadLifetimeUsage,
   incrementLifetimeUsage,
+  incrementProductScan,
+  todayLocalDateString,
   tagAppUserId,
   type LifetimeUsage,
 } from '@/utils/usageStore';
@@ -28,11 +30,12 @@ if (Platform.OS !== 'web') {
 // uninstall/reinstall can NEVER reset them, and are tagged with the RevenueCat appUserID.
 const FREE_DRTOXI_LIMIT = 6; // lifetime chat messages
 const FREE_MEAL_SCAN_LIMIT = 3; // lifetime meal scans
+const FREE_PRODUCT_SCAN_PER_DAY = 3; // product scans per local day (resets daily)
 const FREE_HISTORY_LIMIT = 3;
 const ENTITLEMENT_ID = 'toxiscan_pro';
 
 function getDefaultUsage(): LifetimeUsage {
-  return { mealScanCount: 0, drToxiCount: 0 };
+  return { mealScanCount: 0, drToxiCount: 0, productScanCount: 0, productScanDay: '' };
 }
 
 function getRCToken(): string {
@@ -163,6 +166,17 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     },
   });
 
+  const incrementProductScanMutation = useMutation({
+    mutationFn: async () => {
+      const appUserId = customerInfoQuery.data?.originalAppUserId as string | undefined;
+      return incrementProductScan(appUserId);
+    },
+    onSuccess: (updated) => {
+      setUsage(updated);
+      queryClient.setQueryData(['lifetimeUsage'], updated);
+    },
+  });
+
   const purchaseMutation = useMutation({
     mutationFn: async (pkg: PurchasesPackage) => {
       if (!isNative) throw new Error('Purchases not available on web');
@@ -239,10 +253,34 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     incrementUsageMutation.mutate('mealScanCount');
   }, [isPro, incrementUsageMutation]);
 
-  // ── Product scan — FREE & UNLIMITED (no counter) ──
+  // ── Product scan — 3 free per local day (resets daily), then paywall ──
+  const todayStr = todayLocalDateString();
+  const productScanCountToday = usage.productScanDay === todayStr ? usage.productScanCount : 0;
+
+  const productScanRemaining = useMemo(() => {
+    if (isPro) return Infinity;
+    return Math.max(0, FREE_PRODUCT_SCAN_PER_DAY - productScanCountToday);
+  }, [isPro, productScanCountToday]);
+
+  const canScan = useMemo(
+    () => isPro || productScanCountToday < FREE_PRODUCT_SCAN_PER_DAY,
+    [isPro, productScanCountToday],
+  );
+
   const consumeScan = useCallback(() => {
-    // Product scans are unlimited; nothing to consume.
-  }, []);
+    if (isPro) return;
+    const today = todayLocalDateString();
+    // Optimistic bump for instant gating; the mutation persists & reconciles.
+    setUsage((current) => {
+      const sameDay = current.productScanDay === today;
+      return {
+        ...current,
+        productScanDay: today,
+        productScanCount: sameDay ? current.productScanCount + 1 : 1,
+      };
+    });
+    incrementProductScanMutation.mutate();
+  }, [isPro, incrementProductScanMutation]);
 
   const purchasePackage = useCallback((pkg: PurchasesPackage) => {
     return purchaseMutation.mutateAsync(pkg);
@@ -272,11 +310,11 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     mealScanRemaining,
     consumeMealScan,
     mealScanLimit: FREE_MEAL_SCAN_LIMIT,
-    // Product scan (unlimited)
-    canScan: true,
-    scanRemaining: Infinity,
+    // Product scan (3 free per day, resets daily)
+    canScan,
+    scanRemaining: productScanRemaining,
     consumeScan,
-    scanLimit: Infinity,
+    scanLimit: FREE_PRODUCT_SCAN_PER_DAY,
     // Purchases
     restorePurchase,
     purchasePackage,
@@ -288,5 +326,5 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     offeringsLoading: offeringsQuery.isLoading,
     offeringsError: offeringsQuery.isError,
     refetchOfferings,
-  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, canMealScan, mealScanRemaining, consumeMealScan, consumeScan, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isError, refetchOfferings]);
+  }), [isPro, drToxiRemaining, canUseDrToxi, consumeDrToxi, canMealScan, mealScanRemaining, consumeMealScan, canScan, productScanRemaining, consumeScan, restorePurchase, purchasePackage, currentOffering, purchaseMutation.isPending, restoreMutation.isPending, customerInfoQuery.isLoading, usageQuery.isLoading, offeringsQuery.isLoading, offeringsQuery.isError, refetchOfferings]);
 });

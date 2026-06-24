@@ -22,8 +22,21 @@ import * as SecureStore from 'expo-secure-store';
 export interface LifetimeUsage {
   mealScanCount: number;
   drToxiCount: number;
+  /** Number of product scans used on `productScanDay` (resets each local day). */
+  productScanCount: number;
+  /** Local 'YYYY-MM-DD' the product-scan count applies to. */
+  productScanDay: string;
   /** RevenueCat appUserID this usage is associated with (best-effort). */
   appUserId?: string;
+}
+
+/** Local calendar day as 'YYYY-MM-DD' (used for the daily product-scan quota). */
+export function todayLocalDateString(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 const SECURE_KEY = 'toxiscan_lifetime_usage_secure';
@@ -33,7 +46,7 @@ const MIRROR_KEY = 'toxiscan_lifetime_usage';
 const secureAvailable = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function getDefaultUsage(): LifetimeUsage {
-  return { mealScanCount: 0, drToxiCount: 0 };
+  return { mealScanCount: 0, drToxiCount: 0, productScanCount: 0, productScanDay: '' };
 }
 
 function parse(raw: string | null): Partial<LifetimeUsage> | null {
@@ -68,9 +81,28 @@ function mergeMax(
   a: Partial<LifetimeUsage> | null,
   b: Partial<LifetimeUsage> | null,
 ): LifetimeUsage {
+  // Lifetime counters take the element-wise max. The daily product-scan counter is
+  // date-aware: the most recent day wins (and its count); same-day takes the max so a
+  // reinstall can't reset today's quota, while a new day naturally starts fresh.
+  const aDay = a?.productScanDay ?? '';
+  const bDay = b?.productScanDay ?? '';
+  let productScanDay: string;
+  let productScanCount: number;
+  if (aDay === bDay) {
+    productScanDay = aDay;
+    productScanCount = Math.max(a?.productScanCount ?? 0, b?.productScanCount ?? 0);
+  } else if (aDay > bDay) {
+    productScanDay = aDay;
+    productScanCount = a?.productScanCount ?? 0;
+  } else {
+    productScanDay = bDay;
+    productScanCount = b?.productScanCount ?? 0;
+  }
   return {
     mealScanCount: Math.max(a?.mealScanCount ?? 0, b?.mealScanCount ?? 0),
     drToxiCount: Math.max(a?.drToxiCount ?? 0, b?.drToxiCount ?? 0),
+    productScanCount,
+    productScanDay,
     appUserId: b?.appUserId ?? a?.appUserId,
   };
 }
@@ -124,6 +156,26 @@ export async function incrementLifetimeUsage(
   };
   await persistLifetimeUsage(updated);
   console.log(`[UsageStore] ${field} incremented to`, updated[field]);
+  return updated;
+}
+
+/**
+ * Increments the DAILY product-scan counter. If the persisted day is not today, the
+ * count starts fresh at 1 for today; otherwise it bumps the existing count. The result
+ * is written to both stores so deleting/reinstalling the app cannot reset today's quota.
+ */
+export async function incrementProductScan(appUserId?: string): Promise<LifetimeUsage> {
+  const current = await loadLifetimeUsage();
+  const today = todayLocalDateString();
+  const sameDay = current.productScanDay === today;
+  const updated: LifetimeUsage = {
+    ...current,
+    productScanDay: today,
+    productScanCount: sameDay ? (current.productScanCount ?? 0) + 1 : 1,
+    appUserId: appUserId ?? current.appUserId,
+  };
+  await persistLifetimeUsage(updated);
+  console.log('[UsageStore] productScan incremented to', updated.productScanCount, 'for', today);
   return updated;
 }
 

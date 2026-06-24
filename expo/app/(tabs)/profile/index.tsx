@@ -11,14 +11,14 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText, Bell } from 'lucide-react-native';
+import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText, Bell, HeartPulse } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
 import * as StoreReview from 'expo-store-review';
 import Colors from '@/constants/colors';
 import { router } from 'expo-router';
 
-const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
+const DR_TOXI_PRO_AVATAR = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/c07932a0-e85c-4e14-875e-df7aae5936cb.png';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -112,7 +112,7 @@ export default function ProfileScreen() {
               </View>
             ) : (
               <Image
-                source={{ uri: DR_TOXI_AVATAR }}
+                source={{ uri: DR_TOXI_PRO_AVATAR }}
                 style={styles.subscriptionAvatar}
               />
             )}
@@ -142,7 +142,9 @@ export default function ProfileScreen() {
           testID="health-profile-card"
         >
           <View style={styles.healthProfileLeft}>
-            <Image source={{ uri: DR_TOXI_AVATAR }} style={styles.healthProfileAvatar} />
+            <View style={styles.healthProfileHeart}>
+              <HeartPulse color={Colors.primary} size={24} strokeWidth={2} fill="rgba(46,158,52,0.14)" />
+            </View>
             <View style={styles.healthProfileInfo}>
               <Text style={styles.healthProfileTitle}>{t('health_profile_card_title')}</Text>
               <Text style={styles.healthProfileSubtitle}>
@@ -453,10 +455,13 @@ const styles = StyleSheet.create({
     gap: 14,
     flex: 1,
   },
-  healthProfileAvatar: {
+  healthProfileHeart: {
     width: 44,
     height: 44,
     borderRadius: 14,
+    backgroundColor: 'rgba(46, 158, 52, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   healthProfileInfo: {
     flex: 1,

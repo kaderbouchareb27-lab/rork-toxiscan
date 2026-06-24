@@ -60,7 +60,8 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - Mise en avant de l'option annuelle avec badge "Économisez 45%"
 - Bouton "Passer à ToxiScan Pro" (pas d'essai gratuit)
 - AUCUN paywall au démarrage : Consentement IA → Onboarding → Scanner directement
-- Paywall obligatoire UNIQUEMENT quand les 3 scans OU 3 messages Dr. Toxi sont épuisés (pas de bouton fermer, pas de skip)
+- Scan de produit limité à 3 par jour en gratuit (remis à zéro chaque jour) → paywall ou attendre le lendemain ; illimité avec Pro
+- Paywall obligatoire quand les 3 scans produit du jour, les scans repas OU les messages Dr. Toxi gratuits sont épuisés
 - Paywall accessible volontairement depuis Profil → "Passer à ToxiScan Pro" (avec bouton Fermer)
 
 ---
