@@ -160,6 +160,34 @@ function isCheeseName(name: string): boolean {
   return CHEESE_NAME_TOKENS.some((tk) => n.includes(tk));
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// TRUTH-IN-LABELING — only PROCESSED / CURED meat (charcuterie) is an IARC Group 1
+// carcinogen. Plain, unprocessed meat is NOT: fresh poultry & fish are lean whole foods,
+// and fresh red meat / ground (minced) beef is plain meat to eat in moderation — never a
+// "carcinogen". This guard runs BEFORE the database/AI hint so a plain burger patty, ground
+// beef or chicken can never carry the red "Carcinogenic / GRAVE" badge (user accuracy fix).
+// ─────────────────────────────────────────────────────────────────────
+
+// Cured / processed / deli meat — the ONLY meat that is genuinely IARC Group 1 (carcinogen).
+const PROCESSED_MEAT_TOKENS = ['jambon', 'bacon', 'lardon', 'saucisse', 'saucisson', 'sausage', 'hot dog', 'hotdog', 'salami', 'chorizo', 'mortadelle', 'mortadella', 'pastrami', 'jerky', 'charcuterie', 'pepperoni', 'cordon bleu', 'prosciutto', 'serrano', 'merguez', 'chipolata', 'frankfurter', 'wiener', 'corned beef', 'grisons', 'bresaola', 'viande transforme', 'processed meat', 'deli meat', 'nugget', 'pane', 'breaded', 'fume', 'smoked', 'spam', 'luncheon', 'cervelas', 'andouille', 'boudin', 'rillette', 'pate', 'foie gras', 'knack', 'kebab', 'doner', 'cured', 'ham '];
+// Fresh poultry & fish — lean whole foods, never carcinogenic.
+const POULTRY_FISH_TOKENS = ['poulet', 'chicken', 'volaille', 'poultry', 'dinde', 'turkey', 'poisson', 'fish', 'saumon', 'salmon', 'thon', 'tuna', 'cabillaud', 'colin', 'merlu', 'truite', 'trout', 'sardine', 'maquereau', 'mackerel', 'crevette', 'shrimp', 'fruits de mer', 'seafood'];
+// Fresh red meat incl. ground / minced beef — plain meat, moderation, NOT a carcinogen.
+const RED_MEAT_TOKENS = ['viande hachee', 'steak hache', 'boeuf hache', 'ground beef', 'ground meat', 'minced meat', 'minced beef', 'viande rouge', 'red meat', 'boeuf', 'beef', 'steak', 'porc', 'pork', 'agneau', 'lamb', 'veau', 'veal', 'entrecote', 'bavette', 'rosbif', 'rosbeef', 'viande'];
+
+/**
+ * Returns the honest category for PLAIN, unprocessed meat, or null when the name is a
+ * processed/cured meat (which must fall through to the database → carcinogen_g1) or not meat
+ * at all. Poultry & fish → healthy; fresh red meat / ground beef → neutral. NEVER grave.
+ */
+function plainMeatCategory(name: string): MealCategory | null {
+  const n = normalize(name);
+  if (PROCESSED_MEAT_TOKENS.some((tk) => n.includes(normalize(tk)))) return null;
+  if (POULTRY_FISH_TOKENS.some((tk) => n.includes(normalize(tk)))) return 'healthy';
+  if (RED_MEAT_TOKENS.some((tk) => n.includes(normalize(tk)))) return 'neutral';
+  return null;
+}
+
 /**
  * Applies the documented fast-food / industrial manufacturing markers to a detected meal
  * (spec): industrial cheese is processed (not fresh), refined frying oil and excess salt are
@@ -331,6 +359,14 @@ function normalizeAiCategory(raw: string): MealCategory {
  * that classification; only unknown ingredients fall back to the AI's category hint.
  */
 export function classifyMealIngredient(name: string, aiCategoryHint?: string): { category: MealCategory; isGrave: boolean } {
+  // TRUTH-IN-LABELING (user accuracy fix): plain unprocessed meat (fresh red meat,
+  // ground/minced beef, poultry, fish) is NEVER a carcinogen — only processed/cured meat is.
+  // Resolve it here, before the database or the AI hint, so it can never get the red
+  // "carcinogenic / GRAVE" badge. Processed meat names (ham, bacon, sausage…) return null and
+  // fall through to the database, which correctly classifies them as Group 1.
+  const plainMeat = plainMeatCategory(name);
+  if (plainMeat) return { category: plainMeat, isGrave: false };
+
   const db = classifyFoodIngredient(name);
   if (db) {
     const circ = normalize(db.circ);
@@ -371,8 +407,10 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   // An empty plate has nothing toxic → top health score (green).
   if (ingredients.length === 0) return 10;
 
-  // The most serious carcinogen present. Group 1 (processed/cured meat, nitrites) is
-  // distinguished from Group 2A/2B (e.g. red meat) — only Group 1 can unlock a full 10.
+  // The most serious carcinogen present. Group 1 (processed/cured meat, nitrites) is the real
+  // meat carcinogen — plain fresh/ground meat, poultry and fish are NOT carcinogens and never
+  // reach here. Group 1 is distinguished from industrial Group 2A/2B substances; only Group 1
+  // can unlock a full 10 (internal toxicity).
   const hasG1 = ingredients.some((i) => i.category === 'carcinogen_g1');
   const hasCarcinogen = ingredients.some((i) => isCarcinogenCategory(i.category) || i.isGrave);
 
@@ -454,8 +492,8 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   // ── Bounds (spec §4 + the 10/10 tightening) ──
   // The full 10 is RESERVED for a CIRC group-1 carcinogen (processed/cured meat, nitrites)
   // COMBINED with heavy accumulation (added sugar + refined oils + ultra-processing).
-  // A group 2A/2B carcinogen (e.g. red meat) or pure accumulation CAPS AT 9 — never a full
-  // 10, so an ordinary dish (burger + fries with red meat) can't reach 10.
+  // A group 2A/2B carcinogen (industrial substances such as acrylamide) or pure accumulation
+  // CAPS AT 9 — never a full 10, so an ordinary junky dish can't reach 10.
   const heavyAccumulation = hasSugar && hasOil && hasProcessed;
   const canReachTen = hasG1 && heavyAccumulation;
   if (!canReachTen) score = Math.min(score, 9);
@@ -517,8 +555,8 @@ const MEAL_INGREDIENT_RULES = `2. ALWAYS identify the MAIN / BASE food of the di
    - note: ONE short, frank, educational sentence about this ingredient, in the user's language.
 
 CLASSIFICATION GUIDANCE:
-- Processed / cured meat (ham, bacon, sausage, hot dog, salami, pepperoni, nitrites) → carcinogen_g1 (IARC Group 1, GRAVE).
-- Red meat cooked in the dish (beef patty, ground beef, steak, pork, lamb) → carcinogen_2a (IARC Group 2A, GRAVE — it raises the score but is NOT Group 1).
+- ONLY processed / cured / deli meat (ham, bacon, sausage, hot dog, salami, pepperoni, chorizo, charcuterie, anything cured or smoked with nitrites) → carcinogen_g1 (IARC Group 1, GRAVE).
+- PLAIN, UNPROCESSED meat is NOT carcinogenic and must NEVER be carcinogen_* and NEVER is_grave. Fresh poultry and fish (chicken, turkey, salmon…) → healthy. Fresh red meat — beef, GROUND / MINCED beef ("viande hachée"), steak, pork, lamb → neutral (eat in moderation, but NOT a carcinogen). A plain beef patty or ground beef is ordinary fresh meat, exactly like a steak — NEVER label it carcinogenic or GRAVE. Chicken is just chicken; ground meat is just meat.
 - Refined oils (palm, canola, sunflower, soy, deep-frying oil) → refined_oil.
 - Refined-flour / refined-carb base (white flour, viennoiserie & pastry dough, white bread, croissant, brioche, cake, cookies, donuts, white bun) → refined_flour. Whole-grain / wholemeal bread → healthy.
 - Other visibly industrial components (processed cheese, industrial sauces, nuggets) → processed.
@@ -533,7 +571,7 @@ FAST-FOOD / INDUSTRIAL CONTEXT (spec — critical, do NOT skip):
 
 POPULAR DISHES (pizza, burger, fried chicken, fries, tacos, kebab, ramen / ramyeon, tteokbokki, japchae, pasta, lasagna, croissant, pain au chocolat, donut, cake, ice cream…): these everyday restaurant, street-food and packaged dishes — Korean, American and French comfort foods included — are NOT idealized homemade recipes either. Always surface their real refined and processed building blocks: the refined-flour dough / bun / noodles / pastry, the frying or cooking oil, the sugar in sweet sauces and desserts, and the salt — never a stripped-down clean version.
 
-GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food as "carcinogenic". Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty / refined). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
+GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food as "carcinogenic". NEVER label plain fresh meat, ground/minced meat, poultry or fish as "carcinogenic" either — only PROCESSED / CURED meat (charcuterie: ham, bacon, sausage, salami) is. Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty / refined). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
 
 Return 4 to 12 ingredients plus the top-level "is_fast_food" boolean. Output JSON only.`;
 
