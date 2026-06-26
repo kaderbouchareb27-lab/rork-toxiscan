@@ -535,7 +535,7 @@ const translations = {
   scan_entry_product_title: { fr: 'Scanner un produit', en: 'Scan a product', ko: '제품 스캔하기' },
   scan_entry_product_desc: { fr: "Étiquette d'un produit emballé", en: 'Label of a packaged product', ko: '포장 제품의 라벨' },
   scan_entry_meal_title: { fr: 'Scanner mon assiette', en: 'Scan my meal', ko: '내 식사 스캔하기' },
-  scan_entry_meal_desc: { fr: 'Photo de ton repas → score de toxicité', en: 'Photo of your meal → toxicity score', ko: '식사 사진 → 독성 점수' },
+  scan_entry_meal_desc: { fr: 'Photo de ton repas → score de santé', en: 'Photo of your meal → health score', ko: '식사 사진 → 건강 점수' },
   scan_section_label: { fr: 'Que veux-tu analyser ?', en: 'What do you want to analyze?', ko: '무엇을 분석할까요?' },
   meal_scans_counter: { fr: (remaining: number, limit: number) => `${remaining}/${limit} scans repas gratuits — Illimité avec Pro`, en: (remaining: number, limit: number) => `${remaining}/${limit} free meal scans — Unlimited with Pro`, ko: (remaining: number, limit: number) => `무료 식사 스캔 ${remaining}/${limit} — Pro로 무제한` },
   meal_scan_unlimited: { fr: 'Scans repas illimités', en: 'Unlimited meal scans', ko: '무제한 식사 스캔' },
@@ -549,7 +549,7 @@ const translations = {
   meal_analyzing_title: { fr: 'Analyse de ton assiette', en: 'Analyzing your meal', ko: '식사를 분석하는 중' },
   meal_analyzing_status_1: { fr: 'Je reconnais les aliments…', en: 'Recognizing the food…', ko: '음식을 인식하는 중…' },
   meal_analyzing_status_2: { fr: 'Je croise avec ma base…', en: 'Cross-checking my database…', ko: '데이터베이스와 대조하는 중…' },
-  meal_analyzing_status_3: { fr: 'Je calcule la toxicité…', en: 'Calculating toxicity…', ko: '독성을 계산하는 중…' },
+  meal_analyzing_status_3: { fr: 'Je calcule le score de santé…', en: 'Calculating health score…', ko: '건강 점수를 계산하는 중…' },
   meal_confirm_title: { fr: 'Vérifie ton assiette', en: 'Check your meal', ko: '식사를 확인하세요' },
   meal_estimate_hint: { fr: "Estimation basée sur les ingrédients habituels de ce plat. Ajuste si besoin.", en: 'Estimate based on the usual ingredients of this dish. Adjust if needed.', ko: '이 음식의 일반적인 재료를 바탕으로 추정했어요. 필요하면 조정하세요.' },
   meal_add_ingredient: { fr: 'Ajouter un ingrédient', en: 'Add an ingredient', ko: '재료 추가' },
@@ -571,7 +571,7 @@ const translations = {
   meal_save: { fr: 'Enregistrer', en: 'Save', ko: '저장' },
 
   // ===== MEAL SCAN — TIERS & BADGE =====
-  meal_toxicity_level: { fr: 'Niveau de toxicité', en: 'Toxicity level', ko: '독성 수준' },
+  meal_toxicity_level: { fr: 'Score de santé', en: 'Health score', ko: '건강 점수' },
   meal_toxicity_word: { fr: 'Toxicité', en: 'Toxicity', ko: '독성' },
   tier_green: { fr: 'Bon repas', en: 'Good meal', ko: '좋은 식사' },
   tier_yellow: { fr: 'Moyen', en: 'Moderate', ko: '보통' },
@@ -607,7 +607,7 @@ const translations = {
   // ===== MEAL SCAN — DASHBOARD / WEEKLY REPORT =====
   meal_dashboard_title: { fr: 'Mon assiette cette semaine', en: 'My plate this week', ko: '이번 주 내 식사' },
   weekly_report_title: { fr: 'Rapport de la semaine', en: 'Weekly report', ko: '주간 리포트' },
-  weekly_score_label: { fr: 'Toxicité moyenne', en: 'Average toxicity', ko: '평균 독성' },
+  weekly_score_label: { fr: 'Score de santé moyen', en: 'Average health score', ko: '평균 건강 점수' },
   weekly_meals_scanned: { fr: (n: number) => `${n} repas scanné${n !== 1 ? 's' : ''} cette semaine`, en: (n: number) => `${n} meal${n !== 1 ? 's' : ''} scanned this week`, ko: (n: number) => `이번 주 ${n}개 식사 스캔` },
   weekly_no_meals: { fr: 'Aucun repas scanné cette semaine', en: 'No meals scanned this week', ko: '이번 주 스캔한 식사가 없어요' },
   weekly_no_meals_hint: { fr: 'Scanne ton premier repas pour voir ton bilan apparaître ici, en direct.', en: 'Scan your first meal to watch your report build here, live.', ko: '첫 식사를 스캔하면 이곳에 요약이 실시간으로 채워져요.' },
@@ -636,13 +636,13 @@ const translations = {
 
   // ===== MEAL SCAN — NOTIFICATIONS =====
   notif_morning_title: { fr: 'Et au petit-déjeuner ?', en: 'How about breakfast?', ko: '아침 식사는 어떤가요?' },
-  notif_morning_body: { fr: 'Scanne ton repas du matin et découvre son niveau de toxicité.', en: 'Scan your morning meal and discover its toxicity level.', ko: '아침 식사를 스캔하고 독성 수준을 확인해 보세요.' },
+  notif_morning_body: { fr: 'Scanne ton repas du matin et découvre son score de santé.', en: 'Scan your morning meal and discover its health score.', ko: '아침 식사를 스캔하고 건강 점수를 확인해 보세요.' },
   notif_noon_title: { fr: "C'est l'heure du midi", en: 'Lunchtime', ko: '점심 시간이에요' },
-  notif_noon_body: { fr: 'Scanne ton assiette et découvre son niveau de toxicité.', en: 'Scan your meal and discover its toxicity level.', ko: '식사를 스캔하고 독성 수준을 확인해 보세요.' },
+  notif_noon_body: { fr: 'Scanne ton assiette et découvre son score de santé.', en: 'Scan your meal and discover its health score.', ko: '식사를 스캔하고 건강 점수를 확인해 보세요.' },
   notif_evening_title: { fr: 'Et ce soir, dans ton assiette ?', en: "What's on your plate tonight?", ko: '오늘 저녁 식사는 어떤가요?' },
   notif_evening_body: { fr: 'Un scan rapide et Dr. Toxi te donne son verdict.', en: 'A quick scan and Dr. Toxi gives you the verdict.', ko: '빠르게 스캔하면 Dr. Toxi가 판정해 드려요.' },
   notif_friday_title: { fr: 'Ton rapport de la semaine est prêt', en: 'Your weekly report is ready', ko: '주간 리포트가 준비됐어요' },
-  notif_friday_body: { fr: 'Découvre ton score de toxicité et le bilan de tes repas.', en: 'See your toxicity score and your meal summary.', ko: '이번 주 독성 점수와 식사 요약을 확인하세요.' },
+  notif_friday_body: { fr: 'Découvre ton score de santé et le bilan de tes repas.', en: 'See your health score and your meal summary.', ko: '이번 주 건강 점수와 식사 요약을 확인하세요.' },
 
   // ===== MEAL SCAN — PAYWALL =====
   paywall_meal: { fr: 'Scanne tes repas sans limite', en: 'Scan your meals without limits', ko: '식사를 무제한으로 스캔하세요' },
@@ -659,7 +659,7 @@ const translations = {
   mob_get_started: { fr: 'Commencer', en: 'Get started', ko: '시작하기' },
   mob_1_eyebrow: { fr: 'NOUVEAU', en: 'NEW', ko: '새 기능' },
   mob_1_title: { fr: 'Scanne ton assiette', en: 'Scan your meal', ko: '내 식사를 스캔하세요' },
-  mob_1_body: { fr: 'Photographie ton repas. Dr. Toxi reconnaît les ingrédients et donne un niveau de toxicité sur 10.', en: 'Photograph your meal. Dr. Toxi recognizes the ingredients and gives a toxicity level out of 10.', ko: '식사를 촬영하면 Dr. Toxi가 재료를 인식해 10점 만점으로 독성 수준을 알려드려요.' },
+  mob_1_body: { fr: 'Photographie ton repas. Dr. Toxi reconnaît les ingrédients et donne un score de santé sur 10.', en: 'Photograph your meal. Dr. Toxi recognizes the ingredients and gives a health score out of 10.', ko: '식사를 촬영하면 Dr. Toxi가 재료를 인식해 10점 만점으로 건강 점수를 알려드려요.' },
   mob_1_tiers_label: { fr: "Du vert au rouge, en un coup d'œil", en: 'From green to red, at a glance', ko: '초록부터 빨강까지, 한눈에' },
   mob_2_title: { fr: 'Il décortique ton repas', en: 'It breaks down your meal', ko: '식사를 낱낱이 분석해요' },
   mob_2_body: { fr: "Ingrédient par ingrédient — ce qui est sain, ce qui l'est moins — puis des alternatives plus saines quand c'est utile.", en: "Ingredient by ingredient — what's healthy, what's not — then healthier alternatives when it helps.", ko: '재료 하나하나 무엇이 건강하고 무엇이 아닌지 짚어주고, 필요할 땐 더 건강한 대안도 제안해요.' },

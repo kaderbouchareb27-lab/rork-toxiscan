@@ -7,11 +7,15 @@ import {
   MealTier,
   MealAlternatives,
   MealCategory,
+  scoreToTier,
 } from '@/utils/mealAnalysis';
 import { getDeviceLanguage } from '@/utils/i18n';
 import { syncMealReminders } from '@/utils/notifications';
 
 const STORAGE_KEY = 'toxiscan_meals';
+// One-time flag: marks that stored meals use the v2 HEALTH scale (higher = better).
+// Before v2 the stored score was a TOXICITY value (higher = worse).
+const SCORE_SCALE_V2_FLAG = 'toxiscan_score_scale_v2';
 const MAX_MEALS = 200;
 
 export interface MealRecord {
@@ -42,11 +46,9 @@ export interface WeeklyReport {
   worstMeal: MealRecord | null;
 }
 
+/** Health-score tiers (higher = healthier): 8-10 green, 5-7 yellow, 3-4 orange, 0-2 red. */
 function avgToTier(avg: number): MealTier {
-  if (avg <= 3) return 'green';
-  if (avg <= 5) return 'yellow';
-  if (avg <= 8) return 'orange';
-  return 'red';
+  return scoreToTier(avg);
 }
 
 /** Monday 00:00 of the week containing `now`, shifted by `weekOffset` weeks. */
@@ -71,7 +73,24 @@ export const [MealHistoryProvider, useMeals] = createContextHook(() => {
     queryKey: ['meals'],
     queryFn: async () => {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      return stored ? (JSON.parse(stored) as MealRecord[]) : [];
+      const parsed: MealRecord[] = stored ? (JSON.parse(stored) as MealRecord[]) : [];
+      // ONE-TIME migration to the HEALTH scale (higher = better). Older records hold a
+      // toxicity score (higher = worse); convert each once with health = 10 - score and
+      // recompute its tier so history never desyncs with new health-scaled scans.
+      const migrated = await AsyncStorage.getItem(SCORE_SCALE_V2_FLAG);
+      if (!migrated) {
+        if (parsed.length > 0) {
+          const converted = parsed.map((m) => {
+            const health = Math.max(0, Math.min(10, 10 - m.score));
+            return { ...m, score: health, tier: scoreToTier(health) };
+          });
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(converted));
+          await AsyncStorage.setItem(SCORE_SCALE_V2_FLAG, 'true');
+          return converted;
+        }
+        await AsyncStorage.setItem(SCORE_SCALE_V2_FLAG, 'true');
+      }
+      return parsed;
     },
   });
 
@@ -136,7 +155,7 @@ export const [MealHistoryProvider, useMeals] = createContextHook(() => {
 
 /**
  * Aggregates the meals of a given week into the dashboard report (spec §8):
- * average toxicity, tier distribution, recurring problem ingredient, trend vs the
+ * average health score, tier distribution, recurring problem ingredient, trend vs the
  * previous week, and best/worst meals. weekOffset 0 = current week.
  */
 export function useWeeklyMealReport(weekOffset: number = 0): WeeklyReport {
@@ -196,11 +215,12 @@ export function useWeeklyMealReport(weekOffset: number = 0): WeeklyReport {
       trendDirection = delta > 3 ? 'up' : delta < -3 ? 'down' : 'flat';
     }
 
+    // Health scale: the BEST meal has the HIGHEST score, the WORST the lowest.
     let bestMeal: MealRecord | null = null;
     let worstMeal: MealRecord | null = null;
     for (const m of weekMeals) {
-      if (!bestMeal || m.score < bestMeal.score) bestMeal = m;
-      if (!worstMeal || m.score > worstMeal.score) worstMeal = m;
+      if (!bestMeal || m.score > bestMeal.score) bestMeal = m;
+      if (!worstMeal || m.score < worstMeal.score) worstMeal = m;
     }
 
     return {

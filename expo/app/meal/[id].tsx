@@ -82,7 +82,8 @@ export default function MealResultScreen() {
 
   const tierColor = MEAL_TIER_COLORS[meal.tier];
   const avatar = MEAL_TIER_AVATARS[meal.tier];
-  const showAlternatives = meal.score >= 6 && meal.alternatives;
+  // Low health score = toxic meal → show healthier alternatives.
+  const showAlternatives = meal.score <= 4 && meal.alternatives;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -151,7 +152,7 @@ export default function MealResultScreen() {
           ))}
         </View>
 
-        {/* 4. Alternatives — only when score ≥ 6 */}
+        {/* 4. Alternatives — only for low (toxic) health scores */}
         {showAlternatives && meal.alternatives ? (
           <>
             <Text style={styles.sectionTitle}>{t('meal_alt_title')}</Text>

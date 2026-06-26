@@ -22,11 +22,11 @@ const TIERS: MealTier[] = ['green', 'yellow', 'orange', 'red'];
 
 function buildDrIntro(report: WeeklyReport): string {
   const { count, avgScore } = report;
-  const good = avgScore < 5;
+  const good = avgScore >= 6;
   return pick({
-    en: `This week I looked at ${count} of your meals — average toxicity ${avgScore}/10. ${good ? 'Your plate is looking clean — keep this rhythm going.' : "A few heavy meals slipped in, but nothing we can't fix together."}`,
-    fr: `Cette semaine j'ai regardé ${count} de tes repas — toxicité moyenne ${avgScore}/10. ${good ? 'Ton assiette est propre, garde ce rythme.' : "Quelques repas lourds se sont glissés, mais rien qu'on ne puisse corriger ensemble."}`,
-    ko: `이번 주에 식사 ${count}개를 살펴봤어요 — 평균 독성 ${avgScore}/10이에요. ${good ? '식단이 깨끗해요, 이 리듬을 유지해 보세요.' : '조금 무거운 식사가 몇 번 있었지만, 함께 바로잡을 수 있어요.'}`,
+    en: `This week I looked at ${count} of your meals — average health score ${avgScore}/10. ${good ? 'Your plate is looking clean — keep this rhythm going.' : "A few heavy meals slipped in, but nothing we can't fix together."}`,
+    fr: `Cette semaine j'ai regardé ${count} de tes repas — score de santé moyen ${avgScore}/10. ${good ? 'Ton assiette est propre, garde ce rythme.' : "Quelques repas lourds se sont glissés, mais rien qu'on ne puisse corriger ensemble."}`,
+    ko: `이번 주에 식사 ${count}개를 살펴봤어요 — 평균 건강 점수 ${avgScore}/10이에요. ${good ? '식단이 깨끗해요, 이 리듬을 유지해 보세요.' : '조금 무거운 식사가 몇 번 있었지만, 함께 바로잡을 수 있어요.'}`,
   });
 }
 
@@ -55,7 +55,7 @@ function buildRecommendations(report: WeeklyReport): string[] {
   const recs: string[] = [];
   if (report.problemCategory) recs.push(categoryReco(report.problemCategory));
   recs.push(
-    report.avgScore < 5
+    report.avgScore >= 6
       ? pick({ en: 'Keep prioritizing whole, recognizable foods — it is working.', fr: "Continue de privilégier des aliments bruts et reconnaissables — ça marche.", ko: '가공되지 않은, 알아볼 수 있는 음식을 계속 우선하세요 — 효과가 있어요.' })
       : pick({ en: 'Aim for one clearly green meal a day next week.', fr: 'Vise un repas clairement vert par jour la semaine prochaine.', ko: '다음 주엔 하루에 확실히 초록인 식사를 한 끼 목표로 해보세요.' }),
   );
@@ -166,8 +166,8 @@ export default function WeeklyReportScreen() {
 
             {/* End message (everyone) */}
             <View style={[styles.endCard, { backgroundColor: `${tierColor}14` }]}>
-              <Text style={[styles.endText, { color: report.avgScore < 5 ? '#0B7A2D' : '#A94F05' }]}>
-                {report.avgScore < 5 ? t('weekly_end_good') : t('weekly_end_improve')}
+              <Text style={[styles.endText, { color: report.avgScore >= 6 ? '#0B7A2D' : '#A94F05' }]}>
+                {report.avgScore >= 6 ? t('weekly_end_good') : t('weekly_end_improve')}
               </Text>
             </View>
 

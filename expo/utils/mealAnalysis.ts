@@ -8,8 +8,10 @@ import { REFERENCE_FOODS, type ReferenceFood, type FoodMarker } from '@/constant
 // ═══════════════════════════════════════════════════════════════════════
 // MEAL SCAN — types
 // "Scan my meal" is a SEPARATE workflow from the product scan. At the level of
-// a single scan we judge the TOXICITY of the dish (ToxiScan DNA, IARC). The /10
-// score is EXCLUSIVE to this mode. Higher = worse (inverted scale).
+// a single scan we judge the dish (ToxiScan DNA, IARC). The /10 score shown to the
+// user is a HEALTH score: higher = BETTER (10 = excellent, 0 = very toxic).
+// Internally the engine still computes a TOXICITY value and inverts it at the
+// boundary (health = 10 − toxicity), so all the tuned floors stay unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
 export type MealCategory =
@@ -359,12 +361,15 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// THE SCORE — /10 TOXICITY (spec §4). Higher = worse. Deterministic so the
-// confirmation screen can recompute it LIVE on every manual edit.
+// THE SCORE — /10 HEALTH score (spec §4). Higher = BETTER. The engine computes a
+// TOXICITY value internally (all floors keyed on "higher = worse") then inverts it
+// at the very end: health = 10 − toxicity. Deterministic so the confirmation screen
+// can recompute it LIVE on every manual edit.
 // ─────────────────────────────────────────────────────────────────────
 
 export function computeMealScore(ingredients: MealIngredient[], dishName?: string): number {
-  if (ingredients.length === 0) return 0;
+  // An empty plate has nothing toxic → top health score (green).
+  if (ingredients.length === 0) return 10;
 
   // The most serious carcinogen present. Group 1 (processed/cured meat, nitrites) is
   // distinguished from Group 2A/2B (e.g. red meat) — only Group 1 can unlock a full 10.
@@ -456,13 +461,20 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   if (!canReachTen) score = Math.min(score, 9);
   if (!hasCarcinogen) score = Math.max(score, 1);
 
-  return Math.round(score);
+  // `score` here is the internal TOXICITY (higher = worse). The app displays a HEALTH
+  // score (higher = better), so invert at the boundary. A carcinogen toxicity floor of 6
+  // therefore becomes a health CAP of 4, exactly as specified.
+  return 10 - Math.round(score);
 }
 
+/**
+ * Maps a /10 HEALTH score to its tier (spec): 8-10 green, 5-7 yellow, 3-4 orange, 0-2 red.
+ * Higher score = healthier = greener.
+ */
 export function scoreToTier(score: number): MealTier {
-  if (score <= 3) return 'green';
-  if (score <= 5) return 'yellow';
-  if (score <= 8) return 'orange';
+  if (score >= 8) return 'green';
+  if (score >= 5) return 'yellow';
+  if (score >= 3) return 'orange';
   return 'red';
 }
 
@@ -681,7 +693,8 @@ export async function generateMealVerdict(
   score: number,
   tier: MealTier,
 ): Promise<MealVerdict> {
-  const needsAlternatives = score >= 6;
+  // Low HEALTH score = toxic meal → offer healthier alternatives (was toxicity ≥ 6).
+  const needsAlternatives = score <= 4;
   const ingredientLines = ingredients
     .map((i) => `- ${i.name} [${i.category}${i.isGrave ? ', GRAVE' : ''}]`)
     .join('\n');
@@ -689,7 +702,7 @@ export async function generateMealVerdict(
   const system = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC) AND nutrition. Write the verdict for a scanned meal.
 
 DISH: ${dishName}
-TOXICITY SCORE: ${score}/10 (higher = worse). Tier: ${tier}.
+HEALTH SCORE: ${score}/10 (higher = BETTER, lower = more toxic). Tier: ${tier}.
 INGREDIENTS (category in brackets, GRAVE = dangerous/IARC):
 ${ingredientLines}
 
@@ -699,7 +712,7 @@ WRITE:
 ${needsAlternatives
       ? `2. alternative_home: a HEALTHY and SIMILAR homemade version of the SAME dish (stay close to the craving — a pizza lover wants a better pizza, not a salad). One or two sentences.
 3. alternative_restaurant: what TYPE of dish to pick instead next time at a restaurant. One sentence.`
-      : `2. alternative_home: "" (empty — score below 6, no alternatives needed)
+      : `2. alternative_home: "" (empty — health score is high enough, no alternatives needed)
 3. alternative_restaurant: "" (empty)`}
 
 Respond in the user's app language. Output JSON only.`;
