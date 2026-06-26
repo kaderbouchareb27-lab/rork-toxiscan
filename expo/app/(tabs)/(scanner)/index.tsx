@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Camera, Shirt, Droplets, UtensilsCrossed, Utensils, Leaf, SprayCan, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
+import { Camera, Droplets, Utensils, Leaf, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -598,29 +598,17 @@ export default function ScannerScreen() {
               </TouchableOpacity>
 
               <View style={styles.scanTypesRow}>
-                <View style={styles.scanTypeItem}>
-                  <Leaf color="#2F463B" size={15} strokeWidth={1.7} />
+                <View style={styles.scanTypeChip}>
+                  <View style={styles.scanTypeIconWrap}>
+                    <Leaf color="#2E9E34" size={17} strokeWidth={2.1} />
+                  </View>
                   <Text style={styles.scanTypeText}>{t('cat_food')}</Text>
                 </View>
-                <View style={styles.scanTypeDot} />
-                <View style={styles.scanTypeItem}>
-                  <Droplets color="#2F463B" size={15} strokeWidth={1.7} />
+                <View style={styles.scanTypeChip}>
+                  <View style={[styles.scanTypeIconWrap, styles.scanTypeIconWrapCosmetic]}>
+                    <Droplets color="#7C3AED" size={17} strokeWidth={2.1} />
+                  </View>
                   <Text style={styles.scanTypeText}>{t('cat_cosmetics')}</Text>
-                </View>
-                <View style={styles.scanTypeDot} />
-                <View style={styles.scanTypeItem}>
-                  <SprayCan color="#2F463B" size={15} strokeWidth={1.7} />
-                  <Text style={styles.scanTypeText}>{t('cat_household')}</Text>
-                </View>
-                <View style={styles.scanTypeDot} />
-                <View style={styles.scanTypeItem}>
-                  <Shirt color="#2F463B" size={15} strokeWidth={1.7} />
-                  <Text style={styles.scanTypeText}>{t('cat_clothing')}</Text>
-                </View>
-                <View style={styles.scanTypeDot} />
-                <View style={styles.scanTypeItem}>
-                  <UtensilsCrossed color="#2F463B" size={15} strokeWidth={1.7} />
-                  <Text style={styles.scanTypeText}>{t('cat_utensils')}</Text>
                 </View>
               </View>
             </View>
@@ -1038,37 +1026,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
-    marginTop: 24,
-    flexWrap: 'wrap' as const,
+    marginTop: 22,
     gap: 12,
     paddingHorizontal: 2,
   },
-  scanTypeItem: {
+  scanTypeChip: {
+    flex: 1,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255, 255, 255, 0.62)',
+    justifyContent: 'center' as const,
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#DDD8CE',
+    borderColor: '#E7DFD3',
     shadowColor: '#2F281F',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
+    elevation: 2,
+  },
+  scanTypeIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
+  },
+  scanTypeIconWrapCosmetic: {
+    backgroundColor: 'rgba(124, 58, 237, 0.12)',
   },
   scanTypeText: {
-    fontSize: 14,
-    fontWeight: '500' as const,
-    color: '#303633',
+    fontSize: 14.5,
+    fontWeight: '600' as const,
+    color: '#222724',
     letterSpacing: -0.1,
-  },
-  scanTypeDot: {
-    display: 'none',
-    width: 0,
-    height: 0,
   },
   cardsSection: {
     paddingHorizontal: 20,

@@ -56,7 +56,7 @@ export default function PrivacyScreen() {
 
       <View style={styles.contactCard}>
         <Text style={styles.contactLabel}>{pick({ en: 'Contact', fr: 'Contact', ko: '문의' })}</Text>
-        <Text style={styles.contactEmail}>contact@toxiscan.com</Text>
+        <Text style={styles.contactEmail}>duneautomateai@gmail.com</Text>
       </View>
 
       <View style={styles.spacer} />

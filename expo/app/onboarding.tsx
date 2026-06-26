@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { Camera, Leaf, ChevronRight, ArrowRight, ShieldCheck } from 'lucide-react-native';
+import { Camera, ChevronRight, ArrowRight, ShieldCheck } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -93,9 +93,6 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Animated.View style={[styles.flex, { opacity: fade }]}>
         <View style={styles.header}>
-          <View style={styles.logoMark}>
-            <Leaf color={Colors.white} size={19} strokeWidth={2.4} fill={Colors.white} />
-          </View>
           <TouchableOpacity onPress={finish} style={styles.skipBtn} testID="onboarding-skip" hitSlop={10}>
             <Text style={styles.skipText}>{t('skip')}</Text>
           </TouchableOpacity>
@@ -207,23 +204,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    justifyContent: 'space-between' as const,
+    justifyContent: 'flex-end' as const,
     paddingHorizontal: 20,
     paddingTop: 4,
     paddingBottom: 8,
-  },
-  logoMark: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
-    shadowRadius: 8,
-    elevation: 4,
   },
   skipBtn: {
     paddingVertical: 8,

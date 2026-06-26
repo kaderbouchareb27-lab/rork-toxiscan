@@ -1425,15 +1425,30 @@ function assembleResult(
   const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
   const sorted = [...substances].sort((a, b) => riskOrder[a.niveau_risque] - riskOrder[b.niveau_risque]);
   const isCosmetic = meta.categorie_produit === 'cosmetic';
+  const nonFoodDomain: NonFoodDomain | null =
+    meta.categorie_produit === 'household' ? 'household'
+    : meta.categorie_produit === 'clothing' ? 'textile'
+    : meta.categorie_produit === 'kitchen_utensil' ? 'kitchen'
+    : null;
   const badge_global = isCosmetic ? computeCosmeticBadgeGlobal(sorted) : computeBadgeGlobal(sorted);
+  const resume = isCosmetic
+    ? generateCosmeticResume(badge_global, sorted)
+    : nonFoodDomain
+      ? generateNonFoodResume(nonFoodDomain, badge_global, sorted)
+      : generateResume(badge_global, sorted);
+  const recommandations = isCosmetic
+    ? generateCosmeticRecommendations(badge_global, sorted)
+    : nonFoodDomain
+      ? generateNonFoodRecommendations(nonFoodDomain, badge_global)
+      : generateRecommendations(badge_global, sorted);
   return {
     categorie_produit: meta.categorie_produit,
     objet_identifie: sanitizeProductName(meta.objet_identifie, meta.categorie_produit),
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
     badge_global,
-    resume: isCosmetic ? generateCosmeticResume(badge_global, sorted) : generateResume(badge_global, sorted),
-    recommandations: isCosmetic ? generateCosmeticRecommendations(badge_global, sorted) : generateRecommendations(badge_global, sorted),
+    resume,
+    recommandations,
     alternatives_sures: [],
     alternatives_saines: [],
     erreur: meta.erreur || '',
@@ -1762,6 +1777,74 @@ function generateCosmeticRecommendations(badge: RiskLevel, substances: Substance
     }));
   }
 
+  return recs;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// VERDICTS NON-ALIMENTAIRES (ménager / textile / ustensile)
+// Vocabulaire propre à chaque catégorie — JAMAIS de termes alimentaires
+// ("ultra-transformé", "consommer", "cancérigène par ingestion"…).
+// Le ménager parle produits chimiques/irritants, le textile parle
+// fibres/teintures, l'ustensile parle matériaux/revêtements.
+// ─────────────────────────────────────────────────────────────────────
+
+type NonFoodDomain = 'household' | 'textile' | 'kitchen';
+
+function generateNonFoodResume(domain: NonFoodDomain, badge: RiskLevel, substances: SubstanceDetected[]): string {
+  const flagged = substances.filter((s) => s.niveau_risque !== 'aucun').slice(0, 2).map((s) => s.nom).join(', ');
+  const named = flagged ? (isEnglish() ? ` (${flagged})` : ` (${flagged})`) : '';
+
+  if (badge === 'aucun') {
+    if (domain === 'household') return pick({ en: 'This household product has no known substance of concern in our database. A safer choice for your home.', fr: "Ce produit ménager ne contient aucune substance préoccupante connue dans notre base. Un choix plus sûr pour la maison.", ko: '이 생활용품에는 데이터베이스에서 알려진 우려 물질이 없습니다. 집을 위한 더 안전한 선택입니다.' });
+    if (domain === 'textile') return pick({ en: 'This textile shows no known substance of concern. A healthy composition against the skin.', fr: "Ce textile ne présente aucune substance préoccupante connue. Une composition saine au contact de la peau.", ko: '이 섬유에는 알려진 우려 물질이 없습니다. 피부에 닿아도 건강한 구성입니다.' });
+    return pick({ en: 'This kitchen item is made of materials with no known risk. A good choice for cooking.', fr: "Cet ustensile est fait de matériaux sans risque connu. Un bon choix pour cuisiner.", ko: '이 주방용품은 알려진 위험이 없는 소재로 만들어졌습니다. 요리에 좋은 선택입니다.' });
+  }
+
+  const severe = badge === 'danger' || badge === 'probable';
+  if (domain === 'household') {
+    return severe
+      ? pick({ en: `This household product contains substances classified as hazardous${named}. Wear gloves, ventilate the room, keep it away from children — or choose a safer alternative.`, fr: `Ce produit ménager contient des substances classées dangereuses${named}. Porte des gants, aère la pièce, garde-le hors de portée des enfants — ou choisis une alternative plus sûre.`, ko: `이 생활용품에는 위험으로 분류된 물질${named}이 들어 있습니다. 장갑을 끼고 환기하며 어린이의 손이 닿지 않게 보관하거나 더 안전한 대안을 선택하세요.` })
+      : pick({ en: 'This household product contains substances to handle with care. Ventilate and avoid prolonged skin contact.', fr: "Ce produit ménager contient des substances à manipuler avec précaution. Aère et évite le contact prolongé avec la peau.", ko: '이 생활용품에는 주의해서 다뤄야 할 물질이 있습니다. 환기하고 피부와의 장시간 접촉을 피하세요.' });
+  }
+  if (domain === 'textile') {
+    return severe
+      ? pick({ en: `This textile contains substances classified as hazardous${named} — dyes, finishes or PFAS. Wash it several times before wearing, or prefer certified fibres (OEKO-TEX, GOTS).`, fr: `Ce textile contient des substances classées dangereuses${named} — teintures, traitements ou PFAS. Lave-le plusieurs fois avant de le porter, ou privilégie des fibres certifiées (OEKO-TEX, GOTS).`, ko: `이 섬유에는 위험으로 분류된 물질${named}(염료, 마감 처리제 또는 PFAS)이 들어 있습니다. 착용 전 여러 번 세탁하거나 인증 섬유(OEKO-TEX, GOTS)를 선택하세요.` })
+      : pick({ en: 'This textile contains substances worth watching. Prefer certified natural fibres and wash new garments before wearing.', fr: "Ce textile contient des substances à surveiller. Préfère des fibres naturelles certifiées et lave les vêtements neufs avant de les porter.", ko: '이 섬유에는 주의가 필요한 물질이 있습니다. 인증된 천연 섬유를 선택하고 새 옷은 착용 전에 세탁하세요.' });
+  }
+  // kitchen
+  return severe
+    ? pick({ en: `This kitchen item contains materials or coatings classified as hazardous${named}. Avoid heating it empty or at high temperature, or replace it with stainless steel, glass or cast iron.`, fr: `Cet ustensile contient des matériaux ou revêtements classés dangereux${named}. Évite de le chauffer à vide ou à haute température, ou remplace-le par de l'inox, du verre ou de la fonte.`, ko: `이 주방용품에는 위험으로 분류된 소재나 코팅${named}이 있습니다. 빈 상태로 또는 고온으로 가열하지 말거나 스테인리스, 유리, 주철로 교체하세요.` })
+    : pick({ en: 'This kitchen item contains materials worth watching. Avoid heating it empty and prefer stainless steel, glass or cast iron.', fr: "Cet ustensile contient des matériaux à surveiller. Évite de le chauffer à vide et privilégie l'inox, le verre ou la fonte.", ko: '이 주방용품에는 주의가 필요한 소재가 있습니다. 빈 상태로 가열하지 말고 스테인리스, 유리, 주철을 선택하세요.' });
+}
+
+function generateNonFoodRecommendations(domain: NonFoodDomain, badge: RiskLevel): string[] {
+  const recs: string[] = [];
+  const severe = badge === 'danger' || badge === 'probable';
+  if (domain === 'household') {
+    if (severe) {
+      recs.push(pick({ en: 'Ventilate, wear gloves and never mix cleaning products together.', fr: 'Aère, porte des gants et ne mélange jamais les produits ménagers entre eux.', ko: '환기하고 장갑을 끼며 세제를 절대 섞지 마세요.' }));
+      recs.push(pick({ en: 'Prefer eco-labelled or fragrance-free cleaners, or a vinegar + water mix.', fr: "Préfère des nettoyants écolabellisés ou sans parfum, ou un mélange vinaigre + eau.", ko: '친환경 인증 또는 무향 세제나 식초+물 혼합액을 선택하세요.' }));
+    } else {
+      recs.push(pick({ en: 'Keep out of reach of children and store in a ventilated place.', fr: "Tenir hors de portée des enfants et ranger dans un endroit aéré.", ko: '어린이 손이 닿지 않는 곳, 환기되는 장소에 보관하세요.' }));
+    }
+    return recs;
+  }
+  if (domain === 'textile') {
+    if (severe) {
+      recs.push(pick({ en: 'Wash new garments 2–3 times before first wear to reduce residues.', fr: 'Lave les vêtements neufs 2 à 3 fois avant le premier port pour réduire les résidus.', ko: '잔여물을 줄이기 위해 새 옷은 처음 입기 전 2~3회 세탁하세요.' }));
+      recs.push(pick({ en: 'Prefer OEKO-TEX or GOTS certified natural fibres (organic cotton, linen).', fr: 'Privilégie des fibres naturelles certifiées OEKO-TEX ou GOTS (coton bio, lin).', ko: 'OEKO-TEX 또는 GOTS 인증 천연 섬유(유기농 면, 린넨)를 선택하세요.' }));
+    } else {
+      recs.push(pick({ en: 'Wash before wearing and favour breathable natural fibres.', fr: 'Lave avant de porter et privilégie des fibres naturelles respirantes.', ko: '착용 전 세탁하고 통기성 좋은 천연 섬유를 선택하세요.' }));
+    }
+    return recs;
+  }
+  // kitchen
+  if (severe) {
+    recs.push(pick({ en: 'Never preheat non-stick pans empty and discard them once scratched.', fr: 'Ne préchauffe jamais une poêle antiadhésive à vide et jette-la dès qu\'elle est rayée.', ko: '논스틱 팬을 빈 상태로 예열하지 말고 긁히면 교체하세요.' }));
+    recs.push(pick({ en: 'Prefer stainless steel, cast iron or glass for cooking and storage.', fr: "Privilégie l'inox, la fonte ou le verre pour cuisiner et conserver.", ko: '요리와 보관에는 스테인리스, 주철, 유리를 선택하세요.' }));
+  } else {
+    recs.push(pick({ en: 'Avoid overheating and use wooden or silicone utensils to protect the surface.', fr: 'Évite la surchauffe et utilise des ustensiles en bois ou silicone pour protéger la surface.', ko: '과열을 피하고 표면 보호를 위해 나무나 실리콘 도구를 사용하세요.' }));
+  }
   return recs;
 }
 

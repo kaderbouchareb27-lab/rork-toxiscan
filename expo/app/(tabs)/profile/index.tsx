@@ -34,7 +34,7 @@ export default function ProfileScreen() {
 
   const handleContact = useCallback(async () => {
     console.log('[Profile] Contact tapped');
-    const url = 'mailto:contact@toxiscan.com';
+    const url = 'mailto:duneautomateai@gmail.com';
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) {

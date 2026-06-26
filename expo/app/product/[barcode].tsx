@@ -48,6 +48,37 @@ import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } fro
 // ─────────────────────────────────────────────
 type DisplayLevel = 'danger' | 'probable' | 'possible' | 'aucun';
 
+// Verdict vocabulary domain. Food and cosmetics each have their own scale; the
+// three non-food categories (household chemicals, textiles, kitchen materials)
+// share a chemical/material hazard scale and NEVER reuse food wording.
+type VerdictDomain = 'food' | 'cosmetic' | 'household' | 'textile' | 'kitchen';
+
+/** Localized banner intro for a non-food category, adapted to its real-world context. */
+function nonFoodIntro(domain: 'household' | 'textile' | 'kitchen', level: VerdictLevel): string {
+  if (domain === 'household') {
+    switch (level) {
+      case 'danger':     return t('intro_household_danger');
+      case 'warning':    return t('intro_household_hazardous');
+      case 'moderation': return t('intro_household_caution');
+      case 'approuve':   return t('intro_household_safe');
+    }
+  }
+  if (domain === 'textile') {
+    switch (level) {
+      case 'danger':     return t('intro_textile_danger');
+      case 'warning':    return t('intro_textile_hazardous');
+      case 'moderation': return t('intro_textile_caution');
+      case 'approuve':   return t('intro_textile_safe');
+    }
+  }
+  switch (level) {
+    case 'danger':     return t('intro_kitchen_danger');
+    case 'warning':    return t('intro_kitchen_hazardous');
+    case 'moderation': return t('intro_kitchen_caution');
+    case 'approuve':   return t('intro_kitchen_safe');
+  }
+}
+
 function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
   switch (ing.niveau_risque) {
     case 'danger':   return 'danger';
@@ -57,8 +88,8 @@ function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
   }
 }
 
-function getLevelBadgeColor(level: DisplayLevel, isCosmetic: boolean = false): string {
-  if (isCosmetic) {
+function getLevelBadgeColor(level: DisplayLevel, domain: VerdictDomain = 'food'): string {
+  if (domain === 'cosmetic') {
     switch (level) {
       case 'danger':   return '#7C3AED'; // 🟣 TOXIC
       case 'probable': return '#EAB308'; // (n'arrive pas en cosmétique — sécurité)
@@ -74,13 +105,21 @@ function getLevelBadgeColor(level: DisplayLevel, isCosmetic: boolean = false): s
   }
 }
 
-function getLevelBadgeLabel(level: DisplayLevel, isCosmetic: boolean = false): string {
-  if (isCosmetic) {
+function getLevelBadgeLabel(level: DisplayLevel, domain: VerdictDomain = 'food'): string {
+  if (domain === 'cosmetic') {
     switch (level) {
       case 'danger':   return t('cosmetic_badge_toxic');     // TOXIQUE / TOXIC
       case 'probable': return t('cosmetic_badge_disputed');  // (sécurité)
       case 'possible': return t('cosmetic_badge_disputed');  // CONTESTÉ / DISPUTED
       case 'aucun':    return t('cosmetic_badge_approved');  // APPROUVÉ / APPROVED
+    }
+  }
+  if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
+    switch (level) {
+      case 'danger':   return t('nf_badge_danger');    // CANCÉRIGÈNE / CARCINOGENIC
+      case 'probable': return t('nf_badge_hazardous'); // DANGEREUX / HAZARDOUS
+      case 'possible': return t('nf_badge_caution');   // PRÉCAUTION / CAUTION
+      case 'aucun':    return t('nf_badge_safe');      // SÛR / SAFE
     }
   }
   switch (level) {
@@ -91,8 +130,20 @@ function getLevelBadgeLabel(level: DisplayLevel, isCosmetic: boolean = false): s
   }
 }
 
-function getBannerConfig(level: VerdictLevel, isCosmetic: boolean = false): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
-  if (isCosmetic) {
+function getBannerConfig(level: VerdictLevel, domain: VerdictDomain = 'food'): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
+  if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
+    switch (level) {
+      case 'danger':
+        return { color: '#D0260F', label: t('nf_badge_danger'), intro: nonFoodIntro(domain, 'danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      case 'warning':
+        return { color: '#E8730A', label: t('nf_badge_hazardous'), intro: nonFoodIntro(domain, 'warning'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      case 'moderation':
+        return { color: '#EAB308', label: t('nf_badge_caution'), intro: nonFoodIntro(domain, 'moderation'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      case 'approuve':
+        return { color: '#2E9E34', label: t('nf_badge_safe'), intro: nonFoodIntro(domain, 'approuve'), icon: <CheckCircle color="#FFFFFF" size={28} />, avatarUri: null };
+    }
+  }
+  if (domain === 'cosmetic') {
     switch (level) {
       case 'danger':
         return { color: '#7C3AED', label: t('cosmetic_badge_toxic'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiCosmeticAvatarForVerdict(level) };
@@ -115,7 +166,15 @@ function getBannerConfig(level: VerdictLevel, isCosmetic: boolean = false): { co
   }
 }
 
-function getVerdictAction(level: VerdictLevel): string {
+function getVerdictAction(level: VerdictLevel, domain: VerdictDomain = 'food'): string {
+  if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
+    switch (level) {
+      case 'danger':     return t('nf_action_danger');
+      case 'warning':    return t('nf_action_hazardous');
+      case 'moderation': return t('nf_action_caution');
+      case 'approuve':   return t('nf_action_safe');
+    }
+  }
   switch (level) {
     case 'danger':
       return pick({ en: 'Avoid regular consumption', fr: 'À éviter régulièrement', ko: '정기적인 섭취를 피하세요' });
@@ -812,8 +871,14 @@ export default function ProductScreen() {
 
   const isGreen = verdictLevel === 'approuve';
   const isCosmetic = product.productCategory === 'cosmetic';
-  const bannerConfig = getBannerConfig(verdictLevel, isCosmetic);
-  const verdictAction = getVerdictAction(verdictLevel);
+  const verdictDomain: VerdictDomain =
+    isCosmetic ? 'cosmetic'
+    : additiveCategory === 'household' ? 'household'
+    : additiveCategory === 'textile' ? 'textile'
+    : additiveCategory === 'kitchen' ? 'kitchen'
+    : 'food';
+  const bannerConfig = getBannerConfig(verdictLevel, verdictDomain);
+  const verdictAction = getVerdictAction(verdictLevel, verdictDomain);
   const categoryLabel = product.productCategory ? getCategoryLabel(product.productCategory) : getCategoryLabel('food');
 
   const handleFavorite = () => {
@@ -985,7 +1050,7 @@ export default function ProductScreen() {
                 // 🟡 possible = MODÉRATION
                 // 🟢 aucun = APPROUVÉ
                 const level = getDisplayLevel(ing);
-                const color = getLevelBadgeColor(level, isCosmetic);
+                const color = getLevelBadgeColor(level, verdictDomain);
                 // For non-food scans, prefer the category-appropriate description
                 // from the additives database (FR/EN) when we can match the ingredient.
                 // Cosmetics carry their own bilingual description (cosmetic engine),
@@ -1005,7 +1070,7 @@ export default function ProductScreen() {
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
                       <View style={[styles.allIngBadge, { backgroundColor: color }]}>
-                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level, isCosmetic)}</Text>
+                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level, verdictDomain)}</Text>
                       </View>
                     </View>
                     {isPending ? (

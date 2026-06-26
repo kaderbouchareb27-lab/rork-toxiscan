@@ -78,7 +78,7 @@ export default function TermsScreen() {
 
       <View style={styles.contactCard}>
         <Text style={styles.contactLabel}>{pick({ en: 'Questions?', fr: 'Questions ?', ko: '문의가 있으신가요?' })}</Text>
-        <Text style={styles.contactEmail}>contact@toxiscan.com</Text>
+        <Text style={styles.contactEmail}>duneautomateai@gmail.com</Text>
       </View>
 
       <View style={styles.spacer} />

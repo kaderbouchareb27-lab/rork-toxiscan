@@ -228,6 +228,36 @@ const translations = {
   intro_warning: { fr: 'Ce produit est transformé. Limite ta consommation.', en: 'This product is processed. Limit your consumption.', ko: '이 제품은 가공식품입니다. 섭취를 제한하세요.' },
   intro_moderation: { fr: 'Ce produit est à consommer avec modération.', en: 'This product should be consumed in moderation.', ko: '이 제품은 적당히 섭취해야 합니다.' },
   intro_approved: { fr: 'Ce produit est sain et approuvé.', en: 'This product is healthy and approved.', ko: '이 제품은 건강하며 승인되었습니다.' },
+
+  // ===== NON-FOOD BADGES (household / textile / kitchen — never food vocabulary) =====
+  nf_badge_danger: { fr: 'CANCÉRIGÈNE', en: 'CARCINOGENIC', ko: '발암성' },
+  nf_badge_hazardous: { fr: 'DANGEREUX', en: 'HAZARDOUS', ko: '위험' },
+  nf_badge_caution: { fr: 'PRÉCAUTION', en: 'CAUTION', ko: '주의' },
+  nf_badge_safe: { fr: 'SÛR', en: 'SAFE', ko: '안전' },
+
+  // Household (chemicals / irritants)
+  intro_household_danger: { fr: 'Ce produit ménager contient des substances chimiques classées dangereuses.', en: 'This household product contains chemicals classified as hazardous.', ko: '이 생활용품에는 위험으로 분류된 화학 물질이 들어 있습니다.' },
+  intro_household_hazardous: { fr: 'Ce produit ménager contient des substances irritantes ou toxiques.', en: 'This household product contains irritant or toxic substances.', ko: '이 생활용품에는 자극성 또는 독성 물질이 들어 있습니다.' },
+  intro_household_caution: { fr: 'Ce produit ménager est à manipuler avec précaution.', en: 'Handle this household product with care.', ko: '이 생활용품은 주의해서 다뤄야 합니다.' },
+  intro_household_safe: { fr: 'Ce produit ménager ne présente pas de substance préoccupante connue.', en: 'This household product has no known substance of concern.', ko: '이 생활용품에는 알려진 우려 물질이 없습니다.' },
+
+  // Textile (fibres / dyes / treatments)
+  intro_textile_danger: { fr: 'Ce textile contient des substances classées dangereuses (teintures, traitements ou PFAS).', en: 'This textile contains substances classified as hazardous (dyes, treatments or PFAS).', ko: '이 섬유에는 위험으로 분류된 물질(염료, 처리제 또는 PFAS)이 들어 있습니다.' },
+  intro_textile_hazardous: { fr: 'Ce textile contient des traitements chimiques ou des fibres préoccupantes.', en: 'This textile contains chemical treatments or concerning fibres.', ko: '이 섬유에는 화학 처리제나 우려되는 섬유가 들어 있습니다.' },
+  intro_textile_caution: { fr: 'Ce textile contient des substances à surveiller.', en: 'This textile contains substances worth watching.', ko: '이 섬유에는 주의가 필요한 물질이 들어 있습니다.' },
+  intro_textile_safe: { fr: 'Ce textile ne présente pas de substance préoccupante connue.', en: 'This textile has no known substance of concern.', ko: '이 섬유에는 알려진 우려 물질이 없습니다.' },
+
+  // Kitchen (materials / coatings)
+  intro_kitchen_danger: { fr: 'Cet ustensile contient des matériaux ou revêtements classés dangereux.', en: 'This kitchen item contains materials or coatings classified as hazardous.', ko: '이 주방용품에는 위험으로 분류된 소재나 코팅이 들어 있습니다.' },
+  intro_kitchen_hazardous: { fr: 'Cet ustensile contient des matériaux ou revêtements préoccupants.', en: 'This kitchen item contains concerning materials or coatings.', ko: '이 주방용품에는 우려되는 소재나 코팅이 들어 있습니다.' },
+  intro_kitchen_caution: { fr: 'Cet ustensile contient des matériaux à surveiller.', en: 'This kitchen item contains materials worth watching.', ko: '이 주방용품에는 주의가 필요한 소재가 들어 있습니다.' },
+  intro_kitchen_safe: { fr: 'Cet ustensile est fait de matériaux sans risque connu.', en: 'This kitchen item is made of materials with no known risk.', ko: '이 주방용품은 알려진 위험이 없는 소재로 만들어졌습니다.' },
+
+  // Non-food verdict actions (never "consume")
+  nf_action_danger: { fr: 'À éviter', en: 'Avoid', ko: '피하세요' },
+  nf_action_hazardous: { fr: 'Manipuler avec précaution', en: 'Handle with care', ko: '주의해서 다루세요' },
+  nf_action_caution: { fr: 'Précautions d\'usage', en: 'Use with care', ko: '사용 시 주의' },
+  nf_action_safe: { fr: 'Bon choix', en: 'Good choice', ko: '좋은 선택' },
   approved_consume_freely: { fr: 'Vous pouvez consommer ce produit régulièrement sans inquiétude.', en: 'You can consume this product regularly without concern.', ko: '이 제품은 걱정 없이 정기적으로 섭취해도 됩니다.' },
   not_classified_unknown: { fr: 'Non classé', en: 'Not classified', ko: '미분류' },
   all_ingredients: { fr: 'Tous les ingrédients', en: 'All ingredients', ko: '전체 성분' },
