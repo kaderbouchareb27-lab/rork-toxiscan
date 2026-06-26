@@ -26,11 +26,10 @@ import ToxicLoadBanner from '@/components/ToxicLoadBanner';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
-import * as StoreReview from 'expo-store-review';
 import ShareImageCard from '@/components/ShareImageCard';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { maybeRequestReviewAfterPositiveScan } from '@/utils/reviewPrompt';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -657,28 +656,6 @@ export default function ProductScreen() {
   const [isShareLoading, setIsShareLoading] = useState<boolean>(false);
   const hasRequestedReview = useRef<boolean>(false);
 
-  useEffect(() => {
-    const maybeRequestReview = async () => {
-      if (hasRequestedReview.current) return;
-      try {
-        const countStr = await AsyncStorage.getItem('toxiscan_scan_count');
-        const count = countStr ? parseInt(countStr, 10) : 0;
-        const newCount = count + 1;
-        await AsyncStorage.setItem('toxiscan_scan_count', String(newCount));
-        if (newCount === 3 || newCount === 10 || newCount === 25) {
-          hasRequestedReview.current = true;
-          const isAvailable = await StoreReview.isAvailableAsync();
-          if (isAvailable) {
-            setTimeout(() => { void StoreReview.requestReview(); }, 1500);
-          }
-        }
-      } catch (e) {
-        console.log('[ProductScreen] Review request error:', e);
-      }
-    };
-    void maybeRequestReview();
-  }, []);
-
   const product = useMemo(() => {
     return history.find(p => p.barcode === barcode);
   }, [history, barcode]);
@@ -708,6 +685,16 @@ export default function ProductScreen() {
     }
     return { verdictLevel: _verdictLevel };
   }, [product?.riskGroup]);
+
+  // After a POSITIVE (green "approved") product scan, ask for Apple's native
+  // in-app review. Only on a good verdict, only via the system sheet, capped
+  // to Apple's 3×/year (enforced again in the helper). Toxic scans never ask.
+  useEffect(() => {
+    if (!product || hasRequestedReview.current) return;
+    if (verdictLevel !== 'approuve') return;
+    hasRequestedReview.current = true;
+    void maybeRequestReviewAfterPositiveScan(true);
+  }, [product, verdictLevel]);
 
   const { location, isResolving, requestAndResolve } = useLocation();
   // Store suggestions follow the user's REAL location (GPS), not the phone

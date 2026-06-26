@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,7 @@ import {
   mealTierSubtitle,
 } from '@/constants/mealAvatars';
 import type { MealTier } from '@/utils/mealAnalysis';
+import { maybeRequestReviewAfterPositiveScan } from '@/utils/reviewPrompt';
 
 const TIER_TO_VERDICT: Record<MealTier, 'approuve' | 'moderation' | 'warning' | 'danger'> = {
   green: 'approuve',
@@ -37,6 +38,17 @@ export default function MealResultScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { getMeal } = useMeals();
   const meal = useMemo(() => (typeof id === 'string' ? getMeal(id) : undefined), [id, getMeal]);
+  const hasRequestedReview = useRef<boolean>(false);
+
+  // After a POSITIVE (green "Bon repas") meal verdict, ask for Apple's native
+  // in-app review. Only on a good outcome, only via the system sheet, capped to
+  // Apple's 3×/year (enforced in the helper). Toxic meals never ask.
+  useEffect(() => {
+    if (!meal || hasRequestedReview.current) return;
+    if (meal.tier !== 'green') return;
+    hasRequestedReview.current = true;
+    void maybeRequestReviewAfterPositiveScan(true);
+  }, [meal]);
 
   const handleAskDrToxi = useCallback(() => {
     if (!meal) return;
