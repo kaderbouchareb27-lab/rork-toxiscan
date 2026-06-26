@@ -1,37 +1,70 @@
 import { z } from 'zod';
 import { pick } from '@/utils/i18n';
 
-/**
- * Default model for text-only AI calls: Dr. Toxi chat (aiGenerateText) and
- * product-label description enrichment (aiGenerateObject via callAI). Fast and
- * cost-effective for text classification / conversation — does NOT handle images.
- */
-const MODEL_ID = 'gpt-4.1-nano';
-/**
- * Multimodal model for the meal-scan VISION step and the authoritative text
- * re-analysis. gpt-4.1-nano is too weak at fine-grained food recognition — it tends to
- * fall back to the most statistically common dish, which made real photos be misread
- * (e.g. salmon + broccoli purée returned as "chicken, fries & sauce"). gpt-4o is validated
- * for food-image recognition and far more reliable, so the meal flow passes it explicitly.
- */
-export const MEAL_VISION_MODEL_ID = 'gpt-4o';
-const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
+// ═══════════════════════════════════════════════════════════════════════
+// AI PROVIDERS — clean toggle.
+// Two OpenAI-compatible providers (/chat/completions) are wired:
+//   • 'openai'     → api.openai.com   (key = EXPO_PUBLIC_OPEN_AI)
+//   • 'openrouter' → openrouter.ai    (key = EXPO_PUBLIC_OPENROUTER_API_KEY)
+// To re-route a flow to another model/provider, just change the MEAL_VISION_*
+// or TEXT_* constants below — nothing else in the app needs to change.
+// ═══════════════════════════════════════════════════════════════════════
 
-function getOpenAIConfig(): { url: string; apiKey: string } {
-  const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
-  if (!apiKey) {
-    throw new Error(
-      pick({
-        en: 'AI configuration is missing. The EXPO_PUBLIC_OPEN_AI environment variable must be set.',
-        fr: "Configuration IA manquante. La variable d'environnement EXPO_PUBLIC_OPEN_AI doit être définie.",
-        ko: 'AI 구성이 누락되었습니다. EXPO_PUBLIC_OPEN_AI 환경 변수를 설정해야 합니다.',
-      })
-    );
+export type AIProvider = 'openai' | 'openrouter';
+
+/**
+ * Text-only model: Dr. Toxi chat (aiGenerateText) and product-label description
+ * enrichment (aiGenerateObject via callAI). Fast and cheap — does NOT handle images.
+ */
+const TEXT_MODEL_ID = 'gpt-4.1-nano';
+const TEXT_PROVIDER: AIProvider = 'openai';
+
+/**
+ * Meal-scan VISION model: photo recognition + the authoritative text re-analysis.
+ * Currently routed through OpenRouter → Qwen3.7 Plus.
+ * To revert to the previous OpenAI setup, set:
+ *   MEAL_VISION_PROVIDER = 'openai'  and  MEAL_VISION_MODEL_ID = 'gpt-4o'.
+ * (gpt-4o is validated for fine-grained food recognition; gpt-4.1-nano is too weak.)
+ */
+export const MEAL_VISION_MODEL_ID = 'qwen/qwen3.7-plus';
+export const MEAL_VISION_PROVIDER: AIProvider = 'openrouter';
+
+const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
+const OPENROUTER_CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+interface ProviderConfig {
+  url: string;
+  apiKey: string;
+  extraHeaders: Record<string, string>;
+}
+
+function missingKeyError(varName: string): Error {
+  return new Error(
+    pick({
+      en: `AI configuration is missing. The ${varName} environment variable must be set.`,
+      fr: `Configuration IA manquante. La variable d'environnement ${varName} doit être définie.`,
+      ko: `AI 구성이 누락되었습니다. ${varName} 환경 변수를 설정해야 합니다.`,
+    })
+  );
+}
+
+function getProviderConfig(provider: AIProvider): ProviderConfig {
+  if (provider === 'openrouter') {
+    const apiKey = process.env.EXPO_PUBLIC_OPENROUTER_API_KEY;
+    if (!apiKey) throw missingKeyError('EXPO_PUBLIC_OPENROUTER_API_KEY');
+    return {
+      url: OPENROUTER_CHAT_URL,
+      apiKey,
+      // OpenRouter recommends these for attribution; harmless if ignored.
+      extraHeaders: {
+        'HTTP-Referer': 'https://toxiscan.app',
+        'X-Title': 'ToxiScan',
+      },
+    };
   }
-  return {
-    url: OPENAI_CHAT_URL,
-    apiKey,
-  };
+  const apiKey = process.env.EXPO_PUBLIC_OPEN_AI;
+  if (!apiKey) throw missingKeyError('EXPO_PUBLIC_OPEN_AI');
+  return { url: OPENAI_CHAT_URL, apiKey, extraHeaders: {} };
 }
 
 type TextPart = { type: 'text'; text: string };
@@ -61,14 +94,18 @@ function normalizeContent(
   });
 }
 
-async function callChatCompletions(body: Record<string, unknown>): Promise<any> {
-  const { url, apiKey } = getOpenAIConfig();
-  console.log('[AI] Calling', body.model ?? MODEL_ID, 'directly via OpenAI API');
+async function callChatCompletions(
+  body: Record<string, unknown>,
+  provider: AIProvider
+): Promise<any> {
+  const { url, apiKey, extraHeaders } = getProviderConfig(provider);
+  console.log('[AI] Calling', body.model ?? TEXT_MODEL_ID, 'via', provider);
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       authorization: `Bearer ${apiKey}`,
+      ...extraHeaders,
     },
     body: JSON.stringify(body),
   });
@@ -97,14 +134,15 @@ export async function aiGenerateText(params: {
   messages: AIMessage[];
   maxTokens?: number;
   model?: string;
+  provider?: AIProvider;
 }): Promise<string> {
   const body: Record<string, unknown> = {
-    model: params.model ?? MODEL_ID,
+    model: params.model ?? TEXT_MODEL_ID,
     max_tokens: params.maxTokens ?? 2048,
     messages: buildMessages(params.system, params.messages),
   };
 
-  const data = await callChatCompletions(body);
+  const data = await callChatCompletions(body, params.provider ?? TEXT_PROVIDER);
   const choice = data?.choices?.[0];
   const content = choice?.message?.content;
   if (typeof content === 'string') return content;
@@ -137,6 +175,7 @@ export async function aiGenerateObject<T>(params: {
   toolDescription?: string;
   maxTokens?: number;
   model?: string;
+  provider?: AIProvider;
 }): Promise<T> {
   const jsonInstruction = pick({
     en: '\n\nIMPORTANT: Respond ONLY with a valid JSON object (no text before or after, no backticks). The JSON object must contain all the fields described above.',
@@ -144,15 +183,18 @@ export async function aiGenerateObject<T>(params: {
     ko: '\n\n중요: 위에서 설명한 모든 필드를 포함하는 유효한 JSON 객체로만 응답하세요 (앞뒤에 텍스트 없이, 백틱 없이).',
   });
   const systemWithJson = (params.system ?? '') + jsonInstruction;
+  const provider = params.provider ?? TEXT_PROVIDER;
 
   const body: Record<string, unknown> = {
-    model: params.model ?? MODEL_ID,
+    model: params.model ?? TEXT_MODEL_ID,
     max_tokens: params.maxTokens ?? 4096,
     messages: buildMessages(systemWithJson, params.messages),
-    response_format: { type: 'json_object' },
+    // OpenAI reliably supports JSON mode; some OpenRouter models reject it, so we
+    // rely on the strong JSON instruction + extractJsonBlock fallback there.
+    ...(provider === 'openai' ? { response_format: { type: 'json_object' as const } } : {}),
   };
 
-  const data = await callChatCompletions(body);
+  const data = await callChatCompletions(body, provider);
   const choice = data?.choices?.[0];
   const rawContent = choice?.message?.content;
   let contentStr = '';
