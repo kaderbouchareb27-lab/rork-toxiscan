@@ -137,6 +137,7 @@ export async function transcribeAudio(uri: string, mimeType: string): Promise<st
 
 const FRENCH_VOICE_ID = 'pNInz6obpgDQGcFmaJgB';
 const ENGLISH_VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb';
+const KOREAN_VOICE_ID = '0oqpliV6dVSr9XomngOW'; // Jini — Warm & Intelligent Korean Female
 
 let currentSound: Audio.Sound | null = null;
 
@@ -155,7 +156,7 @@ export async function speakText(text: string): Promise<void> {
   await stopSpeech();
 
   const lang = getDeviceLanguage();
-  const voiceId = lang === 'en' ? ENGLISH_VOICE_ID : FRENCH_VOICE_ID;
+  const voiceId = lang === 'ko' ? KOREAN_VOICE_ID : lang === 'en' ? ENGLISH_VOICE_ID : FRENCH_VOICE_ID;
   const cleaned = text.slice(0, 1500);
 
   console.log('[Voice] TTS request, lang:', lang, 'length:', cleaned.length);
