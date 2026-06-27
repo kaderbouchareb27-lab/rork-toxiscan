@@ -228,6 +228,290 @@ export function getHealthProfilePrompt(): string {
   });
 }
 
+// ─── Deterministic personalized SCAN alerts ──────────────────────────────────
+//
+// The product-scan AI only writes per-ingredient descriptions; it does NOT
+// produce the verdict, the summary or the recommendations (those are
+// deterministic). So to make the health profile actually visible on a scan, we
+// cross the active profile against the ingredients DETECTED on the label and
+// build concrete, reliable alerts — without ever touching the official color
+// verdict (the database stays the single source of truth).
+
+/** A personalized warning tied to the user's profile + this product's ingredients. */
+export interface ProfileScanAlert {
+  prefId: HealthPrefId;
+  /** Short heading (the profile situation, e.g. "Enceinte"). */
+  title: string;
+  /** Concrete message naming what was found on THIS product. */
+  message: string;
+}
+
+function normalizeIng(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+interface ConcernGroup {
+  kws: string[];
+  fr: string;
+  en: string;
+  ko: string;
+}
+
+/** Keyword groups whose matched CONCERN PHRASE is surfaced (category-level). */
+const PREGNANCY_CONCERNS: ConcernGroup[] = [
+  { kws: ['nitrite', 'nitrate', 'e249', 'e250', 'e251', 'e252'], fr: 'des nitrites (E250/E252)', en: 'nitrites (E250/E252)', ko: '아질산염(E250/E252)' },
+  { kws: ['alcool', 'alcohol', 'ethanol', 'rhum', 'rum', 'kirsch', 'liqueur', 'vin '], fr: "de l'alcool", en: 'alcohol', ko: '알코올' },
+  { kws: ['cafeine', 'caffeine', 'guarana', 'extrait de cafe'], fr: 'de la caféine', en: 'caffeine', ko: '카페인' },
+  { kws: ['jambon', 'bacon', 'lardon', 'saucisson', 'salami', 'charcuterie', 'chorizo', 'prosciutto', 'pancetta', 'mortadelle', 'deli meat'], fr: 'de la charcuterie (risque listériose)', en: 'cured deli meat (listeria risk)', ko: '가공육(리스테리아 위험)' },
+  { kws: ['foie gras', 'pate', 'liver'], fr: 'du foie/pâté (excès de vitamine A)', en: 'liver/pâté (excess vitamin A)', ko: '간/파테(비타민 A 과다)' },
+  { kws: ['lait cru', 'raw milk', 'unpasteurized', 'non pasteurise'], fr: 'du lait cru', en: 'raw/unpasteurized milk', ko: '생우유' },
+];
+
+const KIDS_CONCERNS: ConcernGroup[] = [
+  { kws: ['e102', 'e104', 'e110', 'e122', 'e124', 'e129', 'tartrazine', 'ponceau', 'azorubine', 'azoique', 'azo dye'], fr: 'des colorants azoïques', en: 'azo dyes', ko: '아조 색소' },
+  { kws: ['sucre', 'sugar', 'sirop', 'syrup', 'glucose', 'fructose', 'dextrose', 'saccharose'], fr: 'du sucre ajouté', en: 'added sugar', ko: '첨가당' },
+];
+
+/** Keyword lists whose matched INGREDIENT NAME is surfaced (named back to user). */
+const VEGETARIAN_KWS: string[] = [
+  'viande', 'meat', 'poulet', 'chicken', 'boeuf', 'beef', 'porc', 'pork', 'jambon', 'bacon', 'dinde', 'turkey',
+  'agneau', 'lamb', 'veau', 'veal', 'lardon', 'saucisse', 'sausage', 'salami', 'charcuterie', 'chorizo',
+  'gelatine', 'gelatin', 'presure', 'rennet', 'saindoux', 'suif', 'tallow', 'graisse animale', 'animal fat',
+  'carmin', 'cochenille', 'cochineal', 'e120', 'anchois', 'anchovy', 'poisson', 'fish', 'thon', 'tuna',
+  'saumon', 'salmon', 'crevette', 'shrimp', 'colle de poisson', 'isinglass', 'e441',
+];
+const VEGAN_EXTRA_KWS: string[] = [
+  'lait', 'milk', 'lactose', 'lactoserum', 'whey', 'petit-lait', 'beurre', 'butter', 'fromage', 'cheese',
+  'creme', 'cream', 'oeuf', 'egg', 'albumine', 'albumin', 'miel', 'honey', 'caseine', 'casein',
+  'cire d\'abeille', 'beeswax', 'e901', 'lanoline', 'lanolin', 'e913', 'shellac', 'gomme laque', 'e904',
+];
+const SUGAR_KWS: string[] = ['sucre', 'sugar', 'sirop', 'syrup', 'glucose', 'fructose', 'dextrose', 'saccharose', 'maltose', 'corn syrup', 'melasse', 'molasses'];
+const SWEETENER_KWS: string[] = ['aspartame', 'sucralose', 'acesulfame', 'saccharine', 'saccharin', 'e950', 'e951', 'e952', 'e954', 'e955', 'e960', 'edulcorant', 'sweetener', 'sorbitol', 'xylitol', 'maltitol', 'e420', 'e967'];
+const SODIUM_KWS: string[] = ['sel', 'salt', 'sodium', 'sel marin'];
+const GLUTEN_KWS: string[] = ['gluten', 'ble', 'wheat', 'orge', 'barley', 'seigle', 'rye', 'malt', 'epeautre', 'spelt', 'froment'];
+const LACTOSE_KWS: string[] = ['lactose', 'lait', 'milk', 'lactoserum', 'whey', 'petit-lait', 'poudre de lait', 'milk powder'];
+
+function joinIng(items: string[]): string {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  const connector = isEnglish() ? 'and' : 'et';
+  return `${items.slice(0, -1).join(', ')} ${connector} ${items[items.length - 1]}`;
+}
+
+/** Collect the matched concern PHRASES for the given groups. */
+function matchConcerns(names: string[], groups: ConcernGroup[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const g of groups) {
+    if (names.some((n) => g.kws.some((k) => n.includes(k)))) {
+      const phrase = pick({ en: g.en, fr: g.fr, ko: g.ko });
+      if (!seen.has(phrase)) {
+        seen.add(phrase);
+        out.push(phrase);
+      }
+    }
+  }
+  return out;
+}
+
+/** Collect the actual ingredient NAMES (original casing) that match the keywords. */
+function matchNames(ingredients: { nom: string }[], kws: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const ing of ingredients) {
+    const n = normalizeIng(ing.nom);
+    if (kws.some((k) => n.includes(k))) {
+      if (!seen.has(n)) {
+        seen.add(n);
+        out.push(ing.nom.trim());
+      }
+    }
+    if (out.length >= 4) break;
+  }
+  return out;
+}
+
+/**
+ * Builds the personalized alerts for a scanned product by crossing the user's
+ * active health profile with the ingredients actually detected on the label.
+ * Returns [] when nothing relevant is found (or the profile is empty). NEVER
+ * changes the toxicity verdict — these are advisory callouts only.
+ */
+export function getProfileScanAlerts(
+  profile: HealthProfile,
+  ingredients: { nom: string }[],
+  flaggedAdditiveCount: number,
+): ProfileScanAlert[] {
+  if (profile.prefs.length === 0) return [];
+  if (ingredients.length === 0 && flaggedAdditiveCount === 0) return [];
+
+  const names = ingredients.map((i) => normalizeIng(i.nom));
+  const alerts: ProfileScanAlert[] = [];
+  const titleFor = (id: HealthPrefId): string => {
+    const meta = getHealthPrefMeta(id);
+    return meta ? getHealthPrefLabel(meta) : '';
+  };
+
+  for (const pref of profile.prefs) {
+    switch (pref) {
+      case 'pregnant':
+      case 'breastfeeding': {
+        const concerns = matchConcerns(names, PREGNANCY_CONCERNS);
+        if (concerns.length > 0) {
+          const items = joinIng(concerns);
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `This product contains ${items} — best avoided or limited ${pref === 'pregnant' ? 'during pregnancy' : 'while breastfeeding'}.`,
+              fr: `Ce produit contient ${items} — à éviter ou limiter ${pref === 'pregnant' ? 'pendant la grossesse' : "pendant l'allaitement"}.`,
+              ko: `이 제품에는 ${items}이(가) 들어 있어요 — ${pref === 'pregnant' ? '임신 중에는' : '모유 수유 중에는'} 피하거나 제한하는 것이 좋아요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'kids': {
+        const concerns = matchConcerns(names, KIDS_CONCERNS);
+        if (concerns.length > 0) {
+          const items = joinIng(concerns);
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `This product contains ${items} — best limited for young children.`,
+              fr: `Ce produit contient ${items} — à limiter pour les jeunes enfants.`,
+              ko: `이 제품에는 ${items}이(가) 들어 있어요 — 어린 아이에게는 제한하는 것이 좋아요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'vegetarian': {
+        const found = matchNames(ingredients, VEGETARIAN_KWS);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `Heads up — this product contains ${joinIng(found)} (animal-derived).`,
+              fr: `Attention — ce produit contient ${joinIng(found)} (origine animale).`,
+              ko: `주의 — 이 제품에는 ${joinIng(found)}(동물성)이(가) 들어 있어요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'vegan': {
+        const found = matchNames(ingredients, [...VEGETARIAN_KWS, ...VEGAN_EXTRA_KWS]);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `Heads up — this product contains ${joinIng(found)} (not plant-based).`,
+              fr: `Attention — ce produit contient ${joinIng(found)} (pas 100% végétal).`,
+              ko: `주의 — 이 제품에는 ${joinIng(found)}(식물성 아님)이(가) 들어 있어요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'avoid_sugar': {
+        const found = matchNames(ingredients, SUGAR_KWS);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `This product contains ${joinIng(found)}.`,
+              fr: `Ce produit contient ${joinIng(found)}.`,
+              ko: `이 제품에는 ${joinIng(found)}이(가) 들어 있어요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'avoid_sweeteners': {
+        const found = matchNames(ingredients, SWEETENER_KWS);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `This product contains the artificial sweetener${found.length > 1 ? 's' : ''} ${joinIng(found)}.`,
+              fr: `Ce produit contient ${found.length > 1 ? 'les édulcorants' : "l'édulcorant"} ${joinIng(found)}.`,
+              ko: `이 제품에는 인공 감미료 ${joinIng(found)}이(가) 들어 있어요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'low_sodium': {
+        const found = matchNames(ingredients, SODIUM_KWS);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `This product contains ${joinIng(found)} — keep an eye on the amount.`,
+              fr: `Ce produit contient ${joinIng(found)} — surveille la quantité.`,
+              ko: `이 제품에는 ${joinIng(found)}이(가) 들어 있어요 — 양을 확인하세요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'avoid_additives': {
+        if (flaggedAdditiveCount > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `This product has ${flaggedAdditiveCount} flagged additive${flaggedAdditiveCount > 1 ? 's' : ''} — look for a version with a shorter, cleaner ingredient list.`,
+              fr: `Ce produit contient ${flaggedAdditiveCount} additif${flaggedAdditiveCount > 1 ? 's' : ''} signalé${flaggedAdditiveCount > 1 ? 's' : ''} — cherche une version avec une liste plus courte et plus clean.`,
+              ko: `이 제품에는 표시된 첨가물이 ${flaggedAdditiveCount}개 있어요 — 성분표가 더 짧고 깨끗한 제품을 찾아보세요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'gluten_free': {
+        const found = matchNames(ingredients, GLUTEN_KWS);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `Contains ${joinIng(found)} (source of gluten). This does not change the toxicity verdict — just a heads up.`,
+              fr: `Contient ${joinIng(found)} (source de gluten). Ça ne change pas le verdict toxicité — juste pour t'avertir.`,
+              ko: `${joinIng(found)}(글루텐 함유)이(가) 들어 있어요. 독성 판정은 바뀌지 않으며 참고용 안내예요.`,
+            }),
+          });
+        }
+        break;
+      }
+      case 'lactose_free': {
+        const found = matchNames(ingredients, LACTOSE_KWS);
+        if (found.length > 0) {
+          alerts.push({
+            prefId: pref,
+            title: titleFor(pref),
+            message: pick({
+              en: `Contains ${joinIng(found)} (source of lactose). This does not change the toxicity verdict — just a heads up.`,
+              fr: `Contient ${joinIng(found)} (source de lactose). Ça ne change pas le verdict toxicité — juste pour t'avertir.`,
+              ko: `${joinIng(found)}(유당 함유)이(가) 들어 있어요. 독성 판정은 바뀌지 않으며 참고용 안내예요.`,
+            }),
+          });
+        }
+        break;
+      }
+    }
+  }
+
+  return alerts;
+}
+
 /**
  * Profile block injected into the SCAN analysis system prompt.
  * The scan classification stays automatic — the profile only personalizes the

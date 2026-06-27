@@ -19,7 +19,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Navigation,
+  Store, Heart, Navigation, UserCheck,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import ToxicLoadBanner from '@/components/ToxicLoadBanner';
@@ -36,6 +36,8 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
 import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
+import { useHealthProfile } from '@/providers/HealthProfileProvider';
+import { getProfileScanAlerts } from '@/utils/healthProfile';
 import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
@@ -709,6 +711,7 @@ export default function ProductScreen() {
   console.log("[ProductScreen] Rendering product detail screen");
   const { barcode } = useLocalSearchParams<{ barcode: string }>();
   const { history, toggleFavorite } = useScanHistory();
+  const { profile: healthProfile } = useHealthProfile();
   const { isPro } = useSubscription();
   const { recordShare } = useBadges();
   const shareCardRef = useRef<View>(null);
@@ -830,6 +833,18 @@ export default function ProductScreen() {
       .sort((a, b) => severityRank[getDisplayLevel(a)] - severityRank[getDisplayLevel(b)]);
     return getScannedSubstancesAdvice(flagged);
   }, [ingredientsList]);
+
+  // Personalized profile alerts: cross the user's health profile with the
+  // ingredients ACTUALLY detected on this label (pregnancy, vegetarian/vegan,
+  // zero-additive, etc.). Advisory only — never changes the toxicity verdict.
+  const profileAlerts = useMemo(() => {
+    const flaggedAdditiveCount = ingredientsList.filter((ing) => getDisplayLevel(ing) !== 'aucun').length;
+    return getProfileScanAlerts(
+      healthProfile,
+      ingredientsList.map((ing) => ({ nom: ing.nom })),
+      flaggedAdditiveCount,
+    );
+  }, [healthProfile, ingredientsList]);
 
   const getApprovedDescription = useCallback((name: string): string => {
     return pick({
@@ -1037,6 +1052,23 @@ export default function ProductScreen() {
         <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} />
 
         {showToxicLoad ? <ToxicLoadBanner count={ultraProcessedCount} /> : null}
+
+        {profileAlerts.length > 0 ? (
+          <View style={styles.profileAlertsWrap}>
+            <View style={styles.profileAlertsHeader}>
+              <UserCheck color={Colors.primary} size={16} />
+              <Text style={styles.profileAlertsHeaderText}>
+                {pick({ en: 'For your profile', fr: 'Pour ton profil', ko: '당신의 프로필을 위해' })}
+              </Text>
+            </View>
+            {profileAlerts.map((alert) => (
+              <View key={`profile-alert-${alert.prefId}`} style={styles.profileAlertCard} testID={`profile-alert-${alert.prefId}`}>
+                <Text style={styles.profileAlertTitle}>{alert.title}</Text>
+                <Text style={styles.profileAlertMessage}>{alert.message}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
 
         {/* ─── Tous les ingrédients ─── */}
         {ingredientsList.length > 0 ? (
@@ -1373,6 +1405,12 @@ const styles = StyleSheet.create({
   adviceText: { flex: 1, fontSize: 14, color: '#1A1A1A', lineHeight: 20 },
   scannedAdviceCallout: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 13, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.22)', borderLeftWidth: 4, borderLeftColor: '#2E9E34' },
   scannedAdviceText: { fontSize: 13.5, lineHeight: 20, color: '#1A1A1A', fontWeight: '600' as const },
+  profileAlertsWrap: { marginHorizontal: 16, marginBottom: 8, gap: 8 },
+  profileAlertsHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, marginBottom: 2, marginTop: 4 },
+  profileAlertsHeaderText: { fontSize: 13, fontWeight: '700' as const, color: Colors.primary, textTransform: 'uppercase' as const, letterSpacing: 0.4 },
+  profileAlertCard: { backgroundColor: 'rgba(46, 158, 52, 0.06)', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)', borderLeftWidth: 4, borderLeftColor: Colors.primary },
+  profileAlertTitle: { fontSize: 13.5, fontWeight: '800' as const, color: Colors.primary, marginBottom: 3 },
+  profileAlertMessage: { fontSize: 14, lineHeight: 20, color: '#1A1A1A', fontWeight: '500' as const },
   bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
   bigShareButtonGreen: { backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
   bigShareButtonLoading: { opacity: 0.8 },
