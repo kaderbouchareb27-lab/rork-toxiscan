@@ -11,11 +11,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { ChevronLeft, MessageCircle, Share2, ChefHat, Store, AlertTriangle } from 'lucide-react-native';
+import { ChevronLeft, MessageCircle, Share2, ChefHat, Store, AlertTriangle, UserCheck } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { t } from '@/utils/i18n';
+import { t, pick } from '@/utils/i18n';
 import { useMeals } from '@/providers/MealHistoryProvider';
+import { useHealthProfile } from '@/providers/HealthProfileProvider';
+import { getProfileScanAlerts } from '@/utils/healthProfile';
 import {
   MEAL_TIER_AVATARS,
   MEAL_TIER_COLORS,
@@ -37,8 +39,22 @@ const TIER_TO_VERDICT: Record<MealTier, 'approuve' | 'moderation' | 'warning' | 
 export default function MealResultScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { getMeal } = useMeals();
+  const { profile: healthProfile } = useHealthProfile();
   const meal = useMemo(() => (typeof id === 'string' ? getMeal(id) : undefined), [id, getMeal]);
   const hasRequestedReview = useRef<boolean>(false);
+
+  // Personalized profile alerts: cross the user's health profile (pregnancy,
+  // vegetarian/vegan, zero-additive, allergies…) with the ingredients ACTUALLY
+  // detected in this meal. Advisory only — never changes the toxicity score.
+  const profileAlerts = useMemo(() => {
+    if (!meal) return [];
+    const flaggedCount = meal.ingredients.filter((ing) => ing.isGrave || ing.category === 'additive').length;
+    return getProfileScanAlerts(
+      healthProfile,
+      meal.ingredients.map((ing) => ({ nom: ing.name })),
+      flaggedCount,
+    );
+  }, [meal, healthProfile]);
 
   // After a POSITIVE (green "Bon repas") meal verdict, ask for Apple's native
   // in-app review. Only on a good outcome, only via the system sheet, capped to
@@ -133,6 +149,24 @@ export default function MealResultScreen() {
               <Text style={[styles.verdictEyebrow, { color: tierColor }]}>{t('meal_verdict_eyebrow')}</Text>
             </View>
             <Text style={styles.verdictText}>{meal.verdictText}</Text>
+          </View>
+        ) : null}
+
+        {/* Personalized alerts based on the user's health profile */}
+        {profileAlerts.length > 0 ? (
+          <View style={styles.profileAlertsWrap}>
+            <View style={styles.profileAlertsHeader}>
+              <UserCheck color={Colors.primary} size={16} />
+              <Text style={styles.profileAlertsHeaderText}>
+                {pick({ en: 'For your profile', fr: 'Pour ton profil', ko: '당신의 프로필을 위해' })}
+              </Text>
+            </View>
+            {profileAlerts.map((alert) => (
+              <View key={`profile-alert-${alert.prefId}`} style={styles.profileAlertCard} testID={`meal-profile-alert-${alert.prefId}`}>
+                <Text style={styles.profileAlertTitle}>{alert.title}</Text>
+                <Text style={styles.profileAlertMessage}>{alert.message}</Text>
+              </View>
+            ))}
           </View>
         ) : null}
 
@@ -283,4 +317,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: 'rgba(46,158,52,0.3)',
   },
   shareButtonText: { color: Colors.primary, fontSize: 15, fontWeight: '700' as const },
+  profileAlertsWrap: { marginTop: 18, gap: 8 },
+  profileAlertsHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, marginBottom: 2 },
+  profileAlertsHeaderText: { fontSize: 13, fontWeight: '700' as const, color: Colors.primary, textTransform: 'uppercase' as const, letterSpacing: 0.4 },
+  profileAlertCard: { backgroundColor: 'rgba(46, 158, 52, 0.06)', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)', borderLeftWidth: 4, borderLeftColor: Colors.primary },
+  profileAlertTitle: { fontSize: 13.5, fontWeight: '800' as const, color: Colors.primary, marginBottom: 3 },
+  profileAlertMessage: { fontSize: 14, lineHeight: 20, color: '#1A1A1A', fontWeight: '500' as const },
 });

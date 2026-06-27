@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { aiGenerateObject, MEAL_VISION_MODEL_ID, MEAL_VISION_PROVIDER } from '@/utils/aiApi';
 import { classifyFoodIngredient } from '@/utils/api';
 import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
+import { getHealthProfileAnalysisPrompt } from '@/utils/healthProfile';
 import { pick } from '@/utils/i18n';
 import { REFERENCE_FOODS, type ReferenceFood, type FoodMarker } from '@/constants/referenceFoods';
 
@@ -758,7 +759,7 @@ ${needsAlternatives
 Respond in the user's app language. Output JSON only.`;
 
   const raw = await aiGenerateObject({
-    system: mealLanguageLock() + '\n\n' + system + getAnalysisRegionPrompt(),
+    system: mealLanguageLock() + '\n\n' + system + getAnalysisRegionPrompt() + getHealthProfileAnalysisPrompt(),
     schema: verdictSchema,
     maxTokens: 900,
     messages: [

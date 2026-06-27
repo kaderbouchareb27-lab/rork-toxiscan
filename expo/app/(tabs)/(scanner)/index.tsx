@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image as RNImage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Camera, Droplets, Utensils, Leaf, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
+import { Camera, Droplets, Utensils, ScanLine, Database, ShieldCheck, ChevronRight, Zap } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -600,7 +600,7 @@ export default function ScannerScreen() {
               <View style={styles.scanTypesRow}>
                 <View style={styles.scanTypeChip}>
                   <View style={styles.scanTypeIconWrap}>
-                    <Leaf color="#2E9E34" size={17} strokeWidth={2.1} />
+                    <ScanLine color="#2E9E34" size={17} strokeWidth={2.1} />
                   </View>
                   <Text style={styles.scanTypeText}>{t('cat_food')}</Text>
                 </View>
