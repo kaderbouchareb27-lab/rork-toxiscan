@@ -382,7 +382,7 @@ const translations = {
   paywall_alerts: { fr: 'Alertes en temps réel', en: 'Real-time alerts', ko: '실시간 알림' },
   paywall_scan: { fr: 'Scannez vos produits sans limite', en: 'Scan your products without limits', ko: '제품 무제한 스캔' },
   paywall_default: { fr: 'Passez à Dr.Toxi Pro', en: 'Upgrade to Dr.Toxi Pro', ko: 'Dr.Toxi Pro로 업그레이드' },
-  paywall_sub_drtoxi: { fr: 'Vous avez utilisé vos 3 messages gratuits du jour', en: "You've used your 3 free messages today", ko: '오늘 무료 메시지 3개를 모두 사용했습니다' },
+  paywall_sub_drtoxi: { fr: 'Vous avez utilisé vos 6 messages gratuits à vie', en: "You've used your 6 free lifetime messages", ko: '평생 무료 메시지 6개를 모두 사용했습니다' },
   paywall_sub_history: { fr: 'Sans abonnement, seuls les 3 derniers produits sont visibles', en: 'Without a subscription, only the last 3 products are visible', ko: '구독하지 않으면 최근 3개 제품만 표시됩니다' },
   paywall_sub_favorite: { fr: 'Les favoris sont une fonctionnalité exclusive Dr.Toxi Pro', en: 'Favorites are an exclusive Dr.Toxi Pro feature', ko: '즐겨찾기는 Dr.Toxi Pro 전용 기능입니다' },
   paywall_sub_alerts: { fr: 'Soyez alerté des nouveaux produits interdits, toxiques ou cancérigènes', en: 'Be alerted about new banned, toxic, or carcinogenic products', ko: '새로 금지·독성·발암 제품이 나오면 알림을 받으세요' },

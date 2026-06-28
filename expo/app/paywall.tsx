@@ -201,7 +201,8 @@ export default function PaywallScreen() {
       case 'history': return t('paywall_history');
       case 'favorite': return t('paywall_favorite');
       case 'alerts': return t('paywall_alerts');
-      case 'scan': return t('paywall_scan');
+      case 'scan':
+      case 'product': return t('paywall_scan');
       case 'meal': return t('paywall_meal');
       case 'report': return t('paywall_report');
       default: return t('paywall_default');
@@ -214,7 +215,8 @@ export default function PaywallScreen() {
       case 'history': return t('paywall_sub_history');
       case 'favorite': return t('paywall_sub_favorite');
       case 'alerts': return t('paywall_sub_alerts');
-      case 'scan': return t('paywall_sub_scan');
+      case 'scan':
+      case 'product': return t('paywall_sub_scan');
       case 'meal': return t('paywall_sub_meal');
       case 'report': return t('paywall_sub_report');
       default: return t('paywall_sub_default');
@@ -223,7 +225,7 @@ export default function PaywallScreen() {
 
   const isLoading = purchaseInProgress || restoreInProgress;
   const insets = useSafeAreaInsets();
-  const isMandatory = source === 'scan' || source === 'drtoxi';
+  const isMandatory = source === 'scan' || source === 'product' || source === 'drtoxi';
 
   return (
     <View style={styles.container}>
