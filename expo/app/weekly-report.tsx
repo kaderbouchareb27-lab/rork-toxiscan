@@ -7,7 +7,7 @@ import { ChevronLeft, Lock, TrendingUp, Sparkles, Crown, Trophy, Flame } from 'l
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { t, tf, pick } from '@/utils/i18n';
-import { useWeeklyMealReport, type WeeklyReport } from '@/providers/MealHistoryProvider';
+import { useWeeklyMealReport, type WeeklyReport, type MealRecord } from '@/providers/MealHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import {
   MEAL_TIER_AVATARS,
@@ -24,42 +24,117 @@ function buildDrIntro(report: WeeklyReport): string {
   const { count, avgScore } = report;
   const good = avgScore >= 6;
   return pick({
-    en: `This week I looked at ${count} of your meals — average health score ${avgScore}/10. ${good ? 'Your plate is looking clean — keep this rhythm going.' : "A few heavy meals slipped in, but nothing we can't fix together."}`,
-    fr: `Cette semaine j'ai regardé ${count} de tes repas — score de santé moyen ${avgScore}/10. ${good ? 'Ton assiette est propre, garde ce rythme.' : "Quelques repas lourds se sont glissés, mais rien qu'on ne puisse corriger ensemble."}`,
-    ko: `이번 주에 식사 ${count}개를 살펴봤어요 — 평균 건강 점수 ${avgScore}/10이에요. ${good ? '식단이 깨끗해요, 이 리듬을 유지해 보세요.' : '조금 무거운 식사가 몇 번 있었지만, 함께 바로잡을 수 있어요.'}`,
+    en: `This week I looked at ${count} of your meals — average ToxiScan score ${avgScore}/10. ${good ? 'Your plate is looking clean — keep this rhythm going.' : "A few heavy meals slipped in, but nothing we can't fix together."}`,
+    fr: `Cette semaine j'ai regardé ${count} de tes repas — score ToxiScan moyen ${avgScore}/10. ${good ? 'Ton assiette est propre, garde ce rythme.' : "Quelques repas lourds se sont glissés, mais rien qu'on ne puisse corriger ensemble."}`,
+    ko: `이번 주에 식사 ${count}개를 살펴봤어요 — 평균 ToxiScan 점수 ${avgScore}/10이에요. ${good ? '식단이 깨끗해요, 이 리듬을 유지해 보세요.' : '조금 무거운 식사가 몇 번 있었지만, 함께 바로잡을 수 있어요.'}`,
   });
 }
 
-function categoryReco(cat: MealCategory): string {
-  switch (cat) {
-    case 'added_sugar':
-      return pick({ en: 'Swap one sugary drink or dessert for fruit or water — your biggest lever this week.', fr: "Remplace une boisson sucrée ou un dessert par un fruit ou de l'eau — ton plus gros levier cette semaine.", ko: '단 음료나 디저트 하나를 과일이나 물로 바꿔보세요 — 이번 주 가장 큰 변화 포인트예요.' });
-    case 'refined_oil':
-      return pick({ en: 'Cook with extra-virgin olive oil instead of refined vegetable oils.', fr: "Cuisine à l'huile d'olive vierge plutôt qu'avec des huiles végétales raffinées.", ko: '정제 식용유 대신 엑스트라 버진 올리브유로 요리해 보세요.' });
-    case 'processed':
-      return pick({ en: 'Cook one more meal from scratch this week — even a simple one counts.', fr: "Cuisine un repas maison de plus cette semaine — même simple, ça compte.", ko: '이번 주에 집밥을 한 끼 더 해보세요 — 간단해도 충분해요.' });
-    case 'excess_salt':
-      return pick({ en: 'Go easy on sauces and seasonings high in sodium; taste before you salt.', fr: 'Allège les sauces et assaisonnements salés ; goûte avant de saler.', ko: '나트륨이 높은 소스와 양념을 줄이고, 소금을 넣기 전에 맛보세요.' });
-    case 'additive':
-      return pick({ en: 'Pick products with shorter ingredient lists and fewer colorings/additives.', fr: "Choisis des produits aux listes d'ingrédients plus courtes, avec moins de colorants/additifs.", ko: '성분표가 짧고 색소·첨가물이 적은 제품을 고르세요.' });
-    case 'carcinogen_g1':
-    case 'carcinogen_2a':
-    case 'carcinogen_2b':
-      return pick({ en: 'Cut back on processed/cured meats — they carry the heaviest risk on your plate.', fr: 'Réduis les charcuteries/viandes transformées — c\'est le risque le plus lourd de ton assiette.', ko: '가공육·염장육을 줄이세요 — 식단에서 가장 위험이 큰 부분이에요.' });
-    default:
-      return pick({ en: 'Add one more vegetable to your next plate.', fr: 'Ajoute un légume de plus à ta prochaine assiette.', ko: '다음 식사에 채소를 하나 더 추가해 보세요.' });
-  }
+// ── Narrative weekly coaching: read the REAL ingredient counter across the week and
+// surface the single biggest IMBALANCE in any direction, always nudging back toward the
+// center (a bit of everything) — never toward an extreme. When the week is already
+// balanced it simply praises, without inventing a problem. All copy is data-driven.
+const MEAT_TOKENS: readonly string[] = ['beef', 'boeuf', 'steak', 'burger', 'hamburger', 'viande', 'meat', 'poulet', 'chicken', 'porc', 'pork', 'jambon', 'jamon', 'bacon', 'saucisse', 'sausage', 'salami', 'chorizo', 'pepperoni', 'charcuterie', 'lardon', 'agneau', 'lamb', 'veau', 'dinde', 'turkey', 'canard', 'merguez', 'nugget', 'kebab', 'cotelette', 'boulette', 'meatball', 'cote de', '고기', '소고기', '돼지고기', '닭고기', '햄', '베이컨', '소시지', '삼겹살'];
+const FISH_TOKENS: readonly string[] = ['poisson', 'fish', 'saumon', 'salmon', 'thon', 'tuna', 'sardine', 'maquereau', 'mackerel', 'cabillaud', 'morue', 'crevette', 'shrimp', 'gambas', 'seafood', 'fruits de mer', 'truite', 'trout', 'hareng', 'anchois', 'anchovy', 'crabe', 'moule', 'calamar', 'squid', '생선', '연어', '참치', '새우', '고등어', '오징어'];
+const LEGUME_TOKENS: readonly string[] = ['lentille', 'lentil', 'pois chiche', 'chickpea', 'haricot', 'bean', 'feve', 'soja', 'soy', 'tofu', 'tempeh', 'edamame', 'legumineuse', 'dal', 'dahl', 'hummus', 'houmous', '콩', '두부', '렌틸', '병아리콩'];
+const VEG_TOKENS: readonly string[] = ['salade', 'salad', 'legume', 'vegetable', 'veggie', 'tomate', 'tomato', 'brocoli', 'broccoli', 'epinard', 'spinach', 'carotte', 'carrot', 'courgette', 'zucchini', 'poivron', 'bell pepper', 'concombre', 'cucumber', 'laitue', 'lettuce', 'chou', 'cabbage', 'haricot vert', 'green bean', 'aubergine', 'eggplant', 'champignon', 'mushroom', 'oignon', 'onion', 'avocat', 'avocado', 'kale', 'roquette', 'arugula', 'crudite', 'poireau', 'leek', 'asperge', 'asparagus', 'betterave', 'beet', '채소', '샐러드', '토마토', '브로콜리', '시금치', '당근', '양배추', '버섯'];
+const EXTRA_PROTEIN_TOKENS: readonly string[] = ['oeuf', 'egg', 'omelette', 'yaourt grec', 'greek yogurt', 'skyr', 'fromage blanc', 'cottage', '계란', '달걀'];
+const PROCESSED_SET: readonly MealCategory[] = ['processed', 'refined_oil', 'refined_flour', 'additive'];
+
+function normName(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function buildRecommendations(report: WeeklyReport): string[] {
-  const recs: string[] = [];
-  if (report.problemCategory) recs.push(categoryReco(report.problemCategory));
-  recs.push(
-    report.avgScore >= 6
-      ? pick({ en: 'Keep prioritizing whole, recognizable foods — it is working.', fr: "Continue de privilégier des aliments bruts et reconnaissables — ça marche.", ko: '가공되지 않은, 알아볼 수 있는 음식을 계속 우선하세요 — 효과가 있어요.' })
-      : pick({ en: 'Aim for one clearly green meal a day next week.', fr: 'Vise un repas clairement vert par jour la semaine prochaine.', ko: '다음 주엔 하루에 확실히 초록인 식사를 한 끼 목표로 해보세요.' }),
-  );
-  return recs;
+function mealHasToken(meal: MealRecord, tokens: readonly string[]): boolean {
+  return meal.ingredients.some((ing) => {
+    const n = normName(ing.name);
+    return tokens.some((tk) => n.includes(tk));
+  });
+}
+
+function mealHasCategory(meal: MealRecord, cats: readonly MealCategory[]): boolean {
+  return meal.ingredients.some((ing) => cats.includes(ing.category));
+}
+
+/**
+ * Builds Dr. Toxi's personalized, narrative weekly advice from the REAL meals of the
+ * week. It detects the dominant imbalance (too much meat, recurring sugar, too much
+ * ultra-processed, lots of veg but little protein…) and always steers back toward a
+ * realistic balance — a bit of everything — never toward an extreme. If the week is
+ * already balanced it simply praises, without inventing a problem.
+ */
+function buildDrAdvice(report: WeeklyReport): string {
+  const n = report.count;
+  if (n < 2) {
+    return pick({
+      en: `Just one meal analyzed this week so far — scan two or three more and I'll tell you exactly what to rebalance, no guessing.`,
+      fr: `Une seule analyse cette semaine pour l'instant — scanne encore deux ou trois repas et je te dirai précisément quoi rééquilibrer, sans rien inventer.`,
+      ko: `이번 주엔 아직 한 끼만 분석됐어요 — 두세 끼만 더 스캔하면 추측 없이 무엇을 균형 잡아야 할지 정확히 알려줄게요.`,
+    });
+  }
+
+  const meals = report.meals;
+  const meatN = meals.filter((m) => mealHasToken(m, MEAT_TOKENS)).length;
+  const vegN = meals.filter((m) => mealHasToken(m, VEG_TOKENS)).length;
+  const sugarN = meals.filter((m) => mealHasCategory(m, ['added_sugar'])).length;
+  const processedN = meals.filter((m) => mealHasCategory(m, PROCESSED_SET)).length;
+  const proteinN = meals.filter(
+    (m) =>
+      mealHasToken(m, MEAT_TOKENS) ||
+      mealHasToken(m, FISH_TOKENS) ||
+      mealHasToken(m, LEGUME_TOKENS) ||
+      mealHasToken(m, EXTRA_PROTEIN_TOKENS),
+  ).length;
+
+  // 1) Meat-heavy + few vegetables → vary the protein, add greens.
+  if (meatN >= 2 && meatN / n >= 0.5 && vegN / n < 0.5) {
+    return pick({
+      en: `This week, meat shows up in ${meatN} of your ${n} meals — try alternating with fish, legumes or a few more vegetables to vary your protein. Nothing serious, just a small rebalance and your plate is spot on.`,
+      fr: `Cette semaine, la viande revient dans ${meatN} de tes ${n} repas — essaie d'alterner avec du poisson, des légumineuses ou un peu plus de légumes pour varier les protéines. Rien de grave, juste un petit rééquilibrage et ton assiette sera nickel.`,
+      ko: `이번 주엔 ${n}끼 중 ${meatN}끼에 고기가 들어갔어요 — 생선, 콩류, 또는 채소를 조금 더 곁들여 단백질을 다양화해 보세요. 큰 문제는 아니고, 살짝만 균형을 잡으면 완벽해요.`,
+    });
+  }
+
+  // 2) Sugar recurring across the week → reduce / swap, don't cut everything.
+  if (sugarN >= 2 && sugarN / n >= 0.5) {
+    return pick({
+      en: `I spotted added sugar in ${sugarN} of your ${n} meals this week — no need to cut it all, just swap one for fruit or plain yogurt. Your body will thank you without giving anything up.`,
+      fr: `J'ai repéré du sucre ajouté dans ${sugarN} de tes ${n} repas cette semaine — pas besoin de tout couper, remplace-en juste un par un fruit ou un yaourt nature. Ton corps te dira merci sans rien sacrifier.`,
+      ko: `이번 주 ${n}끼 중 ${sugarN}끼에서 첨가당이 보였어요 — 전부 끊을 필요는 없어요. 한 끼만 과일이나 플레인 요거트로 바꿔보세요. 무리 없이 몸이 좋아질 거예요.`,
+    });
+  }
+
+  // 3) Ultra-processed recurring → one more whole-food / home-cooked meal.
+  if (processedN >= 2 && processedN / n >= 0.5) {
+    return pick({
+      en: `A lot of ultra-processed food landed on your plate this week (${processedN} of ${n} meals). Aim for one more home-cooked meal built on whole, recognizable ingredients — it's your best lever to lift the score.`,
+      fr: `Beaucoup d'ultra-transformé est passé dans ton assiette cette semaine (${processedN} repas sur ${n}). Vise un repas maison de plus, à base d'aliments bruts et reconnaissables — c'est ton meilleur levier pour faire grimper le score.`,
+      ko: `이번 주엔 초가공식품이 식탁에 자주 올라왔어요 (${n}끼 중 ${processedN}끼). 가공되지 않은, 알아볼 수 있는 재료로 만든 집밥을 한 끼만 더 해보세요 — 점수를 올리는 가장 좋은 방법이에요.`,
+    });
+  }
+
+  // 4) Plenty of vegetables but little protein → add a bit more protein.
+  if (vegN / n >= 0.5 && proteinN / n < 0.4) {
+    return pick({
+      en: `Great week on the vegetable front! Your meals are a little light on protein though — add an egg, some fish, tofu or legumes to stay full till the next meal. Balance is a bit of everything.`,
+      fr: `Belle semaine côté légumes ! En revanche tes repas manquent un peu de protéines — ajoute un œuf, du poisson, du tofu ou des légumineuses pour tenir jusqu'au prochain repas sans fringale. L'équilibre, c'est un peu de tout.`,
+      ko: `채소는 훌륭한 한 주였어요! 다만 단백질이 조금 부족해요 — 계란, 생선, 두부, 콩류를 더해 다음 식사까지 든든하게 채워보세요. 균형은 골고루 먹는 거예요.`,
+    });
+  }
+
+  // 5) Already balanced → genuine praise (high score) or a gentle nudge (lower score).
+  if (report.avgScore >= 6) {
+    return pick({
+      en: `Honestly, a well-balanced week — a bit of everything, in good proportions, with no excess creeping back. That's exactly the right habit: keep this up, I've got nothing to add.`,
+      fr: `Franchement, semaine bien équilibrée — un peu de tout, dans de bonnes proportions, sans excès qui revient. C'est exactement le bon réflexe : continue sur cette lancée, je n'ai rien à redire.`,
+      ko: `솔직히 균형 잡힌 한 주였어요 — 골고루, 좋은 비율로, 반복되는 과함도 없었어요. 딱 좋은 습관이에요: 이대로 쭉 가요, 더 보탤 말이 없네요.`,
+    });
+  }
+  return pick({
+    en: `No major imbalance this week, but we can aim a notch higher — one more whole, colorful meal with both vegetables and protein would be enough to move your score. Small step, real effect.`,
+    fr: `Pas de gros déséquilibre cette semaine, mais on peut viser un cran au-dessus — un repas brut et coloré de plus, avec légumes ET protéines, suffirait à faire bouger ton score. Petit pas, vrai effet.`,
+    ko: `이번 주엔 큰 불균형은 없었어요. 다만 한 단계 더 올려볼 수 있어요 — 채소와 단백질을 함께 담은, 가공 안 된 다채로운 식사를 한 끼만 더 해보면 점수가 움직일 거예요. 작은 한 걸음이 진짜 효과를 내요.`,
+  });
 }
 
 export default function WeeklyReportScreen() {
@@ -192,13 +267,13 @@ export default function WeeklyReportScreen() {
                 </View>
 
                 <Text style={styles.sectionTitle}>{t('weekly_locked_reco')}</Text>
-                <View style={styles.card}>
-                  {buildRecommendations(report).map((rec, i) => (
-                    <View key={i} style={styles.recoRow}>
-                      <Sparkles color={Colors.primary} size={16} />
-                      <Text style={styles.recoText}>{rec}</Text>
-                    </View>
-                  ))}
+                <View style={styles.adviceRow}>
+                  <View style={styles.adviceAvatarWrap}>
+                    <Image source={{ uri: MEAL_TIER_AVATARS.green }} style={styles.adviceAvatar} contentFit="contain" />
+                  </View>
+                  <View style={styles.adviceBubble}>
+                    <Text style={styles.adviceText}>{buildDrAdvice(report)}</Text>
+                  </View>
                 </View>
               </>
             ) : (
@@ -275,8 +350,18 @@ const styles = StyleSheet.create({
   trendBarTrack: { flex: 1, justifyContent: 'flex-end' },
   trendBarFill: { width: 26, borderRadius: 8 },
   trendBarLabel: { fontSize: 12, fontWeight: '700' as const, color: Colors.textSecondary },
-  recoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 8 },
-  recoText: { flex: 1, fontSize: 14.5, lineHeight: 21, color: Colors.text },
+  adviceRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 14 },
+  adviceAvatarWrap: {
+    width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(46,158,52,0.1)',
+    alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+    borderWidth: 1, borderColor: 'rgba(46,158,52,0.18)',
+  },
+  adviceAvatar: { width: 44, height: 44 },
+  adviceBubble: {
+    flex: 1, backgroundColor: 'rgba(46,158,52,0.08)', borderRadius: 20, borderTopLeftRadius: 6,
+    paddingHorizontal: 16, paddingVertical: 14, borderWidth: 1, borderColor: 'rgba(46,158,52,0.16)',
+  },
+  adviceText: { fontSize: 14.5, lineHeight: 22, color: Colors.text, fontWeight: '500' as const },
   lockedCard: {
     backgroundColor: Colors.surface, borderRadius: 22, padding: 20, marginTop: 24,
     borderWidth: 1.5, borderColor: 'rgba(169,79,5,0.22)',

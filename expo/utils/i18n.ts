@@ -601,7 +601,7 @@ const translations = {
   meal_save: { fr: 'Enregistrer', en: 'Save', ko: '저장' },
 
   // ===== MEAL SCAN — TIERS & BADGE =====
-  meal_toxicity_level: { fr: 'Score de santé', en: 'Health score', ko: '건강 점수' },
+  meal_toxicity_level: { fr: 'Score ToxiScan', en: 'ToxiScan score', ko: 'ToxiScan 점수' },
   meal_toxicity_word: { fr: 'Toxicité', en: 'Toxicity', ko: '독성' },
   tier_green: { fr: 'Bon repas', en: 'Good meal', ko: '좋은 식사' },
   tier_yellow: { fr: 'Moyen', en: 'Moderate', ko: '보통' },
@@ -637,7 +637,7 @@ const translations = {
   // ===== MEAL SCAN — DASHBOARD / WEEKLY REPORT =====
   meal_dashboard_title: { fr: 'Mon assiette cette semaine', en: 'My plate this week', ko: '이번 주 내 식사' },
   weekly_report_title: { fr: 'Rapport de la semaine', en: 'Weekly report', ko: '주간 리포트' },
-  weekly_score_label: { fr: 'Score de santé moyen', en: 'Average health score', ko: '평균 건강 점수' },
+  weekly_score_label: { fr: 'Score ToxiScan moyen', en: 'Average ToxiScan score', ko: '평균 ToxiScan 점수' },
   weekly_meals_scanned: { fr: (n: number) => `${n} repas scanné${n !== 1 ? 's' : ''} cette semaine`, en: (n: number) => `${n} meal${n !== 1 ? 's' : ''} scanned this week`, ko: (n: number) => `이번 주 ${n}개 식사 스캔` },
   weekly_no_meals: { fr: 'Aucun repas scanné cette semaine', en: 'No meals scanned this week', ko: '이번 주 스캔한 식사가 없어요' },
   weekly_no_meals_hint: { fr: 'Scanne ton premier repas pour voir ton bilan apparaître ici, en direct.', en: 'Scan your first meal to watch your report build here, live.', ko: '첫 식사를 스캔하면 이곳에 요약이 실시간으로 채워져요.' },
