@@ -1619,16 +1619,6 @@ export async function scanAiEnrich(
   return instantResult ? finalizeInstant(instantResult) : buildErrorResult('error_process_photo');
 }
 
-/** Full one-shot analysis (OCR → AI). Kept for compatibility; the scanner uses the two-step flow. */
-export async function analyzeUniversalPhoto(imageBase64: string): Promise<UniversalAnalysisResult> {
-  const { ocrData, cacheKey } = await runOcrStep(imageBase64);
-  if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
-    console.log('[API] Cache hit');
-    return ANALYSIS_CACHE.get(cacheKey)!;
-  }
-  return scanAiEnrich(imageBase64, ocrData, cacheKey);
-}
-
 // ═══════════════════════════════════════════════════════════════════════
 // RÉSUMÉS DÉTERMINISTES
 // ═══════════════════════════════════════════════════════════════════════

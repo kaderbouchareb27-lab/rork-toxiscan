@@ -1,13 +1,5 @@
 import { getDeviceLanguage } from '@/utils/i18n';
 
-export interface HealthAlert {
-  id: string;
-  title: string;
-  summary: string;
-  source: string;
-  date: string;
-}
-
 export interface DailyFact {
   id: string;
   text: string;
@@ -20,122 +12,6 @@ export interface QuizQuestion {
   correctIndex: number;
   explanation: string;
 }
-
-const HEALTH_ALERTS_FR: HealthAlert[] = [
-  {
-    id: 'alert-1',
-    title: 'États-Unis : le Red 3 (érythrosine) officiellement interdit dans les aliments par la FDA',
-    summary: 'La FDA a finalement interdit le colorant Red 3 (E127) dans les aliments et médicaments ingérés. Ce colorant, classé cancérogène possible, était utilisé dans des bonbons, gâteaux et médicaments depuis des décennies malgré les preuves de son lien avec le cancer de la thyroïde chez l\'animal. Les fabricants ont jusqu\'en janvier 2027 pour reformuler leurs produits.',
-    source: 'FDA - Federal Register, janvier 2025',
-    date: '2025-01-15',
-  },
-  {
-    id: 'alert-2',
-    title: 'Canada : rappel de produits contenant du dioxyde de titane E171',
-    summary: 'Santé Canada a intensifié la surveillance des produits contenant du dioxyde de titane (E171), un colorant blanc utilisé dans les confiseries, les sauces et les cosmétiques. L\'EFSA européenne considère cette substance comme non sûre en tant qu\'additif alimentaire en raison de préoccupations liées à la génotoxicité. L\'E171 est déjà interdit en France depuis 2020.',
-    source: 'Santé Canada / EFSA',
-    date: '2025-02-10',
-  },
-  {
-    id: 'alert-3',
-    title: 'France : nouvelle étude confirme les risques des nitrites dans la charcuterie',
-    summary: 'Une étude de l\'ANSES confirme le lien entre la consommation de nitrites (E249, E250) dans la charcuterie et le risque accru de cancer colorectal. L\'agence recommande de réduire l\'exposition aux nitrites et nitrates ajoutés. Les nitrites sont classés cancérogènes avérés (Groupe 1) par le CIRC depuis 2015.',
-    source: 'ANSES - Agence nationale de sécurité sanitaire',
-    date: '2025-03-01',
-  },
-  {
-    id: 'alert-4',
-    title: 'OMS : l\'aspartame maintenu en catégorie possiblement cancérigène',
-    summary: 'Le Centre international de recherche sur le cancer (CIRC) maintient la classification de l\'aspartame (E951) en Groupe 2B (possiblement cancérogène). Bien que la dose journalière admissible reste inchangée, les experts recommandent la prudence, notamment pour les consommateurs réguliers de boissons light et produits "sans sucre".',
-    source: 'OMS / CIRC - Classification des agents cancérogènes',
-    date: '2025-01-28',
-  },
-  {
-    id: 'alert-5',
-    title: 'Europe : les PFAS "polluants éternels" retrouvés dans des emballages alimentaires',
-    summary: 'Une enquête européenne révèle la présence de PFAS (substances per- et polyfluoroalkylées) dans de nombreux emballages alimentaires, notamment les boîtes de pizza, les sachets de pop-corn micro-ondes et les emballages de restauration rapide. Ces "polluants éternels" sont liés à des cancers du rein et des testicules.',
-    source: 'Agence européenne des produits chimiques (ECHA)',
-    date: '2025-02-20',
-  },
-];
-
-const HEALTH_ALERTS_EN: HealthAlert[] = [
-  {
-    id: 'alert-1',
-    title: 'United States: Red 3 (erythrosine) officially banned from food by the FDA',
-    summary: 'The FDA has finally banned Red 3 (E127) coloring in ingested food and medicines. This dye, classified as a possible carcinogen, was used in candy, cakes, and medications for decades despite evidence of its link to thyroid cancer in animals. Manufacturers have until January 2027 to reformulate their products.',
-    source: 'FDA - Federal Register, January 2025',
-    date: '2025-01-15',
-  },
-  {
-    id: 'alert-2',
-    title: 'Canada: recall of products containing titanium dioxide E171',
-    summary: 'Health Canada has stepped up monitoring of products containing titanium dioxide (E171), a white coloring used in candy, sauces, and cosmetics. The European EFSA considers this substance unsafe as a food additive due to genotoxicity concerns. E171 has already been banned in France since 2020.',
-    source: 'Health Canada / EFSA',
-    date: '2025-02-10',
-  },
-  {
-    id: 'alert-3',
-    title: 'France: new study confirms the risks of nitrites in processed meat',
-    summary: 'A study by ANSES confirms the link between consumption of nitrites (E249, E250) in processed meat and the increased risk of colorectal cancer. The agency recommends reducing exposure to added nitrites and nitrates. Nitrites have been classified as proven carcinogens (Group 1) by the IARC since 2015.',
-    source: 'ANSES - French National Health Safety Agency',
-    date: '2025-03-01',
-  },
-  {
-    id: 'alert-4',
-    title: 'WHO: aspartame maintained as a possible carcinogen',
-    summary: 'The International Agency for Research on Cancer (IARC) maintains the classification of aspartame (E951) in Group 2B (possibly carcinogenic). Although the acceptable daily intake remains unchanged, experts recommend caution, especially for regular consumers of diet drinks and "sugar-free" products.',
-    source: 'WHO / IARC - Classification of carcinogenic agents',
-    date: '2025-01-28',
-  },
-  {
-    id: 'alert-5',
-    title: 'Europe: PFAS "forever chemicals" found in food packaging',
-    summary: 'A European investigation reveals the presence of PFAS (per- and polyfluoroalkyl substances) in many food packagings, including pizza boxes, microwave popcorn bags, and fast-food wrappers. These "forever chemicals" are linked to kidney and testicular cancers.',
-    source: 'European Chemicals Agency (ECHA)',
-    date: '2025-02-20',
-  },
-];
-
-const HEALTH_ALERTS_KO: HealthAlert[] = [
-  {
-    id: 'alert-1',
-    title: '미국: FDA가 식품에서 Red 3(에리트로신)를 공식 금지',
-    summary: 'FDA는 마침내 섭취하는 식품과 의약품에서 Red 3(E127) 색소를 금지했습니다. 발암 가능 물질로 분류된 이 색소는 동물에서 갑상선암과의 연관성이 입증되었음에도 수십 년간 사탕, 케이크, 의약품에 사용되어 왔습니다. 제조사는 2027년 1월까지 제품을 재배합해야 합니다.',
-    source: 'FDA - Federal Register, 2025년 1월',
-    date: '2025-01-15',
-  },
-  {
-    id: 'alert-2',
-    title: '캐나다: 이산화티타늄 E171 함유 제품 회수',
-    summary: '캐나다 보건부는 사탕, 소스, 화장품에 사용되는 백색 색소 이산화티타늄(E171) 함유 제품에 대한 모니터링을 강화했습니다. 유럽 EFSA는 유전독성 우려로 이 물질을 식품 첨가물로 안전하지 않다고 봅니다. E171은 이미 2020년부터 프랑스에서 금지되었습니다.',
-    source: '캐나다 보건부 / EFSA',
-    date: '2025-02-10',
-  },
-  {
-    id: 'alert-3',
-    title: '프랑스: 가공육 속 아질산염 위험을 확인한 새 연구',
-    summary: 'ANSES의 연구는 가공육 속 아질산염(E249, E250) 섭취와 대장암 위험 증가 사이의 연관성을 확인했습니다. 이 기관은 첨가된 아질산염과 질산염 노출을 줄일 것을 권고합니다. 아질산염은 2015년부터 IARC에 의해 확인된 발암물질(1군)로 분류되었습니다.',
-    source: 'ANSES - 프랑스 국립 보건안전청',
-    date: '2025-03-01',
-  },
-  {
-    id: 'alert-4',
-    title: 'WHO: 아스파탐, 발암 가능 등급 유지',
-    summary: '국제암연구소(IARC)는 아스파탐(E951)을 2B군(발암 가능)으로 분류한 것을 유지합니다. 일일 허용 섭취량은 변하지 않았지만, 전문가들은 특히 다이어트 음료와 무설탕 제품을 정기적으로 섭취하는 사람들에게 주의를 권고합니다.',
-    source: 'WHO / IARC - 발암물질 분류',
-    date: '2025-01-28',
-  },
-  {
-    id: 'alert-5',
-    title: '유럽: 영구 화학물질 PFAS, 식품 포장재에서 발견',
-    summary: '유럽 조사는 피자 박스, 전자레인지 팝콘 봉지, 패스트푸드 포장지 등 많은 식품 포장재에서 PFAS(과불화화합물)의 존재를 밝혔습니다. 이 영구 화학물질은 신장암 및 고환암과 관련이 있습니다.',
-    source: '유럽 화학물질청(ECHA)',
-    date: '2025-02-20',
-  },
-];
-
-export const HEALTH_ALERTS: HealthAlert[] = getDeviceLanguage() === 'ko' ? HEALTH_ALERTS_KO : getDeviceLanguage() === 'en' ? HEALTH_ALERTS_EN : HEALTH_ALERTS_FR;
 
 const DAILY_FACTS_FR: DailyFact[] = [
   { id: 'fact-1', text: 'Le cancer colorectal a augmenté de 45% chez les moins de 50 ans depuis 1990.' },
@@ -447,27 +323,7 @@ const QUIZ_QUESTIONS_KO: QuizQuestion[] = [
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = getDeviceLanguage() === 'ko' ? QUIZ_QUESTIONS_KO : getDeviceLanguage() === 'en' ? QUIZ_QUESTIONS_EN : QUIZ_QUESTIONS_FR;
 
-export function getTodayAlerts(): HealthAlert[] {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  const startIndex = dayOfYear % HEALTH_ALERTS.length;
-  const alerts: HealthAlert[] = [];
-  for (let i = 0; i < 3; i++) {
-    alerts.push(HEALTH_ALERTS[(startIndex + i) % HEALTH_ALERTS.length]);
-  }
-  return alerts;
-}
-
-export function getTodayFact(): DailyFact {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  return DAILY_FACTS[dayOfYear % DAILY_FACTS.length];
-}
-
 export function getTodayFactIndex(): number {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
   return dayOfYear % DAILY_FACTS.length;
-}
-
-export function getTodayQuiz(): QuizQuestion {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  return QUIZ_QUESTIONS[dayOfYear % QUIZ_QUESTIONS.length];
 }

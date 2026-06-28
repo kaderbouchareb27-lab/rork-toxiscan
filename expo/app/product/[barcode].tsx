@@ -12,6 +12,7 @@ import {
   Easing,
   Dimensions,
   Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -19,7 +20,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Navigation, UserCheck,
+  Store, Heart, Navigation, UserCheck, LocateFixed,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import ToxicLoadBanner from '@/components/ToxicLoadBanner';
@@ -768,6 +769,34 @@ export default function ProductScreen() {
     await requestAndResolve();
   }, [requestAndResolve]);
 
+  // Re-reads the device GPS so travelers can update store suggestions for their
+  // current city. If permission is denied/expired, guides the user to Settings
+  // instead of silently keeping the old (first-scan) location.
+  const handleRefreshLocation = useCallback(async () => {
+    if (Platform.OS === 'web' || isResolving) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const result = await requestAndResolve();
+    if (result) {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      return;
+    }
+    Alert.alert(
+      pick({ en: 'Location unavailable', fr: 'Localisation indisponible', ko: '위치를 사용할 수 없음' }),
+      pick({
+        en: 'Enable location access in Settings to refresh store suggestions for where you are now.',
+        fr: "Activez l'accès à la localisation dans les Réglages pour rafraîchir les suggestions de magasins près de votre position actuelle.",
+        ko: '현재 위치에 맞는 매장 추천을 새로고침하려면 설정에서 위치 접근을 허용하세요.',
+      }),
+      [
+        { text: pick({ en: 'Cancel', fr: 'Annuler', ko: '취소' }), style: 'cancel' },
+        {
+          text: pick({ en: 'Open Settings', fr: 'Ouvrir les Réglages', ko: '설정 열기' }),
+          onPress: () => { void Linking.openSettings(); },
+        },
+      ],
+    );
+  }, [requestAndResolve, isResolving]);
+
   const locationLabel = useMemo(() => {
     if (!location) return null;
     const parts: string[] = [];
@@ -1128,20 +1157,51 @@ export default function ProductScreen() {
 
         {(verdictLevel === 'danger' || verdictLevel === 'warning') && (
           <View style={styles.section}>
-            <View style={styles.sectionTitleRow}>
-              <MapPin color={Colors.primary} size={18} />
-              <Text style={styles.sectionTitle}>
-                {t('where_find_alternatives')} {locationLabel ?? getRegionDisplayName(userCountry)}
-              </Text>
-            </View>
+            {locationLabel && Platform.OS !== 'web' ? (
+              <TouchableOpacity
+                style={styles.sectionTitleRow}
+                onPress={handleRefreshLocation}
+                activeOpacity={0.7}
+                disabled={isResolving}
+                testID="refresh-location-title"
+              >
+                <MapPin color={Colors.primary} size={18} />
+                <Text style={[styles.sectionTitle, styles.sectionTitleFlex]}>
+                  {t('where_find_alternatives')} <Text style={styles.locationLinkText}>{locationLabel}</Text>
+                </Text>
+                {isResolving ? (
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                  <LocateFixed color={Colors.primary} size={18} />
+                )}
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.sectionTitleRow}>
+                <MapPin color={Colors.primary} size={18} />
+                <Text style={styles.sectionTitle}>
+                  {t('where_find_alternatives')} {locationLabel ?? getRegionDisplayName(userCountry)}
+                </Text>
+              </View>
+            )}
             <View style={styles.bioStoresCard}>
               {locationLabel ? (
-                <View style={styles.locationPill}>
+                <TouchableOpacity
+                  style={styles.locationPill}
+                  onPress={handleRefreshLocation}
+                  activeOpacity={0.75}
+                  disabled={isResolving}
+                  testID="refresh-location-pill"
+                >
                   <MapPin color="#2E9E34" size={13} />
                   <Text style={styles.locationPillText} numberOfLines={1}>
                     {pick({ en: 'Suggestions near', fr: 'Suggestions proches de', ko: '내 주변 추천' })} {locationLabel}
                   </Text>
-                </View>
+                  {isResolving ? (
+                    <ActivityIndicator size="small" color="#2E9E34" />
+                  ) : (
+                    <LocateFixed color="#2E9E34" size={13} />
+                  )}
+                </TouchableOpacity>
               ) : Platform.OS !== 'web' ? (
                 <TouchableOpacity
                   style={styles.enableLocationButton}
@@ -1365,6 +1425,8 @@ const styles = StyleSheet.create({
   aiSummaryText: { fontSize: 14, lineHeight: 21, color: '#343430' },
   section: { marginTop: 18 },
   sectionTitle: { fontSize: 18, fontWeight: '700' as const, color: Colors.text, marginBottom: 12 },
+  sectionTitleFlex: { flex: 1, marginBottom: 0 },
+  locationLinkText: { color: Colors.primary, textDecorationLine: 'underline' as const },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   additiveCard: { backgroundColor: Colors.surface, borderRadius: 18, padding: 18, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
   additiveHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
