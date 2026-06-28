@@ -8,7 +8,9 @@ export const DR_TOXI_BADGE_AVATARS: Record<DrToxiVerdictLevel, string> = {
   danger: 'https://r2-pub.rork.com/generated-images/27e289be-6c64-40c0-bfe4-ebbf77f17086.png',
   warning: 'https://r2-pub.rork.com/generated-images/b9ff7bc4-d4a6-403e-8395-770f89c2fa8a.png',
   moderation: 'https://r2-pub.rork.com/generated-images/060a2f78-45c6-4c6f-953f-9d8ca12edcce.png',
-  approuve: 'https://r2-pub.rork.com/generated-images/fef91878-245c-412f-9512-9995c01331f9.png',
+  // The positive/green verdict reuses the single canonical Dr. Toxi avatar so there is
+  // exactly ONE green Dr. Toxi across the whole app (chat, scans, meal scores, weekly report).
+  approuve: DR_TOXI_DEFAULT_AVATAR_URI,
 };
 
 /**

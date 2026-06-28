@@ -39,7 +39,6 @@ const FISH_TOKENS: readonly string[] = ['poisson', 'fish', 'saumon', 'salmon', '
 const LEGUME_TOKENS: readonly string[] = ['lentille', 'lentil', 'pois chiche', 'chickpea', 'haricot', 'bean', 'feve', 'soja', 'soy', 'tofu', 'tempeh', 'edamame', 'legumineuse', 'dal', 'dahl', 'hummus', 'houmous', '콩', '두부', '렌틸', '병아리콩'];
 const VEG_TOKENS: readonly string[] = ['salade', 'salad', 'legume', 'vegetable', 'veggie', 'tomate', 'tomato', 'brocoli', 'broccoli', 'epinard', 'spinach', 'carotte', 'carrot', 'courgette', 'zucchini', 'poivron', 'bell pepper', 'concombre', 'cucumber', 'laitue', 'lettuce', 'chou', 'cabbage', 'haricot vert', 'green bean', 'aubergine', 'eggplant', 'champignon', 'mushroom', 'oignon', 'onion', 'avocat', 'avocado', 'kale', 'roquette', 'arugula', 'crudite', 'poireau', 'leek', 'asperge', 'asparagus', 'betterave', 'beet', '채소', '샐러드', '토마토', '브로콜리', '시금치', '당근', '양배추', '버섯'];
 const EXTRA_PROTEIN_TOKENS: readonly string[] = ['oeuf', 'egg', 'omelette', 'yaourt grec', 'greek yogurt', 'skyr', 'fromage blanc', 'cottage', '계란', '달걀'];
-const PROCESSED_SET: readonly MealCategory[] = ['processed', 'refined_oil', 'refined_flour', 'additive'];
 
 function normName(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -56,12 +55,147 @@ function mealHasCategory(meal: MealRecord, cats: readonly MealCategory[]): boole
   return meal.ingredients.some((ing) => cats.includes(ing.category));
 }
 
+interface LangText {
+  en: string;
+  fr: string;
+  ko: string;
+}
+
+const EMPTY_LANG: LangText = { en: '', fr: '', ko: '' };
+
+/** A harmful family the weekly diagnosis can detect, name, and give a concrete fix for. */
+interface HarmDef {
+  key: 'meat' | 'sugar' | 'processed' | 'salt' | 'additive';
+  test: (m: MealRecord) => boolean;
+  /** "a lot of ___" noun (EN). */
+  en: string;
+  /** French mass form after "beaucoup ___" (e.g. "de viande", "d'additifs"). */
+  frDe: string;
+  /** French partitive form after "tu as eu ___" (e.g. "de la viande", "du sel"). */
+  frPart: string;
+  /** Korean noun. */
+  ko: string;
+  /** Korean subject particle that follows the noun (이 / 가). */
+  koGa: string;
+  /** One concrete first-step fix, language-aware. */
+  fix: LangText;
+}
+
+const HARM_DEFS: readonly HarmDef[] = [
+  {
+    key: 'meat',
+    test: (m) => mealHasToken(m, MEAT_TOKENS),
+    en: 'meat',
+    frDe: 'de viande',
+    frPart: 'de la viande',
+    ko: '고기',
+    koGa: '가',
+    fix: {
+      en: 'Alternate with fish or legumes and add a handful of greens',
+      fr: `Alterne avec du poisson ou des légumineuses et ajoute une poignée de légumes verts`,
+      ko: '생선이나 콩류와 번갈아 먹고 채소를 곁들여요',
+    },
+  },
+  {
+    key: 'sugar',
+    test: (m) => mealHasCategory(m, ['added_sugar']),
+    en: 'added sugar',
+    frDe: 'de sucre ajouté',
+    frPart: 'du sucre ajouté',
+    ko: '첨가당',
+    koGa: '이',
+    fix: {
+      en: 'Swap one sweet item for fruit or plain yogurt',
+      fr: 'Remplace un aliment sucré par un fruit ou un yaourt nature',
+      ko: '단 음식 하나를 과일이나 플레인 요거트로 바꿔요',
+    },
+  },
+  {
+    key: 'processed',
+    test: (m) => mealHasCategory(m, ['processed', 'refined_oil', 'refined_flour']),
+    en: 'ultra-processed food',
+    frDe: 'de produits ultra-transformés',
+    frPart: 'des produits ultra-transformés',
+    ko: '초가공식품',
+    koGa: '이',
+    fix: {
+      en: 'Cook one more meal from whole, recognizable ingredients',
+      fr: `Cuisine un repas de plus à partir d'aliments bruts et reconnaissables`,
+      ko: '알아볼 수 있는 자연 재료로 한 끼 더 만들어요',
+    },
+  },
+  {
+    key: 'salt',
+    test: (m) => mealHasCategory(m, ['excess_salt']),
+    en: 'excess salt',
+    frDe: 'de sel',
+    frPart: 'du sel',
+    ko: '염분',
+    koGa: '이',
+    fix: {
+      en: 'Season lighter and lean on herbs and spices instead of salt',
+      fr: `Assaisonne plus léger et mise sur les herbes et épices plutôt que le sel`,
+      ko: '간을 약하게 하고 소금 대신 허브와 향신료를 활용해요',
+    },
+  },
+  {
+    key: 'additive',
+    test: (m) => mealHasCategory(m, ['additive']),
+    en: 'additives',
+    frDe: `d'additifs`,
+    frPart: 'des additifs',
+    ko: '첨가물',
+    koGa: '이',
+    fix: {
+      en: 'Pick less industrial versions with shorter ingredient lists',
+      fr: `Choisis des versions moins industrielles, aux listes d'ingrédients plus courtes`,
+      ko: '성분표가 짧은 덜 가공된 제품을 골라요',
+    },
+  },
+];
+
+/** Calendar-day key (local time) used to detect same-day repetition of a harm. */
+function dayKey(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+/** Dish names of up to `max` distinct meals matching `test`, in scan order. */
+function culpritNames(meals: readonly MealRecord[], test: (m: MealRecord) => boolean, max: number): string[] {
+  const names: string[] = [];
+  for (const m of meals) {
+    const name = (m.dishName ?? '').trim();
+    if (name && test(m) && !names.includes(name)) {
+      names.push(name);
+      if (names.length >= max) break;
+    }
+  }
+  return names;
+}
+
+/** Parenthetical "(e.g. X, Y)" naming the responsible meals, or empty when none. */
+function culpritTag(names: string[]): LangText {
+  if (names.length === 0) return EMPTY_LANG;
+  const list = names.join(', ');
+  return { en: ` (e.g. ${list})`, fr: ` (ex. ${list})`, ko: ` (예: ${list})` };
+}
+
+/** Joins narrative fragments into one paragraph per language. */
+function joinLang(parts: readonly LangText[]): LangText {
+  return {
+    en: parts.map((p) => p.en).filter(Boolean).join(' '),
+    fr: parts.map((p) => p.fr).filter(Boolean).join(' '),
+    ko: parts.map((p) => p.ko).filter(Boolean).join(' '),
+  };
+}
+
 /**
- * Builds Dr. Toxi's personalized, narrative weekly advice from the REAL meals of the
- * week. It detects the dominant imbalance (too much meat, recurring sugar, too much
- * ultra-processed, lots of veg but little protein…) and always steers back toward a
- * realistic balance — a bit of everything — never toward an extreme. If the week is
- * already balanced it simply praises, without inventing a problem.
+ * Builds Dr. Toxi's full weekly DIAGNOSIS from the REAL meals of the week. It crosses
+ * several signals at once (meat vs vegetables/protein, recurring sugar, salt,
+ * ultra-processed, additives), detects same-day over-repetition of a single harmful
+ * family (per calendar day, not just the weekly total), names the meals actually
+ * responsible, and always steers back toward an athlete-level variety — a bit of
+ * everything — never toward an extreme. A genuinely balanced week is simply praised.
  */
 function buildDrAdvice(report: WeeklyReport): string {
   const n = report.count;
@@ -74,10 +208,9 @@ function buildDrAdvice(report: WeeklyReport): string {
   }
 
   const meals = report.meals;
-  const meatN = meals.filter((m) => mealHasToken(m, MEAT_TOKENS)).length;
+
+  // Balance reference (variety): vegetable presence and total protein coverage.
   const vegN = meals.filter((m) => mealHasToken(m, VEG_TOKENS)).length;
-  const sugarN = meals.filter((m) => mealHasCategory(m, ['added_sugar'])).length;
-  const processedN = meals.filter((m) => mealHasCategory(m, PROCESSED_SET)).length;
   const proteinN = meals.filter(
     (m) =>
       mealHasToken(m, MEAT_TOKENS) ||
@@ -86,55 +219,109 @@ function buildDrAdvice(report: WeeklyReport): string {
       mealHasToken(m, EXTRA_PROTEIN_TOKENS),
   ).length;
 
-  // 1) Meat-heavy + few vegetables → vary the protein, add greens.
-  if (meatN >= 2 && meatN / n >= 0.5 && vegN / n < 0.5) {
+  // CROSS-SIGNAL — every harmful family that is notable this week (≥2 meals AND ≥40%),
+  // strongest first, so several problems can be surfaced together (not just the top one).
+  const signals = HARM_DEFS.map((def) => ({
+    def,
+    count: meals.filter((m) => def.test(m)).length,
+  }))
+    .filter((s) => s.count >= 2 && s.count / n >= 0.4)
+    .sort((a, b) => b.count - a.count);
+
+  // SAME-DAY REPETITION — a single harmful family landing in ≥3 meals on ONE calendar
+  // day, independent of the weekly total. Keeps the worst such day across all families.
+  let conc: { def: HarmDef; count: number; names: string[] } | null = null;
+  for (const def of HARM_DEFS) {
+    const perDay = new Map<string, MealRecord[]>();
+    for (const m of meals) {
+      if (!def.test(m)) continue;
+      const k = dayKey(m.scannedAt);
+      const arr = perDay.get(k) ?? [];
+      arr.push(m);
+      perDay.set(k, arr);
+    }
+    let worst: MealRecord[] = [];
+    perDay.forEach((arr) => {
+      if (arr.length > worst.length) worst = arr;
+    });
+    if (worst.length >= 3 && (!conc || worst.length > conc.count)) {
+      conc = { def, count: worst.length, names: culpritNames(worst, def.test, 2) };
+    }
+  }
+
+  const lowProtein = vegN / n >= 0.5 && proteinN / n < 0.4;
+
+  // ── Nothing flagged and no daily spike → honest praise or a gentle protein nudge,
+  //    never an invented problem (keeps the balance-not-extreme philosophy).
+  if (signals.length === 0 && !conc) {
+    if (lowProtein) {
+      return pick({
+        en: `Strong week on vegetables — but protein is running a little light across your meals. Add eggs, fish, tofu or legumes so each plate stays as complete as an athlete's. Balance is a bit of everything, in the right proportions.`,
+        fr: `Belle semaine côté légumes — mais les protéines sont un peu justes sur l'ensemble de tes repas. Ajoute des œufs, du poisson, du tofu ou des légumineuses pour que chaque assiette reste aussi complète que celle d'un sportif. L'équilibre, c'est un peu de tout, dans les bonnes proportions.`,
+        ko: `채소는 훌륭한 한 주였어요 — 다만 전체적으로 단백질이 조금 부족해요. 계란, 생선, 두부, 콩류를 더해 매 끼를 운동선수처럼 완성해 보세요. 균형은 좋은 비율로 골고루 먹는 거예요.`,
+      });
+    }
+    if (report.avgScore >= 6) {
+      return pick({
+        en: `Honestly, a well-balanced week — a bit of everything, in good proportions, with no excess creeping back across your meals. That's exactly how a top athlete eats: keep this variety going, I've got nothing to add.`,
+        fr: `Franchement, semaine bien équilibrée — un peu de tout, dans de bonnes proportions, sans excès qui revient sur l'ensemble de tes repas. C'est exactement comme mange un sportif de haut niveau : garde cette variété, je n'ai rien à redire.`,
+        ko: `솔직히 균형 잡힌 한 주였어요 — 모든 식사를 통틀어 골고루, 좋은 비율로, 반복되는 과함도 없었어요. 최고 수준의 운동선수가 먹는 방식이에요: 이 다양함을 유지해요, 더 보탤 말이 없네요.`,
+      });
+    }
     return pick({
-      en: `This week, meat shows up in ${meatN} of your ${n} meals — try alternating with fish, legumes or a few more vegetables to vary your protein. Nothing serious, just a small rebalance and your plate is spot on.`,
-      fr: `Cette semaine, la viande revient dans ${meatN} de tes ${n} repas — essaie d'alterner avec du poisson, des légumineuses ou un peu plus de légumes pour varier les protéines. Rien de grave, juste un petit rééquilibrage et ton assiette sera nickel.`,
-      ko: `이번 주엔 ${n}끼 중 ${meatN}끼에 고기가 들어갔어요 — 생선, 콩류, 또는 채소를 조금 더 곁들여 단백질을 다양화해 보세요. 큰 문제는 아니고, 살짝만 균형을 잡으면 완벽해요.`,
+      en: `No single imbalance jumps out this week, but we can aim a notch higher — one more whole, colorful plate with both vegetables and protein and you're eating like an athlete. Small step, real effect.`,
+      fr: `Aucun déséquilibre net cette semaine, mais on peut viser un cran au-dessus — une assiette brute et colorée de plus, avec légumes ET protéines, et tu manges comme un sportif. Petit pas, vrai effet.`,
+      ko: `이번 주엔 뚜렷한 불균형은 없어요. 다만 한 단계 더 올려볼 수 있어요 — 채소와 단백질을 함께 담은 자연식 한 끼만 더하면 운동선수처럼 먹는 거예요. 작은 한 걸음이 진짜 효과를 내요.`,
     });
   }
 
-  // 2) Sugar recurring across the week → reduce / swap, don't cut everything.
-  if (sugarN >= 2 && sugarN / n >= 0.5) {
-    return pick({
-      en: `I spotted added sugar in ${sugarN} of your ${n} meals this week — no need to cut it all, just swap one for fruit or plain yogurt. Your body will thank you without giving anything up.`,
-      fr: `J'ai repéré du sucre ajouté dans ${sugarN} de tes ${n} repas cette semaine — pas besoin de tout couper, remplace-en juste un par un fruit ou un yaourt nature. Ton corps te dira merci sans rien sacrifier.`,
-      ko: `이번 주 ${n}끼 중 ${sugarN}끼에서 첨가당이 보였어요 — 전부 끊을 필요는 없어요. 한 끼만 과일이나 플레인 요거트로 바꿔보세요. 무리 없이 몸이 좋아질 거예요.`,
+  // ── At least one finding → assemble a complete, cross-signal narrative diagnosis.
+  const parts: LangText[] = [];
+  const dominant: HarmDef = signals[0]?.def ?? conc?.def ?? HARM_DEFS[0];
+
+  if (signals.length >= 2) {
+    const a = signals[0];
+    const b = signals[1];
+    parts.push({
+      en: `This week two things stand out together — a lot of ${a.def.en} (${a.count}/${n} meals) and ${b.def.en} (${b.count}/${n}).`,
+      fr: `Cette semaine, deux choses ressortent ensemble — beaucoup ${a.def.frDe} (${a.count}/${n} repas) et ${b.def.frDe} (${b.count}/${n}).`,
+      ko: `이번 주엔 두 가지가 함께 눈에 띄어요 — ${a.def.ko} (${n}끼 중 ${a.count}끼), 그리고 ${b.def.ko} (${b.count}끼).`,
+    });
+    const names = culpritNames(meals, dominant.test, 2);
+    if (names.length > 0) {
+      const list = names.join(', ');
+      parts.push({
+        en: `Main culprits: ${list}.`,
+        fr: `Principaux responsables : ${list}.`,
+        ko: `주된 원인: ${list}.`,
+      });
+    }
+  } else if (signals.length === 1) {
+    const a = signals[0];
+    const tag = culpritTag(culpritNames(meals, a.def.test, 2));
+    parts.push({
+      en: `This week I'm seeing a lot of ${a.def.en} in your meals — ${a.count} of ${n}${tag.en}.`,
+      fr: `Cette semaine, je vois beaucoup ${a.def.frDe} dans tes repas — ${a.count} sur ${n}${tag.fr}.`,
+      ko: `이번 주엔 ${a.def.ko}${a.def.koGa} 식사에 자주 보였어요 — ${n}끼 중 ${a.count}끼${tag.ko}.`,
     });
   }
 
-  // 3) Ultra-processed recurring → one more whole-food / home-cooked meal.
-  if (processedN >= 2 && processedN / n >= 0.5) {
-    return pick({
-      en: `A lot of ultra-processed food landed on your plate this week (${processedN} of ${n} meals). Aim for one more home-cooked meal built on whole, recognizable ingredients — it's your best lever to lift the score.`,
-      fr: `Beaucoup d'ultra-transformé est passé dans ton assiette cette semaine (${processedN} repas sur ${n}). Vise un repas maison de plus, à base d'aliments bruts et reconnaissables — c'est ton meilleur levier pour faire grimper le score.`,
-      ko: `이번 주엔 초가공식품이 식탁에 자주 올라왔어요 (${n}끼 중 ${processedN}끼). 가공되지 않은, 알아볼 수 있는 재료로 만든 집밥을 한 끼만 더 해보세요 — 점수를 올리는 가장 좋은 방법이에요.`,
+  if (conc) {
+    const ctag = culpritTag(conc.names);
+    parts.push({
+      en: `And on a single day, ${conc.def.en} came back ${conc.count} times${ctag.en} — too concentrated. The problem isn't the food itself, it's repeating the same one without variety.`,
+      fr: `Et sur une même journée, tu as eu ${conc.def.frPart} dans ${conc.count} repas${ctag.fr} — trop concentré. Le souci, ce n'est pas l'aliment, c'est de le répéter sans varier.`,
+      ko: `그리고 같은 날 ${conc.def.ko}${conc.def.koGa} ${conc.count}번이나 반복됐어요${ctag.ko} — 너무 몰렸어요. 문제는 음식 자체가 아니라 다양하게 먹지 않고 같은 걸 반복하는 거예요.`,
     });
   }
 
-  // 4) Plenty of vegetables but little protein → add a bit more protein.
-  if (vegN / n >= 0.5 && proteinN / n < 0.4) {
-    return pick({
-      en: `Great week on the vegetable front! Your meals are a little light on protein though — add an egg, some fish, tofu or legumes to stay full till the next meal. Balance is a bit of everything.`,
-      fr: `Belle semaine côté légumes ! En revanche tes repas manquent un peu de protéines — ajoute un œuf, du poisson, du tofu ou des légumineuses pour tenir jusqu'au prochain repas sans fringale. L'équilibre, c'est un peu de tout.`,
-      ko: `채소는 훌륭한 한 주였어요! 다만 단백질이 조금 부족해요 — 계란, 생선, 두부, 콩류를 더해 다음 식사까지 든든하게 채워보세요. 균형은 골고루 먹는 거예요.`,
-    });
-  }
-
-  // 5) Already balanced → genuine praise (high score) or a gentle nudge (lower score).
-  if (report.avgScore >= 6) {
-    return pick({
-      en: `Honestly, a well-balanced week — a bit of everything, in good proportions, with no excess creeping back. That's exactly the right habit: keep this up, I've got nothing to add.`,
-      fr: `Franchement, semaine bien équilibrée — un peu de tout, dans de bonnes proportions, sans excès qui revient. C'est exactement le bon réflexe : continue sur cette lancée, je n'ai rien à redire.`,
-      ko: `솔직히 균형 잡힌 한 주였어요 — 골고루, 좋은 비율로, 반복되는 과함도 없었어요. 딱 좋은 습관이에요: 이대로 쭉 가요, 더 보탤 말이 없네요.`,
-    });
-  }
-  return pick({
-    en: `No major imbalance this week, but we can aim a notch higher — one more whole, colorful meal with both vegetables and protein would be enough to move your score. Small step, real effect.`,
-    fr: `Pas de gros déséquilibre cette semaine, mais on peut viser un cran au-dessus — un repas brut et coloré de plus, avec légumes ET protéines, suffirait à faire bouger ton score. Petit pas, vrai effet.`,
-    ko: `이번 주엔 큰 불균형은 없었어요. 다만 한 단계 더 올려볼 수 있어요 — 채소와 단백질을 함께 담은, 가공 안 된 다채로운 식사를 한 끼만 더 해보면 점수가 움직일 거예요. 작은 한 걸음이 진짜 효과를 내요.`,
+  parts.push({
+    en: `${dominant.fix.en}. Nothing to ban — just more variety, the way a top athlete eats: whole foods and a bit of everything across the week (vegetables, fish, legumes, healthy starches), never too much of one thing.`,
+    fr: `${dominant.fix.fr}. Rien à bannir — juste plus de variété, comme mange un sportif de haut niveau : des aliments bruts et un peu de tout sur la semaine (légumes, poisson, légumineuses, féculents sains), jamais trop d'une seule chose.`,
+    ko: `${dominant.fix.ko}. 금지할 건 없어요 — 그저 최고 수준의 운동선수처럼 더 다양하게: 자연식과 한 주 동안 골고루(채소, 생선, 콩류, 건강한 탄수화물), 한 가지에 치우치지 않게요.`,
   });
+
+  return pick(joinLang(parts));
 }
 
 export default function WeeklyReportScreen() {
