@@ -11,12 +11,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { ChevronLeft, MessageCircle, Share2, ChefHat, Store, AlertTriangle, UserCheck } from 'lucide-react-native';
+import { ChevronLeft, MessageCircle, Share2, ChefHat, Store, AlertTriangle, UserCheck, Megaphone } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { t, pick } from '@/utils/i18n';
 import { useMeals } from '@/providers/MealHistoryProvider';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
+import { useSubscription } from '@/providers/SubscriptionProvider';
 import { getProfileScanAlerts } from '@/utils/healthProfile';
 import {
   MEAL_TIER_AVATARS,
@@ -40,6 +41,7 @@ export default function MealResultScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { getMeal } = useMeals();
   const { profile: healthProfile } = useHealthProfile();
+  const { isPro } = useSubscription();
   const meal = useMemo(() => (typeof id === 'string' ? getMeal(id) : undefined), [id, getMeal]);
   const hasRequestedReview = useRef<boolean>(false);
 
@@ -236,6 +238,18 @@ export default function MealResultScreen() {
           <Share2 color={Colors.primary} size={18} strokeWidth={2} />
           <Text style={styles.shareButtonText}>{t('meal_share_result')}</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.denounceButton}
+          onPress={() => {
+            if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push(isPro ? `/hub-denounce?scanKind=meal&refId=${encodeURIComponent(meal.id)}` : '/paywall');
+          }}
+          activeOpacity={0.8}
+          testID="denounce-meal"
+        >
+          <Megaphone color="#D0260F" size={18} strokeWidth={2.2} />
+          <Text style={styles.denounceButtonText}>{pick({ en: 'Denounce to the community', fr: 'Dénoncer à la communauté', ko: '커뮤니티에 고발하기' })}</Text>
+        </TouchableOpacity>
 
         <View style={{ height: 24 }} />
       </ScrollView>
@@ -317,6 +331,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: 'rgba(46,158,52,0.3)',
   },
   shareButtonText: { color: Colors.primary, fontSize: 15, fontWeight: '700' as const },
+  denounceButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: Colors.surface, borderRadius: 16, paddingVertical: 15, marginTop: 12, borderWidth: 1.5, borderColor: 'rgba(208,38,15,0.22)' },
+  denounceButtonText: { color: '#D0260F', fontSize: 15, fontWeight: '700' as const },
   profileAlertsWrap: { marginTop: 18, gap: 8 },
   profileAlertsHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, marginBottom: 2 },
   profileAlertsHeaderText: { fontSize: 13, fontWeight: '700' as const, color: Colors.primary, textTransform: 'uppercase' as const, letterSpacing: 0.4 },

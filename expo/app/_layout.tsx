@@ -44,6 +44,7 @@ import { QuizProvider } from "@/providers/QuizProvider";
 import { LocationProvider } from "@/providers/LocationProvider";
 import { HealthProfileProvider } from "@/providers/HealthProfileProvider";
 import { MealHistoryProvider } from "@/providers/MealHistoryProvider";
+import { HubProvider } from "@/providers/HubProvider";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -158,6 +159,9 @@ function RootLayoutNav() {
       <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="weekly-report" options={{ headerShown: false }} />
       <Stack.Screen name="quiz" options={{ headerShown: false }} />
+      <Stack.Screen name="hub-compose" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="hub-denounce" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="hub-pseudo" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="terms" options={{ title: t('nav_terms') }} />
       <Stack.Screen name="transparency" options={{ title: t('nav_transparency') }} />
     </Stack>
@@ -196,7 +200,9 @@ export default function RootLayout() {
                     <QuizProvider>
                       <LocationProvider>
                         <HealthProfileProvider>
-                          <RootLayoutNav />
+                          <HubProvider>
+                            <RootLayoutNav />
+                          </HubProvider>
                         </HealthProfileProvider>
                       </LocationProvider>
                     </QuizProvider>

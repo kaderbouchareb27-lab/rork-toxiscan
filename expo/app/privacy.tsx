@@ -8,7 +8,7 @@ export default function PrivacyScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{pick({ en: 'Privacy Policy', fr: 'Politique de confidentialité', ko: '개인정보 처리방침' })}</Text>
-      <Text style={styles.updated}>{pick({ en: 'Last updated: March 2026', fr: 'Dernière mise à jour : mars 2026', ko: '최종 업데이트: 2026년 3월' })}</Text>
+      <Text style={styles.updated}>{pick({ en: 'Last updated: June 2026', fr: 'Dernière mise à jour : juin 2026', ko: '최종 업데이트: 2026년 6월' })}</Text>
 
       <View style={styles.highlightCard}>
         <Text style={styles.highlightText}>{pick({ en: 'Dr.Toxi respects your privacy. We never sell your data.', fr: 'Dr.Toxi respecte votre vie privée. Nous ne vendons jamais vos données.', ko: 'Dr.Toxi는 여러분의 개인정보를 존중합니다. 우리는 여러분의 데이터를 절대 판매하지 않습니다.' })}</Text>
@@ -45,6 +45,15 @@ export default function PrivacyScreen() {
       <Text style={styles.heading}>{pick({ en: 'Local storage', fr: 'Stockage local', ko: '로컬 저장' })}</Text>
       <Text style={styles.body}>
         {pick({ en: 'Your scan history and preferences are stored only on your device via AsyncStorage. This data never leaves your phone and is not synced to our servers.', fr: 'Votre historique de scans et vos préférences sont stockés uniquement sur votre appareil via AsyncStorage. Ces données ne quittent jamais votre téléphone et ne sont pas synchronisées vers nos serveurs.', ko: '스캔 기록과 환경설정은 AsyncStorage를 통해 기기에만 저장됩니다. 이 데이터는 절대 휴대폰을 벗어나지 않으며 우리 서버와 동기화되지 않습니다.' })}
+      </Text>
+
+      <Text style={styles.heading}>{pick({ en: 'NonToxic Hub (community)', fr: 'NonToxic Hub (communauté)', ko: 'NonToxic Hub (커뮤니티)' })}</Text>
+      <Text style={styles.body}>
+        {pick({
+          en: 'NonToxic Hub is an optional community forum. ONLY what you choose to publish there — your posts and comments, your auto-generated pseudo, and the photo + verdict of a product you denounce — is sent to and stored on a shared server so other members can see it. Reading the Hub requires nothing. We never attach your name, email, or phone number. Posts and comments are checked by AI before publishing, and content reported by several members is hidden automatically.',
+          fr: "NonToxic Hub est un forum communautaire optionnel. SEUL ce que tu choisis d'y publier — tes posts et commentaires, ton pseudo généré automatiquement, et la photo + le verdict d'un produit que tu dénonces — est envoyé et stocké sur un serveur partagé pour être visible par les autres membres. Lire le Hub ne nécessite rien. Nous n'y associons jamais ton nom, email ou téléphone. Les posts et commentaires sont vérifiés par l'IA avant publication, et un contenu signalé par plusieurs membres est masqué automatiquement.",
+          ko: 'NonToxic Hub는 선택적 커뮤니티 포럼입니다. 게시물과 댓글, 자동 생성된 닉네임, 고발하는 제품의 사진과 판정 등 직접 게시하기로 선택한 내용만 다른 회원이 볼 수 있도록 공유 서버로 전송·저장됩니다. Hub를 읽는 데는 아무것도 필요하지 않습니다. 이름, 이메일, 전화번호는 절대 연결되지 않습니다. 게시물과 댓글은 게시 전 AI가 검토하며, 여러 회원이 신고한 콘텐츠는 자동으로 숨겨집니다.',
+        })}
       </Text>
 
       <Text style={styles.heading}>{pick({ en: 'Your rights', fr: 'Vos droits', ko: '여러분의 권리' })}</Text>

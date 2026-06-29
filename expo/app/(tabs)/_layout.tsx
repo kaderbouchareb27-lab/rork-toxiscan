@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Camera, Clock, MessageCircle, User } from "lucide-react-native";
+import { Camera, Clock, MessageCircle, User, Users } from "lucide-react-native";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
@@ -53,6 +53,13 @@ export default function TabLayout() {
         options={{
           title: t('tab_history'),
           tabBarIcon: ({ color, size }) => <Clock color={color} size={size} strokeWidth={2} />,
+        }}
+      />
+      <Tabs.Screen
+        name="hub"
+        options={{
+          title: t('tab_hub'),
+          tabBarIcon: ({ color, size }) => <Users color={color} size={size} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen

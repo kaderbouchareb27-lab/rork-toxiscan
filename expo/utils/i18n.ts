@@ -29,6 +29,7 @@ const translations = {
   tab_scanner: { fr: 'Scanner', en: 'Scanner', ko: '스캔' },
   tab_history: { fr: 'Historique', en: 'History', ko: '기록' },
   tab_drtoxi: { fr: 'Dr. Toxi', en: 'Dr. Toxi', ko: 'Dr. Toxi' },
+  tab_hub: { fr: 'Hub', en: 'Hub', ko: '허브' },
   tab_profile: { fr: 'Profil', en: 'Profile', ko: '프로필' },
 
   // ===== ROOT LAYOUT =====
