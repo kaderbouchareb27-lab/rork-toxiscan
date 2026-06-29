@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router, Stack } from 'expo-router';
 import { ChevronLeft, Lock, TrendingUp, Sparkles, Crown, Trophy, Flame } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -368,22 +369,37 @@ export default function WeeklyReportScreen() {
             </View>
 
             {/* Big weekly score (everyone, real) */}
-            <View style={styles.scoreWrap}>
-              <ToxicityScoreRing score={report.avgScore} tier={report.tier} size={184} label={t('weekly_score_label')} caption={mealTierLabel(report.tier)} />
-              <Text style={styles.mealsScanned}>{tf('weekly_meals_scanned', report.count)}</Text>
-            </View>
+            <LinearGradient colors={['#FFFFFF', '#FFFDF8', '#F5F1E8']} style={styles.scoreHero}>
+              <View style={[styles.scoreHalo, { backgroundColor: `${tierColor}12` }]} />
+              <View style={styles.scoreHeroTopRow}>
+                <View style={[styles.scoreStatusDot, { backgroundColor: tierColor }]} />
+                <Text style={styles.scoreHeroEyebrow}>{t('weekly_score_label')}</Text>
+              </View>
+              <View style={styles.scoreRingShell}>
+                <ToxicityScoreRing score={report.avgScore} tier={report.tier} size={196} label={t('weekly_score_label')} caption={mealTierLabel(report.tier)} />
+              </View>
+              <View style={styles.mealsPill}>
+                <Sparkles color={tierColor} size={15} strokeWidth={2.4} />
+                <Text style={styles.mealsScanned}>{tf('weekly_meals_scanned', report.count)}</Text>
+              </View>
+            </LinearGradient>
 
             {/* Distribution (everyone, real) */}
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('weekly_distribution')}</Text>
-              <View style={styles.distBarTrack}>
-                {TIERS.map((tr) =>
-                  report.distribution[tr] > 0 ? (
-                    <View key={tr} style={{ flex: report.distribution[tr], backgroundColor: MEAL_TIER_COLORS[tr] }} />
-                  ) : null,
-                )}
+            <View style={styles.cardPremium}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.cardTitleMark} />
+                <Text style={styles.cardTitle}>{t('weekly_distribution')}</Text>
               </View>
-              <View style={styles.legendRow}>
+              <View style={styles.distBarOuter}>
+                <View style={styles.distBarTrack}>
+                  {TIERS.map((tr) =>
+                    report.distribution[tr] > 0 ? (
+                      <View key={tr} style={{ flex: report.distribution[tr], backgroundColor: MEAL_TIER_COLORS[tr] }} />
+                    ) : null,
+                  )}
+                </View>
+              </View>
+              <View style={styles.legendGrid}>
                 {TIERS.map((tr) => (
                   <View key={tr} style={styles.legendItem}>
                     <View style={[styles.legendDot, { backgroundColor: MEAL_TIER_COLORS[tr] }]} />
@@ -396,11 +412,16 @@ export default function WeeklyReportScreen() {
 
             {/* Problem ingredient (everyone, real) */}
             {report.problemCategory ? (
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{t('weekly_problem_ingredient')}</Text>
-                <Text style={styles.problemValue}>
-                  {tf('weekly_problem_detected', mealCategoryLabel(report.problemCategory), report.problemCount)}
-                </Text>
+              <View style={styles.culpritCard}>
+                <View style={styles.cardHeaderRow}>
+                  <View style={[styles.cardTitleMark, styles.culpritMark]} />
+                  <Text style={styles.cardTitle}>{t('weekly_problem_ingredient')}</Text>
+                </View>
+                <View style={styles.problemValueBox}>
+                  <Text style={styles.problemValue}>
+                    {tf('weekly_problem_detected', mealCategoryLabel(report.problemCategory), report.problemCount)}
+                  </Text>
+                </View>
               </View>
             ) : null}
 
@@ -408,26 +429,34 @@ export default function WeeklyReportScreen() {
             {report.bestMeal || report.worstMeal ? (
               <View style={styles.bestWorstRow}>
                 {report.bestMeal ? (
-                  <TouchableOpacity style={[styles.bwCard, { borderColor: 'rgba(46,158,52,0.25)' }]} onPress={() => router.push(`/meal/${report.bestMeal!.id}`)} activeOpacity={0.85}>
-                    <Trophy color="#2E9E34" size={18} />
+                  <TouchableOpacity style={[styles.bwCard, styles.bwCardGood]} onPress={() => router.push(`/meal/${report.bestMeal!.id}`)} activeOpacity={0.85}>
+                    <View style={styles.bwTopRow}>
+                      <View style={[styles.bwIconWrap, styles.bwIconGood]}>
+                        <Trophy color="#2E9E34" size={18} strokeWidth={2.3} />
+                      </View>
+                      <Text style={[styles.bwScoreMini, { color: MEAL_TIER_COLORS[report.bestMeal.tier] }]}>{report.bestMeal.score}/10</Text>
+                    </View>
                     <Text style={styles.bwLabel}>{t('weekly_best_meal')}</Text>
-                    <Text style={styles.bwDish} numberOfLines={1}>{report.bestMeal.dishName}</Text>
-                    <Text style={[styles.bwScore, { color: MEAL_TIER_COLORS[report.bestMeal.tier] }]}>{report.bestMeal.score}/10</Text>
+                    <Text style={styles.bwDish} numberOfLines={2}>{report.bestMeal.dishName}</Text>
                   </TouchableOpacity>
                 ) : null}
                 {report.worstMeal && report.worstMeal.id !== report.bestMeal?.id ? (
-                  <TouchableOpacity style={[styles.bwCard, { borderColor: 'rgba(208,38,15,0.22)' }]} onPress={() => router.push(`/meal/${report.worstMeal!.id}`)} activeOpacity={0.85}>
-                    <Flame color="#D0260F" size={18} />
+                  <TouchableOpacity style={[styles.bwCard, styles.bwCardRisk]} onPress={() => router.push(`/meal/${report.worstMeal!.id}`)} activeOpacity={0.85}>
+                    <View style={styles.bwTopRow}>
+                      <View style={[styles.bwIconWrap, styles.bwIconRisk]}>
+                        <Flame color="#D0260F" size={18} strokeWidth={2.3} />
+                      </View>
+                      <Text style={[styles.bwScoreMini, { color: MEAL_TIER_COLORS[report.worstMeal.tier] }]}>{report.worstMeal.score}/10</Text>
+                    </View>
                     <Text style={styles.bwLabel}>{t('weekly_worst_meal')}</Text>
-                    <Text style={styles.bwDish} numberOfLines={1}>{report.worstMeal.dishName}</Text>
-                    <Text style={[styles.bwScore, { color: MEAL_TIER_COLORS[report.worstMeal.tier] }]}>{report.worstMeal.score}/10</Text>
+                    <Text style={styles.bwDish} numberOfLines={2}>{report.worstMeal.dishName}</Text>
                   </TouchableOpacity>
                 ) : null}
               </View>
             ) : null}
 
             {/* End message (everyone) */}
-            <View style={[styles.endCard, { backgroundColor: `${tierColor}14` }]}>
+            <View style={[styles.endCard, { backgroundColor: `${tierColor}14`, borderColor: `${tierColor}26` }]}>
               <Text style={[styles.endText, { color: report.avgScore >= 6 ? '#0B7A2D' : '#A94F05' }]}>
                 {report.avgScore >= 6 ? t('weekly_end_good') : t('weekly_end_improve')}
               </Text>
@@ -437,7 +466,7 @@ export default function WeeklyReportScreen() {
             {isPro ? (
               <>
                 <Text style={styles.sectionTitle}>{t('weekly_locked_trend')}</Text>
-                <View style={styles.card}>
+                <LinearGradient colors={['#FFFFFF', '#FFFDF8']} style={styles.trendCard}>
                   <View style={styles.trendBars}>
                     {trendWeeks.map((wk, i) => {
                       const h = Math.max(6, (wk.count > 0 ? wk.avgScore : 0) * 9 + 6);
@@ -451,14 +480,15 @@ export default function WeeklyReportScreen() {
                       );
                     })}
                   </View>
-                </View>
+                </LinearGradient>
 
                 <Text style={styles.sectionTitle}>{t('weekly_locked_reco')}</Text>
-                <View style={styles.adviceRow}>
+                <View style={styles.adviceCard}>
                   <View style={styles.adviceAvatarWrap}>
                     <Image source={{ uri: MEAL_TIER_AVATARS.green }} style={styles.adviceAvatar} contentFit="contain" />
                   </View>
                   <View style={styles.adviceBubble}>
+                    <View style={styles.adviceTail} />
                     <Text style={styles.adviceText}>{buildDrAdvice(report)}</Text>
                   </View>
                 </View>
@@ -503,52 +533,102 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: 18, fontWeight: '800' as const, color: Colors.text },
   emptyHint: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20, marginTop: 8 },
   introCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: Colors.surface, borderRadius: 22, padding: 16, marginTop: 6,
-    borderWidth: 1, borderColor: Colors.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 2,
+    flexDirection: 'row', alignItems: 'center', gap: 15, backgroundColor: Colors.surface, borderRadius: 26, padding: 18, marginTop: 8,
+    borderWidth: 1, borderColor: 'rgba(232,225,214,0.9)', shadowColor: '#111814', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.07, shadowRadius: 24, elevation: 4,
   },
-  introAvatar: { width: 52, height: 52 },
+  introAvatar: { width: 58, height: 58 },
   introTextCol: { flex: 1 },
-  introLabel: { fontSize: 11, fontWeight: '800' as const, color: Colors.primary, letterSpacing: 0.6, textTransform: 'uppercase' as const, marginBottom: 4 },
-  introText: { fontSize: 14.5, lineHeight: 21, color: Colors.text },
-  scoreWrap: { alignItems: 'center', marginTop: 22, marginBottom: 8 },
-  mealsScanned: { fontSize: 14, fontWeight: '600' as const, color: Colors.textSecondary, marginTop: 12 },
-  card: {
-    backgroundColor: Colors.surface, borderRadius: 20, padding: 18, marginTop: 14,
-    borderWidth: 1, borderColor: Colors.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 2,
+  introLabel: { fontSize: 12, fontWeight: '900' as const, color: Colors.primary, letterSpacing: 1.4, textTransform: 'uppercase' as const, marginBottom: 6 },
+  introText: { fontSize: 15.5, lineHeight: 23.5, color: Colors.text, fontWeight: '500' as const, letterSpacing: -0.15 },
+  scoreHero: {
+    alignItems: 'center', marginTop: 18, marginBottom: 8, borderRadius: 34, paddingVertical: 22, paddingHorizontal: 18,
+    borderWidth: 1, borderColor: 'rgba(232,225,214,0.9)', overflow: 'hidden',
+    shadowColor: '#111814', shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 5,
   },
-  cardTitle: { fontSize: 13, fontWeight: '800' as const, color: Colors.textSecondary, letterSpacing: 0.3, textTransform: 'uppercase' as const, marginBottom: 12 },
-  distBarTrack: { flexDirection: 'row', height: 14, borderRadius: 7, overflow: 'hidden', backgroundColor: Colors.surfaceSecondary },
-  legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 14 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontSize: 13, color: Colors.textSecondary, fontWeight: '500' as const },
-  legendCount: { fontSize: 13, fontWeight: '800' as const, color: Colors.text },
-  problemValue: { fontSize: 16, fontWeight: '700' as const, color: Colors.text },
-  bestWorstRow: { flexDirection: 'row', gap: 12, marginTop: 14 },
-  bwCard: { flex: 1, backgroundColor: Colors.surface, borderRadius: 18, padding: 14, borderWidth: 1.5, gap: 4 },
-  bwLabel: { fontSize: 11, fontWeight: '700' as const, color: Colors.textTertiary, letterSpacing: 0.3, textTransform: 'uppercase' as const, marginTop: 4 },
-  bwDish: { fontSize: 14.5, fontWeight: '700' as const, color: Colors.text },
-  bwScore: { fontSize: 18, fontWeight: '800' as const, marginTop: 2 },
-  endCard: { borderRadius: 18, padding: 18, marginTop: 14 },
-  endText: { fontSize: 15, fontWeight: '700' as const, lineHeight: 22, textAlign: 'center' },
-  sectionTitle: { fontSize: 17, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.3, marginTop: 24, marginBottom: 2 },
-  trendBars: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 110, paddingTop: 8 },
-  trendBarCol: { alignItems: 'center', gap: 8, flex: 1 },
-  trendBarTrack: { flex: 1, justifyContent: 'flex-end' },
-  trendBarFill: { width: 26, borderRadius: 8 },
-  trendBarLabel: { fontSize: 12, fontWeight: '700' as const, color: Colors.textSecondary },
-  adviceRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 14 },
+  scoreHalo: { position: 'absolute', width: 260, height: 260, borderRadius: 130, top: 42, alignSelf: 'center' },
+  scoreHeroTopRow: {
+    flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 8, backgroundColor: 'rgba(244,241,234,0.72)',
+    borderWidth: 1, borderColor: Colors.borderLight, borderRadius: 999, paddingHorizontal: 13, paddingVertical: 7, marginBottom: 8,
+  },
+  scoreStatusDot: { width: 7, height: 7, borderRadius: 4 },
+  scoreHeroEyebrow: { fontSize: 10.5, fontWeight: '900' as const, color: Colors.textSecondary, letterSpacing: 1.1, textTransform: 'uppercase' as const },
+  scoreRingShell: {
+    backgroundColor: 'rgba(255,255,255,0.72)', borderRadius: 120, padding: 8,
+    shadowColor: '#111814', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.06, shadowRadius: 20, elevation: 2,
+  },
+  mealsPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16, backgroundColor: Colors.surface,
+    borderWidth: 1, borderColor: Colors.borderLight, borderRadius: 999, paddingHorizontal: 15, paddingVertical: 9,
+  },
+  mealsScanned: { fontSize: 14.5, fontWeight: '800' as const, color: Colors.textSecondary, letterSpacing: -0.1 },
+  cardPremium: {
+    backgroundColor: Colors.surface, borderRadius: 26, padding: 20, marginTop: 16,
+    borderWidth: 1, borderColor: 'rgba(232,225,214,0.9)', shadowColor: '#111814', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.06, shadowRadius: 24, elevation: 4,
+  },
+  cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 14 },
+  cardTitleMark: { width: 4, height: 18, borderRadius: 99, backgroundColor: Colors.primary },
+  cardTitle: { fontSize: 13, fontWeight: '900' as const, color: Colors.textSecondary, letterSpacing: 0.9, textTransform: 'uppercase' as const },
+  distBarOuter: { backgroundColor: '#F9F5EC', borderRadius: 999, padding: 5, borderWidth: 1, borderColor: Colors.borderLight },
+  distBarTrack: { flexDirection: 'row', height: 20, borderRadius: 999, overflow: 'hidden', backgroundColor: Colors.surfaceSecondary },
+  legendGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16 },
+  legendItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: '#FAFAF8', borderWidth: 1, borderColor: Colors.borderLight,
+    borderRadius: 999, paddingHorizontal: 11, paddingVertical: 8,
+  },
+  legendDot: { width: 9, height: 9, borderRadius: 5 },
+  legendText: { fontSize: 13.5, color: Colors.textSecondary, fontWeight: '700' as const, letterSpacing: -0.1 },
+  legendCount: { fontSize: 14, fontWeight: '900' as const, color: Colors.text, fontVariant: ['tabular-nums'] },
+  culpritCard: {
+    backgroundColor: Colors.surface, borderRadius: 26, padding: 20, marginTop: 16,
+    borderWidth: 1, borderColor: 'rgba(232,225,214,0.9)', shadowColor: '#111814', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.06, shadowRadius: 24, elevation: 4,
+  },
+  culpritMark: { backgroundColor: Colors.caution },
+  problemValueBox: { backgroundColor: '#FFFBF0', borderRadius: 18, paddingHorizontal: 15, paddingVertical: 14, borderWidth: 1, borderColor: 'rgba(234,179,8,0.18)' },
+  problemValue: { fontSize: 18, lineHeight: 24, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.4 },
+  bestWorstRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  bwCard: {
+    flex: 1, backgroundColor: Colors.surface, borderRadius: 24, padding: 16, borderWidth: 1.5, minHeight: 142,
+    shadowColor: '#111814', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 3,
+  },
+  bwCardGood: { borderColor: 'rgba(46,158,52,0.25)', backgroundColor: '#FEFFFC' },
+  bwCardRisk: { borderColor: 'rgba(208,38,15,0.22)', backgroundColor: '#FFFDFB' },
+  bwTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  bwIconWrap: { width: 34, height: 34, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  bwIconGood: { backgroundColor: 'rgba(46,158,52,0.1)' },
+  bwIconRisk: { backgroundColor: 'rgba(208,38,15,0.08)' },
+  bwScoreMini: { fontSize: 17, fontWeight: '900' as const, letterSpacing: -0.4, fontVariant: ['tabular-nums'] },
+  bwLabel: { fontSize: 10.5, fontWeight: '900' as const, color: Colors.textTertiary, letterSpacing: 0.85, textTransform: 'uppercase' as const, marginBottom: 7 },
+  bwDish: { fontSize: 16, lineHeight: 20.5, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.35 },
+  endCard: { borderRadius: 24, paddingHorizontal: 20, paddingVertical: 22, marginTop: 18, borderWidth: 1 },
+  endText: { fontSize: 17, fontWeight: '900' as const, lineHeight: 25, textAlign: 'center', letterSpacing: -0.3 },
+  sectionTitle: { fontSize: 24, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.8, marginTop: 30, marginBottom: 10 },
+  trendCard: {
+    borderRadius: 26, padding: 20, borderWidth: 1, borderColor: 'rgba(232,225,214,0.9)',
+    shadowColor: '#111814', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.06, shadowRadius: 24, elevation: 4,
+  },
+  trendBars: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 126, paddingTop: 10 },
+  trendBarCol: { alignItems: 'center', gap: 9, flex: 1 },
+  trendBarTrack: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', width: 34, backgroundColor: '#F3EEE5', borderRadius: 14, padding: 4 },
+  trendBarFill: { width: 26, borderRadius: 12 },
+  trendBarLabel: { fontSize: 14, fontWeight: '900' as const, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
+  adviceCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: 6 },
   adviceAvatarWrap: {
-    width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(46,158,52,0.1)',
+    width: 62, height: 62, borderRadius: 31, backgroundColor: 'rgba(46,158,52,0.1)',
     alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-    borderWidth: 1, borderColor: 'rgba(46,158,52,0.18)',
+    borderWidth: 1.5, borderColor: 'rgba(46,158,52,0.2)',
+    shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12, shadowRadius: 16, elevation: 3,
   },
-  adviceAvatar: { width: 44, height: 44 },
+  adviceAvatar: { width: 52, height: 52 },
   adviceBubble: {
-    flex: 1, backgroundColor: 'rgba(46,158,52,0.08)', borderRadius: 20, borderTopLeftRadius: 6,
-    paddingHorizontal: 16, paddingVertical: 14, borderWidth: 1, borderColor: 'rgba(46,158,52,0.16)',
+    flex: 1, backgroundColor: '#F0FAEF', borderRadius: 26, borderTopLeftRadius: 8,
+    paddingHorizontal: 18, paddingVertical: 17, borderWidth: 1.3, borderColor: 'rgba(46,158,52,0.2)',
+    shadowColor: '#111814', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.05, shadowRadius: 18, elevation: 3,
   },
-  adviceText: { fontSize: 14.5, lineHeight: 22, color: Colors.text, fontWeight: '500' as const },
+  adviceTail: {
+    position: 'absolute', left: -7, top: 18, width: 14, height: 14, backgroundColor: '#F0FAEF',
+    borderLeftWidth: 1.3, borderBottomWidth: 1.3, borderColor: 'rgba(46,158,52,0.2)', transform: [{ rotate: '45deg' }],
+  },
+  adviceText: { fontSize: 15.5, lineHeight: 25, color: Colors.text, fontWeight: '600' as const, letterSpacing: -0.18 },
   lockedCard: {
     backgroundColor: Colors.surface, borderRadius: 22, padding: 20, marginTop: 24,
     borderWidth: 1.5, borderColor: 'rgba(169,79,5,0.22)',
