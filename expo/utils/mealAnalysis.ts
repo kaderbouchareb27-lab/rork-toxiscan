@@ -88,7 +88,7 @@ const ADDITIVE_TOKENS = ['colorant', 'colour', 'color', 'dye', 'additive', 'addi
 // Refined flour / refined carbs family (spec fix §3): white flour, viennoiseries, pastries,
 // white bread. Whole-grain variants are excluded — they stay healthy.
 const REFINED_FLOUR_TOKENS = ['flour', 'farine', 'viennoiserie', 'pastry', 'patisserie', 'croissant', 'brioche', 'baguette', 'pain', 'bun', 'dough', 'biscuit', 'cookie', 'cake', 'gateau', 'donut', 'doughnut', 'muffin', 'cupcake', 'bagel', 'pancake', 'waffle', 'gaufre', 'crepe', 'toast', 'scone', 'danish', 'pretzel', 'pita', '밀가루', '빵', '크루아상', '페이스트리', '베이글', '케이크', '쿠키', '도넛'];
-const WHOLE_GRAIN_TOKENS = ['complet', 'complete', 'whole', 'wholemeal', 'wholegrain', 'integral', 'multigrain', 'multicereal', 'seigle', 'rye', 'sarrasin', 'buckwheat', 'bran', '통밀', '현미', '잡곡', '호밀'];
+const WHOLE_GRAIN_TOKENS = ['complet', 'complete', 'whole', 'wholemeal', 'wholegrain', 'integral', 'multigrain', 'multicereal', 'multicereales', 'seigle', 'rye', 'sarrasin', 'buckwheat', 'bran', 'levain', 'sourdough', 'epeautre', 'spelt', 'pumpernickel', '통밀', '현미', '잡곡', '호밀', '사워도우'];
 
 // Genuinely-healthy items that are only INCIDENTAL to a drink/dish (the milk in a coffee,
 // a splash of cream) must NOT earn the health bonus (spec fix §4).
