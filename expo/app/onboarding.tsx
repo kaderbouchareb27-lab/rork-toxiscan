@@ -10,89 +10,68 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { Camera, ChevronRight, ArrowRight, ShieldCheck } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ArrowRight, Camera, Leaf, ScanLine, ShieldCheck, Sparkles, Utensils } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useOnboarding } from '@/providers/OnboardingProvider';
-import { t } from '@/utils/i18n';
-import { DR_TOXI_BADGE_AVATARS, type DrToxiVerdictLevel } from '@/constants/drToxiAvatars';
+import { t, pick } from '@/utils/i18n';
+import { DR_TOXI_BADGE_AVATARS, DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 
-type LabelKey = 'badge_danger' | 'badge_caution' | 'badge_moderation' | 'badge_approved';
-type DescKey =
-  | 'onboarding_risk_avoid'
-  | 'onboarding_risk_limit'
-  | 'onboarding_risk_moderate'
-  | 'onboarding_risk_enjoy';
-
-interface ResultRowConfig {
-  level: DrToxiVerdictLevel;
-  color: string;
-  tint: string;
-  labelKey: LabelKey;
-  descKey: DescKey;
-}
-
-const RESULT_ROWS: ResultRowConfig[] = [
-  { level: 'danger', color: '#D0260F', tint: 'rgba(208,38,15,0.07)', labelKey: 'badge_danger', descKey: 'onboarding_risk_avoid' },
-  { level: 'warning', color: '#E8730A', tint: 'rgba(232,115,10,0.08)', labelKey: 'badge_caution', descKey: 'onboarding_risk_limit' },
-  { level: 'moderation', color: '#C28800', tint: 'rgba(234,179,8,0.12)', labelKey: 'badge_moderation', descKey: 'onboarding_risk_moderate' },
-  { level: 'approuve', color: '#2E9E34', tint: 'rgba(46,158,52,0.08)', labelKey: 'badge_approved', descKey: 'onboarding_risk_enjoy' },
-];
-
-const BARCODE_BARS: number[] = [2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 1, 2, 3, 1, 1, 2];
+const BARCODE_BARS: number[] = [2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1];
 
 export default function OnboardingScreen() {
   const { completeOnboarding, hasSeenMealOnboarding } = useOnboarding();
   const buttonScale = useRef(new Animated.Value(1)).current;
   const fade = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(0)).current;
-  const rowsAnim = useRef<Animated.Value[]>(RESULT_ROWS.map(() => new Animated.Value(0))).current;
+  const slide = useRef(new Animated.Value(16)).current;
+  const avatarPulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(fade, { toValue: 1, duration: 420, useNativeDriver: true }).start();
-    Animated.stagger(
-      90,
-      rowsAnim.map((v) => Animated.spring(v, { toValue: 1, useNativeDriver: true, friction: 8, tension: 64 })),
-    ).start();
+    Animated.parallel([
+      Animated.timing(fade, { toValue: 1, duration: 420, useNativeDriver: true }),
+      Animated.spring(slide, { toValue: 0, useNativeDriver: true, friction: 9, tension: 72 }),
+    ]).start();
+
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 1150, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0, duration: 1150, useNativeDriver: true }),
+        Animated.timing(avatarPulse, { toValue: 1, duration: 1400, useNativeDriver: true }),
+        Animated.timing(avatarPulse, { toValue: 0, duration: 1400, useNativeDriver: true }),
       ]),
     ).start();
-  }, [fade, pulse, rowsAnim]);
+  }, [avatarPulse, fade, slide]);
 
   const finish = useCallback(() => {
     if (Platform.OS !== 'web') {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     completeOnboarding();
-    // New users continue straight into the meal-scan onboarding; otherwise go home.
     if (hasSeenMealOnboarding === false) {
-      console.log('[Onboarding] Completing onboarding → meal onboarding');
       router.replace('/meal-onboarding');
-    } else {
-      console.log('[Onboarding] Completing onboarding → home');
-      router.replace('/');
+      return;
     }
+    router.replace('/');
   }, [completeOnboarding, hasSeenMealOnboarding]);
 
   const handleStart = useCallback(() => {
     Animated.sequence([
       Animated.timing(buttonScale, { toValue: 0.96, duration: 70, useNativeDriver: true }),
       Animated.timing(buttonScale, { toValue: 1, duration: 70, useNativeDriver: true }),
-    ]).start();
-    finish();
+    ]).start(finish);
   }, [buttonScale, finish]);
 
-  const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
-  const pulseGlow = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.18, 0.4] });
+  const pulseScale = avatarPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+  const pulseOpacity = avatarPulse.interpolate({ inputRange: [0, 1], outputRange: [0.18, 0.34] });
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <Animated.View style={[styles.flex, { opacity: fade }]}>
+      <Animated.View style={[styles.flex, { opacity: fade, transform: [{ translateY: slide }] }]}>
         <View style={styles.header}>
+          <View style={styles.progressPill}>
+            <View style={styles.progressDotActive} />
+            <View style={styles.progressDot} />
+          </View>
           <TouchableOpacity onPress={finish} style={styles.skipBtn} testID="onboarding-skip" hitSlop={10}>
             <Text style={styles.skipText}>{t('skip')}</Text>
           </TouchableOpacity>
@@ -103,83 +82,111 @@ export default function OnboardingScreen() {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          <Text style={styles.title}>{t('onboarding_hero_title')}</Text>
-          <Text style={styles.subtitle}>{t('onboarding_hero_sub')}</Text>
+          <LinearGradient
+            colors={['#FFFFFC', '#F8F5EE', '#EEF7EF']}
+            locations={[0, 0.54, 1]}
+            style={styles.heroCard}
+          >
+            <View style={styles.heroGlowTop} />
+            <View style={styles.heroGlowBottom} />
 
-          <View style={styles.scanCardWrap}>
-            <View style={styles.scanCard}>
-              <View style={[styles.corner, styles.cornerTL]} />
-              <View style={[styles.corner, styles.cornerTR]} />
-              <View style={[styles.corner, styles.cornerBL]} />
-              <View style={[styles.corner, styles.cornerBR]} />
+            <View style={styles.officialPill}>
+              <Sparkles color={Colors.primary} size={14} strokeWidth={2.4} />
+              <Text style={styles.officialPillText}>{pick({ fr: 'GUIDE DR. TOXI', en: 'DR. TOXI GUIDE', ko: 'DR. TOXI 가이드' })}</Text>
+            </View>
 
-              <View style={styles.labelCard}>
-                <Text style={styles.labelHeader}>{t('onboarding_mock_ingredients_label')}</Text>
-                <Text style={styles.labelBody}>{t('onboarding_mock_ingredients_body')}</Text>
-                <View style={styles.barcode}>
-                  {BARCODE_BARS.map((w, i) => (
-                    <View key={`bar-${i}`} style={[styles.bar, { width: w }]} />
-                  ))}
+            <View style={styles.avatarStage}>
+              <Animated.View style={[styles.avatarAura, { opacity: pulseOpacity, transform: [{ scale: pulseScale }] }]} />
+              <View style={styles.avatarDisc}>
+                <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.avatar} contentFit="contain" />
+              </View>
+              <View style={styles.verifiedBadge}>
+                <ShieldCheck color={Colors.white} size={15} strokeWidth={2.6} />
+              </View>
+            </View>
+
+            <Text style={styles.title}>
+              {pick({
+                fr: 'Scanne produits et repas. Dr. Toxi t’explique le risque.',
+                en: 'Scan products and meals. Dr. Toxi explains the risk.',
+                ko: '제품과 식사를 스캔하세요. Dr. Toxi가 위험도를 설명합니다.',
+              })}
+            </Text>
+            <Text style={styles.subtitle}>
+              {pick({
+                fr: 'Une seule photo suffit : étiquette, ingrédients ou assiette. Tu obtiens un verdict clair, les alertes importantes et une meilleure alternative quand c’est utile.',
+                en: 'One photo is enough: label, ingredients, or plate. You get a clear verdict, key alerts, and a better alternative when helpful.',
+                ko: '사진 한 장이면 충분합니다: 라벨, 성분표 또는 식사. 명확한 판정과 주요 경고, 필요할 땐 더 나은 대안을 받습니다.',
+              })}
+            </Text>
+
+            <View style={styles.visualGrid}>
+              <View style={styles.scanModeCard}>
+                <View style={styles.modeHeader}>
+                  <View style={styles.modeIconGreen}>
+                    <ScanLine color={Colors.primary} size={18} strokeWidth={2.4} />
+                  </View>
+                  <Text style={styles.modeTitle}>{pick({ fr: 'Produit', en: 'Product', ko: '제품' })}</Text>
+                </View>
+                <View style={styles.labelMock}>
+                  <Text style={styles.labelMockTitle}>{pick({ fr: 'INGRÉDIENTS', en: 'INGREDIENTS', ko: '성분' })}</Text>
+                  <Text style={styles.labelMockText}>Eau, sucre, huile de palme, E471…</Text>
+                  <View style={styles.barcode}>
+                    {BARCODE_BARS.map((w, i) => <View key={`bar-${i}`} style={[styles.bar, { width: w }]} />)}
+                  </View>
+                </View>
+                <View style={styles.verdictMiniRow}>
+                  <Image source={{ uri: DR_TOXI_BADGE_AVATARS.danger }} style={styles.miniAvatar} contentFit="contain" />
+                  <Text style={styles.redSignal}>{t('badge_danger')}</Text>
+                </View>
+              </View>
+
+              <View style={styles.scanModeCard}>
+                <View style={styles.modeHeader}>
+                  <View style={styles.modeIconCream}>
+                    <Utensils color={Colors.warning} size={18} strokeWidth={2.4} />
+                  </View>
+                  <Text style={styles.modeTitle}>{pick({ fr: 'Repas', en: 'Meal', ko: '식사' })}</Text>
+                </View>
+                <View style={styles.mealScoreMock}>
+                  <Text style={styles.scoreNumber}>7</Text>
+                  <Text style={styles.scoreOut}>/10</Text>
+                  <Text style={styles.scoreLabel}>{pick({ fr: 'TOXICITÉ', en: 'TOXICITY', ko: '독성' })}</Text>
+                </View>
+                <View style={styles.verdictMiniRow}>
+                  <Leaf color={Colors.primary} size={17} strokeWidth={2.4} />
+                  <Text style={styles.greenSignal}>{pick({ fr: 'Alternative saine', en: 'Cleaner swap', ko: '더 건강한 대안' })}</Text>
                 </View>
               </View>
             </View>
 
-            <View style={styles.cameraBtnWrap} pointerEvents="none">
-              <Animated.View style={[styles.cameraGlow, { opacity: pulseGlow, transform: [{ scale: pulseScale }] }]} />
-              <View style={styles.cameraBtn}>
-                <Camera color={Colors.primary} size={25} strokeWidth={2.2} />
+            <View style={styles.promiseRow}>
+              <View style={styles.promiseChip}>
+                <Camera color={Colors.primary} size={14} strokeWidth={2.4} />
+                <Text style={styles.promiseText}>{pick({ fr: '1 photo', en: '1 photo', ko: '사진 1장' })}</Text>
+              </View>
+              <View style={styles.promiseChip}>
+                <ShieldCheck color={Colors.primary} size={14} strokeWidth={2.4} />
+                <Text style={styles.promiseText}>{pick({ fr: 'Verdict clair', en: 'Clear verdict', ko: '명확한 판정' })}</Text>
+              </View>
+              <View style={styles.promiseChip}>
+                <Leaf color={Colors.primary} size={14} strokeWidth={2.4} />
+                <Text style={styles.promiseText}>{pick({ fr: 'Alternatives', en: 'Swaps', ko: '대안' })}</Text>
               </View>
             </View>
-          </View>
-
-          <Text style={styles.resultsHeading}>{t('onboarding_results_heading')}</Text>
-
-          <View style={styles.resultsList}>
-            {RESULT_ROWS.map((row, i) => (
-              <Animated.View
-                key={row.level}
-                style={{
-                  opacity: rowsAnim[i],
-                  transform: [
-                    {
-                      translateY: rowsAnim[i].interpolate({ inputRange: [0, 1], outputRange: [16, 0] }),
-                    },
-                  ],
-                }}
-              >
-                <View style={[styles.resultRow, { backgroundColor: row.tint, borderColor: `${row.color}26` }]}>
-                  <View style={[styles.avatarRing, { borderColor: row.color, backgroundColor: row.tint }]}>
-                    <Image
-                      source={{ uri: DR_TOXI_BADGE_AVATARS[row.level] }}
-                      style={styles.avatar}
-                      contentFit="contain"
-                    />
-                  </View>
-                  <View style={styles.rowTextWrap}>
-                    <Text style={[styles.rowLabel, { color: row.color }]} numberOfLines={1}>
-                      {t(row.labelKey)}
-                    </Text>
-                    <Text style={styles.rowDescriptor} numberOfLines={1}>
-                      {t(row.descKey)}
-                    </Text>
-                  </View>
-                  <ChevronRight color={row.color} size={18} strokeWidth={2.6} />
-                </View>
-              </Animated.View>
-            ))}
-          </View>
+          </LinearGradient>
         </ScrollView>
 
         <View style={styles.footer}>
-          <Animated.View style={[styles.buttonWrap, { transform: [{ scale: buttonScale }] }]}>
+          <Animated.View style={[styles.buttonWrap, { transform: [{ scale: buttonScale }] }]}> 
             <TouchableOpacity
               style={styles.button}
               onPress={handleStart}
               activeOpacity={0.9}
               testID="onboarding-start"
             >
-              <Text style={styles.buttonText}>{t('onboarding_cta_start')}</Text>
-              <ArrowRight color={Colors.white} size={20} strokeWidth={2.6} />
+              <Text style={styles.buttonText}>{t('mob_continue')}</Text>
+              <ArrowRight color={Colors.white} size={21} strokeWidth={2.7} />
             </TouchableOpacity>
           </Animated.View>
 
@@ -194,239 +201,182 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  flex: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    justifyContent: 'flex-end' as const,
+    justifyContent: 'space-between' as const,
     paddingHorizontal: 20,
     paddingTop: 4,
-    paddingBottom: 8,
+    paddingBottom: 10,
   },
-  skipBtn: {
+  progressPill: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 7,
+    paddingHorizontal: 10,
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 18,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.72)',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  progressDotActive: { width: 28, height: 8, borderRadius: 8, backgroundColor: Colors.primary },
+  progressDot: { width: 8, height: 8, borderRadius: 8, backgroundColor: Colors.border },
+  skipBtn: {
+    paddingVertical: 9,
+    paddingHorizontal: 18,
+    borderRadius: 999,
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  skipText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: Colors.textSecondary,
+  skipText: { fontSize: 14, fontWeight: '700' as const, color: Colors.textSecondary },
+  scrollContent: { paddingHorizontal: 18, paddingTop: 4, paddingBottom: 12 },
+  heroCard: {
+    borderRadius: 34,
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 18,
+    overflow: 'hidden' as const,
+    borderWidth: 1,
+    borderColor: 'rgba(232,225,214,0.92)',
+    shadowColor: '#1B4332',
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.12,
+    shadowRadius: 28,
+    elevation: 6,
   },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 8,
+  heroGlowTop: {
+    position: 'absolute' as const,
+    top: -82,
+    left: -70,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: 'rgba(46,158,52,0.11)',
+  },
+  heroGlowBottom: {
+    position: 'absolute' as const,
+    right: -88,
+    bottom: 74,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(232,115,10,0.08)',
+  },
+  officialPill: {
+    alignSelf: 'center' as const,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: 'rgba(46,158,52,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(46,158,52,0.16)',
+  },
+  officialPillText: { fontSize: 11, fontWeight: '900' as const, color: Colors.primary, letterSpacing: 1.2 },
+  avatarStage: { alignSelf: 'center' as const, width: 132, height: 132, marginTop: 14, marginBottom: 10, alignItems: 'center' as const, justifyContent: 'center' as const },
+  avatarAura: { position: 'absolute' as const, width: 126, height: 126, borderRadius: 63, backgroundColor: Colors.primary },
+  avatarDisc: {
+    width: 108,
+    height: 108,
+    borderRadius: 54,
+    backgroundColor: Colors.white,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    overflow: 'hidden' as const,
+    shadowColor: '#1B4332',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  avatar: { width: 96, height: 96 },
+  verifiedBadge: {
+    position: 'absolute' as const,
+    right: 12,
+    bottom: 17,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: Colors.primary,
+    borderWidth: 3,
+    borderColor: Colors.white,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
   },
   title: {
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: '800' as const,
+    fontSize: 30,
+    lineHeight: 35,
+    fontWeight: '900' as const,
     color: Colors.text,
     textAlign: 'center' as const,
-    letterSpacing: -0.6,
+    letterSpacing: -0.8,
+    paddingHorizontal: 4,
   },
   subtitle: {
     fontSize: 15.5,
-    lineHeight: 22,
+    lineHeight: 23,
     color: Colors.textSecondary,
     textAlign: 'center' as const,
     marginTop: 12,
-    paddingHorizontal: 8,
-  },
-  scanCardWrap: {
-    marginTop: 26,
-    marginBottom: 44,
-    alignItems: 'center' as const,
-  },
-  scanCard: {
-    width: '100%',
-    maxWidth: 330,
-    paddingVertical: 22,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    backgroundColor: '#E7F0E4',
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    borderWidth: 1,
-    borderColor: 'rgba(46,158,52,0.16)',
-    shadowColor: '#1B4332',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 4,
-  },
-  corner: {
-    position: 'absolute' as const,
-    width: 22,
-    height: 22,
-    borderColor: Colors.primary,
-  },
-  cornerTL: { top: 12, left: 12, borderTopWidth: 3, borderLeftWidth: 3, borderTopLeftRadius: 7 },
-  cornerTR: { top: 12, right: 12, borderTopWidth: 3, borderRightWidth: 3, borderTopRightRadius: 7 },
-  cornerBL: { bottom: 12, left: 12, borderBottomWidth: 3, borderLeftWidth: 3, borderBottomLeftRadius: 7 },
-  cornerBR: { bottom: 12, right: 12, borderBottomWidth: 3, borderRightWidth: 3, borderBottomRightRadius: 7 },
-  labelCard: {
-    width: '78%',
-    backgroundColor: Colors.white,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  labelHeader: {
-    fontSize: 11,
-    fontWeight: '800' as const,
-    color: Colors.primary,
-    letterSpacing: 0.4,
-    marginBottom: 5,
-  },
-  labelBody: {
-    fontSize: 11.5,
-    lineHeight: 16,
-    color: Colors.text,
-  },
-  barcode: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-end' as const,
-    height: 28,
-    marginTop: 12,
-    gap: 1.5,
-  },
-  bar: {
-    height: 28,
-    backgroundColor: Colors.text,
-    borderRadius: 0.5,
-  },
-  cameraBtnWrap: {
-    position: 'absolute' as const,
-    bottom: -28,
-    left: 0,
-    right: 0,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-  },
-  cameraGlow: {
-    position: 'absolute' as const,
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: Colors.primary,
-  },
-  cameraBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.white,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    shadowColor: '#1B4332',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(46,158,52,0.18)',
-  },
-  resultsHeading: {
-    fontSize: 14,
-    fontWeight: '800' as const,
-    color: Colors.text,
-    textAlign: 'center' as const,
-    letterSpacing: 0.2,
-    marginBottom: 14,
-  },
-  resultsList: {
-    gap: 10,
-  },
-  resultRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: 12,
-  },
-  avatarRing: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    overflow: 'hidden' as const,
-  },
-  avatar: {
-    width: 38,
-    height: 38,
-  },
-  rowTextWrap: {
-    flex: 1,
-  },
-  rowLabel: {
-    fontSize: 15,
-    fontWeight: '800' as const,
-    letterSpacing: 0.2,
-  },
-  rowDescriptor: {
-    fontSize: 12.5,
-    color: Colors.textSecondary,
-    marginTop: 2,
+    paddingHorizontal: 6,
     fontWeight: '500' as const,
   },
-  footer: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 10,
-    gap: 14,
+  visualGrid: { flexDirection: 'row' as const, gap: 12, marginTop: 22 },
+  scanModeCard: {
+    flex: 1,
+    minHeight: 190,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: 'rgba(232,225,214,0.92)',
+    padding: 12,
   },
-  buttonWrap: {
-    width: '100%',
-  },
+  modeHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, marginBottom: 12 },
+  modeIconGreen: { width: 34, height: 34, borderRadius: 12, backgroundColor: 'rgba(46,158,52,0.12)', alignItems: 'center' as const, justifyContent: 'center' as const },
+  modeIconCream: { width: 34, height: 34, borderRadius: 12, backgroundColor: 'rgba(232,115,10,0.11)', alignItems: 'center' as const, justifyContent: 'center' as const },
+  modeTitle: { fontSize: 15, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.2 },
+  labelMock: { borderRadius: 17, backgroundColor: '#F7F9F4', borderWidth: 1, borderColor: 'rgba(46,158,52,0.12)', padding: 10, minHeight: 98 },
+  labelMockTitle: { fontSize: 10, fontWeight: '900' as const, color: Colors.primary, letterSpacing: 0.7, marginBottom: 5 },
+  labelMockText: { fontSize: 10.5, lineHeight: 14, color: Colors.text, fontWeight: '600' as const },
+  barcode: { flexDirection: 'row' as const, alignItems: 'flex-end' as const, height: 22, marginTop: 8, gap: 1 },
+  bar: { height: 22, backgroundColor: Colors.text, borderRadius: 0.5 },
+  mealScoreMock: { height: 98, borderRadius: 49, alignSelf: 'center' as const, aspectRatio: 1, borderWidth: 8, borderColor: Colors.warning, backgroundColor: Colors.white, alignItems: 'center' as const, justifyContent: 'center' as const },
+  scoreNumber: { fontSize: 30, fontWeight: '900' as const, color: Colors.warning, lineHeight: 31 },
+  scoreOut: { position: 'absolute' as const, right: 15, top: 33, fontSize: 14, fontWeight: '800' as const, color: Colors.textTertiary },
+  scoreLabel: { fontSize: 8.5, fontWeight: '900' as const, color: Colors.textSecondary, letterSpacing: 0.8, marginTop: 2 },
+  verdictMiniRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, marginTop: 12, minHeight: 30 },
+  miniAvatar: { width: 30, height: 30 },
+  redSignal: { flex: 1, fontSize: 11.5, fontWeight: '900' as const, color: Colors.danger, letterSpacing: 0.1 },
+  greenSignal: { flex: 1, fontSize: 11.5, fontWeight: '900' as const, color: Colors.primary, letterSpacing: 0.1 },
+  promiseRow: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, justifyContent: 'center' as const, gap: 8, marginTop: 18 },
+  promiseChip: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.82)', borderWidth: 1, borderColor: Colors.borderLight },
+  promiseText: { fontSize: 12.5, fontWeight: '800' as const, color: Colors.text },
+  footer: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 10, gap: 12 },
+  buttonWrap: { width: '100%' },
   button: {
     width: '100%',
     flexDirection: 'row' as const,
     paddingVertical: 17,
-    borderRadius: 18,
+    borderRadius: 22,
     backgroundColor: Colors.primary,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     gap: 10,
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 14,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    elevation: 6,
   },
-  buttonText: {
-    color: Colors.white,
-    fontSize: 17.5,
-    fontWeight: '700' as const,
-    letterSpacing: 0.2,
-  },
-  scienceRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    gap: 7,
-  },
-  scienceText: {
-    fontSize: 12.5,
-    color: Colors.textSecondary,
-    fontWeight: '600' as const,
-  },
+  buttonText: { color: Colors.white, fontSize: 18, fontWeight: '900' as const, letterSpacing: 0.1 },
+  scienceRow: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 7 },
+  scienceText: { fontSize: 12.5, color: Colors.textSecondary, fontWeight: '700' as const },
 });

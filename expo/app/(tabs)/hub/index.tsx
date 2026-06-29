@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Plus, ShieldCheck, RotateCcw, BadgeCheck } from 'lucide-react-native';
+import { Plus, RotateCcw, BadgeCheck, MessageCircle } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { pick } from '@/utils/i18n';
@@ -146,7 +146,7 @@ export default function HubFeedScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <View style={styles.headerTop}>
+        <View style={styles.headerCard}>
           <TouchableOpacity
             style={styles.brandRow}
             activeOpacity={1}
@@ -154,14 +154,28 @@ export default function HubFeedScreen() {
             delayLongPress={600}
             testID="hub-admin-entry"
           >
-            <View style={styles.brandIcon}>
-              <ShieldCheck color={Colors.primary} size={18} strokeWidth={2.4} />
+            <View style={styles.brandAvatarShell}>
+              <View style={styles.brandAvatarGlow} />
+              <View style={styles.brandAvatarRing}>
+                <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.brandAvatar} contentFit="contain" />
+              </View>
+              <View style={styles.brandVerifiedBadge}>
+                <BadgeCheck color={Colors.white} size={13} strokeWidth={3} />
+              </View>
             </View>
-            <View>
-              <Text style={styles.headerTitle}>NonToxic Hub</Text>
-              <Text style={styles.headerSubtitle}>
-                {pick({ en: 'The clean community', fr: 'La communauté clean', ko: '클린 커뮤니티' })}
-              </Text>
+            <View style={styles.headerTextBlock}>
+              <View style={styles.titleRow}>
+                <Text style={styles.headerTitle}>NonToxic Hub</Text>
+                <View style={styles.titleVerifiedBadge}>
+                  <BadgeCheck color={Colors.primary} size={14} strokeWidth={3} />
+                </View>
+              </View>
+              <View style={styles.chatSubtitleRow}>
+                <View style={styles.onlineDot} />
+                <Text style={styles.headerSubtitle}>
+                  {pick({ en: 'Official clean community chat', fr: 'Chat officiel de la communauté clean', ko: '공식 클린 커뮤니티 채팅' })}
+                </Text>
+              </View>
             </View>
           </TouchableOpacity>
           {isAdmin ? (
@@ -171,6 +185,7 @@ export default function HubFeedScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.pseudoChip} onPress={() => router.push('/hub-pseudo')} activeOpacity={0.8} testID="hub-pseudo-chip">
+              <MessageCircle color={Colors.primary} size={14} strokeWidth={2.5} />
               <Text style={styles.pseudoChipText} numberOfLines={1}>{pseudo || '…'}</Text>
             </TouchableOpacity>
           )}
@@ -217,15 +232,62 @@ export default function HubFeedScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },
-  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 11, flex: 1 },
-  brandIcon: { width: 38, height: 38, borderRadius: 12, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 21, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 12.5, color: Colors.textTertiary, marginTop: 1, fontWeight: '600' as const },
-  pseudoChip: { maxWidth: 130, backgroundColor: Colors.surfaceSecondary, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: Colors.border },
-  pseudoChipText: { fontSize: 13, fontWeight: '700' as const, color: Colors.text },
-  adminChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.primaryLight, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: Colors.primaryBorder },
-  adminChipText: { fontSize: 13, fontWeight: '800' as const, color: Colors.primary },
+  headerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 14,
+    padding: 10,
+    borderRadius: 24,
+    backgroundColor: Colors.surfaceTinted,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: Colors.primaryDark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    elevation: 3,
+  },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 },
+  brandAvatarShell: { width: 58, height: 58, alignItems: 'center', justifyContent: 'center' },
+  brandAvatarGlow: { position: 'absolute', width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.primaryGlow },
+  brandAvatarRing: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: Colors.white,
+    borderWidth: 2,
+    borderColor: Colors.primaryBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  brandAvatar: { width: 48, height: 48 },
+  brandVerifiedBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: Colors.primary,
+    borderWidth: 2,
+    borderColor: Colors.surfaceTinted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTextBlock: { flex: 1, minWidth: 0 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 7, minWidth: 0 },
+  headerTitle: { fontSize: 21, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.8, flexShrink: 1 },
+  titleVerifiedBadge: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primaryLight, borderWidth: 1, borderColor: Colors.primaryBorder, alignItems: 'center', justifyContent: 'center' },
+  chatSubtitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
+  onlineDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: Colors.primary },
+  headerSubtitle: { fontSize: 12.5, color: Colors.textSecondary, fontWeight: '700' as const, flexShrink: 1 },
+  pseudoChip: { maxWidth: 112, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.surfaceSecondary, borderRadius: 18, paddingHorizontal: 11, paddingVertical: 9, borderWidth: 1, borderColor: Colors.border },
+  pseudoChipText: { fontSize: 13, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.1 },
+  adminChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.primaryLight, borderRadius: 18, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: Colors.primaryBorder },
+  adminChipText: { fontSize: 13, fontWeight: '900' as const, color: Colors.primary },
   filterRow: { flexDirection: 'row', gap: 8 },
   filterPill: { flex: 1, paddingVertical: 9, borderRadius: 13, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', borderWidth: 1, borderColor: 'transparent' },
   filterPillActive: { backgroundColor: Colors.primary },

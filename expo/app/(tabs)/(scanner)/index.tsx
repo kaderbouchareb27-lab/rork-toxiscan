@@ -42,7 +42,7 @@ const LOADER_BAR_SEGMENT = 78;
 export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
-  const { hasSeenOnboarding, hasAcceptedAIConsent, hasSeenMealOnboarding } = useOnboarding();
+  const { hasSeenOnboarding, hasSeenMealOnboarding } = useOnboarding();
   const { isPro, consumeScan, canScan, scanRemaining, scanLimit, canMealScan, mealScanRemaining, mealScanLimit } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -50,14 +50,11 @@ export default function ScannerScreen() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (hasAcceptedAIConsent === false) {
-      console.log('[Scanner] User has not accepted AI consent, redirecting...');
-      router.replace('/ai-consent');
-    } else if (hasSeenOnboarding === false) {
+    if (hasSeenOnboarding === false) {
       console.log('[Scanner] User has not seen onboarding, redirecting...');
       router.replace('/onboarding');
     } else if (hasSeenMealOnboarding === false) {
-      console.log('[Scanner] User has not seen meal onboarding, redirecting...');
+      console.log('[Scanner] User has not seen meal reminders onboarding, redirecting...');
       router.replace('/meal-onboarding');
     } else if (hasSeenOnboarding === true && hasSeenMealOnboarding === true) {
       console.log('[Scanner] User ready to scan');
@@ -74,7 +71,7 @@ export default function ScannerScreen() {
         ])
       ).start();
     }
-  }, [hasSeenOnboarding, hasAcceptedAIConsent, hasSeenMealOnboarding, fadeAnim, pulseAnim]);
+  }, [hasSeenOnboarding, hasSeenMealOnboarding, fadeAnim, pulseAnim]);
 
   const photoMutation = useMutation({
     mutationFn: async (imageUri: string) => {
@@ -455,7 +452,7 @@ export default function ScannerScreen() {
     outputRange: [-LOADER_BAR_SEGMENT, LOADER_BAR_WIDTH],
   });
 
-  if (hasAcceptedAIConsent === null || hasSeenOnboarding === null || hasSeenMealOnboarding === null) {
+  if (hasSeenOnboarding === null || hasSeenMealOnboarding === null) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#2E9E34" />
