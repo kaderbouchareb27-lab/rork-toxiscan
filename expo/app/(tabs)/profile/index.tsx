@@ -16,9 +16,8 @@ import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
 import * as StoreReview from 'expo-store-review';
 import Colors from '@/constants/colors';
+import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { router } from 'expo-router';
-
-const DR_TOXI_PRO_AVATAR = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/a610114d-b51b-40db-b438-d070fecef1ea.png';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -111,14 +110,19 @@ export default function ProfileScreen() {
                 <Check color={Colors.white} size={18} strokeWidth={3} />
               </View>
             ) : (
-              <Image
-                source={{ uri: DR_TOXI_PRO_AVATAR }}
-                style={styles.subscriptionAvatar}
-              />
+              <View style={styles.subscriptionAvatarWrap}>
+                <Image
+                  source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }}
+                  style={styles.subscriptionAvatar}
+                />
+                <View style={styles.subscriptionCrownBadge}>
+                  <Crown color="#B8860B" size={13} strokeWidth={2.6} />
+                </View>
+              </View>
             )}
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionLabel}>
-                {isPro ? t('drtoxi_pro') : t('drtoxi_free')}
+                {t('drtoxi_pro')}
               </Text>
               <Text style={[styles.subscriptionStatus, !isPro && styles.subscriptionStatusFree]}>
                 {isPro ? t('pro_active_desc') : t('free_desc')}
@@ -333,10 +337,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(46, 158, 52, 0.12)',
   },
+  subscriptionAvatarWrap: {
+    width: 48,
+    height: 48,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   subscriptionAvatar: {
-    width: 42,
-    height: 42,
+    width: 44,
+    height: 44,
     borderRadius: 14,
+  },
+  subscriptionCrownBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -5,
+    width: 23,
+    height: 23,
+    borderRadius: 12,
+    backgroundColor: '#FFF5CC',
+    borderWidth: 1,
+    borderColor: 'rgba(184, 134, 11, 0.28)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#B8860B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardTitle: {
     fontSize: 17,
