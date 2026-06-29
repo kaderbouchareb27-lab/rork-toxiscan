@@ -12,11 +12,27 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { Check, Heart, X, Crown, RefreshCw } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  BarChart3,
+  Check,
+  ChevronRight,
+  Crown,
+  Heart,
+  LockKeyhole,
+  MessageCircle,
+  RefreshCw,
+  ScanLine,
+  ShieldCheck,
+  Sparkles,
+  Utensils,
+  X,
+} from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQueryClient as __useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
+import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { t, tf } from '@/utils/i18n';
 
@@ -31,7 +47,6 @@ if (Platform.OS !== 'web') {
 
 type PlanType = 'annual' | 'monthly';
 
-const ICON_SOURCE = require('../assets/images/icon.png');
 const PAYWALL_BG = '#F5F0E8';
 const FALLBACK_MONTHLY_PRICE = '2,99 CA$';
 const FALLBACK_ANNUAL_PRICE = '29,99 CA$';
@@ -229,6 +244,14 @@ export default function PaywallScreen() {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#FFF9EE', '#F2F7EA', '#EEF9F0']}
+        locations={[0, 0.48, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.backgroundGlowTop} />
+      <View style={styles.backgroundGlowBottom} />
+
       {!isMandatory && (
         <TouchableOpacity style={[styles.closeButton, { top: insets.top + 12 }]} onPress={handleDismiss} testID="paywall-close" disabled={isLoading}>
           <View style={styles.closeCircle}>
@@ -238,23 +261,65 @@ export default function PaywallScreen() {
       )}
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 22, paddingBottom: insets.bottom + 178 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        <View style={styles.iconContainer}>
-          <Image source={ICON_SOURCE} style={styles.appIcon} contentFit="cover" />
-        </View>
+        <LinearGradient colors={['#071F12', '#0F4A25', '#2E9E34']} locations={[0, 0.58, 1]} style={styles.heroCard}>
+          <View style={styles.heroShine} />
+          <View style={styles.heroOrbOne} />
+          <View style={styles.heroOrbTwo} />
+          <View style={styles.heroOrbThree} />
 
-        <Text style={styles.title}>{getContextTitle()}</Text>
-        <Text style={styles.subtitle}>{getContextSubtitle()}</Text>
+          <View style={styles.heroTopRow}>
+            <View style={styles.avatarHaloOuter}>
+              <View style={styles.avatarHalo}>
+                <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.drToxiAvatar} contentFit="contain" />
+              </View>
+            </View>
+            <View style={styles.proBadge}>
+              <Crown color="#FFF2B8" size={15} strokeWidth={2.5} />
+              <Text style={styles.proBadgeText}>{t('paywall_pro_badge')}</Text>
+            </View>
+          </View>
+
+          <View style={styles.limitPill}>
+            <LockKeyhole color="#D9FBE1" size={14} strokeWidth={2.6} />
+            <Text style={styles.limitPillText}>{t('paywall_limit_reached')}</Text>
+          </View>
+          <Text style={styles.premiumLabel}>{t('paywall_premium_label')}</Text>
+          <Text style={styles.title}>{getContextTitle()}</Text>
+          <Text style={styles.subtitle}>{getContextSubtitle()}</Text>
+
+          <View style={styles.heroPromiseCard}>
+            <View style={styles.promiseIconShell}>
+              <Sparkles color="#2E9E34" size={17} strokeWidth={2.6} />
+            </View>
+            <Text style={styles.heroPromiseText}>{t('paywall_marketing_promise')}</Text>
+          </View>
+
+          <View style={styles.valueGrid}>
+            <ValuePill value={t('paywall_value_unlimited')} label={t('paywall_value_unlimited_sub')} />
+            <ValuePill value={t('paywall_value_ai')} label={t('paywall_value_ai_sub')} />
+            <ValuePill value={t('paywall_value_impact')} label={t('paywall_value_impact_sub')} />
+          </View>
+
+          <View style={styles.trustRow}>
+            <TrustChip icon={<ShieldCheck color="#D9FBE1" size={14} strokeWidth={2.4} />} text={t('paywall_trust_secure')} />
+            <TrustChip icon={<Sparkles color="#D9FBE1" size={14} strokeWidth={2.4} />} text={t('paywall_trust_premium_ai')} />
+          </View>
+        </LinearGradient>
 
         <View style={styles.benefitsContainer}>
-          <BenefitRow text={t('benefit_unlimited_product_scans')} />
-          <BenefitRow text={t('benefit_unlimited_meal_scans')} />
-          <BenefitRow text={t('benefit_weekly_report')} />
-          <BenefitRow text={t('benefit_recommendations')} />
-          <BenefitRow text={t('benefit_unlimited_drtoxi')} />
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionEyebrow}>{t('paywall_included_eyebrow')}</Text>
+            <Text style={styles.sectionTitle}>{t('paywall_included_title')}</Text>
+          </View>
+          <BenefitRow icon={<ScanLine color={Colors.primary} size={19} strokeWidth={2.5} />} title={t('benefit_unlimited_product_scans')} description={t('benefit_unlimited_product_scans_desc')} />
+          <BenefitRow icon={<Utensils color={Colors.primary} size={19} strokeWidth={2.5} />} title={t('benefit_unlimited_meal_scans')} description={t('benefit_unlimited_meal_scans_desc')} />
+          <BenefitRow icon={<BarChart3 color={Colors.primary} size={19} strokeWidth={2.5} />} title={t('benefit_weekly_report')} description={t('benefit_weekly_report_desc')} />
+          <BenefitRow icon={<Sparkles color={Colors.primary} size={19} strokeWidth={2.5} />} title={t('benefit_recommendations')} description={t('benefit_recommendations_desc')} />
+          <BenefitRow icon={<MessageCircle color={Colors.primary} size={19} strokeWidth={2.5} />} title={t('benefit_unlimited_drtoxi')} description={t('benefit_unlimited_drtoxi_desc')} />
         </View>
 
         {(offeringsLoading || retrying) && !currentOffering ? (
@@ -272,15 +337,23 @@ export default function PaywallScreen() {
           </View>
         ) : (
           <View style={styles.plansContainer}>
+            <View style={styles.planSectionHeader}>
+              <Text style={styles.planSectionTitle}>{t('paywall_choose_plan')}</Text>
+              <Text style={styles.planSectionSubtitle}>{t('paywall_choose_plan_subtitle')}</Text>
+            </View>
             <TouchableOpacity
               style={[styles.planCard, selectedPlan === 'annual' && styles.planCardSelected]}
               onPress={() => handlePlanSelect('annual')}
-              activeOpacity={0.8}
+              activeOpacity={0.86}
               testID="plan-annual"
               disabled={isLoading}
             >
-              <View style={styles.planBadge}>
+              <LinearGradient colors={['#FF8A4C', '#FF6B35']} style={styles.planBadge}>
                 <Text style={styles.planBadgeText}>{t('save_45')}</Text>
+              </LinearGradient>
+              <View style={styles.bestChoicePill}>
+                <Crown color="#2E9E34" size={12} strokeWidth={2.7} />
+                <Text style={styles.bestChoiceText}>{t('paywall_best_choice')}</Text>
               </View>
               <View style={styles.planRadio}>
                 <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
@@ -288,15 +361,28 @@ export default function PaywallScreen() {
                 </View>
               </View>
               <View style={styles.planInfo}>
-                <Text style={styles.planTitle}>{tf('annual_plan', annualPrice)}</Text>
+                <View style={styles.planTitleRow}>
+                  <Text style={styles.planTitle}>{tf('annual_plan', annualPrice)}</Text>
+                  {selectedPlan === 'annual' && (
+                    <View style={styles.selectedBadge}>
+                      <Check color={Colors.white} size={12} strokeWidth={3} />
+                      <Text style={styles.selectedBadgeText}>{t('paywall_selected')}</Text>
+                    </View>
+                  )}
+                </View>
                 <Text style={styles.planSubtext}>{tf('monthly_equivalent', annualMonthly)}</Text>
+                <Text style={styles.planMicrocopy}>{t('paywall_annual_microcopy')}</Text>
+                <View style={styles.planPerkRow}>
+                  <Check color={Colors.primary} size={13} strokeWidth={3} />
+                  <Text style={styles.planPerkText}>{t('paywall_annual_perk')}</Text>
+                </View>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.planCard, selectedPlan === 'monthly' && styles.planCardSelected]}
               onPress={() => handlePlanSelect('monthly')}
-              activeOpacity={0.8}
+              activeOpacity={0.86}
               testID="plan-monthly"
               disabled={isLoading}
             >
@@ -306,47 +392,32 @@ export default function PaywallScreen() {
                 </View>
               </View>
               <View style={styles.planInfo}>
-                <Text style={styles.planTitle}>{tf('monthly_plan', monthlyPrice)}</Text>
+                <View style={styles.planTitleRow}>
+                  <Text style={styles.planTitle}>{tf('monthly_plan', monthlyPrice)}</Text>
+                  {selectedPlan === 'monthly' && (
+                    <View style={styles.selectedBadge}>
+                      <Check color={Colors.white} size={12} strokeWidth={3} />
+                      <Text style={styles.selectedBadgeText}>{t('paywall_selected')}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.planMicrocopy}>{t('paywall_monthly_microcopy')}</Text>
               </View>
             </TouchableOpacity>
           </View>
         )}
 
-        <TouchableOpacity
-          style={[styles.ctaButton, isLoading && styles.ctaButtonDisabled]}
-          onPress={handleSubscribe}
-          activeOpacity={0.85}
-          testID="paywall-subscribe"
-          disabled={isLoading}
-        >
-          {purchaseInProgress ? (
-            <ActivityIndicator color={Colors.white} size="small" />
-          ) : (
-            <>
-              <Crown color={Colors.white} size={20} />
-              <Text style={styles.ctaButtonText}>{t('upgrade_pro')}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-
         <View style={styles.donationRow}>
-          <Heart color={Colors.primary} size={16} fill={Colors.primary} />
-          <Text style={styles.donationText}>
-            {t('donation_text')}
-          </Text>
+          <View style={styles.heartShell}>
+            <Heart color={Colors.primary} size={18} fill={Colors.primary} />
+          </View>
+          <View style={styles.donationCopy}>
+            <Text style={styles.donationTitle}>{t('paywall_impact_title')}</Text>
+            <Text style={styles.donationText}>{t('donation_text')}</Text>
+          </View>
         </View>
 
-        <Text style={styles.legalText}>
-          {t('legal_text')}
-        </Text>
-
-        <TouchableOpacity onPress={handleRestore} style={styles.restoreButton} testID="paywall-restore" disabled={isLoading}>
-          {restoreInProgress ? (
-            <ActivityIndicator color={Colors.textSecondary} size="small" />
-          ) : (
-            <Text style={styles.restoreText}>{t('restore_purchases')}</Text>
-          )}
-        </TouchableOpacity>
+        <Text style={styles.legalText}>{t('legal_text')}</Text>
 
         <View style={styles.legalLinksRow}>
           <TouchableOpacity onPress={() => Linking.openURL('https://spiny-waltz-902.notion.site/Conditions-d-utilisation-33586d85fa4b801fa0a6d69dfbdf9d1e')}>
@@ -357,21 +428,75 @@ export default function PaywallScreen() {
             <Text style={styles.legalLinkText}>{t('privacy_policy')}</Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.bottomSpacer} />
       </ScrollView>
+
+      <View style={[styles.stickyFooter, { paddingBottom: insets.bottom + 10 }]}>
+        <View style={styles.ctaMetaRow}>
+          <ShieldCheck color={Colors.primary} size={14} strokeWidth={2.5} />
+          <Text style={styles.ctaMetaText}>{t('paywall_secure_purchase')}</Text>
+        </View>
+        <TouchableOpacity
+          style={[styles.ctaButton, isLoading && styles.ctaButtonDisabled]}
+          onPress={handleSubscribe}
+          activeOpacity={0.88}
+          testID="paywall-subscribe"
+          disabled={isLoading}
+        >
+          <LinearGradient colors={['#34B244', '#229C31', '#147624']} style={styles.ctaGradient}>
+            {purchaseInProgress ? (
+              <ActivityIndicator color={Colors.white} size="small" />
+            ) : (
+              <>
+                <Crown color={Colors.white} size={20} strokeWidth={2.6} />
+                <Text style={styles.ctaButtonText}>{t('upgrade_pro')}</Text>
+                <ChevronRight color={Colors.white} size={20} strokeWidth={2.8} />
+              </>
+            )}
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleRestore} style={styles.restoreButton} testID="paywall-restore" disabled={isLoading}>
+          {restoreInProgress ? (
+            <ActivityIndicator color={Colors.textSecondary} size="small" />
+          ) : (
+            <Text style={styles.restoreText}>{t('restore_purchases')}</Text>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
-function BenefitRow({ text }: { text: string }) {
+function TrustChip({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <View style={styles.benefitRow}>
-      <View style={styles.checkCircle}>
-        <Check color={Colors.white} size={14} strokeWidth={3} />
-      </View>
-      <Text style={styles.benefitText}>{text}</Text>
+    <View style={styles.trustChip}>
+      {icon}
+      <Text style={styles.trustChipText}>{text}</Text>
     </View>
+  );
+}
+
+function ValuePill({ value, label }: { value: string; label: string }) {
+  return (
+    <View style={styles.valuePill}>
+      <Text style={styles.valuePillValue}>{value}</Text>
+      <Text style={styles.valuePillLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function BenefitRow({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <LinearGradient colors={['#FFFFFF', '#F7FFF8']} style={styles.benefitRow}>
+      <View style={styles.benefitIconShell}>{icon}</View>
+      <View style={styles.benefitCopy}>
+        <Text style={styles.benefitText}>{title}</Text>
+        <Text style={styles.benefitDescription}>{description}</Text>
+      </View>
+      <View style={styles.benefitCheckCircle}>
+        <Check color={Colors.white} size={13} strokeWidth={3} />
+      </View>
+    </LinearGradient>
   );
 }
 
@@ -380,150 +505,435 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: PAYWALL_BG,
   },
+  backgroundGlowTop: {
+    position: 'absolute',
+    top: -150,
+    right: -130,
+    width: 310,
+    height: 310,
+    borderRadius: 155,
+    backgroundColor: 'rgba(46, 158, 52, 0.18)',
+  },
+  backgroundGlowBottom: {
+    position: 'absolute',
+    bottom: 86,
+    left: -130,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(255, 183, 77, 0.18)',
+  },
   closeButton: {
     position: 'absolute',
-    right: 20,
+    right: 18,
     zIndex: 10,
   },
   closeCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: Colors.surface,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowColor: '#0E2B1B',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    elevation: 3,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 40,
+    paddingHorizontal: 18,
     alignItems: 'center',
   },
-  iconContainer: {
-    width: 88,
-    height: 88,
-    borderRadius: 24,
+  heroCard: {
+    width: '100%',
+    minHeight: 470,
+    borderRadius: 38,
+    padding: 22,
+    marginBottom: 16,
     overflow: 'hidden',
-    marginBottom: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
-    backgroundColor: PAYWALL_BG,
+    shadowColor: '#12391F',
+    shadowOffset: { width: 0, height: 22 },
+    shadowOpacity: 0.30,
+    shadowRadius: 34,
+    elevation: 12,
   },
-  appIcon: {
-    width: 88,
-    height: 88,
+  heroShine: {
+    position: 'absolute',
+    top: -118,
+    left: -88,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  heroOrbOne: {
+    position: 'absolute',
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    top: -72,
+    right: -62,
+  },
+  heroOrbTwo: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(255, 210, 111, 0.18)',
+    bottom: -58,
+    left: -54,
+  },
+  heroOrbThree: {
+    position: 'absolute',
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    right: 28,
+    bottom: 134,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 18,
+  },
+  avatarHaloOuter: {
+    width: 106,
+    height: 106,
+    borderRadius: 36,
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    shadowColor: '#071F12',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.22,
+    shadowRadius: 24,
+  },
+  avatarHalo: {
+    width: 92,
+    height: 92,
+    borderRadius: 31,
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.78)',
+  },
+  drToxiAvatar: {
+    width: 80,
+    height: 80,
+  },
+  proBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.26)',
+    borderRadius: 999,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
+  },
+  proBadgeText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '800' as const,
+    letterSpacing: 0.4,
+  },
+  limitPill: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(8, 28, 16, 0.42)',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(217, 251, 225, 0.16)',
+  },
+  limitPillText: {
+    color: '#D9FBE1',
+    fontSize: 12,
+    fontWeight: '800' as const,
+    letterSpacing: 0.2,
+  },
+  premiumLabel: {
+    color: '#B9F7C5',
+    fontSize: 12,
+    fontWeight: '900' as const,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase' as const,
+    marginBottom: 6,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '800' as const,
-    color: Colors.text,
-    textAlign: 'center',
-    lineHeight: 32,
+    fontSize: 34,
+    fontWeight: '900' as const,
+    color: Colors.white,
+    lineHeight: 38,
+    letterSpacing: -1.25,
     marginBottom: 10,
-    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 15,
-    color: Colors.textSecondary,
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.86)',
+    lineHeight: 23,
+    fontWeight: '600' as const,
+    marginBottom: 14,
+  },
+  heroPromiseCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    borderRadius: 20,
+    padding: 12,
+    marginBottom: 13,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.70)',
+  },
+  promiseIconShell: {
+    width: 34,
+    height: 34,
+    borderRadius: 13,
+    backgroundColor: 'rgba(46, 158, 52, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroPromiseText: {
+    flex: 1,
+    color: Colors.text,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '800' as const,
+  },
+  valueGrid: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 14,
+  },
+  valuePill: {
+    flex: 1,
+    minHeight: 62,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.13)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  valuePillValue: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '900' as const,
+    letterSpacing: -0.2,
+    marginBottom: 2,
+  },
+  valuePillLabel: {
+    color: 'rgba(232, 255, 238, 0.78)',
+    fontSize: 10,
+    fontWeight: '800' as const,
     textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 22,
+  },
+  trustRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  trustChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.13)',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+  },
+  trustChipText: {
+    color: '#E8FFEE',
+    fontSize: 12,
+    fontWeight: '700' as const,
   },
   benefitsContainer: {
     width: '100%',
-    gap: 16,
-    marginBottom: 32,
-    backgroundColor: Colors.surface,
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    gap: 10,
+    marginBottom: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    borderRadius: 30,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.86)',
+    shadowColor: '#132819',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.09,
+    shadowRadius: 28,
+    elevation: 5,
+  },
+  sectionHeader: {
+    marginBottom: 6,
+  },
+  sectionEyebrow: {
+    fontSize: 11,
+    fontWeight: '900' as const,
+    color: Colors.primary,
+    letterSpacing: 1.1,
+    textTransform: 'uppercase' as const,
+    marginBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 21,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    letterSpacing: -0.55,
   },
   benefitRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 12,
+    minHeight: 68,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.08)',
   },
-  checkCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#2E9E34',
+  benefitIconShell: {
+    width: 40,
+    height: 40,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
+  },
+  benefitCopy: {
+    flex: 1,
+  },
+  benefitCheckCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   benefitText: {
     fontSize: 15,
-    fontWeight: '600' as const,
+    fontWeight: '900' as const,
     color: Colors.text,
-    flex: 1,
+    lineHeight: 19,
+  },
+  benefitDescription: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 16,
+    fontWeight: '600' as const,
+    marginTop: 2,
   },
   plansContainer: {
     width: '100%',
     gap: 12,
-    marginBottom: 24,
+    marginBottom: 18,
+  },
+  planSectionHeader: {
+    paddingHorizontal: 4,
+    gap: 3,
+    marginBottom: 2,
+  },
+  planSectionTitle: {
+    fontSize: 21,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    letterSpacing: -0.55,
+  },
+  planSectionSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+    fontWeight: '600' as const,
   },
   planCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    paddingTop: 24,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: 'rgba(40, 36, 28, 0.10)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     gap: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowColor: '#102819',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.07,
+    shadowRadius: 20,
+    elevation: 3,
   },
   planCardSelected: {
     borderColor: '#2E9E34',
-    backgroundColor: '#F7FDF9',
+    borderWidth: 2.2,
+    backgroundColor: '#F2FFF5',
     shadowColor: '#2E9E34',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.22,
+    shadowRadius: 26,
+    elevation: 6,
   },
   planBadge: {
     position: 'absolute',
-    top: -11,
+    top: -13,
     right: 16,
-    backgroundColor: '#FF6B35',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 999,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.30,
+    shadowRadius: 14,
+    elevation: 5,
   },
   planBadgeText: {
     fontSize: 11,
-    fontWeight: '800' as const,
+    fontWeight: '900' as const,
     color: Colors.white,
     letterSpacing: 0.2,
   },
+  bestChoicePill: {
+    position: 'absolute',
+    top: 22,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 999,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
+  },
+  bestChoiceText: {
+    color: Colors.primaryDark,
+    fontSize: 10,
+    fontWeight: '900' as const,
+  },
   planRadio: {
-    width: 24,
-    height: 24,
+    width: 30,
+    height: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
   radioOuter: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 2.5,
-    borderColor: Colors.border,
+    borderColor: '#DDD6CB',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -531,107 +941,196 @@ const styles = StyleSheet.create({
     borderColor: '#2E9E34',
   },
   radioInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: '#2E9E34',
   },
   planInfo: {
     flex: 1,
   },
+  planTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   planTitle: {
-    fontSize: 16,
-    fontWeight: '700' as const,
+    fontSize: 19,
+    fontWeight: '900' as const,
     color: Colors.text,
-    letterSpacing: -0.1,
+    letterSpacing: -0.45,
+    paddingRight: 64,
+  },
+  selectedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.primary,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  selectedBadgeText: {
+    fontSize: 10,
+    fontWeight: '900' as const,
+    color: Colors.white,
   },
   planSubtext: {
+    fontSize: 15,
+    color: Colors.primaryDark,
+    fontWeight: '800' as const,
+    marginTop: 5,
+  },
+  planMicrocopy: {
     fontSize: 13,
     color: Colors.textSecondary,
-    marginTop: 3,
+    lineHeight: 18,
+    marginTop: 5,
+    fontWeight: '600' as const,
   },
-  ctaButton: {
-    width: '100%',
+  planPerkRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    backgroundColor: '#2E9E34',
-    paddingVertical: 20,
-    borderRadius: 18,
-    marginBottom: 20,
-    shadowColor: '#2E9E34',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 18,
-    elevation: 8,
+    gap: 5,
+    marginTop: 8,
   },
-  ctaButtonDisabled: {
-    opacity: 0.7,
-  },
-  ctaButtonText: {
-    color: Colors.white,
-    fontSize: 18,
+  planPerkText: {
+    fontSize: 12,
+    color: Colors.primaryDark,
     fontWeight: '800' as const,
-    letterSpacing: -0.2,
+    flex: 1,
   },
   donationRow: {
+    width: '100%',
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 13,
+    marginBottom: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 26,
+    padding: 17,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.84)',
+    shadowColor: '#102819',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.06,
+    shadowRadius: 20,
+    elevation: 3,
+  },
+  heartShell: {
+    width: 42,
+    height: 42,
+    borderRadius: 16,
+    backgroundColor: 'rgba(46, 158, 52, 0.10)',
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 20,
-    backgroundColor: Colors.surface,
-    borderRadius: 18,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+  },
+  donationCopy: {
+    flex: 1,
+  },
+  donationTitle: {
+    fontSize: 15,
+    color: Colors.text,
+    fontWeight: '900' as const,
+    marginBottom: 4,
   },
   donationText: {
     fontSize: 13,
-    fontWeight: '500' as const,
+    fontWeight: '600' as const,
     color: Colors.textSecondary,
-    flex: 1,
     lineHeight: 19,
   },
   legalText: {
-    fontSize: 11,
+    fontSize: 10,
     color: Colors.textTertiary,
     textAlign: 'center',
-    lineHeight: 16,
-    paddingHorizontal: 8,
-    marginBottom: 20,
-  },
-  restoreButton: {
-    marginBottom: 12,
-    paddingVertical: 8,
-  },
-  restoreText: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    textDecorationLine: 'underline',
+    lineHeight: 15,
+    paddingHorizontal: 6,
+    marginBottom: 14,
   },
   legalLinksRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 12,
     marginBottom: 8,
   },
   legalLinkText: {
     fontSize: 12,
     color: Colors.textSecondary,
     textDecorationLine: 'underline',
+    fontWeight: '600' as const,
   },
   legalLinkSeparator: {
     fontSize: 12,
     color: Colors.textTertiary,
   },
-  bottomSpacer: {
-    height: 20,
+  stickyFooter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    backgroundColor: 'rgba(250, 248, 241, 0.98)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(45, 106, 79, 0.10)',
+    shadowColor: '#102819',
+    shadowOffset: { width: 0, height: -12 },
+    shadowOpacity: 0.10,
+    shadowRadius: 26,
+    elevation: 14,
+  },
+  ctaMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 10,
+  },
+  ctaMetaText: {
+    color: Colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '700' as const,
+  },
+  ctaButton: {
+    width: '100%',
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#2E9E34',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.38,
+    shadowRadius: 26,
+    elevation: 12,
+  },
+  ctaGradient: {
+    minHeight: 68,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 18,
+  },
+  ctaButtonDisabled: {
+    opacity: 0.7,
+  },
+  ctaButtonText: {
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: '900' as const,
+    letterSpacing: -0.45,
+  },
+  restoreButton: {
+    alignSelf: 'center',
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+  },
+  restoreText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textDecorationLine: 'underline',
+    fontWeight: '700' as const,
   },
   loadingOfferings: {
     width: '100%',
@@ -644,7 +1143,7 @@ const styles = StyleSheet.create({
   loadingOfferingsText: {
     fontSize: 14,
     color: Colors.textSecondary,
-    fontWeight: '500' as const,
+    fontWeight: '600' as const,
   },
   errorOfferings: {
     width: '100%',
@@ -654,7 +1153,7 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 24,
     backgroundColor: Colors.surface,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 20,
   },
   errorOfferingsText: {
@@ -675,6 +1174,6 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: Colors.white,
     fontSize: 14,
-    fontWeight: '700' as const,
+    fontWeight: '800' as const,
   },
 });
