@@ -41,6 +41,7 @@ interface CommentRow {
   author_id: string;
   author_name: string;
   body: string;
+  is_admin: number;
   report_count: number;
   hidden: number;
   created_at: number;
@@ -81,6 +82,7 @@ function serializeComment(row: CommentRow) {
     authorId: row.author_id,
     authorName: row.author_name,
     body: row.body,
+    isAdmin: row.is_admin === 1,
     createdAt: row.created_at,
   };
 }
@@ -120,11 +122,18 @@ export class Forum extends DurableObject {
         author_id TEXT NOT NULL,
         author_name TEXT NOT NULL,
         body TEXT NOT NULL,
+        is_admin INTEGER NOT NULL DEFAULT 0,
         report_count INTEGER NOT NULL DEFAULT 0,
         hidden INTEGER NOT NULL DEFAULT 0,
         created_at INTEGER NOT NULL
       )
     `);
+    // Migration for forums created before admin replies existed.
+    try {
+      sql.exec("ALTER TABLE comments ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0");
+    } catch {
+      // Column already exists — nothing to do.
+    }
     sql.exec(`
       CREATE TABLE IF NOT EXISTS reactions (
         post_id TEXT NOT NULL,
@@ -180,6 +189,10 @@ export class Forum extends DurableObject {
       const reportCommentMatch = path.match(/^\/comments\/([^/]+)\/report$/);
       if (method === "POST" && reportCommentMatch) {
         return await this.report("comment", reportCommentMatch[1], request);
+      }
+      const deleteCommentMatch = path.match(/^\/comments\/([^/]+)\/delete$/);
+      if (method === "POST" && deleteCommentMatch) {
+        return await this.deleteComment(deleteCommentMatch[1]);
       }
       return jsonResponse({ error: "not_found" }, 404);
     } catch (e) {
@@ -280,8 +293,12 @@ export class Forum extends DurableObject {
     if (!post || post.hidden === 1) return jsonResponse({ error: "not_found" }, 404);
 
     const b = (await request.json()) as Record<string, unknown>;
-    const authorId = String(b.authorId ?? "").slice(0, 80);
-    const authorName = String(b.authorName ?? "").slice(0, 60) || "Anonyme";
+    // The Worker only sets isAdmin after validating the admin secret, so the DO can trust it.
+    const isAdmin = b.isAdmin === true;
+    const authorId = isAdmin ? "admin_toxiscan" : String(b.authorId ?? "").slice(0, 80);
+    const authorName = isAdmin
+      ? "Équipe ToxiScan"
+      : String(b.authorName ?? "").slice(0, 60) || "Anonyme";
     const body = String(b.body ?? "").slice(0, 3000);
     if (!authorId) return jsonResponse({ error: "missing_author" }, 400);
     if (body.trim().length === 0) return jsonResponse({ error: "empty_body" }, 400);
@@ -289,13 +306,14 @@ export class Forum extends DurableObject {
     const id = newId("cmt");
     const now = Date.now();
     this.sql.exec(
-      `INSERT INTO comments (id, post_id, author_id, author_name, body, report_count, hidden, created_at)
-       VALUES (?, ?, ?, ?, ?, 0, 0, ?)`,
+      `INSERT INTO comments (id, post_id, author_id, author_name, body, is_admin, report_count, hidden, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)`,
       id,
       postId,
       authorId,
       authorName,
       body,
+      isAdmin ? 1 : 0,
       now,
     );
     this.sql.exec(
@@ -309,6 +327,29 @@ export class Forum extends DurableObject {
       { comment: serializeComment(row), commentCount: updated.comment_count },
       201,
     );
+  }
+
+  // Admin-only hard delete (the Worker validates the admin secret first). Removes the
+  // comment entirely and keeps the parent post's comment_count in sync.
+  private deleteComment(commentId: string): Response {
+    const row = this.sql
+      .exec<CommentRow>("SELECT * FROM comments WHERE id = ?", commentId)
+      .toArray()[0];
+    if (!row) return jsonResponse({ error: "not_found" }, 404);
+
+    this.sql.exec("DELETE FROM comments WHERE id = ?", commentId);
+    this.sql.exec(
+      "UPDATE posts SET comment_count = MAX(0, comment_count - 1) WHERE id = ?",
+      row.post_id,
+    );
+    const updated = this.sql
+      .exec<PostRow>("SELECT comment_count FROM posts WHERE id = ?", row.post_id)
+      .toArray()[0];
+    return jsonResponse({
+      ok: true,
+      postId: row.post_id,
+      commentCount: updated?.comment_count ?? 0,
+    });
   }
 
   private async toggleReaction(postId: string, request: Request): Promise<Response> {

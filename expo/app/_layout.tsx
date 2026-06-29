@@ -162,6 +162,7 @@ function RootLayoutNav() {
       <Stack.Screen name="hub-compose" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="hub-denounce" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="hub-pseudo" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="hub-admin" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="terms" options={{ title: t('nav_terms') }} />
       <Stack.Screen name="transparency" options={{ title: t('nav_transparency') }} />
     </Stack>

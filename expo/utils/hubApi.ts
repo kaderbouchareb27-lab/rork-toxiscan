@@ -47,6 +47,7 @@ export interface HubComment {
   authorId: string;
   authorName: string;
   body: string;
+  isAdmin: boolean;
   createdAt: number;
 }
 
@@ -140,12 +141,38 @@ export async function createPost(input: CreatePostInput): Promise<HubPost> {
 
 export async function createComment(
   postId: string,
-  input: { authorId: string; authorName: string; body: string },
+  input: {
+    authorId: string;
+    authorName: string;
+    body: string;
+    asAdmin?: boolean;
+    adminSecret?: string;
+  },
 ): Promise<{ comment: HubComment; commentCount: number }> {
   return request<{ comment: HubComment; commentCount: number }>(
     `/posts/${encodeURIComponent(postId)}/comments`,
     { method: 'POST', body: input, timeoutMs: 30000 },
   );
+}
+
+/** Admin-only: permanently delete any comment. Server validates the admin secret. */
+export async function deleteComment(
+  commentId: string,
+  adminSecret: string,
+): Promise<{ ok: boolean; postId: string; commentCount: number }> {
+  return request<{ ok: boolean; postId: string; commentCount: number }>(
+    `/comments/${encodeURIComponent(commentId)}/delete`,
+    { method: 'POST', body: { adminSecret } },
+  );
+}
+
+/** Checks an admin secret against the server before unlocking admin mode on a device. */
+export async function verifyAdminSecret(adminSecret: string): Promise<boolean> {
+  const data = await request<{ valid: boolean }>(`/admin/verify`, {
+    method: 'POST',
+    body: { adminSecret },
+  });
+  return data.valid === true;
 }
 
 export async function reactToPost(

@@ -8,6 +8,8 @@ import {
   fetchPostDetail,
   createPost as apiCreatePost,
   createComment as apiCreateComment,
+  deleteComment as apiDeleteComment,
+  verifyAdminSecret as apiVerifyAdminSecret,
   reactToPost as apiReactToPost,
   reportPost as apiReportPost,
   reportComment as apiReportComment,
@@ -20,6 +22,7 @@ const USER_ID_KEY = 'hub_user_id';
 const PSEUDO_KEY = 'hub_pseudo';
 const PSEUDO_EDITED_KEY = 'hub_pseudo_edited';
 const BLOCKED_KEY = 'hub_blocked';
+const ADMIN_SECRET_KEY = 'hub_admin_secret';
 
 export type HubFilter = 'all' | 'denunciation' | 'discussion';
 
@@ -28,6 +31,7 @@ interface HubIdentity {
   pseudo: string;
   pseudoEdited: boolean;
   blockedIds: string[];
+  adminSecret: string | null;
 }
 
 function randomUserId(): string {
@@ -35,11 +39,12 @@ function randomUserId(): string {
 }
 
 async function loadIdentity(): Promise<HubIdentity> {
-  const [storedId, storedPseudo, storedEdited, storedBlocked] = await Promise.all([
+  const [storedId, storedPseudo, storedEdited, storedBlocked, storedAdmin] = await Promise.all([
     AsyncStorage.getItem(USER_ID_KEY),
     AsyncStorage.getItem(PSEUDO_KEY),
     AsyncStorage.getItem(PSEUDO_EDITED_KEY),
     AsyncStorage.getItem(BLOCKED_KEY),
+    AsyncStorage.getItem(ADMIN_SECRET_KEY),
   ]);
 
   let userId = storedId;
@@ -63,7 +68,13 @@ async function loadIdentity(): Promise<HubIdentity> {
     }
   }
 
-  return { userId, pseudo, pseudoEdited: storedEdited === '1', blockedIds };
+  return {
+    userId,
+    pseudo,
+    pseudoEdited: storedEdited === '1',
+    blockedIds,
+    adminSecret: storedAdmin && storedAdmin.length > 0 ? storedAdmin : null,
+  };
 }
 
 export const [HubProvider, useHub] = createContextHook(() => {
@@ -84,6 +95,24 @@ export const [HubProvider, useHub] = createContextHook(() => {
   const pseudo = identity?.pseudo ?? '';
   const canEditPseudo = identity ? !identity.pseudoEdited : false;
   const blockedIds = useMemo(() => identity?.blockedIds ?? [], [identity]);
+  const adminSecret = identity?.adminSecret ?? null;
+  const isAdmin = !!adminSecret;
+
+  // Verifies the secret server-side; only stores it locally when the server confirms it.
+  const unlockAdmin = useCallback(async (secret: string): Promise<boolean> => {
+    const clean = secret.trim();
+    if (!clean) return false;
+    const ok = await apiVerifyAdminSecret(clean);
+    if (!ok) return false;
+    setIdentity((cur) => (cur ? { ...cur, adminSecret: clean } : cur));
+    await AsyncStorage.setItem(ADMIN_SECRET_KEY, clean);
+    return true;
+  }, []);
+
+  const lockAdmin = useCallback(async () => {
+    setIdentity((cur) => (cur ? { ...cur, adminSecret: null } : cur));
+    await AsyncStorage.removeItem(ADMIN_SECRET_KEY);
+  }, []);
 
   const updatePseudo = useCallback(async (next: string) => {
     const clean = next.trim().slice(0, 24);
@@ -134,7 +163,24 @@ export const [HubProvider, useHub] = createContextHook(() => {
 
   const commentMutation = useMutation({
     mutationFn: ({ postId, body }: { postId: string; body: string }) =>
-      apiCreateComment(postId, { authorId: userId, authorName: pseudo, body }),
+      apiCreateComment(postId, {
+        authorId: userId,
+        authorName: pseudo,
+        body,
+        asAdmin: isAdmin,
+        adminSecret: adminSecret ?? undefined,
+      }),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['hubPost', variables.postId] });
+      void queryClient.invalidateQueries({ queryKey: ['hubPosts'] });
+    },
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: ({ commentId }: { commentId: string; postId: string }) => {
+      if (!adminSecret) throw new Error('Not an admin');
+      return apiDeleteComment(commentId, adminSecret);
+    },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['hubPost', variables.postId] });
       void queryClient.invalidateQueries({ queryKey: ['hubPosts'] });
@@ -213,10 +259,14 @@ export const [HubProvider, useHub] = createContextHook(() => {
       blockUser,
       unblockUser,
       isBlocked,
+      isAdmin,
+      unlockAdmin,
+      lockAdmin,
       createPost: createPostMutation.mutateAsync,
       isPosting: createPostMutation.isPending,
       addComment: commentMutation.mutateAsync,
       isCommenting: commentMutation.isPending,
+      deleteComment: deleteCommentMutation.mutateAsync,
       toggleReaction,
       reportPost: reportPostMutation.mutateAsync,
       reportComment: reportCommentMutation.mutateAsync,
@@ -231,10 +281,14 @@ export const [HubProvider, useHub] = createContextHook(() => {
       blockUser,
       unblockUser,
       isBlocked,
+      isAdmin,
+      unlockAdmin,
+      lockAdmin,
       createPostMutation.mutateAsync,
       createPostMutation.isPending,
       commentMutation.mutateAsync,
       commentMutation.isPending,
+      deleteCommentMutation.mutateAsync,
       toggleReaction,
       reportPostMutation.mutateAsync,
       reportCommentMutation.mutateAsync,

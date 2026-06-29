@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Plus, ShieldCheck, RotateCcw } from 'lucide-react-native';
+import { Plus, ShieldCheck, RotateCcw, BadgeCheck } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { pick } from '@/utils/i18n';
@@ -32,7 +32,7 @@ const FILTERS: { key: HubFilter; label: () => string }[] = [
 export default function HubFeedScreen() {
   const [filter, setFilter] = useState<HubFilter>('all');
   const { isPro } = useSubscription();
-  const { userId, pseudo, toggleReaction, reportPost, blockUser } = useHub();
+  const { userId, pseudo, isAdmin, toggleReaction, reportPost, blockUser } = useHub();
   const { posts, isLoading, isError, refetch, isRefetching } = useHubFeed(filter);
 
   const handleSelectFilter = useCallback((key: HubFilter) => {
@@ -147,7 +147,13 @@ export default function HubFeedScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <View style={styles.brandRow}>
+          <TouchableOpacity
+            style={styles.brandRow}
+            activeOpacity={1}
+            onLongPress={() => router.push('/hub-admin')}
+            delayLongPress={600}
+            testID="hub-admin-entry"
+          >
             <View style={styles.brandIcon}>
               <ShieldCheck color={Colors.primary} size={18} strokeWidth={2.4} />
             </View>
@@ -157,10 +163,17 @@ export default function HubFeedScreen() {
                 {pick({ en: 'The clean community', fr: 'La communauté clean', ko: '클린 커뮤니티' })}
               </Text>
             </View>
-          </View>
-          <TouchableOpacity style={styles.pseudoChip} onPress={() => router.push('/hub-pseudo')} activeOpacity={0.8} testID="hub-pseudo-chip">
-            <Text style={styles.pseudoChipText} numberOfLines={1}>{pseudo || '…'}</Text>
           </TouchableOpacity>
+          {isAdmin ? (
+            <TouchableOpacity style={styles.adminChip} onPress={() => router.push('/hub-admin')} activeOpacity={0.8} testID="hub-admin-chip">
+              <BadgeCheck color={Colors.primary} size={14} strokeWidth={2.6} />
+              <Text style={styles.adminChipText} numberOfLines={1}>{pick({ en: 'Team', fr: 'Équipe', ko: '팀' })}</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.pseudoChip} onPress={() => router.push('/hub-pseudo')} activeOpacity={0.8} testID="hub-pseudo-chip">
+              <Text style={styles.pseudoChipText} numberOfLines={1}>{pseudo || '…'}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.filterRow}>
@@ -211,6 +224,8 @@ const styles = StyleSheet.create({
   headerSubtitle: { fontSize: 12.5, color: Colors.textTertiary, marginTop: 1, fontWeight: '600' as const },
   pseudoChip: { maxWidth: 130, backgroundColor: Colors.surfaceSecondary, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: Colors.border },
   pseudoChipText: { fontSize: 13, fontWeight: '700' as const, color: Colors.text },
+  adminChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.primaryLight, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: Colors.primaryBorder },
+  adminChipText: { fontSize: 13, fontWeight: '800' as const, color: Colors.primary },
   filterRow: { flexDirection: 'row', gap: 8 },
   filterPill: { flex: 1, paddingVertical: 9, borderRadius: 13, backgroundColor: Colors.surfaceSecondary, alignItems: 'center', borderWidth: 1, borderColor: 'transparent' },
   filterPillActive: { backgroundColor: Colors.primary },

@@ -11,7 +11,15 @@ export { Forum } from "./forum";
 type Env = {
   DO: Fetcher;
   EXPO_PUBLIC_OPEN_AI?: string;
+  ADMIN_SECRET?: string;
 };
+
+// True only when a real admin secret is configured AND the caller sent the exact match.
+function isValidAdmin(env: Env, secret: unknown): boolean {
+  const configured = (env.ADMIN_SECRET ?? "").trim();
+  if (!configured) return false;
+  return typeof secret === "string" && secret === configured;
+}
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -98,20 +106,55 @@ export default {
         return withCors(res);
       }
 
-      // ---- Comment on a post — moderated ----
+      // ---- Admin: verify the secret (used to unlock admin mode on a device) ----
+      if (method === "POST" && path === "/admin/verify") {
+        const body = (await request.json()) as Record<string, unknown>;
+        return json({ valid: isValidAdmin(env, body.adminSecret) });
+      }
+
+      // ---- Comment on a post — moderated (admin replies skip moderation) ----
       const commentsMatch = path.match(/^\/posts\/([^/]+)\/comments$/);
       if (method === "POST" && commentsMatch) {
         const body = (await request.json()) as Record<string, unknown>;
+        const wantsAdmin = body.asAdmin === true;
+        const admin = wantsAdmin && isValidAdmin(env, body.adminSecret);
+        if (wantsAdmin && !admin) {
+          return json({ error: "forbidden" }, 403);
+        }
+
         const text = typeof body.body === "string" ? body.body : "";
-        if (text.trim().length > 0) {
+        // Official ToxiScan replies are trusted and bypass AI moderation.
+        if (!admin && text.trim().length > 0) {
           const verdict = await moderateText(text, "A comment on a forum post", env);
           if (!verdict.allowed) {
             return json({ error: "blocked", category: verdict.category }, 422);
           }
         }
+
+        // Never forward the raw secret to the DO; pass a clean isAdmin flag instead.
+        const forwardBody = {
+          authorId: body.authorId,
+          authorName: body.authorName,
+          body: body.body,
+          isAdmin: admin,
+        };
         const res = await forumFetch(env, path, {
           method: "POST",
-          body: JSON.stringify(body),
+          body: JSON.stringify(forwardBody),
+        });
+        return withCors(res);
+      }
+
+      // ---- Admin: hard-delete any comment ----
+      const deleteCommentMatch = path.match(/^\/comments\/([^/]+)\/delete$/);
+      if (method === "POST" && deleteCommentMatch) {
+        const body = (await request.json()) as Record<string, unknown>;
+        if (!isValidAdmin(env, body.adminSecret)) {
+          return json({ error: "forbidden" }, 403);
+        }
+        const res = await forumFetch(env, path, {
+          method: "POST",
+          body: JSON.stringify({}),
         });
         return withCors(res);
       }
