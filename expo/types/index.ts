@@ -62,13 +62,6 @@ export interface UniversalAnalysisResult {
   erreur?: string;
 }
 
-export interface RiskBadge {
-  group: RiskGroup;
-  label: string;
-  sublabel: string;
-  color: string;
-}
-
 export interface ScannedProduct {
   barcode: string;
   name: string;

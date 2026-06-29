@@ -191,10 +191,6 @@ export function setCachedHealthProfile(profile: HealthProfile | null): void {
   cachedHealthProfile = profile ?? EMPTY_HEALTH_PROFILE;
 }
 
-export function getCachedHealthProfile(): HealthProfile {
-  return cachedHealthProfile;
-}
-
 export function hasHealthProfile(): boolean {
   return cachedHealthProfile.prefs.length > 0 || cachedHealthProfile.note.trim().length > 0;
 }

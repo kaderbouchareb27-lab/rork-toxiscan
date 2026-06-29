@@ -818,14 +818,6 @@ export function getCosmeticNote(entry: CosmeticEntry): string {
   return entry.note;
 }
 
-/** Localized display name for a cosmetic entry. */
-export function getCosmeticDisplayName(entry: CosmeticEntry): string {
-  const lang = getDeviceLanguage();
-  if (lang === 'ko') return entry.displayNameKo ?? entry.displayNameEn;
-  if (lang === 'en') return entry.displayNameEn;
-  return entry.displayName;
-}
-
 // ═══════════════════════════════════════════════════════════════════════
 // COSMETIC VERDICT RULE
 // ═══════════════════════════════════════════════════════════════════════

@@ -31,10 +31,6 @@ export function setCachedUserLocation(loc: UserLocation | null): void {
   if (loc?.countryCode) cachedRegionInfo = null;
 }
 
-export function getCachedUserLocation(): UserLocation | null {
-  return cachedUserLocation;
-}
-
 export function detectRegion(): RegionInfo {
   if (cachedRegionInfo) return cachedRegionInfo;
 
