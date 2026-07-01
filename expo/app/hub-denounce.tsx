@@ -56,6 +56,8 @@ export default function HubDenounceScreen() {
   const [imageLoading, setImageLoading] = useState<boolean>(true);
 
   // Resolve the scanned record into a portable denunciation preview.
+  // Image candidates are ordered BEST-QUALITY FIRST: the original scan photo, then a
+  // remote URL, and only as a last resort the tiny 120px history thumbnail.
   const preview = useMemo(() => {
     if (kind === 'meal') {
       const meal = typeof refId === 'string' ? getMeal(refId) : undefined;
@@ -63,7 +65,7 @@ export default function HubDenounceScreen() {
       return {
         productName: meal.dishName,
         verdictLevel: tierToVerdict(meal.tier),
-        rawImage: meal.photoUri ?? meal.thumbnailUri ?? null,
+        imageCandidates: [meal.photoUri, meal.thumbnailUri] as (string | null | undefined)[],
       };
     }
     const product = history.find((p) => p.barcode === refId);
@@ -71,7 +73,7 @@ export default function HubDenounceScreen() {
     return {
       productName: product.name,
       verdictLevel: riskGroupToVerdict(product.riskGroup),
-      rawImage: product.thumbnailBase64 ?? product.photoUri ?? product.imageUrl ?? null,
+      imageCandidates: [product.photoUri, product.imageUrl, product.thumbnailBase64] as (string | null | undefined)[],
     };
   }, [kind, refId, history, getMeal]);
 
@@ -79,14 +81,14 @@ export default function HubDenounceScreen() {
     let cancelled = false;
     (async () => {
       setImageLoading(true);
-      const portable = await buildPortableScanImage(preview?.rawImage);
+      const portable = await buildPortableScanImage(preview?.imageCandidates ?? null);
       if (!cancelled) {
         setImageUrl(portable);
         setImageLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [preview?.rawImage]);
+  }, [preview?.imageCandidates]);
 
   const verdictColor = hubVerdictColor(preview?.verdictLevel ?? null);
 

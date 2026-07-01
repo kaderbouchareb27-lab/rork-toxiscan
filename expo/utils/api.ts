@@ -364,6 +364,8 @@ EXEMPLES CONCRETS :
 
 Pourquoi c'est critique : la base de données ToxiScan classe DIFFÉREMMENT les ingrédients selon leur spécificité (Sucre = orange, Sucre de canne = jaune, Sirop de canne inverti = orange). Si tu simplifies, tu fausses la classification.
 
+🟠 RÈGLE ABSOLUE HUILE DE PALME : l'huile de palme et TOUTES ses formes (palme, palmiste, oléine de palme, stéarine de palme, graisse de palme, shortening de palme — y compris « bio », « durable » ou « RSPO ») sont TOUJOURS classées ultra-transformées (orange minimum, Groupe 2A CIRC via 3-MCPD/esters de glycidol). JAMAIS vert, JAMAIS « approuvé », JAMAIS « sain ».
+
 ORTHOGRAPHE OBLIGATOIRE :
 • "palme" (PAS "palmet")
 • "soja" (PAS "soya" en français standard)
@@ -610,6 +612,8 @@ CONCRETE EXAMPLES:
 • If the label says "nitrite de sodium" → write "Sodium nitrite" — NEVER just "Salt"
 
 Why this is critical: the ToxiScan database classifies ingredients DIFFERENTLY based on specificity (Sugar = orange, Cane sugar = yellow, Invert cane syrup = orange). If you simplify, you skew the classification.
+
+🟠 ABSOLUTE PALM OIL RULE: palm oil and ALL its forms (palm, palm kernel, palm olein, palm stearin, palm fat, palm shortening — including "organic", "sustainable" or "RSPO certified") are ALWAYS classified ultra-processed (orange minimum, IARC Group 2A via 3-MCPD/glycidyl esters). NEVER green, NEVER "approved", NEVER "healthy".
 
 SPELLING:
 • "palm" not "palmet"
@@ -1207,6 +1211,42 @@ function splitOcrIngredients(block: string): string[] {
   return cleaned;
 }
 
+// ─────────────────────────────────────────────────────────────────
+// HUILE DE PALME — GARDE-FOU ABSOLU. Palm fat in ANY form (palm oil, palm kernel,
+// olein, stearin, shortening, "sustainable"/organic included) is Group 2A via
+// 3-MCPD/glycidyl esters → minimum ORANGE. Applied as deterministic post-processing
+// on BOTH classification paths so neither OCR variants nor a mistaken AI answer can
+// ever surface palm oil as green or yellow.
+// ─────────────────────────────────────────────────────────────────
+
+const PALM_FAT_CONTEXT = ['huile', 'oil', 'graisse', 'grease', 'fat', 'olein', 'oleine', 'stearin', 'stearine', 'shortening', 'matiere grasse', 'beurre de palme', 'palmiste', 'palm kernel', '팔유', '팔핵유'];
+const PALM_FAT_EXCLUSIONS = ['sucre', 'sugar', 'palmitate', 'coeur de palmier', 'coeurs de palmier', 'heart of palm', 'hearts of palm', 'palm heart', '팔 설탕'];
+
+/** True when the ingredient name designates a palm FAT (not palm sugar / hearts of palm / palmitate). */
+function isPalmFatName(name: string): boolean {
+  const n = normalizeForLookup(name);
+  if (!n) return false;
+  const mentionsPalm = n.includes('palm') || n.includes('팔유') || n.includes('팔핵');
+  if (!mentionsPalm) return false;
+  if (PALM_FAT_EXCLUSIONS.some((x) => n.includes(x))) return false;
+  return PALM_FAT_CONTEXT.some((x) => n.includes(x));
+}
+
+/** Forces palm fat to at least ORANGE (Group 2A) with the curated database description. */
+function enforcePalmOilFloor(sub: SubstanceDetected): SubstanceDetected {
+  if (sub.niveau_risque === 'danger' || sub.niveau_risque === 'probable') return sub;
+  if (!isPalmFatName(sub.nom)) return sub;
+  const entry = lookupIngredient('huile de palme');
+  console.log('[Classify] PALM OIL floor — "' + sub.nom + '" was ' + sub.niveau_risque + ' → forced probable (Groupe 2A).');
+  return {
+    ...sub,
+    niveau_risque: 'probable',
+    classification_circ: entry?.circ ?? 'Groupe 2A (3-MCPD/glycidol)',
+    explication: buildNegativeDescription(sub.nom, 'probable', entry ?? null),
+    descriptionPending: false,
+  };
+}
+
 /** Classify ingredient names parsed locally from OCR. Known → DB description now; unknown → pending. */
 function classifyLocal(names: string[]): SubstanceDetected[] {
   return names
@@ -1249,7 +1289,8 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
         source_exposition: null,
         descriptionPending: true,
       };
-    });
+    })
+    .map(enforcePalmOilFloor);
 }
 
 function classifyIngredients(aiIngredients: { nom: string; explication: string }[]): SubstanceDetected[] {
@@ -1331,7 +1372,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       explication: finalExplication,
       source_exposition: null,
     };
-  });
+  }).map(enforcePalmOilFloor);
 }
 
 // ═══════════════════════════════════════════════════════════════════════

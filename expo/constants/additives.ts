@@ -145,7 +145,8 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e620', name: 'Acide glutamique', group: 'group2a', category: 'food', description: 'Excitotoxine, même famille que MSG.' },
 
   // --- Huiles vraiment problématiques ---
-  { code: 'palm-oil', name: 'Huile de palme', group: 'group1', category: 'food', description: 'Huile raffinée contenant du 3-MCPD et des esters de glycidol classés Groupe 2A CIRC (probablement cancérogène) à des niveaux préoccupants. L\'EFSA a fixé une DJA très basse en 2018. Procédé de raffinage à haute température. Désastre écologique (déforestation).' },
+  // Groupe 2A CIRC (3-MCPD/glycidol = PROBABLEMENT cancérogène) → orange, cohérent avec ingredientsDatabase. Jamais vert, jamais rouge Groupe 1.
+  { code: 'palm-oil', name: 'Huile de palme', group: 'group2a', category: 'food', description: 'Huile raffinée contenant du 3-MCPD et des esters de glycidol classés Groupe 2A CIRC (probablement cancérogène) à des niveaux préoccupants. L\'EFSA a fixé une DJA très basse en 2018. Procédé de raffinage à haute température. Désastre écologique (déforestation).' },
   { code: 'hydrogenated-oil', name: 'Huile hydrogénée / Gras trans', group: 'group2a', category: 'food', description: 'Contient des gras trans liés aux maladies cardiovasculaires. Interdit aux USA depuis 2018.' },
 
   // --- Aluminium ---

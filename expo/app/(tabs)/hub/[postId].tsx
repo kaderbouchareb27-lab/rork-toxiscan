@@ -18,7 +18,7 @@ import { ChevronLeft, Heart, MoreHorizontal, ShieldAlert, Send, Lock, BadgeCheck
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { pick } from '@/utils/i18n';
-import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
+import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 import { useHub, useHubPost } from '@/providers/HubProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { HubModerationError, type HubComment } from '@/utils/hubApi';
@@ -157,6 +157,8 @@ export default function HubPostDetailScreen() {
 
   const isDenunciation = post?.kind === 'denunciation';
   const verdictColor = hubVerdictColor(post?.verdictLevel ?? null);
+  // Denunciations show the Dr. Toxi avatar matching the scan verdict, like the feed cards.
+  const verdictAvatar = isDenunciation && post?.verdictLevel ? getDrToxiBadgeAvatarForVerdict(post.verdictLevel) : null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -187,9 +189,15 @@ export default function HubPostDetailScreen() {
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {/* Author */}
             <View style={styles.authorRow}>
-              <View style={[styles.avatar, { backgroundColor: hubAvatarColor(post.authorId) }]}>
-                <Text style={styles.avatarText}>{hubInitials(post.authorName)}</Text>
-              </View>
+              {verdictAvatar ? (
+                <View style={[styles.verdictAvatar, { borderColor: verdictColor }]}>
+                  <Image source={{ uri: verdictAvatar }} style={styles.verdictAvatarImg} contentFit="contain" />
+                </View>
+              ) : (
+                <View style={[styles.avatar, { backgroundColor: hubAvatarColor(post.authorId) }]}>
+                  <Text style={styles.avatarText}>{hubInitials(post.authorName)}</Text>
+                </View>
+              )}
               <View style={styles.flex}>
                 <Text style={styles.pseudo}>{post.authorName}</Text>
                 <Text style={styles.time}>{hubTimeAgo(post.createdAt)}</Text>
@@ -342,6 +350,8 @@ const styles = StyleSheet.create({
   authorRow: { flexDirection: 'row', alignItems: 'center', gap: 11 },
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' as const },
+  verdictAvatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.white, borderWidth: 2, overflow: 'hidden' },
+  verdictAvatarImg: { width: 38, height: 38 },
   pseudo: { fontSize: 15.5, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.2 },
   time: { fontSize: 12.5, color: Colors.textTertiary, marginTop: 1 },
   menuButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },

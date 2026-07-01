@@ -4,6 +4,7 @@ import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { t } from '@/utils/i18n';
+import { useHub } from '@/providers/HubProvider';
 
 function TabBarBackground() {
   if (Platform.OS === 'ios') {
@@ -19,6 +20,8 @@ function TabBarBackground() {
 }
 
 export default function TabLayout() {
+  const { hubUnreadCount } = useHub();
+
   return (
     <Tabs
       screenOptions={{
@@ -60,6 +63,14 @@ export default function TabLayout() {
         options={{
           title: t('tab_hub'),
           tabBarIcon: ({ color, size }) => <Users color={color} size={size} strokeWidth={2} />,
+          tabBarBadge: hubUnreadCount > 0 ? (hubUnreadCount > 9 ? '9+' : hubUnreadCount) : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: '#D0260F',
+            color: '#FFFFFF',
+            fontSize: 10,
+            fontWeight: '800' as const,
+            fontFamily: 'DMSans_700Bold',
+          },
         }}
       />
       <Tabs.Screen

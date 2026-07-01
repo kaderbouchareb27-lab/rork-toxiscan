@@ -5,6 +5,7 @@ import { Heart, MessageCircle, MoreHorizontal, ShieldAlert } from 'lucide-react-
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { pick } from '@/utils/i18n';
+import { getDrToxiBadgeAvatarForVerdict } from '@/constants/drToxiAvatars';
 import { hubVerdictColor, hubVerdictLabel, hubAvatarColor, hubInitials, hubTimeAgo } from '@/utils/hubUi';
 import type { HubPost } from '@/utils/hubApi';
 
@@ -29,6 +30,9 @@ function HubPostCard({ post, onPress, onLike, onMenu }: Props) {
   const isDenunciation = post.kind === 'denunciation';
   const verdictColor = hubVerdictColor(post.verdictLevel);
   const avatarColor = hubAvatarColor(post.authorId);
+  // Denunciations show the Dr. Toxi avatar matching the scan verdict (red/orange/yellow/green)
+  // so the result is readable at a glance straight from the avatar.
+  const verdictAvatar = isDenunciation && post.verdictLevel ? getDrToxiBadgeAvatarForVerdict(post.verdictLevel) : null;
 
   return (
     <Pressable
@@ -37,9 +41,15 @@ function HubPostCard({ post, onPress, onLike, onMenu }: Props) {
       testID={`hub-post-${post.id}`}
     >
       <View style={styles.headerRow}>
-        <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
-          <Text style={styles.avatarText}>{hubInitials(post.authorName)}</Text>
-        </View>
+        {verdictAvatar ? (
+          <View style={[styles.verdictAvatar, { borderColor: verdictColor }]}>
+            <Image source={{ uri: verdictAvatar }} style={styles.verdictAvatarImg} contentFit="contain" />
+          </View>
+        ) : (
+          <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
+            <Text style={styles.avatarText}>{hubInitials(post.authorName)}</Text>
+          </View>
+        )}
         <View style={styles.headerText}>
           <Text style={styles.pseudo} numberOfLines={1}>{post.authorName}</Text>
           <Text style={styles.time}>{hubTimeAgo(post.createdAt)}</Text>
@@ -121,6 +131,8 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.white },
   avatarText: { color: '#FFFFFF', fontSize: 15.5, fontWeight: '900' as const, letterSpacing: -0.2 },
+  verdictAvatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.white, borderWidth: 2, overflow: 'hidden' },
+  verdictAvatarImg: { width: 38, height: 38 },
   headerText: { flex: 1, minWidth: 0 },
   pseudo: { fontSize: 15.5, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.35 },
   time: { fontSize: 12.5, color: Colors.textTertiary, marginTop: 1, fontWeight: '600' as const },

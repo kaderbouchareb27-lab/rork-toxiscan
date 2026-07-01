@@ -205,22 +205,35 @@ export async function reportComment(
   );
 }
 
+// Shared photo quality: wide enough to look sharp in the feed & detail view while
+// staying far below the server's payload limit (~150-250 KB base64 per photo).
+const PORTABLE_IMAGE_WIDTH = 900;
+const PORTABLE_IMAGE_QUALITY = 0.72;
+
 /**
  * Turns whatever image reference a scan holds (local file URI, data URL, or remote
- * URL) into a portable string other members can load. Local file URIs are
- * compressed to a small base64 data URL; data/http URLs are returned as-is.
+ * URL) into a portable string other members can load. Accepts a list of candidates
+ * ORDERED FROM BEST TO WORST quality (full photo first, tiny thumbnail last) and
+ * returns the first one that can be made portable. Local file URIs are compressed
+ * to a high-quality base64 data URL; data/http URLs are returned as-is.
  */
-export async function buildPortableScanImage(uri: string | null | undefined): Promise<string | null> {
-  if (!uri) return null;
-  if (uri.startsWith('data:') || uri.startsWith('http')) return uri;
-  try {
-    const base64 =
-      Platform.OS === 'web'
-        ? await compressImageWeb(uri, 480)
-        : await compressImageNative(uri, 480, 0.45);
-    return `data:image/jpeg;base64,${base64}`;
-  } catch (e) {
-    console.log('[hubApi] Could not build portable scan image:', e);
-    return null;
+export async function buildPortableScanImage(
+  candidates: (string | null | undefined)[] | string | null | undefined,
+): Promise<string | null> {
+  const list = Array.isArray(candidates) ? candidates : [candidates];
+  for (const uri of list) {
+    if (!uri) continue;
+    if (uri.startsWith('http')) return uri;
+    if (uri.startsWith('data:')) return uri;
+    try {
+      const base64 =
+        Platform.OS === 'web'
+          ? await compressImageWeb(uri, PORTABLE_IMAGE_WIDTH)
+          : await compressImageNative(uri, PORTABLE_IMAGE_WIDTH, PORTABLE_IMAGE_QUALITY);
+      return `data:image/jpeg;base64,${base64}`;
+    } catch (e) {
+      console.log('[hubApi] Portable image candidate failed, trying next:', e);
+    }
   }
+  return null;
 }

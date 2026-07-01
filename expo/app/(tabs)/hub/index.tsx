@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Plus, RotateCcw, BadgeCheck, MessageCircle } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -32,8 +32,26 @@ const FILTERS: { key: HubFilter; label: () => string }[] = [
 export default function HubFeedScreen() {
   const [filter, setFilter] = useState<HubFilter>('all');
   const { isPro } = useSubscription();
-  const { userId, pseudo, isAdmin, toggleReaction, reportPost, blockUser } = useHub();
+  const { userId, pseudo, isAdmin, toggleReaction, reportPost, blockUser, markHubSeen } = useHub();
   const { posts, isLoading, isError, refetch, isRefetching } = useHubFeed(filter);
+
+  // Clear the unread badge whenever the Hub is open — on focus AND when fresh
+  // posts stream in while the user is already reading the feed.
+  const isFocusedRef = useRef<boolean>(false);
+  useFocusEffect(
+    useCallback(() => {
+      isFocusedRef.current = true;
+      void markHubSeen();
+      return () => {
+        isFocusedRef.current = false;
+      };
+    }, [markHubSeen]),
+  );
+  useEffect(() => {
+    if (isFocusedRef.current && posts.length > 0) {
+      void markHubSeen();
+    }
+  }, [posts, markHubSeen]);
 
   const handleSelectFilter = useCallback((key: HubFilter) => {
     if (Platform.OS !== 'web') void Haptics.selectionAsync();

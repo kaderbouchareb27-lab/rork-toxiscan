@@ -168,3 +168,25 @@ export async function cancelAllMealReminders(): Promise<void> {
     console.log('[Notifications] cancelAll failed:', e);
   }
 }
+
+/**
+ * Presents an immediate local notification for NonToxic Hub activity (new posts or
+ * new replies detected while the app is running). Silent no-op when notification
+ * permission has not been granted — we never prompt from here.
+ */
+export async function presentHubActivityNotification(title: string, body: string): Promise<void> {
+  if (!isNative) return;
+  try {
+    const settings = await Notifications.getPermissionsAsync();
+    const granted = settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+    if (!granted) return;
+    await ensureAndroidChannel();
+    await Notifications.scheduleNotificationAsync({
+      content: { title, body },
+      trigger: Platform.OS === 'android' ? { channelId: REMINDER_CHANNEL } : null,
+    });
+    console.log('[Notifications] Hub activity notification presented.');
+  } catch (e) {
+    console.log('[Notifications] Hub notification failed:', e);
+  }
+}

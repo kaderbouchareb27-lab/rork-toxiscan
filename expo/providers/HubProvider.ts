@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
 import { generatePseudo } from '@/constants/hubPseudo';
+import { pick } from '@/utils/i18n';
+import { presentHubActivityNotification } from '@/utils/notifications';
 import {
   fetchPosts,
   fetchPostDetail,
@@ -23,6 +25,12 @@ const PSEUDO_KEY = 'hub_pseudo';
 const PSEUDO_EDITED_KEY = 'hub_pseudo_edited';
 const BLOCKED_KEY = 'hub_blocked';
 const ADMIN_SECRET_KEY = 'hub_admin_secret';
+const LAST_SEEN_KEY = 'hub_last_seen_at';
+const COMMENT_BASELINE_KEY = 'hub_comment_baseline';
+const NOTIFIED_KEY = 'hub_notified_at';
+
+/** Background feed poll frequency while the app is open (drives badge + notifications). */
+const HUB_POLL_INTERVAL_MS = 90 * 1000;
 
 export type HubFilter = 'all' | 'denunciation' | 'discussion';
 
@@ -32,6 +40,12 @@ interface HubIdentity {
   pseudoEdited: boolean;
   blockedIds: string[];
   adminSecret: string | null;
+  /** Timestamp of the last time the Hub feed was opened (drives the unread badge). */
+  lastSeenAt: number;
+  /** Per-post comment counts on MY posts at the last visit — detects new replies. */
+  commentBaseline: Record<string, number>;
+  /** Newest foreign post timestamp already notified — prevents duplicate notifications across launches. */
+  notifiedAt: number;
 }
 
 function randomUserId(): string {
@@ -39,12 +53,15 @@ function randomUserId(): string {
 }
 
 async function loadIdentity(): Promise<HubIdentity> {
-  const [storedId, storedPseudo, storedEdited, storedBlocked, storedAdmin] = await Promise.all([
+  const [storedId, storedPseudo, storedEdited, storedBlocked, storedAdmin, storedSeen, storedBaseline, storedNotified] = await Promise.all([
     AsyncStorage.getItem(USER_ID_KEY),
     AsyncStorage.getItem(PSEUDO_KEY),
     AsyncStorage.getItem(PSEUDO_EDITED_KEY),
     AsyncStorage.getItem(BLOCKED_KEY),
     AsyncStorage.getItem(ADMIN_SECRET_KEY),
+    AsyncStorage.getItem(LAST_SEEN_KEY),
+    AsyncStorage.getItem(COMMENT_BASELINE_KEY),
+    AsyncStorage.getItem(NOTIFIED_KEY),
   ]);
 
   let userId = storedId;
@@ -68,12 +85,28 @@ async function loadIdentity(): Promise<HubIdentity> {
     }
   }
 
+  let commentBaseline: Record<string, number> = {};
+  if (storedBaseline) {
+    try {
+      commentBaseline = JSON.parse(storedBaseline) as Record<string, number>;
+    } catch {
+      commentBaseline = {};
+    }
+  }
+
+  const lastSeenAt = storedSeen ? Number(storedSeen) || 0 : 0;
+  // First install: never fire a notification for content that predates the install.
+  const notifiedAt = storedNotified ? Number(storedNotified) || Date.now() : Date.now();
+
   return {
     userId,
     pseudo,
     pseudoEdited: storedEdited === '1',
     blockedIds,
     adminSecret: storedAdmin && storedAdmin.length > 0 ? storedAdmin : null,
+    lastSeenAt,
+    commentBaseline,
+    notifiedAt,
   };
 }
 
@@ -248,6 +281,116 @@ export const [HubProvider, useHub] = createContextHook(() => {
     mutationFn: (commentId: string) => apiReportComment(commentId, userId),
   });
 
+  // ── Hub activity: background poll → unread badge + local notifications ──
+  // Shares the ['hubPosts','all',userId] cache with the feed screen, so opening the
+  // Hub never refetches twice; the interval keeps the badge fresh while the app runs.
+  const activityQuery = useQuery({
+    queryKey: ['hubPosts', 'all', userId],
+    queryFn: () => fetchPosts('all', userId),
+    enabled: !!identity,
+    staleTime: 1000 * 30,
+    refetchInterval: HUB_POLL_INTERVAL_MS,
+  });
+
+  const hubUnreadCount = useMemo(() => {
+    if (!identity) return 0;
+    const posts = activityQuery.data ?? [];
+    let count = 0;
+    for (const p of posts) {
+      if (identity.blockedIds.includes(p.authorId)) continue;
+      if (p.authorId !== identity.userId) {
+        if (p.createdAt > identity.lastSeenAt) count += 1;
+      } else {
+        const base = identity.commentBaseline[p.id] ?? 0;
+        if (p.commentCount > base) count += p.commentCount - base;
+      }
+    }
+    return count;
+  }, [identity, activityQuery.data]);
+
+  /** Marks all current Hub activity as seen (clears the badge + snapshots my posts' reply counts). */
+  const markHubSeen = useCallback(async () => {
+    const now = Date.now();
+    let baselineToStore: Record<string, number> = {};
+    setIdentity((cur) => {
+      if (!cur) return cur;
+      const posts = queryClient.getQueryData<HubPost[]>(['hubPosts', 'all', cur.userId]) ?? [];
+      const baseline: Record<string, number> = {};
+      for (const p of posts) {
+        if (p.authorId === cur.userId) baseline[p.id] = p.commentCount;
+      }
+      baselineToStore = baseline;
+      return { ...cur, lastSeenAt: now, commentBaseline: baseline };
+    });
+    await AsyncStorage.multiSet([
+      [LAST_SEEN_KEY, String(now)],
+      [COMMENT_BASELINE_KEY, JSON.stringify(baselineToStore)],
+    ]);
+  }, [queryClient]);
+
+  // Fires a local notification when the poll detects fresh activity (a new share from
+  // another member, or a new reply on one of my posts). The guard is seeded from the
+  // first sample so old content never re-notifies, and it self-corrects after markHubSeen.
+  const notifyGuardRef = useRef<{ postTs: number; comments: number } | null>(null);
+  useEffect(() => {
+    if (!identity) return;
+    const posts = activityQuery.data;
+    if (!posts) return;
+
+    let newestForeignTs = 0;
+    let newestForeignPost: HubPost | null = null;
+    let commentsAboveBaseline = 0;
+    for (const p of posts) {
+      if (identity.blockedIds.includes(p.authorId)) continue;
+      if (p.authorId !== identity.userId) {
+        if (p.createdAt > newestForeignTs) {
+          newestForeignTs = p.createdAt;
+          newestForeignPost = p;
+        }
+      } else {
+        const base = identity.commentBaseline[p.id] ?? 0;
+        if (p.commentCount > base) commentsAboveBaseline += p.commentCount - base;
+      }
+    }
+
+    if (!notifyGuardRef.current) {
+      notifyGuardRef.current = {
+        postTs: Math.max(newestForeignTs, identity.notifiedAt),
+        comments: commentsAboveBaseline,
+      };
+      return;
+    }
+
+    const guard = notifyGuardRef.current;
+    // After markHubSeen the baseline resets — lower the guard so future replies notify again.
+    if (commentsAboveBaseline < guard.comments) guard.comments = commentsAboveBaseline;
+
+    const hasNewPost = newestForeignTs > guard.postTs && newestForeignTs > identity.lastSeenAt;
+    const hasNewReply = commentsAboveBaseline > guard.comments;
+    if (!hasNewPost && !hasNewReply) return;
+
+    notifyGuardRef.current = { postTs: Math.max(newestForeignTs, guard.postTs), comments: commentsAboveBaseline };
+    void AsyncStorage.setItem(NOTIFIED_KEY, String(notifyGuardRef.current.postTs));
+    setIdentity((cur) => (cur ? { ...cur, notifiedAt: Math.max(newestForeignTs, cur.notifiedAt) } : cur));
+
+    if (hasNewReply) {
+      void presentHubActivityNotification(
+        pick({ en: 'NonToxic Hub — new reply', fr: 'NonToxic Hub — nouvelle réponse', ko: 'NonToxic Hub — 새 답글' }),
+        pick({
+          en: 'Someone replied to your post. Come take a look!',
+          fr: "Quelqu'un a répondu à ton post. Viens voir !",
+          ko: '내 게시물에 새 답글이 달렸어요. 확인해 보세요!',
+        }),
+      );
+    } else if (newestForeignPost) {
+      const label = newestForeignPost.productName ?? newestForeignPost.title ?? newestForeignPost.body.slice(0, 60);
+      void presentHubActivityNotification(
+        pick({ en: 'NonToxic Hub — new share', fr: 'NonToxic Hub — nouveau partage', ko: 'NonToxic Hub — 새 게시물' }),
+        `${newestForeignPost.authorName}${label ? ` · ${label}` : ''}`,
+      );
+    }
+  }, [activityQuery.data, identity]);
+
   return useMemo(
     () => ({
       userId,
@@ -262,6 +405,8 @@ export const [HubProvider, useHub] = createContextHook(() => {
       isAdmin,
       unlockAdmin,
       lockAdmin,
+      hubUnreadCount,
+      markHubSeen,
       createPost: createPostMutation.mutateAsync,
       isPosting: createPostMutation.isPending,
       addComment: commentMutation.mutateAsync,
@@ -284,6 +429,8 @@ export const [HubProvider, useHub] = createContextHook(() => {
       isAdmin,
       unlockAdmin,
       lockAdmin,
+      hubUnreadCount,
+      markHubSeen,
       createPostMutation.mutateAsync,
       createPostMutation.isPending,
       commentMutation.mutateAsync,
