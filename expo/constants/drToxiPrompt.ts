@@ -567,7 +567,7 @@ export function getQuickSuggestions(): string[] {
 
 export const QUICK_SUGGESTIONS = getQuickSuggestions();
 
-export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
+export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
 
 /**
  * One-tap follow-up prompts shown under Dr. Toxi's latest reply.
@@ -577,7 +577,6 @@ export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve
 export function getFollowUpSuggestions(verdict?: DrToxiVerdictLevel | string | null): string[] {
   switch (verdict) {
     case 'ultratoxic':
-    case 'toxic':
     case 'danger':
     case 'warning':
       return [t('followup_why_verdict'), t('followup_alternative'), t('followup_worst_ingredient')];

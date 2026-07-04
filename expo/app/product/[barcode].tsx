@@ -58,7 +58,6 @@ type VerdictDomain = 'food' | 'cosmetic' | 'household' | 'textile' | 'kitchen';
 /** Non-food and cosmetic scales only have 4 levels — clamp the 6-tier levels onto them. */
 function clampLevel(level: VerdictLevel): 'danger' | 'warning' | 'moderation' | 'approuve' {
   if (level === 'ultratoxic') return 'danger';
-  if (level === 'toxic') return 'warning';
   return level;
 }
 
@@ -169,8 +168,6 @@ function getBannerConfig(rawLevel: VerdictLevel, domain: VerdictDomain = 'food')
   switch (rawLevel) {
     case 'ultratoxic':
       return { color: '#722F37', label: t('badge_ultra_toxic'), intro: t('intro_ultra_toxic'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict('ultratoxic') };
-    case 'toxic':
-      return { color: '#E0480B', label: t('badge_toxic'), intro: t('intro_toxic'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict('toxic') };
     case 'danger':
       return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(rawLevel) };
     case 'warning':
@@ -194,8 +191,6 @@ function getVerdictAction(rawLevel: VerdictLevel, domain: VerdictDomain = 'food'
   switch (rawLevel) {
     case 'ultratoxic':
       return pick({ en: 'Do not consume', fr: 'À ne pas consommer', ko: '섭취 금지' });
-    case 'toxic':
-      return pick({ en: 'Avoid as much as possible', fr: 'À éviter autant que possible', ko: '최대한 피하세요' });
     case 'danger':
       return pick({ en: 'Avoid regular consumption', fr: 'À éviter régulièrement', ko: '정기적인 섭취를 피하세요' });
     case 'warning':
@@ -761,7 +756,6 @@ export default function ProductScreen() {
       switch (verdictTierFromProduct(product)) {
         case 'ultra_toxic':  _verdictLevel = 'ultratoxic'; break;
         case 'carcinogenic': _verdictLevel = 'danger';     break;
-        case 'toxic':        _verdictLevel = 'toxic';      break;
         case 'processed':    _verdictLevel = 'warning';    break;
         case 'moderation':   _verdictLevel = 'moderation'; break;
         case 'approved':
@@ -950,11 +944,9 @@ export default function ProductScreen() {
         ? `[${t('badge_caution')}]`
         : verdictLevel === 'moderation'
           ? `[${t('badge_moderation')}]`
-          : verdictLevel === 'toxic'
-            ? `[${t('badge_toxic')}]`
-            : verdictLevel === 'ultratoxic'
-              ? `[${t('badge_ultra_toxic')}]`
-              : `[${t('badge_danger')}]`;
+          : verdictLevel === 'ultratoxic'
+            ? `[${t('badge_ultra_toxic')}]`
+            : `[${t('badge_danger')}]`;
     const substancesText = product.detectedAdditives.length > 0
       ? `\n\n${t('substances_detected')} :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
       : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
@@ -1169,7 +1161,7 @@ export default function ProductScreen() {
           </View>
         ) : null}
 
-        {(verdictLevel === 'danger' || verdictLevel === 'warning' || verdictLevel === 'toxic' || verdictLevel === 'ultratoxic') && (
+        {(verdictLevel === 'danger' || verdictLevel === 'warning' || verdictLevel === 'ultratoxic') && (
           <View style={styles.section}>
             {locationLabel && Platform.OS !== 'web' ? (
               <TouchableOpacity
