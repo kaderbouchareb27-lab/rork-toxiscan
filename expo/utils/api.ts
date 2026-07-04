@@ -186,13 +186,15 @@ function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLev
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// MOTEUR 6 TIERS — hiérarchie validée (du moins au plus grave) :
-//   🟢 approved → 🟡 moderation → 🟠 processed (renommé, neutre) →
-//   🟧 toxic (vermillon #E0480B) → 🔴 carcinogenic (Groupe 1 SEUL) →
-//   🟥 ultra_toxic (bordeaux #722F37 — cancérigène G1/G2A + accumulation UP ≥ 6).
+// MOTEUR 5 TIERS — hiérarchie validée (du moins au plus grave) :
+//   🟢 approved → 🟡 moderation → 🟠 processed (neutre) →
+//   🟥 ultra_toxic (bordeaux #722F37 — CIRC 2A/2B ou accumulation massive,
+//   juste EN DESSOUS du cancérigène confirmé) → 🔴 carcinogenic (Groupe 1 SEUL).
 // Chaque ingrédient est d'abord classé dans un des 5 seaux : G1 / G2A / G2B /
 // UP (marqueur ultra-transformé sans base cancérigène) / WATCH (jaune) / SAFE.
 // Le rouge vif reste EXCLUSIVEMENT réservé au Groupe 1 confirmé.
+// Le badge intermédiaire TOXIC (vermillon) a été SUPPRIMÉ : ses déclencheurs
+// remontent dans ULTRA TOXIC, plus discriminant.
 // ═══════════════════════════════════════════════════════════════════
 
 type IngredientBucket = 'g1' | 'g2a' | 'g2b' | 'up' | 'watch' | 'safe';
@@ -231,45 +233,38 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
 }
 
 /**
- * Computes the 6-tier verdict for a FOOD product using a balanced point system.
+ * Computes the 5-tier verdict for a FOOD product using a balanced point system.
  * - SAFE  = -1 point (green ingredients compensate for problematic ones)
  * - WATCH = +1 point
  * - UP    = +3 points (1 orange ingredient counts like 3 yellow ones)
  * Final score = UP*3 + WATCH*1 - SAFE*1.
  *
- * Thresholds:
- * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET UP ≥ 6 — worst-of-both-worlds.
- * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed Group 1 only).
- * - TOXIC 🟧       : G2A ≥ 1 OU G2B ≥ 1 OU score ≥ 7.
- * - PROCESSED 🟠   : score 4–6.
- * - MODERATION 🟡  : score 1–3.
- * - APPROVED 🟢    : score ≤ 0.
+ * Thresholds (least → most severe):
+ * - APPROVED 🟢     : score ≤ 0.
+ * - MODERATION 🟡   : score 1–3.
+ * - PROCESSED 🟠    : score ≥ 4 (ultra-processed, no serious danger).
+ * - ULTRA TOXIC 🟥  : G2A ≥ 1 OU G2B ≥ 2 OU UP ≥ 10 — really concerning,
+ *   one step below a confirmed carcinogen (bordeaux #722F37).
+ * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed IARC Group 1 only — never inflated with 2A/2B).
  *
+ * The intermediate TOXIC (vermilion) tier was removed; its triggers moved up into ULTRA TOXIC.
  * This keeps simple products honest: 1 orange + 1 yellow + 2 greens = 2 points → Moderation,
  * 3 yellows = 3 points → Moderation, 4 yellows = 4 points → Processed.
  */
 export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
   const c = countBuckets(substances);
 
-  if ((c.g1 >= 1 || c.g2a >= 1) && c.up >= 6) {
-    console.log('[Tier] ULTRA_TOXIC — G1:', c.g1, 'G2A:', c.g2a, 'UP:', c.up);
-    return 'ultra_toxic';
-  }
   if (c.g1 >= 1) {
     console.log('[Tier] CARCINOGENIC — G1:', c.g1);
     return 'carcinogenic';
   }
-  if (c.g2a >= 1 || c.g2b >= 1) {
-    console.log('[Tier] TOXIC — G2A:', c.g2a, 'G2B:', c.g2b);
-    return 'toxic';
+  if (c.g2a >= 1 || c.g2b >= 2 || c.up >= 10) {
+    console.log('[Tier] ULTRA_TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'UP:', c.up);
+    return 'ultra_toxic';
   }
 
   const score = c.up * 3 + c.watch * 1 - c.safe * 1;
 
-  if (score >= 7) {
-    console.log('[Tier] TOXIC — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
-    return 'toxic';
-  }
   if (score >= 4) {
     console.log('[Tier] PROCESSED — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
     return 'processed';
@@ -287,7 +282,6 @@ function tierToLegacyBadge(tier: VerdictTier): RiskLevel {
   switch (tier) {
     case 'ultra_toxic':
     case 'carcinogenic': return 'danger';
-    case 'toxic':
     case 'processed': return 'probable';
     case 'moderation': return 'possible';
     case 'approved':
@@ -295,7 +289,7 @@ function tierToLegacyBadge(tier: VerdictTier): RiskLevel {
   }
 }
 
-/** 6-tier verdict derived from a legacy 4-level badge (cosmetic / non-food / old scans). */
+/** 5-tier verdict derived from a legacy 4-level badge (cosmetic / non-food / old scans). */
 export function legacyBadgeToTier(badge: RiskLevel): VerdictTier {
   switch (badge) {
     case 'danger': return 'carcinogenic';
@@ -306,7 +300,7 @@ export function legacyBadgeToTier(badge: RiskLevel): VerdictTier {
   }
 }
 
-/** 6-tier verdict for a saved scan — uses the stored tier, falls back to riskGroup for old scans. */
+/** 5-tier verdict for a saved scan — uses the stored tier, falls back to riskGroup for old scans. */
 export function verdictTierFromProduct(product: { verdictTier?: VerdictTier; riskGroup: RiskGroup }): VerdictTier {
   if (product.verdictTier) return product.verdictTier;
   switch (product.riskGroup) {
@@ -1817,9 +1811,9 @@ function generateResume(tier: VerdictTier, substances: SubstanceDetected[]): str
 
   if (tier === 'ultra_toxic') {
     return pick({
-      en: `This is the worst of both worlds: this product contains carcinogen-linked ingredients${carcinogenNames ? ` (${carcinogenNames})` : ''} AND a massive accumulation of ultra-processed ingredients. The cumulative load multiplies the impact on inflammation, gut microbiome and metabolism. Do not consume it — find a clean alternative.`,
-      fr: `C'est le pire des deux mondes : ce produit contient des ingrédients liés au cancer${carcinogenNames ? ` (${carcinogenNames})` : ''} ET une accumulation massive d'ingrédients ultra-transformés. La charge cumulée multiplie l'impact sur l'inflammation, le microbiote et le métabolisme. N'en consomme pas — trouve une alternative saine.`,
-      ko: `최악의 조합입니다: 이 제품에는 암과 관련된 성분${carcinogenNames ? ` (${carcinogenNames})` : ''}과 초가공 성분의 대량 축적이 함께 들어 있습니다. 누적 부담이 염증, 장내 미생물, 대사에 미치는 영향을 증폭시킵니다. 섭취하지 마세요 — 깨끗한 대안을 찾으세요.`,
+      en: `This is a really concerning product: it contains ingredients close to carcinogens (IARC 2A/2B)${carcinogenNames ? ` (${carcinogenNames})` : ''} or a massive accumulation of ultra-processed ingredients. It sits just one step below a confirmed carcinogen. Avoid it as much as possible — find a clean alternative.`,
+      fr: `C'est un produit vraiment préoccupant : il contient des ingrédients proches des cancérigènes (CIRC 2A/2B)${carcinogenNames ? ` (${carcinogenNames})` : ''} ou une accumulation massive d'ingrédients ultra-transformés. Il se situe juste un cran en dessous du cancérigène confirmé. Évite-le autant que possible — trouve une alternative saine.`,
+      ko: `정말 우려스러운 제품입니다: 발암물질에 가까운 성분(IARC 2A/2B)${carcinogenNames ? ` (${carcinogenNames})` : ''}이나 초가공 성분의 대량 축적이 들어 있습니다. 확인된 발암물질 바로 아래 단계입니다. 최대한 피하세요 — 깨끗한 대안을 찾으세요.`,
     });
   }
 
@@ -1828,14 +1822,6 @@ function generateResume(tier: VerdictTier, substances: SubstanceDetected[]): str
       en: `This product contains ingredients classified as confirmed carcinogens (IARC Group 1)${carcinogenNames ? ` (${carcinogenNames})` : ''}. I strongly advise against consuming it — look for a healthier alternative.`,
       fr: `Ce produit contient des ingrédients classés cancérigènes avérés (Groupe 1 CIRC)${carcinogenNames ? ` (${carcinogenNames})` : ''}. Je te déconseille fortement d'en consommer — cherche une alternative plus saine.`,
       ko: `이 제품에는 확인된 발암물질(IARC 1군)로 분류된 성분${carcinogenNames ? ` (${carcinogenNames})` : ''}이 들어 있습니다. 섭취를 강력히 권하지 않습니다 — 더 건강한 대안을 찾아보세요.`,
-    });
-  }
-
-  if (tier === 'toxic') {
-    return pick({
-      en: `This product crosses the toxicity threshold: it contains ingredients close to carcinogens (IARC 2A/2B) or a heavy accumulation of ultra-processed ingredients. Avoid it as much as possible and prefer a natural alternative.`,
-      fr: `Ce produit franchit le seuil de toxicité : il contient des ingrédients proches des cancérigènes (CIRC 2A/2B) ou une forte accumulation d'ingrédients ultra-transformés. Évite-le autant que possible et préfère une alternative naturelle.`,
-      ko: `이 제품은 독성 기준을 넘었습니다: 발암물질에 가까운 성분(IARC 2A/2B)이나 초가공 성분의 과다 축적이 포함되어 있습니다. 최대한 피하고 천연 대안을 선택하세요.`,
     });
   }
 

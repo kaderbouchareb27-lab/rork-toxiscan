@@ -1,6 +1,6 @@
 import type { RiskGroup } from '@/types';
 
-export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
+export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
 
 export const DR_TOXI_DEFAULT_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
@@ -17,9 +17,7 @@ export const DR_TOXI_BADGE_AVATARS: Record<DrToxiVerdictLevel, string> = {
   // The positive/green verdict reuses the single canonical Dr. Toxi avatar so there is
   // exactly ONE green Dr. Toxi across the whole app (chat, scans, meal scores, weekly report).
   approuve: DR_TOXI_DEFAULT_AVATAR_URI,
-  // 🟧 TOXIC tier — reuses the alarmed red Dr. Toxi (severity just below carcinogenic).
-  toxic: 'https://r2-pub.rork.com/generated-images/27e289be-6c64-40c0-bfe4-ebbf77f17086.png',
-  // 🟥 ULTRA TOXIC tier — dedicated bordeaux extreme-fear avatar.
+  // 🟥 ULTRA TOXIC tier — dedicated bordeaux extreme-fear avatar (one step below carcinogenic).
   ultratoxic: DR_TOXI_ULTRA_TOXIC_AVATAR,
 };
 
@@ -48,11 +46,10 @@ export function getDrToxiCosmeticAvatarForVerdict(level: DrToxiVerdictLevel): st
 /**
  * Maps the 6-tier food verdict to its Dr. Toxi avatar.
  */
-export function getDrToxiAvatarForTier(tier: 'approved' | 'moderation' | 'processed' | 'toxic' | 'carcinogenic' | 'ultra_toxic'): string {
+export function getDrToxiAvatarForTier(tier: 'approved' | 'moderation' | 'processed' | 'carcinogenic' | 'ultra_toxic'): string {
   switch (tier) {
     case 'ultra_toxic': return DR_TOXI_ULTRA_TOXIC_AVATAR;
     case 'carcinogenic': return DR_TOXI_BADGE_AVATARS.danger;
-    case 'toxic': return DR_TOXI_BADGE_AVATARS.toxic;
     case 'processed': return DR_TOXI_BADGE_AVATARS.warning;
     case 'moderation': return DR_TOXI_BADGE_AVATARS.moderation;
     case 'approved':

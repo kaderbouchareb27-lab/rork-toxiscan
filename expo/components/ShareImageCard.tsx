@@ -6,7 +6,7 @@ import { t, pick } from '@/utils/i18n';
 import Colors from '@/constants/colors';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
-type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
+type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
 
 type VerdictBadge = {
   label: string;
@@ -27,7 +27,6 @@ function computeVerdictLevel(riskGroup: RiskGroup, verdictTier?: VerdictTier): V
     switch (verdictTier) {
       case 'ultra_toxic': return 'ultratoxic';
       case 'carcinogenic': return 'danger';
-      case 'toxic': return 'toxic';
       case 'processed': return 'warning';
       case 'moderation': return 'moderation';
       case 'approved':
@@ -75,16 +74,6 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
         color: Colors.ultraToxic,
         softColor: '#F7ECEE',
         glowColor: 'rgba(114, 47, 55, 0.22)',
-        textColor: '#FFFFFF',
-      };
-    case 'toxic':
-      return {
-        label: t('badge_toxic'),
-        eyebrow: t('share_verdict_eyebrow_danger'),
-        sublabel: t('share_danger_sub'),
-        color: Colors.toxicTier,
-        softColor: '#FDEEE7',
-        glowColor: 'rgba(224, 72, 11, 0.22)',
         textColor: '#FFFFFF',
       };
     case 'danger':
@@ -137,7 +126,6 @@ function getCosmeticVerdictBadge(level: VerdictLevel): VerdictBadge {
   const eyebrow = pick({ en: 'COSMETIC VERDICT', fr: 'VERDICT COSMÉTIQUE', ko: '화장품 판정' });
   switch (level) {
     case 'ultratoxic':
-    case 'toxic':
     case 'danger':
       return {
         label: t('cosmetic_badge_toxic'),

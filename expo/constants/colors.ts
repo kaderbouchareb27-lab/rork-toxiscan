@@ -25,9 +25,7 @@ const Colors = {
   caution: '#EAB308',
   safe: '#2E9E34',
   toxic: '#7C3AED',
-  /** 🟧 TOXIC tier (food) — vermilion, between orange (processed) and red (carcinogenic). */
-  toxicTier: '#E0480B',
-  /** 🟥 ULTRA TOXIC tier (food) — bordeaux, carcinogen + massive ultra-processing. */
+  /** 🟥 ULTRA TOXIC tier (food) — bordeaux, one step below confirmed carcinogenic. */
   ultraToxic: '#722F37',
   toxicLoad: '#722F37',
   cardShadow: 'rgba(0, 0, 0, 0.05)',
