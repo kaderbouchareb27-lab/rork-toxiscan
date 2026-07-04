@@ -30,6 +30,7 @@ import {
   newMealIngredientId,
   generateMealVerdict,
   type MealIngredient,
+  type MealVerdict,
 } from '@/utils/mealAnalysis';
 import { useMeals, buildMealRecord } from '@/providers/MealHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
@@ -38,6 +39,15 @@ import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import ToxicityScoreRing from '@/components/ToxicityScoreRing';
 
 type Phase = 'analyzing' | 'ready' | 'generating';
+
+/**
+ * Deterministic fingerprint of a verdict request. If the user doesn't edit anything
+ * (the common case), the background-prefetched verdict matches and "See result" is instant.
+ */
+function verdictKey(dishName: string, ingredients: MealIngredient[], score: number): string {
+  const parts = ingredients.map((i) => `${i.name}|${i.category}|${i.intensity ?? 'normal'}`);
+  return `${dishName}::${score}::${parts.join('~')}`;
+}
 
 export default function MealConfirmScreen() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
@@ -59,14 +69,30 @@ export default function MealConfirmScreen() {
 
   const score = useMemo(() => computeMealScore(ingredients, dishName), [ingredients, dishName]);
   const tier = useMemo(() => scoreToTier(score), [score]);
+
+  // SPEED: verdict prefetch — starts the STEP-2 AI call in the background as soon as the
+  // ingredient list is detected, while the user reviews it. If nothing was edited, tapping
+  // "See result" resolves instantly instead of waiting a full AI round-trip.
+  const verdictPrefetchRef = useRef<{ key: string; promise: Promise<MealVerdict> } | null>(null);
+  const prefetchVerdict = useCallback((name: string, list: MealIngredient[]) => {
+    if (list.length === 0) return;
+    const s = computeMealScore(list, name);
+    const key = verdictKey(name, list, s);
+    console.log('[MealConfirm] Prefetching verdict in background');
+    const promise = generateMealVerdict(name, list, s, scoreToTier(s));
+    promise.catch(() => undefined); // handled at the await site — avoid unhandled rejection
+    verdictPrefetchRef.current = { key, promise };
+  }, []);
   const trimmedDishName = dishName.trim();
   const nameChanged = trimmedDishName.length > 0 && trimmedDishName !== analyzedName.trim();
 
   const detectMutation = useMutation({
     mutationFn: async (imageUri: string) => {
+      // SPEED: 768px is plenty for dish-level recognition and cuts upload size +
+      // vision tokens by ~45% vs 1024px, directly reducing AI latency.
       const base64 = Platform.OS === 'web'
-        ? await compressImageWeb(imageUri, 1024)
-        : await compressImageNative(imageUri, 1024, 0.72);
+        ? await compressImageWeb(imageUri, 768)
+        : await compressImageNative(imageUri, 768, 0.6);
       return detectMealFromPhoto(base64);
     },
     onSuccess: (detected) => {
@@ -76,6 +102,7 @@ export default function MealConfirmScreen() {
       setIngredientsEdited(false);
       setEditingId(null);
       setPhase('ready');
+      prefetchVerdict(detected.dishName, detected.ingredients);
       if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     },
     onError: (e: unknown) => {
@@ -96,6 +123,7 @@ export default function MealConfirmScreen() {
       setIngredients(detected.ingredients);
       setIngredientsEdited(false);
       setEditingId(null);
+      prefetchVerdict(detected.dishName, detected.ingredients);
       Keyboard.dismiss();
       if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     },
@@ -211,7 +239,21 @@ export default function MealConfirmScreen() {
     try {
       const finalScore = computeMealScore(finalIngredients, finalName);
       const finalTier = scoreToTier(finalScore);
-      const verdict = await generateMealVerdict(finalName, finalIngredients, finalScore, finalTier);
+      // Reuse the background-prefetched verdict when the meal wasn't edited (instant);
+      // fall back to a fresh AI call when edits changed the fingerprint or prefetch failed.
+      const prefetched = verdictPrefetchRef.current;
+      let verdict: MealVerdict;
+      if (prefetched && prefetched.key === verdictKey(finalName, finalIngredients, finalScore)) {
+        try {
+          verdict = await prefetched.promise;
+          console.log('[MealConfirm] Used prefetched verdict');
+        } catch {
+          console.warn('[MealConfirm] Prefetched verdict failed, regenerating');
+          verdict = await generateMealVerdict(finalName, finalIngredients, finalScore, finalTier);
+        }
+      } else {
+        verdict = await generateMealVerdict(finalName, finalIngredients, finalScore, finalTier);
+      }
       const id = `meal_${Date.now().toString(36)}`;
       addMeal(
         buildMealRecord({
@@ -233,7 +275,7 @@ export default function MealConfirmScreen() {
       setPhase('ready');
       Alert.alert(t('error_analysis_title'), t('error_chat_generic'));
     }
-  }, [ingredients, dishName, analyzedName, photoUri, addMeal, consumeMealScan, phase, reanalyzeMutation.isPending, ingredientsEdited]);
+  }, [ingredients, dishName, analyzedName, photoUri, addMeal, consumeMealScan, phase, reanalyzeMutation.isPending, ingredientsEdited, prefetchVerdict]);
 
   const isReanalyzing = reanalyzeMutation.isPending;
   if (phase === 'analyzing' || isReanalyzing) {

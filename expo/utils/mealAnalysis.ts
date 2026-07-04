@@ -553,7 +553,7 @@ const MEAL_INGREDIENT_RULES = `2. ALWAYS identify the MAIN / BASE food of the di
    - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | refined_flour | excess_salt | additive | healthy | neutral
    - is_grave: true ONLY if dangerous / IARC-classified (carcinogen). NEVER true for merely processed/sugary/fatty food.
    - intensity: "high" ONLY for added_sugar when the sugar is MASSIVE / DOMINANT (desserts, pastries, candy, sodas, sweet drinks, syrupy dishes); otherwise "normal". Always "normal" for non-sugar ingredients.
-   - note: ONE short, frank, educational sentence about this ingredient, in the user's language.
+   - note: ONE VERY SHORT educational note (maximum 10 words), frank, in the user's language. Never longer.
 
 CLASSIFICATION GUIDANCE:
 - ONLY processed / cured / deli meat (ham, bacon, sausage, hot dog, salami, pepperoni, chorizo, charcuterie, anything cured or smoked with nitrites) → carcinogen_g1 (IARC Group 1, GRAVE).
@@ -574,7 +574,7 @@ POPULAR DISHES (pizza, burger, fried chicken, fries, tacos, kebab, ramen / ramye
 
 GOLDEN RULE (spec §4): NEVER label sugar, fat, refined flour or processed food as "carcinogenic". NEVER label plain fresh meat, ground/minced meat, poultry or fish as "carcinogenic" either — only PROCESSED / CURED meat (charcuterie: ham, bacon, sausage, salami) is. Always distinguish SERIOUS (dangerous / IARC) from NOT HEALTHY (processed / sugary / fatty / refined). A sugary cake is "ultra-processed and very sweet" — never "carcinogenic".
 
-Return 4 to 12 ingredients plus the top-level "is_fast_food" boolean. Output JSON only.`;
+SPEED RULE: be concise. Return 4 to 8 ingredients MAXIMUM (only the most impactful ones — merge minor duplicates), plus the top-level "is_fast_food" boolean. Output compact JSON only, no prose, no reasoning.`;
 
 const DETECT_SYSTEM = `You are Dr. Toxi, an expert in food toxicity (WHO/IARC classification) AND nutrition. You analyze a PHOTO of a real meal.
 
@@ -662,10 +662,11 @@ function buildDetectedMeal(raw: z.infer<typeof detectSchema>, fallbackName: stri
  * (each ingredient cross-referenced against the local database in priority).
  */
 export async function detectMealFromPhoto(imageBase64: string): Promise<DetectedMeal> {
+  const startedAt = Date.now();
   const raw = await aiGenerateObject({
     system: mealLanguageLock() + '\n\n' + DETECT_SYSTEM + getAnalysisRegionPrompt(),
     schema: detectSchema,
-    maxTokens: 1600,
+    maxTokens: 1000,
     model: MEAL_VISION_MODEL_ID,
     provider: MEAL_VISION_PROVIDER,
     messages: [
@@ -678,6 +679,7 @@ export async function detectMealFromPhoto(imageBase64: string): Promise<Detected
       },
     ],
   });
+  console.log('[MealScan] Photo detection took', Date.now() - startedAt, 'ms');
   return buildDetectedMeal(raw, pick({ en: 'My meal', fr: 'Mon repas', ko: '내 식사' }));
 }
 
@@ -688,14 +690,16 @@ export async function detectMealFromPhoto(imageBase64: string): Promise<Detected
  */
 export async function detectMealFromText(dishName: string): Promise<DetectedMeal> {
   const cleanName = dishName.trim();
+  const startedAt = Date.now();
   const raw = await aiGenerateObject({
     system: mealLanguageLock() + '\n\n' + DETECT_FROM_TEXT_SYSTEM + getAnalysisRegionPrompt(),
     schema: detectSchema,
-    maxTokens: 1600,
+    maxTokens: 1000,
     model: MEAL_VISION_MODEL_ID,
     provider: MEAL_VISION_PROVIDER,
     messages: [{ role: 'user', content: detectFromTextInstruction(cleanName) }],
   });
+  console.log('[MealScan] Text re-analysis took', Date.now() - startedAt, 'ms');
   const detected = buildDetectedMeal(raw, cleanName);
   // The user's typed name is authoritative — keep it verbatim over any AI rewrite.
   return { dishName: cleanName || detected.dishName, ingredients: detected.ingredients };
@@ -758,6 +762,7 @@ ${needsAlternatives
 
 Respond in the user's app language. Output JSON only.`;
 
+  const startedAt = Date.now();
   const raw = await aiGenerateObject({
     system: mealLanguageLock() + '\n\n' + system + getAnalysisRegionPrompt() + getHealthProfileAnalysisPrompt(),
     schema: verdictSchema,
@@ -766,6 +771,7 @@ Respond in the user's app language. Output JSON only.`;
       { role: 'user', content: pick({ en: 'Write the verdict for this meal.', fr: 'Rédige le verdict pour ce repas.', ko: '이 식사에 대한 판정을 작성해 주세요.' }) },
     ],
   });
+  console.log('[MealScan] Verdict generation took', Date.now() - startedAt, 'ms');
 
   const home = raw.alternative_home.trim();
   const restaurant = raw.alternative_restaurant.trim();

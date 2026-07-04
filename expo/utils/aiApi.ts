@@ -136,13 +136,18 @@ export async function aiGenerateText(params: {
   model?: string;
   provider?: AIProvider;
 }): Promise<string> {
+  const provider = params.provider ?? TEXT_PROVIDER;
   const body: Record<string, unknown> = {
     model: params.model ?? TEXT_MODEL_ID,
     max_tokens: params.maxTokens ?? 2048,
     messages: buildMessages(params.system, params.messages),
+    // SPEED: hybrid-reasoning models (Qwen3…) silently "think" for hundreds of tokens
+    // before answering. OpenRouter normalizes this flag and ignores it on models
+    // without reasoning — disabling it cuts several seconds per call.
+    ...(provider === 'openrouter' ? { reasoning: { enabled: false } } : {}),
   };
 
-  const data = await callChatCompletions(body, params.provider ?? TEXT_PROVIDER);
+  const data = await callChatCompletions(body, provider);
   const choice = data?.choices?.[0];
   const content = choice?.message?.content;
   if (typeof content === 'string') return content;
@@ -192,6 +197,9 @@ export async function aiGenerateObject<T>(params: {
     // OpenAI reliably supports JSON mode; some OpenRouter models reject it, so we
     // rely on the strong JSON instruction + extractJsonBlock fallback there.
     ...(provider === 'openai' ? { response_format: { type: 'json_object' as const } } : {}),
+    // SPEED: disable hidden "thinking" on hybrid-reasoning models (Qwen3…) — the meal
+    // vision call must answer directly. OpenRouter ignores this on non-reasoning models.
+    ...(provider === 'openrouter' ? { reasoning: { enabled: false } } : {}),
   };
 
   const data = await callChatCompletions(body, provider);
