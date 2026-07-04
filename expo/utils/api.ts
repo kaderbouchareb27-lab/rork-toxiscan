@@ -234,7 +234,9 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
  * Computes the 6-tier verdict for a FOOD product. Validated thresholds:
  * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET UP ≥ 6 — cancérigène + accumulation massive.
  * - CARCINOGENIC 🔴 : G1 ≥ 1 (Groupe 1 confirmé SEUL — le rouge n'explose jamais).
- * - TOXIC 🟧 : G2A ≥ 1 OU G2B ≥ 1 OU UP ≥ 5 OU (UP ≥ 3 ET WATCH ≥ 2).
+ * - TOXIC 🟧 : G2A ≥ 1 OU G2B ≥ 1 OU UP ≥ 9 OU (UP ≥ 5 ET WATCH ≥ 2).
+ *   Un produit simple avec 1 seul ingrédient orange (ex: arôme naturel dans de l'eau
+ *   gazeuse) ne doit JAMAIS sortir TOXIC — il reste PROCESSED ou MODERATION.
  * - PROCESSED 🟠 : ≥ 1 UP (rétrogradé en moderation si 70%+ d'ingrédients verts), ou 7+ jaunes.
  * - MODERATION 🟡 : ≥ 2 jaunes (WATCH).
  * - APPROVED 🟢 : le reste.
@@ -251,7 +253,7 @@ export function computeVerdictTier(substances: { niveau_risque: RiskLevel; class
     console.log('[Tier] CARCINOGENIC — G1:', c.g1);
     return 'carcinogenic';
   }
-  if (c.g2a >= 1 || c.g2b >= 1 || c.up >= 5 || (c.up >= 3 && c.watch >= 2)) {
+  if (c.g2a >= 1 || c.g2b >= 1 || c.up >= 9 || (c.up >= 5 && c.watch >= 2)) {
     console.log('[Tier] TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'UP:', c.up, 'WATCH:', c.watch);
     return 'toxic';
   }
