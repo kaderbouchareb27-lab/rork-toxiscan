@@ -231,19 +231,25 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
 }
 
 /**
- * Computes the 6-tier verdict for a FOOD product. Validated thresholds:
- * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET UP ≥ 6 — cancérigène + accumulation massive.
- * - CARCINOGENIC 🔴 : G1 ≥ 1 (Groupe 1 confirmé SEUL — le rouge n'explose jamais).
- * - TOXIC 🟧 : G2A ≥ 1 OU G2B ≥ 1 OU UP ≥ 9 OU (UP ≥ 5 ET WATCH ≥ 2).
- *   Un produit simple avec 1 seul ingrédient orange (ex: arôme naturel dans de l'eau
- *   gazeuse) ne doit JAMAIS sortir TOXIC — il reste PROCESSED ou MODERATION.
- * - PROCESSED 🟠 : ≥ 1 UP (rétrogradé en moderation si 70%+ d'ingrédients verts), ou 7+ jaunes.
- * - MODERATION 🟡 : ≥ 2 jaunes (WATCH).
- * - APPROVED 🟢 : le reste.
+ * Computes the 6-tier verdict for a FOOD product using a balanced point system.
+ * - SAFE  = -1 point (green ingredients compensate for problematic ones)
+ * - WATCH = +1 point
+ * - UP    = +3 points (1 orange ingredient counts like 3 yellow ones)
+ * Final score = UP*3 + WATCH*1 - SAFE*1.
+ *
+ * Thresholds:
+ * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET UP ≥ 6 — worst-of-both-worlds.
+ * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed Group 1 only).
+ * - TOXIC 🟧       : G2A ≥ 1 OU G2B ≥ 1 OU score ≥ 7.
+ * - PROCESSED 🟠   : score 4–6.
+ * - MODERATION 🟡  : score 1–3.
+ * - APPROVED 🟢    : score ≤ 0.
+ *
+ * This keeps simple products honest: 1 orange + 1 yellow + 2 greens = 2 points → Moderation,
+ * 3 yellows = 3 points → Moderation, 4 yellows = 4 points → Processed.
  */
 export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
   const c = countBuckets(substances);
-  const total = substances.length;
 
   if ((c.g1 >= 1 || c.g2a >= 1) && c.up >= 6) {
     console.log('[Tier] ULTRA_TOXIC — G1:', c.g1, 'G2A:', c.g2a, 'UP:', c.up);
@@ -253,28 +259,26 @@ export function computeVerdictTier(substances: { niveau_risque: RiskLevel; class
     console.log('[Tier] CARCINOGENIC — G1:', c.g1);
     return 'carcinogenic';
   }
-  if (c.g2a >= 1 || c.g2b >= 1 || c.up >= 9 || (c.up >= 5 && c.watch >= 2)) {
-    console.log('[Tier] TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'UP:', c.up, 'WATCH:', c.watch);
+  if (c.g2a >= 1 || c.g2b >= 1) {
+    console.log('[Tier] TOXIC — G2A:', c.g2a, 'G2B:', c.g2b);
     return 'toxic';
   }
-  if (c.up >= 1) {
-    const greenRatio = total > 0 ? c.safe / total : 0;
-    if (c.up <= 3 && greenRatio >= 0.7) {
-      console.log('[Tier] MODERATION —', c.up, 'UP isolé(s) parmi', Math.round(greenRatio * 100) + '% vert → rétrogradé');
-      return 'moderation';
-    }
-    console.log('[Tier] PROCESSED — UP:', c.up);
+
+  const score = c.up * 3 + c.watch * 1 - c.safe * 1;
+
+  if (score >= 7) {
+    console.log('[Tier] TOXIC — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
+    return 'toxic';
+  }
+  if (score >= 4) {
+    console.log('[Tier] PROCESSED — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
     return 'processed';
   }
-  if (c.watch >= 7) {
-    console.log('[Tier] PROCESSED — 7+ jaunes (' + c.watch + ')');
-    return 'processed';
-  }
-  if (c.watch >= 2) {
-    console.log('[Tier] MODERATION — WATCH:', c.watch);
+  if (score >= 1) {
+    console.log('[Tier] MODERATION — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
     return 'moderation';
   }
-  console.log('[Tier] APPROVED — SAFE:', c.safe);
+  console.log('[Tier] APPROVED — score:', score, 'SAFE:', c.safe);
   return 'approved';
 }
 
