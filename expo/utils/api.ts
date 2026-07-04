@@ -186,15 +186,13 @@ function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLev
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// MOTEUR 5 TIERS — hiérarchie validée (du moins au plus grave) :
+// MOTEUR 6 TIERS — hiérarchie validée (du moins au plus grave) :
 //   🟢 approved → 🟡 moderation → 🟠 processed (renommé, neutre) →
-//   🔴 carcinogenic (Groupe 1 SEUL) →
-//   🟥 ultra_toxic (bordeaux #722F37 — cancérigène G1/G2A + accumulation orange ≥ 6).
-// Chaque ingrédient est d'abord classé dans un des seaux : G1 / G2A / G2B /
+//   🟧 toxic (vermillon #E0480B) → 🔴 carcinogenic (Groupe 1 SEUL) →
+//   🟥 ultra_toxic (bordeaux #722F37 — cancérigène G1/G2A + accumulation UP ≥ 6).
+// Chaque ingrédient est d'abord classé dans un des 5 seaux : G1 / G2A / G2B /
 // UP (marqueur ultra-transformé sans base cancérigène) / WATCH (jaune) / SAFE.
 // Le rouge vif reste EXCLUSIVEMENT réservé au Groupe 1 confirmé.
-// G2A (proche cancérigène, ex. huile de palme) compte comme ORANGE, G2B comme JAUNE :
-// ils poussent vers Transformé (ou Ultra Toxic si accumulation massive), sans tier propre.
 // ═══════════════════════════════════════════════════════════════════
 
 type IngredientBucket = 'g1' | 'g2a' | 'g2b' | 'up' | 'watch' | 'safe';
@@ -233,18 +231,17 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
 }
 
 /**
- * Computes the 5-tier verdict for a FOOD product using a balanced point system.
- * G2A (probable-carcinogen markers like palm oil) count as ORANGE, G2B as YELLOW —
- * they no longer create their own tier, they just weigh into the score.
- * - SAFE   = -1 point (green ingredients compensate for problematic ones)
- * - YELLOW = +1 point (WATCH + G2B)
- * - ORANGE = +3 points (UP + G2A — 1 orange counts like 3 yellow ones)
- * Final score = ORANGE*3 + YELLOW*1 - SAFE*1.
+ * Computes the 6-tier verdict for a FOOD product using a balanced point system.
+ * - SAFE  = -1 point (green ingredients compensate for problematic ones)
+ * - WATCH = +1 point
+ * - UP    = +3 points (1 orange ingredient counts like 3 yellow ones)
+ * Final score = UP*3 + WATCH*1 - SAFE*1.
  *
  * Thresholds:
- * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET ORANGE ≥ 6 — worst-of-both-worlds.
+ * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET UP ≥ 6 — worst-of-both-worlds.
  * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed Group 1 only).
- * - PROCESSED 🟠   : score ≥ 4.
+ * - TOXIC 🟧       : G2A ≥ 1 OU G2B ≥ 1 OU score ≥ 7.
+ * - PROCESSED 🟠   : score 4–6.
  * - MODERATION 🟡  : score 1–3.
  * - APPROVED 🟢    : score ≤ 0.
  *
@@ -254,27 +251,31 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
 export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
   const c = countBuckets(substances);
 
-  // G2A weighs as orange (ultra-processed), G2B as yellow (watch).
-  const orange = c.up + c.g2a;
-  const yellow = c.watch + c.g2b;
-
-  if ((c.g1 >= 1 || c.g2a >= 1) && orange >= 6) {
-    console.log('[Tier] ULTRA_TOXIC — G1:', c.g1, 'G2A:', c.g2a, 'orange:', orange);
+  if ((c.g1 >= 1 || c.g2a >= 1) && c.up >= 6) {
+    console.log('[Tier] ULTRA_TOXIC — G1:', c.g1, 'G2A:', c.g2a, 'UP:', c.up);
     return 'ultra_toxic';
   }
   if (c.g1 >= 1) {
     console.log('[Tier] CARCINOGENIC — G1:', c.g1);
     return 'carcinogenic';
   }
+  if (c.g2a >= 1 || c.g2b >= 1) {
+    console.log('[Tier] TOXIC — G2A:', c.g2a, 'G2B:', c.g2b);
+    return 'toxic';
+  }
 
-  const score = orange * 3 + yellow * 1 - c.safe * 1;
+  const score = c.up * 3 + c.watch * 1 - c.safe * 1;
 
+  if (score >= 7) {
+    console.log('[Tier] TOXIC — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
+    return 'toxic';
+  }
   if (score >= 4) {
-    console.log('[Tier] PROCESSED — score:', score, 'orange:', orange, 'yellow:', yellow, 'SAFE:', c.safe);
+    console.log('[Tier] PROCESSED — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
     return 'processed';
   }
   if (score >= 1) {
-    console.log('[Tier] MODERATION — score:', score, 'orange:', orange, 'yellow:', yellow, 'SAFE:', c.safe);
+    console.log('[Tier] MODERATION — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
     return 'moderation';
   }
   console.log('[Tier] APPROVED — score:', score, 'SAFE:', c.safe);
@@ -286,6 +287,7 @@ function tierToLegacyBadge(tier: VerdictTier): RiskLevel {
   switch (tier) {
     case 'ultra_toxic':
     case 'carcinogenic': return 'danger';
+    case 'toxic':
     case 'processed': return 'probable';
     case 'moderation': return 'possible';
     case 'approved':
@@ -1826,6 +1828,14 @@ function generateResume(tier: VerdictTier, substances: SubstanceDetected[]): str
       en: `This product contains ingredients classified as confirmed carcinogens (IARC Group 1)${carcinogenNames ? ` (${carcinogenNames})` : ''}. I strongly advise against consuming it — look for a healthier alternative.`,
       fr: `Ce produit contient des ingrédients classés cancérigènes avérés (Groupe 1 CIRC)${carcinogenNames ? ` (${carcinogenNames})` : ''}. Je te déconseille fortement d'en consommer — cherche une alternative plus saine.`,
       ko: `이 제품에는 확인된 발암물질(IARC 1군)로 분류된 성분${carcinogenNames ? ` (${carcinogenNames})` : ''}이 들어 있습니다. 섭취를 강력히 권하지 않습니다 — 더 건강한 대안을 찾아보세요.`,
+    });
+  }
+
+  if (tier === 'toxic') {
+    return pick({
+      en: `This product crosses the toxicity threshold: it contains ingredients close to carcinogens (IARC 2A/2B) or a heavy accumulation of ultra-processed ingredients. Avoid it as much as possible and prefer a natural alternative.`,
+      fr: `Ce produit franchit le seuil de toxicité : il contient des ingrédients proches des cancérigènes (CIRC 2A/2B) ou une forte accumulation d'ingrédients ultra-transformés. Évite-le autant que possible et préfère une alternative naturelle.`,
+      ko: `이 제품은 독성 기준을 넘었습니다: 발암물질에 가까운 성분(IARC 2A/2B)이나 초가공 성분의 과다 축적이 포함되어 있습니다. 최대한 피하고 천연 대안을 선택하세요.`,
     });
   }
 

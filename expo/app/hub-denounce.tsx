@@ -32,6 +32,7 @@ function productToVerdict(product: ScannedProduct): HubVerdictLevel {
   switch (verdictTierFromProduct(product)) {
     case 'ultra_toxic': return 'ultratoxic';
     case 'carcinogenic': return 'danger';
+    case 'toxic': return 'toxic';
     case 'processed': return 'warning';
     case 'moderation': return 'moderation';
     default: return 'approuve';

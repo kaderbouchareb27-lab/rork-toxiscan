@@ -197,7 +197,7 @@ export default function DrToxiScreen() {
       name: params.productName!,
       brand: params.productBrand ?? '',
       barcode: params.productBarcode!,
-      verdictLevel: (params.productVerdict as 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic') ?? 'approuve',
+      verdictLevel: (params.productVerdict as 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic') ?? 'approuve',
       analysisSummary: params.productSummary,
     };
 
@@ -207,6 +207,8 @@ export default function DrToxiScreen() {
       ? t('verdict_label_danger')
       : productCtx.verdictLevel === 'ultratoxic'
       ? t('verdict_label_ultra_toxic')
+      : productCtx.verdictLevel === 'toxic'
+      ? t('verdict_label_toxic')
       : productCtx.verdictLevel === 'warning'
       ? t('verdict_label_caution')
       : productCtx.verdictLevel === 'moderation'

@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { isEnglish, pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
-export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
+export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
 
 interface DrToxiVerdictProps {
   level: VerdictLevel;
@@ -31,6 +31,12 @@ function getFixedDescription(level: VerdictLevel): string {
         en: 'The worst of both worlds: carcinogen-linked ingredients AND a massive accumulation of ultra-processed ingredients. The cumulative load multiplies the impact on inflammation, gut microbiome and metabolism. Do not consume it.',
         fr: 'Le pire des deux mondes : des ingrédients liés au cancer ET une accumulation massive d’ingrédients ultra-transformés. La charge cumulée multiplie l’impact sur l’inflammation, le microbiote et le métabolisme. À ne pas consommer.',
         ko: '최악의 조합입니다: 암과 관련된 성분과 초가공 성분의 대량 축적이 함께 들어 있습니다. 누적 부담이 염증, 장내 미생물, 대사에 미치는 영향을 증폭시킵니다. 섭취하지 마세요.',
+      });
+    case 'toxic':
+      return pick({
+        en: 'This product crosses the toxicity threshold: ingredients close to carcinogens (IARC 2A/2B) or a heavy pile-up of ultra-processed ingredients. Avoid it as much as possible.',
+        fr: 'Ce produit franchit le seuil de toxicité : ingrédients proches des cancérigènes (CIRC 2A/2B) ou forte accumulation d’ingrédients ultra-transformés. À éviter autant que possible.',
+        ko: '이 제품은 독성 기준을 넘었습니다: 발암물질에 가까운 성분(IARC 2A/2B)이나 초가공 성분의 과다 축적이 포함되어 있습니다. 최대한 피하세요.',
       });
     case 'danger':
       return pick({
@@ -63,6 +69,8 @@ function getSubtitle(level: VerdictLevel): string {
   switch (level) {
     case 'ultratoxic':
       return pick({ en: 'Do not consume', fr: 'À ne pas consommer', ko: '섭취 금지' });
+    case 'toxic':
+      return pick({ en: 'Avoid as much as possible', fr: 'À éviter autant que possible', ko: '최대한 피하세요' });
     case 'danger':
       return pick({ en: 'Avoid regular consumption', fr: 'À éviter régulièrement', ko: '정기적인 섭취를 피하세요' });
     case 'warning':
@@ -78,6 +86,8 @@ function getLabel(level: VerdictLevel): string {
   switch (level) {
     case 'ultratoxic':
       return pick({ en: 'ULTRA TOXIC', fr: 'ULTRA TOXIQUE', ko: '초독성' });
+    case 'toxic':
+      return pick({ en: 'TOXIC', fr: 'TOXIQUE', ko: '독성' });
     case 'danger':
       return pick({ en: 'CARCINOGENIC', fr: 'CANCÉRIGÈNE', ko: '발암성' });
     case 'warning':
@@ -95,7 +105,7 @@ function getLabel(level: VerdictLevel): string {
 // (APPROVED); 'warning' is mapped to DISPUTED as a safety net.
 // ─────────────────────────────────────────────────────────────────────
 function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
-  const avatarLevel: VerdictLevel = level === 'warning' || level === 'ultratoxic' ? 'moderation' : level;
+  const avatarLevel: VerdictLevel = level === 'warning' || level === 'toxic' || level === 'ultratoxic' ? 'moderation' : level;
   if (level === 'danger') {
     return {
       accentColor: '#7C3AED',
@@ -143,6 +153,7 @@ function getVerdictConfig(level: VerdictLevel, isCosmetic: boolean): VerdictCard
     warning: '#E8730A',
     moderation: '#EAB308',
     approuve: '#2E9E34',
+    toxic: '#E0480B',
     ultratoxic: '#722F37',
   };
   return {

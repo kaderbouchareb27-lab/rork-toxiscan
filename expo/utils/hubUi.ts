@@ -6,6 +6,7 @@ export function hubVerdictColor(level: HubVerdictLevel | null): string {
   switch (level) {
     case 'ultratoxic': return '#722F37';
     case 'danger': return '#D0260F';
+    case 'toxic': return '#E0480B';
     case 'warning': return '#E8730A';
     case 'moderation': return '#EAB308';
     case 'approuve': return '#2E9E34';
@@ -18,6 +19,7 @@ export function hubVerdictLabel(level: HubVerdictLevel | null): string {
   switch (level) {
     case 'ultratoxic': return pick({ en: 'ULTRA TOXIC', fr: 'ULTRA TOXIQUE', ko: '초독성' });
     case 'danger': return pick({ en: 'CARCINOGENIC', fr: 'CANCÉRIGÈNE', ko: '발암성' });
+    case 'toxic': return pick({ en: 'TOXIC', fr: 'TOXIQUE', ko: '독성' });
     case 'warning': return pick({ en: 'PROCESSED', fr: 'TRANSFORMÉ', ko: '가공' });
     case 'moderation': return pick({ en: 'MODERATION', fr: 'MODÉRATION', ko: '주의' });
     case 'approuve': return pick({ en: 'APPROVED', fr: 'APPROUVÉ', ko: '승인됨' });

@@ -1,14 +1,15 @@
 export type RiskGroup = 'group1' | 'group2a' | 'group2b' | 'none';
 
 /**
- * 5-tier food verdict hierarchy (least → most severe):
- * approved 🟢 → moderation 🟡 → processed 🟠 →
+ * 6-tier food verdict hierarchy (least → most severe):
+ * approved 🟢 → moderation 🟡 → processed 🟠 → toxic 🟧 (vermilion) →
  * carcinogenic 🔴 (IARC Group 1 only) → ultra_toxic 🟥 (bordeaux — carcinogen + massive ultra-processing).
  */
 export type VerdictTier =
   | 'approved'
   | 'moderation'
   | 'processed'
+  | 'toxic'
   | 'carcinogenic'
   | 'ultra_toxic';
 
@@ -127,7 +128,7 @@ export interface Conversation {
     name: string;
     brand: string;
     barcode: string;
-    verdictLevel: 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
+    verdictLevel: 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
     analysisSummary?: string;
   };
 }
