@@ -23,14 +23,18 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useMeals } from '@/providers/MealHistoryProvider';
 import { HubModerationError, buildPortableScanImage, type HubVerdictLevel, type HubScanKind } from '@/utils/hubApi';
 import { hubVerdictColor, hubVerdictLabel, moderationMessage } from '@/utils/hubUi';
-import type { RiskGroup } from '@/types';
+import type { ScannedProduct } from '@/types';
+import { verdictTierFromProduct } from '@/utils/api';
 import type { MealTier } from '@/utils/mealAnalysis';
 
-function riskGroupToVerdict(group: RiskGroup | undefined): HubVerdictLevel {
-  switch (group) {
-    case 'group1': return 'danger';
-    case 'group2a': return 'warning';
-    case 'group2b': return 'moderation';
+/** 6-tier product verdict → Hub verdict level (stored tier first, riskGroup fallback). */
+function productToVerdict(product: ScannedProduct): HubVerdictLevel {
+  switch (verdictTierFromProduct(product)) {
+    case 'ultra_toxic': return 'ultratoxic';
+    case 'carcinogenic': return 'danger';
+    case 'toxic': return 'toxic';
+    case 'processed': return 'warning';
+    case 'moderation': return 'moderation';
     default: return 'approuve';
   }
 }
@@ -72,7 +76,7 @@ export default function HubDenounceScreen() {
     if (!product) return null;
     return {
       productName: product.name,
-      verdictLevel: riskGroupToVerdict(product.riskGroup),
+      verdictLevel: productToVerdict(product),
       imageCandidates: [product.photoUri, product.imageUrl, product.thumbnailBase64] as (string | null | undefined)[],
     };
   }, [kind, refId, history, getMeal]);

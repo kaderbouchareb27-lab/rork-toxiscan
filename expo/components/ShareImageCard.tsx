@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo } from '@/types';
+import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo, VerdictTier } from '@/types';
 import { t, pick } from '@/utils/i18n';
 import Colors from '@/constants/colors';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 
-type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
+type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
 
 type VerdictBadge = {
   label: string;
@@ -19,10 +19,21 @@ type VerdictBadge = {
 };
 
 /**
- * Derive verdict level from product.riskGroup — identical to product page logic.
- * This guarantees the share card badge matches what the user sees on screen.
+ * Derive verdict level from the stored 6-tier verdict (falling back to riskGroup for
+ * old scans) — identical to product page logic, so the share card matches the screen.
  */
-function computeVerdictLevel(riskGroup: RiskGroup): VerdictLevel {
+function computeVerdictLevel(riskGroup: RiskGroup, verdictTier?: VerdictTier): VerdictLevel {
+  if (verdictTier) {
+    switch (verdictTier) {
+      case 'ultra_toxic': return 'ultratoxic';
+      case 'carcinogenic': return 'danger';
+      case 'toxic': return 'toxic';
+      case 'processed': return 'warning';
+      case 'moderation': return 'moderation';
+      case 'approved':
+      default: return 'approuve';
+    }
+  }
   switch (riskGroup) {
     case 'group1':
       return 'danger';
@@ -47,6 +58,8 @@ interface ShareImageCardProps {
   detectedAdditives?: AdditiveInfo[];
   /** Cosmetic products use the separate TOXIC / DISPUTED / APPROVED scale. */
   isCosmetic?: boolean;
+  /** 6-tier verdict stored on the scan (preferred over riskGroup when present). */
+  verdictTier?: VerdictTier;
 }
 
 /**
@@ -54,6 +67,26 @@ interface ShareImageCardProps {
  */
 function getVerdictBadge(level: VerdictLevel): VerdictBadge {
   switch (level) {
+    case 'ultratoxic':
+      return {
+        label: t('badge_ultra_toxic'),
+        eyebrow: t('share_verdict_eyebrow_danger'),
+        sublabel: t('share_danger_sub'),
+        color: Colors.ultraToxic,
+        softColor: '#F7ECEE',
+        glowColor: 'rgba(114, 47, 55, 0.22)',
+        textColor: '#FFFFFF',
+      };
+    case 'toxic':
+      return {
+        label: t('badge_toxic'),
+        eyebrow: t('share_verdict_eyebrow_danger'),
+        sublabel: t('share_danger_sub'),
+        color: Colors.toxicTier,
+        softColor: '#FDEEE7',
+        glowColor: 'rgba(224, 72, 11, 0.22)',
+        textColor: '#FFFFFF',
+      };
     case 'danger':
       return {
         label: t('badge_danger'),
@@ -103,6 +136,8 @@ function getVerdictBadge(level: VerdictLevel): VerdictBadge {
 function getCosmeticVerdictBadge(level: VerdictLevel): VerdictBadge {
   const eyebrow = pick({ en: 'COSMETIC VERDICT', fr: 'VERDICT COSMÉTIQUE', ko: '화장품 판정' });
   switch (level) {
+    case 'ultratoxic':
+    case 'toxic':
     case 'danger':
       return {
         label: t('cosmetic_badge_toxic'),
@@ -267,7 +302,7 @@ const TOXISCAN_LOGO = require('../assets/images/icon.png') as ImageSourcePropTyp
 export default function ShareImageCard(props: ShareImageCardProps) {
   const { productName, brand, riskGroup, photoUri, thumbnailBase64, imageUrl } = props;
   const isCosmetic = props.isCosmetic === true;
-  const verdictLevel = computeVerdictLevel(riskGroup);
+  const verdictLevel = computeVerdictLevel(riskGroup, props.verdictTier);
   const badge = isCosmetic ? getCosmeticVerdictBadge(verdictLevel) : getVerdictBadge(verdictLevel);
   const items = getTopItems(props);
   const productImageUri = thumbnailBase64 ?? photoUri ?? imageUrl ?? null;

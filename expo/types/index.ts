@@ -1,5 +1,18 @@
 export type RiskGroup = 'group1' | 'group2a' | 'group2b' | 'none';
 
+/**
+ * 6-tier food verdict hierarchy (least → most severe):
+ * approved 🟢 → moderation 🟡 → processed 🟠 → toxic 🟧 (vermilion) →
+ * carcinogenic 🔴 (IARC Group 1 only) → ultra_toxic 🟥 (bordeaux — carcinogen + massive ultra-processing).
+ */
+export type VerdictTier =
+  | 'approved'
+  | 'moderation'
+  | 'processed'
+  | 'toxic'
+  | 'carcinogenic'
+  | 'ultra_toxic';
+
 export type ScanMethod = 'barcode' | 'photo';
 
 export type PhotoType = 'ingredients' | 'front' | 'unknown';
@@ -55,6 +68,8 @@ export interface UniversalAnalysisResult {
   materiau_detecte: string;
   substances_detectees: SubstanceDetected[];
   badge_global: 'danger' | 'probable' | 'possible' | 'aucun';
+  /** 6-tier verdict (food engine). Legacy badge_global is derived from it for storage compat. */
+  verdict_tier?: VerdictTier;
   resume: string;
   recommandations: string[];
   alternatives_sures: string[];
@@ -86,6 +101,8 @@ export interface ScannedProduct {
   saferAlternatives?: string[];
   healthyAlternatives?: HealthyAlternative[];
   isFavorite?: boolean;
+  /** 6-tier verdict computed by the deterministic engine. Older scans derive it from riskGroup. */
+  verdictTier?: VerdictTier;
 }
 
 export interface HealthyAlternative {
@@ -111,7 +128,7 @@ export interface Conversation {
     name: string;
     brand: string;
     barcode: string;
-    verdictLevel: 'danger' | 'warning' | 'moderation' | 'approuve';
+    verdictLevel: 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
     analysisSummary?: string;
   };
 }

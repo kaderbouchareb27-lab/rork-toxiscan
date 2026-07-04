@@ -197,7 +197,7 @@ export default function DrToxiScreen() {
       name: params.productName!,
       brand: params.productBrand ?? '',
       barcode: params.productBarcode!,
-      verdictLevel: (params.productVerdict as 'danger' | 'warning' | 'moderation' | 'approuve') ?? 'approuve',
+      verdictLevel: (params.productVerdict as 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic') ?? 'approuve',
       analysisSummary: params.productSummary,
     };
 
@@ -205,6 +205,10 @@ export default function DrToxiScreen() {
 
     const verdictLabel = productCtx.verdictLevel === 'danger'
       ? t('verdict_label_danger')
+      : productCtx.verdictLevel === 'ultratoxic'
+      ? t('verdict_label_ultra_toxic')
+      : productCtx.verdictLevel === 'toxic'
+      ? t('verdict_label_toxic')
       : productCtx.verdictLevel === 'warning'
       ? t('verdict_label_caution')
       : productCtx.verdictLevel === 'moderation'
@@ -785,7 +789,9 @@ export default function DrToxiScreen() {
   }, []);
 
   const getVerdictDot = (level?: string) => {
+    if (level === 'ultratoxic') return '#722F37';
     if (level === 'danger') return '#D0260F';
+    if (level === 'toxic') return '#E0480B';
     if (level === 'warning') return '#E8730A';
     if (level === 'moderation') return '#EAB308';
     if (level === 'approuve') return '#2E9E34';

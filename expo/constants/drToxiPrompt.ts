@@ -125,8 +125,15 @@ Pour un produit COSMÉTIQUE, l'app n'utilise PAS l'échelle alimentaire mais 3 b
 🟢 APPROVED = naturel/fonctionnel sans risque connu (aqua, glycérine, aloe vera, karité, vitamine E, acide hyaluronique, niacinamide, huiles végétales, alcools gras, oxyde de zinc)
 Verdict global cosmétique : ≥1 TOXIC → 🟣 TOXIC ; ≥3 DISPUTED → 🟡 DISPUTED ; sinon → 🟢 APPROVED. Quand tu parles d'un cosmétique, emploie ces mots (TOXIC / DISPUTED / APPROVED) et JAMAIS « ultra-transformé » ni « NOVA » (réservés à l'alimentaire).
 
-— BADGE GLOBAL « DANGER CUMULÉ » (TOXIC LOAD / 과다 위험) —
-C'est un badge bordeaux (#722F37) SUPPLÉMENTAIRE, distinct du rouge CANCÉRIGÈNE. L'app l'affiche automatiquement en haut du résultat quand un produit alimentaire contient PLUS DE 8 ingrédients orange ULTRA-TRANSFORMÉS dans sa liste. Si l'utilisateur te pose une question dessus, explique-lui clairement : ce badge n'est PAS déclenché par un seul ingrédient dangereux, mais par l'ACCUMULATION de plus de 8 ingrédients ultra-transformés dans le même produit, qui crée un risque cumulatif (charge toxique) pour le corps — chacun pris isolément peut sembler mineur, mais leur empilement (additifs, sucres, émulsifiants, arômes, huiles raffinées…) multiplie l'impact sur l'inflammation, le microbiote et le métabolisme. Conseil : c'est le signe d'un aliment ultra-transformé (NOVA 4) à éviter au quotidien, préfère un produit à liste courte. Ce badge n'existe PAS pour les cosmétiques.
+— VERDICT GLOBAL PRODUIT : HIÉRARCHIE À 6 BADGES (du moins au plus grave) —
+Le scanner attribue au produit UN badge global parmi 6 niveaux. Si l'utilisateur te pose une question sur son badge, explique-le avec cette logique exacte :
+1. 🟢 APPROUVÉ — produit propre, peu ou pas d'ingrédients problématiques.
+2. 🟡 MODÉRATION — quelques ingrédients à surveiller, rien d'alarmant.
+3. 🟠 TRANSFORMÉ (EN "PROCESSED", KO "가공") — produit simplement transformé industriellement, plusieurs marqueurs ultra-transformés SANS danger grave. C'est un badge neutre, pas alarmiste.
+4. 🟧 TOXIQUE (vermillon #E0480B) — le produit franchit un seuil : ≥1 ingrédient CIRC 2A ou 2B (proche des cancérigènes), OU ≥5 marqueurs ultra-transformés, OU ≥3 marqueurs ultra-transformés + ≥2 controversés. Juste en dessous du cancérigène confirmé.
+5. 🔴 CANCÉRIGÈNE — EXCLUSIVEMENT réservé aux cancérigènes confirmés Groupe 1 CIRC (nitrites, charcuterie industrielle…). Le rouge ne se « gonfle » jamais avec des 2A/2B.
+6. 🟥 ULTRA TOXIQUE (bordeaux #722F37) — le pire des deux mondes : un cancérigène (Groupe 1 ou 2A) ET une accumulation massive (≥6 ingrédients ultra-transformés). La charge cumulée multiplie l'impact sur l'inflammation, le microbiote et le métabolisme. Ce badge remplace l'ancien « DANGER CUMULÉ / TOXIC LOAD ».
+Ces 6 badges n'existent PAS pour les cosmétiques (échelle TOXIC/DISPUTED/APPROVED séparée).
 
 — CLASSIFICATIONS QUE TU CONNAIS —
 - Groupe 1 IARC = cancérigène CONFIRMÉ (nitrites charcuteries, alcool, formaldéhyde, plomb, cadmium)
@@ -327,8 +334,15 @@ For a COSMETIC product, the app does NOT use the food scale but 3 badges based o
 🟢 APPROVED = natural/functional with no known risk (aqua, glycerin, aloe vera, shea butter, vitamin E, hyaluronic acid, niacinamide, plant oils, fatty alcohols, zinc oxide)
 Cosmetic global verdict: ≥1 TOXIC → 🟣 TOXIC; ≥3 DISPUTED → 🟡 DISPUTED; otherwise → 🟢 APPROVED. When discussing a cosmetic, use these words (TOXIC / DISPUTED / APPROVED) and NEVER "ultra-processed" or "NOVA" (those are for food only).
 
-— GLOBAL "TOXIC LOAD" BADGE (DANGER CUMULÉ / 과다 위험) —
-This is an EXTRA bordeaux badge (#722F37), distinct from the bright-red CARCINOGENIC verdict. The app shows it automatically at the top of the result when a food product contains MORE THAN 8 orange ULTRA-PROCESSED ingredients in its list. If the user asks about it, explain clearly: this badge is NOT triggered by a single dangerous ingredient, but by the ACCUMULATION of more than 8 ultra-processed ingredients in the same product, which creates a cumulative load (toxic load) on the body — each one alone may look minor, but stacking them (additives, sugars, emulsifiers, flavors, refined oils…) multiplies the impact on inflammation, the gut microbiome and metabolism. Advice: it's the signature of an ultra-processed food (NOVA 4) to avoid daily — prefer a product with a short ingredient list. This badge does NOT exist for cosmetics.
+— GLOBAL PRODUCT VERDICT: 6-BADGE HIERARCHY (least → most severe) —
+The scanner gives every product ONE global badge among 6 levels. If the user asks about their badge, explain it with this exact logic:
+1. 🟢 APPROVED — clean product, few or no problematic ingredients.
+2. 🟡 MODERATION — a few ingredients to watch, nothing alarming.
+3. 🟠 PROCESSED (FR "TRANSFORMÉ", KO "가공") — simply industrially processed: several ultra-processed markers WITHOUT serious danger. A neutral, non-alarmist badge.
+4. 🟧 TOXIC (vermilion #E0480B) — the product crosses a threshold: ≥1 IARC Group 2A or 2B ingredient (close to carcinogens), OR ≥5 ultra-processed markers, OR ≥3 ultra-processed markers + ≥2 controversial ones. One step below confirmed carcinogenic.
+5. 🔴 CARCINOGENIC — EXCLUSIVELY reserved for confirmed IARC Group 1 carcinogens (nitrites, processed cured meats…). The red badge never gets inflated with 2A/2B.
+6. 🟥 ULTRA TOXIC (bordeaux #722F37) — the worst of both worlds: a carcinogen (Group 1 or 2A) AND massive accumulation (≥6 ultra-processed ingredients). The cumulative load multiplies the impact on inflammation, the gut microbiome and metabolism. This badge replaces the old "TOXIC LOAD / DANGER CUMULÉ".
+These 6 badges do NOT exist for cosmetics (separate TOXIC/DISPUTED/APPROVED scale).
 
 — CLASSIFICATIONS YOU KNOW —
 - IARC Group 1 = CONFIRMED carcinogen (nitrites in cured meats, alcohol, formaldehyde, lead, cadmium)
@@ -521,8 +535,8 @@ Fast-food / industrial dishes are NEVER scored like a homemade recipe: ToxiScan 
 GOLDEN RULE (NEVER break it): a low score from accumulation (sugar, fat, processed) is NOT "carcinogenic". Plain fresh meat, ground/minced beef, poultry and fish are NOT carcinogenic either — only processed/cured meat (charcuterie) is. Always distinguish GRAVE = dangerous / IARC (carcinogenic) from NOT HEALTHY = processed / sugary / fatty / plain red meat. A sugar-loaded cake is "ultra-processed and very sweet" (score ~1), NEVER "carcinogenic".
 If the user asks about their meal score or why a meal landed on a tier, explain it warmly with this exact logic.
 
---- TOXIC LOAD badge ---
-On a PRODUCT scan, when a product contains more than 8 ingredients flagged ULTRA-PROCESSED (orange), ToxiScan adds a global "TOXIC LOAD" badge (FR "DANGER CUMULÉ", KO "과다 위험"). Explain it as a CUMULATIVE risk: it is not one single dangerous ingredient, but the accumulation of 8+ ultra-processed ingredients that burdens the body over time. It is NOT the same thing as "carcinogenic".`;
+--- ULTRA TOXIC badge ---
+On a PRODUCT scan, when a product combines a carcinogen (IARC Group 1 or 2A) WITH 6+ ultra-processed ingredients, ToxiScan shows the bordeaux "ULTRA TOXIC" badge (FR "ULTRA TOXIQUE", KO "초독성"). Explain it as the worst of both worlds: a carcinogenic basis PLUS a cumulative ultra-processed load that burdens the body over time. It is one step ABOVE "carcinogenic" in severity.`;
 
 const MEAL_SCAN_KNOWLEDGE_FR = `
 
@@ -533,8 +547,8 @@ Les plats de fast-food / industriels ne sont JAMAIS notés comme une recette mai
 RÈGLE D'OR (à NE JAMAIS violer) : un score bas par accumulation (sucre, gras, transformé) n'est PAS « cancérigène ». La viande fraîche, la viande hachée, la volaille et le poisson ne sont PAS cancérigènes non plus — seule la viande transformée (charcuterie) l'est. Distingue toujours GRAVE = dangereux / CIRC (cancérigène) de PAS SAIN = transformé / sucré / gras / viande rouge fraîche. Un gâteau bourré de sucre est « ultra-transformé et très sucré » (score ~1), JAMAIS « cancérigène ».
 Si l'utilisateur pose une question sur son score de repas, explique-le chaleureusement avec cette logique.
 
---- Badge DANGER CUMULÉ ---
-Sur un scan PRODUIT, quand un produit contient plus de 8 ingrédients marqués ULTRA-TRANSFORMÉ (orange), ToxiScan ajoute un badge global « DANGER CUMULÉ » (EN "TOXIC LOAD", KO "과다 위험"). Explique-le comme un risque CUMULATIF : ce n'est pas un seul ingrédient dangereux, mais l'accumulation de plus de 8 ingrédients ultra-transformés qui charge le corps. Ce n'est PAS la même chose que « cancérigène ».`;
+--- Badge ULTRA TOXIQUE ---
+Sur un scan PRODUIT, quand un produit combine un cancérigène (Groupe 1 ou 2A CIRC) ET 6 ingrédients ultra-transformés ou plus, ToxiScan affiche le badge bordeaux « ULTRA TOXIQUE » (EN "ULTRA TOXIC", KO "초독성"). Explique-le comme le pire des deux mondes : une base cancérigène PLUS une charge cumulée d'ultra-transformés qui pèse sur le corps. C'est UN CRAN AU-DESSUS de « cancérigène » en gravité.`;
 
 export const DR_TOXI_SYSTEM_PROMPT = isKorean()
   ? DATABASE_HEADER_EN + DR_TOXI_SYSTEM_PROMPT_EN + KOREAN_EXAMPLES + MEAL_SCAN_KNOWLEDGE_EN
@@ -553,7 +567,7 @@ export function getQuickSuggestions(): string[] {
 
 export const QUICK_SUGGESTIONS = getQuickSuggestions();
 
-export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
+export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
 
 /**
  * One-tap follow-up prompts shown under Dr. Toxi's latest reply.
@@ -562,6 +576,8 @@ export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve
  */
 export function getFollowUpSuggestions(verdict?: DrToxiVerdictLevel | string | null): string[] {
   switch (verdict) {
+    case 'ultratoxic':
+    case 'toxic':
     case 'danger':
     case 'warning':
       return [t('followup_why_verdict'), t('followup_alternative'), t('followup_worst_ingredient')];

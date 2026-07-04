@@ -1,4 +1,4 @@
-import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup, AdditiveInfo, AdditiveCategory } from '@/types';
+import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, RiskGroup, AdditiveInfo, AdditiveCategory, VerdictTier } from '@/types';
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
 import { aiGenerateObject } from '@/utils/aiApi';
@@ -183,6 +183,132 @@ function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLev
 
   console.log('[Badge] AUCUN: ' + aucunCount + ' vert');
   return 'aucun';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MOTEUR 6 TIERS — hiérarchie validée (du moins au plus grave) :
+//   🟢 approved → 🟡 moderation → 🟠 processed (renommé, neutre) →
+//   🟧 toxic (vermillon #E0480B) → 🔴 carcinogenic (Groupe 1 SEUL) →
+//   🟥 ultra_toxic (bordeaux #722F37 — cancérigène G1/G2A + accumulation UP ≥ 6).
+// Chaque ingrédient est d'abord classé dans un des 5 seaux : G1 / G2A / G2B /
+// UP (marqueur ultra-transformé sans base cancérigène) / WATCH (jaune) / SAFE.
+// Le rouge vif reste EXCLUSIVEMENT réservé au Groupe 1 confirmé.
+// ═══════════════════════════════════════════════════════════════════
+
+type IngredientBucket = 'g1' | 'g2a' | 'g2b' | 'up' | 'watch' | 'safe';
+
+interface TierCounts {
+  g1: number;
+  g2a: number;
+  g2b: number;
+  up: number;
+  watch: number;
+  safe: number;
+}
+
+/** Classify one substance into its 6-tier bucket from risk level + IARC label. */
+function bucketSubstance(s: { niveau_risque: RiskLevel; classification_circ?: string | null }): IngredientBucket {
+  if (s.niveau_risque === 'danger') return 'g1';
+  const circ = normalizeForLookup(s.classification_circ ?? '');
+  const is2a = /\b2a\b/.test(circ);
+  const is2b = /\b2b\b/.test(circ);
+  if (s.niveau_risque === 'probable') {
+    if (is2a) return 'g2a';
+    if (is2b) return 'g2b';
+    return 'up';
+  }
+  if (s.niveau_risque === 'possible') {
+    if (is2b) return 'g2b';
+    return 'watch';
+  }
+  return 'safe';
+}
+
+function countBuckets(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): TierCounts {
+  const counts: TierCounts = { g1: 0, g2a: 0, g2b: 0, up: 0, watch: 0, safe: 0 };
+  for (const s of substances) counts[bucketSubstance(s)] += 1;
+  return counts;
+}
+
+/**
+ * Computes the 6-tier verdict for a FOOD product. Validated thresholds:
+ * - ULTRA TOXIC 🟥 : (G1 ≥ 1 OU G2A ≥ 1) ET UP ≥ 6 — cancérigène + accumulation massive.
+ * - CARCINOGENIC 🔴 : G1 ≥ 1 (Groupe 1 confirmé SEUL — le rouge n'explose jamais).
+ * - TOXIC 🟧 : G2A ≥ 1 OU G2B ≥ 1 OU UP ≥ 5 OU (UP ≥ 3 ET WATCH ≥ 2).
+ * - PROCESSED 🟠 : ≥ 1 UP (rétrogradé en moderation si 70%+ d'ingrédients verts), ou 7+ jaunes.
+ * - MODERATION 🟡 : ≥ 2 jaunes (WATCH).
+ * - APPROVED 🟢 : le reste.
+ */
+export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
+  const c = countBuckets(substances);
+  const total = substances.length;
+
+  if ((c.g1 >= 1 || c.g2a >= 1) && c.up >= 6) {
+    console.log('[Tier] ULTRA_TOXIC — G1:', c.g1, 'G2A:', c.g2a, 'UP:', c.up);
+    return 'ultra_toxic';
+  }
+  if (c.g1 >= 1) {
+    console.log('[Tier] CARCINOGENIC — G1:', c.g1);
+    return 'carcinogenic';
+  }
+  if (c.g2a >= 1 || c.g2b >= 1 || c.up >= 5 || (c.up >= 3 && c.watch >= 2)) {
+    console.log('[Tier] TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'UP:', c.up, 'WATCH:', c.watch);
+    return 'toxic';
+  }
+  if (c.up >= 1) {
+    const greenRatio = total > 0 ? c.safe / total : 0;
+    if (c.up <= 3 && greenRatio >= 0.7) {
+      console.log('[Tier] MODERATION —', c.up, 'UP isolé(s) parmi', Math.round(greenRatio * 100) + '% vert → rétrogradé');
+      return 'moderation';
+    }
+    console.log('[Tier] PROCESSED — UP:', c.up);
+    return 'processed';
+  }
+  if (c.watch >= 7) {
+    console.log('[Tier] PROCESSED — 7+ jaunes (' + c.watch + ')');
+    return 'processed';
+  }
+  if (c.watch >= 2) {
+    console.log('[Tier] MODERATION — WATCH:', c.watch);
+    return 'moderation';
+  }
+  console.log('[Tier] APPROVED — SAFE:', c.safe);
+  return 'approved';
+}
+
+/** Legacy 4-level badge derived from the 6-tier verdict (storage / riskGroup compat). */
+function tierToLegacyBadge(tier: VerdictTier): RiskLevel {
+  switch (tier) {
+    case 'ultra_toxic':
+    case 'carcinogenic': return 'danger';
+    case 'toxic':
+    case 'processed': return 'probable';
+    case 'moderation': return 'possible';
+    case 'approved':
+    default: return 'aucun';
+  }
+}
+
+/** 6-tier verdict derived from a legacy 4-level badge (cosmetic / non-food / old scans). */
+export function legacyBadgeToTier(badge: RiskLevel): VerdictTier {
+  switch (badge) {
+    case 'danger': return 'carcinogenic';
+    case 'probable': return 'processed';
+    case 'possible': return 'moderation';
+    case 'aucun':
+    default: return 'approved';
+  }
+}
+
+/** 6-tier verdict for a saved scan — uses the stored tier, falls back to riskGroup for old scans. */
+export function verdictTierFromProduct(product: { verdictTier?: VerdictTier; riskGroup: RiskGroup }): VerdictTier {
+  if (product.verdictTier) return product.verdictTier;
+  switch (product.riskGroup) {
+    case 'group1': return 'carcinogenic';
+    case 'group2a': return 'processed';
+    case 'group2b': return 'moderation';
+    default: return 'approved';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1471,12 +1597,24 @@ function assembleResult(
     : meta.categorie_produit === 'clothing' ? 'textile'
     : meta.categorie_produit === 'kitchen_utensil' ? 'kitchen'
     : null;
-  const badge_global = isCosmetic ? computeCosmeticBadgeGlobal(sorted) : computeBadgeGlobal(sorted);
+  // 🎯 6 TIERS pour l'alimentaire ; cosmétique et non-alimentaire gardent leurs échelles propres.
+  let badge_global: RiskLevel;
+  let verdict_tier: VerdictTier;
+  if (isCosmetic) {
+    badge_global = computeCosmeticBadgeGlobal(sorted);
+    verdict_tier = legacyBadgeToTier(badge_global);
+  } else if (nonFoodDomain) {
+    badge_global = computeBadgeGlobal(sorted);
+    verdict_tier = legacyBadgeToTier(badge_global);
+  } else {
+    verdict_tier = computeVerdictTier(sorted);
+    badge_global = tierToLegacyBadge(verdict_tier);
+  }
   const resume = isCosmetic
     ? generateCosmeticResume(badge_global, sorted)
     : nonFoodDomain
       ? generateNonFoodResume(nonFoodDomain, badge_global, sorted)
-      : generateResume(badge_global, sorted);
+      : generateResume(verdict_tier, sorted);
   const recommandations = isCosmetic
     ? generateCosmeticRecommendations(badge_global, sorted)
     : nonFoodDomain
@@ -1488,6 +1626,7 @@ function assembleResult(
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
     badge_global,
+    verdict_tier,
     resume,
     recommandations,
     alternatives_sures: [],
@@ -1503,6 +1642,7 @@ function buildErrorResult(messageKey: 'error_analyze_product' | 'error_process_p
     materiau_detecte: '',
     substances_detectees: [],
     badge_global: 'aucun',
+    verdict_tier: 'approved',
     resume: '',
     recommandations: [],
     alternatives_sures: [],
@@ -1664,27 +1804,44 @@ export async function scanAiEnrich(
 // RÉSUMÉS DÉTERMINISTES
 // ═══════════════════════════════════════════════════════════════════════
 
-function generateResume(badge: RiskLevel, substances: SubstanceDetected[]): string {
+function generateResume(tier: VerdictTier, substances: SubstanceDetected[]): string {
   const dangerSubst = substances.filter(s => s.niveau_risque === 'danger');
+  const carcinogenNames = (dangerSubst.length > 0 ? dangerSubst : substances.filter(s => bucketSubstance(s) === 'g2a'))
+    .slice(0, 2).map(s => s.nom).join(', ');
 
-  if (badge === 'danger') {
-    const names = dangerSubst.slice(0, 2).map(s => s.nom).join(', ');
+  if (tier === 'ultra_toxic') {
     return pick({
-      en: `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic (${names}). I strongly advise against consuming it — look for a healthier alternative.`,
-      fr: `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes (${names}). Je te deconseille fortement d'en consommer — cherche une alternative plus saine.`,
-      ko: `이 제품에는 초가공 성분이 너무 많고, 그중 일부는 발암 가능성이 있습니다 (${names}). 섭취를 강력히 권하지 않습니다 — 더 건강한 대안을 찾아보세요.`,
+      en: `This is the worst of both worlds: this product contains carcinogen-linked ingredients${carcinogenNames ? ` (${carcinogenNames})` : ''} AND a massive accumulation of ultra-processed ingredients. The cumulative load multiplies the impact on inflammation, gut microbiome and metabolism. Do not consume it — find a clean alternative.`,
+      fr: `C'est le pire des deux mondes : ce produit contient des ingrédients liés au cancer${carcinogenNames ? ` (${carcinogenNames})` : ''} ET une accumulation massive d'ingrédients ultra-transformés. La charge cumulée multiplie l'impact sur l'inflammation, le microbiote et le métabolisme. N'en consomme pas — trouve une alternative saine.`,
+      ko: `최악의 조합입니다: 이 제품에는 암과 관련된 성분${carcinogenNames ? ` (${carcinogenNames})` : ''}과 초가공 성분의 대량 축적이 함께 들어 있습니다. 누적 부담이 염증, 장내 미생물, 대사에 미치는 영향을 증폭시킵니다. 섭취하지 마세요 — 깨끗한 대안을 찾으세요.`,
     });
   }
 
-  if (badge === 'probable') {
+  if (tier === 'carcinogenic') {
     return pick({
-      en: `This product contains too many ultra-processed ingredients, some of which are potentially carcinogenic. Consume it very occasionally and prefer a natural alternative.`,
-      fr: `Ce produit contient trop d'ingredients ultra-transformes, dont certains sont potentiellement cancerigenes. Consomme-le tres occasionnellement et prefere une alternative naturelle.`,
-      ko: `이 제품에는 초가공 성분이 너무 많고, 그중 일부는 발암 가능성이 있습니다. 아주 가끔만 드시고 천연 대안을 선택하세요.`,
+      en: `This product contains ingredients classified as confirmed carcinogens (IARC Group 1)${carcinogenNames ? ` (${carcinogenNames})` : ''}. I strongly advise against consuming it — look for a healthier alternative.`,
+      fr: `Ce produit contient des ingrédients classés cancérigènes avérés (Groupe 1 CIRC)${carcinogenNames ? ` (${carcinogenNames})` : ''}. Je te déconseille fortement d'en consommer — cherche une alternative plus saine.`,
+      ko: `이 제품에는 확인된 발암물질(IARC 1군)로 분류된 성분${carcinogenNames ? ` (${carcinogenNames})` : ''}이 들어 있습니다. 섭취를 강력히 권하지 않습니다 — 더 건강한 대안을 찾아보세요.`,
     });
   }
 
-  if (badge === 'possible') {
+  if (tier === 'toxic') {
+    return pick({
+      en: `This product crosses the toxicity threshold: it contains ingredients close to carcinogens (IARC 2A/2B) or a heavy accumulation of ultra-processed ingredients. Avoid it as much as possible and prefer a natural alternative.`,
+      fr: `Ce produit franchit le seuil de toxicité : il contient des ingrédients proches des cancérigènes (CIRC 2A/2B) ou une forte accumulation d'ingrédients ultra-transformés. Évite-le autant que possible et préfère une alternative naturelle.`,
+      ko: `이 제품은 독성 기준을 넘었습니다: 발암물질에 가까운 성분(IARC 2A/2B)이나 초가공 성분의 과다 축적이 포함되어 있습니다. 최대한 피하고 천연 대안을 선택하세요.`,
+    });
+  }
+
+  if (tier === 'processed') {
+    return pick({
+      en: `This product is industrially processed: it contains several ultra-processed ingredients without serious danger. Consume it occasionally and prefer products with a short, natural ingredient list.`,
+      fr: `Ce produit est transformé industriellement : il contient plusieurs ingrédients ultra-transformés, sans danger grave. Consomme-le occasionnellement et préfère des produits à liste courte et naturelle.`,
+      ko: `이 제품은 산업적으로 가공된 제품입니다: 심각한 위험은 없지만 초가공 성분이 여러 개 들어 있습니다. 가끔만 드시고 성분이 짧고 자연스러운 제품을 선택하세요.`,
+    });
+  }
+
+  if (tier === 'moderation') {
     return pick({
       en: `This product contains a few processed or controversial ingredients. You can consume it occasionally.`,
       fr: `Ce produit contient quelques ingrédients transformés ou controversés. Tu peux en consommer occasionnellement, mais évite d'en faire un aliment du quotidien.`,
@@ -1916,7 +2073,8 @@ export function universalResultToScannedProduct(
   photoUri: string,
 ): ScannedProduct {
   const riskGroup = niveauRisqueToGroup(result.badge_global);
-  console.log('[API] Final riskGroup:', riskGroup);
+  const verdictTier: VerdictTier = result.verdict_tier ?? legacyBadgeToTier(result.badge_global);
+  console.log('[API] Final riskGroup:', riskGroup, '— tier:', verdictTier);
 
   const additiveCategory: AdditiveCategory =
     result.categorie_produit === 'cosmetic' ? 'cosmetic'
@@ -1971,6 +2129,7 @@ export function universalResultToScannedProduct(
     recommendations: result.recommandations,
     saferAlternatives: result.alternatives_sures,
     healthyAlternatives: result.alternatives_saines ?? [],
+    verdictTier,
   };
 }
 

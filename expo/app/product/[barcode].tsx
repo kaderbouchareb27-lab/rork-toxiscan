@@ -23,7 +23,6 @@ import {
   Store, Heart, Navigation, UserCheck, LocateFixed, Megaphone,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
-import ToxicLoadBanner from '@/components/ToxicLoadBanner';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -36,7 +35,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
 import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected } from '@/types';
-import { getCategoryLabel, generateBarcodeAlternatives } from '@/utils/api';
+import { getCategoryLabel, generateBarcodeAlternatives, verdictTierFromProduct } from '@/utils/api';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { getProfileScanAlerts } from '@/utils/healthProfile';
 import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
@@ -56,8 +55,16 @@ type DisplayLevel = 'danger' | 'probable' | 'possible' | 'aucun';
 // share a chemical/material hazard scale and NEVER reuse food wording.
 type VerdictDomain = 'food' | 'cosmetic' | 'household' | 'textile' | 'kitchen';
 
+/** Non-food and cosmetic scales only have 4 levels — clamp the 6-tier levels onto them. */
+function clampLevel(level: VerdictLevel): 'danger' | 'warning' | 'moderation' | 'approuve' {
+  if (level === 'ultratoxic') return 'danger';
+  if (level === 'toxic') return 'warning';
+  return level;
+}
+
 /** Localized banner intro for a non-food category, adapted to its real-world context. */
-function nonFoodIntro(domain: 'household' | 'textile' | 'kitchen', level: VerdictLevel): string {
+function nonFoodIntro(domain: 'household' | 'textile' | 'kitchen', rawLevel: VerdictLevel): string {
+  const level = clampLevel(rawLevel);
   if (domain === 'household') {
     switch (level) {
       case 'danger':     return t('intro_household_danger');
@@ -133,8 +140,9 @@ function getLevelBadgeLabel(level: DisplayLevel, domain: VerdictDomain = 'food')
   }
 }
 
-function getBannerConfig(level: VerdictLevel, domain: VerdictDomain = 'food'): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
+function getBannerConfig(rawLevel: VerdictLevel, domain: VerdictDomain = 'food'): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
   if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
+    const level = clampLevel(rawLevel);
     switch (level) {
       case 'danger':
         return { color: '#D0260F', label: t('nf_badge_danger'), intro: nonFoodIntro(domain, 'danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
@@ -147,6 +155,7 @@ function getBannerConfig(level: VerdictLevel, domain: VerdictDomain = 'food'): {
     }
   }
   if (domain === 'cosmetic') {
+    const level = clampLevel(rawLevel);
     switch (level) {
       case 'danger':
         return { color: '#7C3AED', label: t('cosmetic_badge_toxic'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiCosmeticAvatarForVerdict(level) };
@@ -157,32 +166,40 @@ function getBannerConfig(level: VerdictLevel, domain: VerdictDomain = 'food'): {
         return { color: '#2E9E34', label: t('cosmetic_badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} />, avatarUri: null };
     }
   }
-  switch (level) {
+  switch (rawLevel) {
+    case 'ultratoxic':
+      return { color: '#722F37', label: t('badge_ultra_toxic'), intro: t('intro_ultra_toxic'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict('ultratoxic') };
+    case 'toxic':
+      return { color: '#E0480B', label: t('badge_toxic'), intro: t('intro_toxic'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict('toxic') };
     case 'danger':
-      return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      return { color: '#D0260F', label: t('badge_danger'), intro: t('intro_danger'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(rawLevel) };
     case 'warning':
-      return { color: '#E8730A', label: t('badge_caution'), intro: t('intro_warning'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      return { color: '#E8730A', label: t('badge_caution'), intro: t('intro_warning'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(rawLevel) };
     case 'moderation':
-      return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(level) };
+      return { color: '#EAB308', label: t('badge_moderation'), intro: t('intro_moderation'), icon: null, avatarUri: getDrToxiBadgeAvatarForVerdict(rawLevel) };
     case 'approuve':
       return { color: '#2E9E34', label: t('badge_approved'), intro: t('intro_approved'), icon: <CheckCircle color="#FFFFFF" size={28} />, avatarUri: null };
   }
 }
 
-function getVerdictAction(level: VerdictLevel, domain: VerdictDomain = 'food'): string {
+function getVerdictAction(rawLevel: VerdictLevel, domain: VerdictDomain = 'food'): string {
   if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
-    switch (level) {
+    switch (clampLevel(rawLevel)) {
       case 'danger':     return t('nf_action_danger');
       case 'warning':    return t('nf_action_hazardous');
       case 'moderation': return t('nf_action_caution');
       case 'approuve':   return t('nf_action_safe');
     }
   }
-  switch (level) {
+  switch (rawLevel) {
+    case 'ultratoxic':
+      return pick({ en: 'Do not consume', fr: 'À ne pas consommer', ko: '섭취 금지' });
+    case 'toxic':
+      return pick({ en: 'Avoid as much as possible', fr: 'À éviter autant que possible', ko: '최대한 피하세요' });
     case 'danger':
       return pick({ en: 'Avoid regular consumption', fr: 'À éviter régulièrement', ko: '정기적인 섭취를 피하세요' });
     case 'warning':
-      return pick({ en: 'Limit as much as possible', fr: 'À limiter fortement', ko: '최대한 제한하세요' });
+      return pick({ en: 'Occasional only — prefer short lists', fr: 'Occasionnel — préfère les listes courtes', ko: '가끔만 — 짧은 성분표를 선택하세요' });
     case 'moderation':
       return pick({ en: 'Occasional only', fr: 'Occasionnel seulement', ko: '가끔만 드세요' });
     case 'approuve':
@@ -736,18 +753,23 @@ export default function ProductScreen() {
   // still undefined.
   // ──────────────────────────────────────────────────────────────────────
 
-  // ✅ Verdict 100% déterministe — basé sur product.riskGroup calculé par api.ts
+  // ✅ Verdict 100% déterministe — 6 tiers calculés par api.ts (verdictTier),
+  // avec dérivation depuis riskGroup pour les anciens scans sans tier stocké.
   const { verdictLevel } = useMemo(() => {
     let _verdictLevel: VerdictLevel = 'approuve';
-    switch (product?.riskGroup) {
-      case 'group1':  _verdictLevel = 'danger';     break;
-      case 'group2a': _verdictLevel = 'warning';    break;
-      case 'group2b': _verdictLevel = 'moderation'; break;
-      case 'none':
-      default:        _verdictLevel = 'approuve';   break;
+    if (product) {
+      switch (verdictTierFromProduct(product)) {
+        case 'ultra_toxic':  _verdictLevel = 'ultratoxic'; break;
+        case 'carcinogenic': _verdictLevel = 'danger';     break;
+        case 'toxic':        _verdictLevel = 'toxic';      break;
+        case 'processed':    _verdictLevel = 'warning';    break;
+        case 'moderation':   _verdictLevel = 'moderation'; break;
+        case 'approved':
+        default:             _verdictLevel = 'approuve';   break;
+      }
     }
     return { verdictLevel: _verdictLevel };
-  }, [product?.riskGroup]);
+  }, [product]);
 
   // After a POSITIVE (green "approved") product scan, ask for Apple's native
   // in-app review. Only on a good verdict, only via the system sheet, capped
@@ -842,16 +864,6 @@ export default function ProductScreen() {
       : product.substances ?? [];
   }, [product]);
 
-  // 🔴 TOXIC LOAD / DANGER CUMULÉ / 과다 위험 — cumulative-risk alert.
-  // Triggered when MORE THAN 8 orange ULTRA-PROCESSED ingredients pile up in the
-  // same product, regardless of the main verdict. Not counted for cosmetics
-  // (they use their own TOXIC / DISPUTED / APPROVED scale).
-  const ultraProcessedCount = useMemo<number>(() => {
-    if (product?.productCategory === 'cosmetic') return 0;
-    return ingredientsList.filter((ing) => getDisplayLevel(ing) === 'probable').length;
-  }, [ingredientsList, product?.productCategory]);
-  const showToxicLoad = ultraProcessedCount > 8;
-
   // Advice built from what was ACTUALLY found on this scanned label — names the
   // flagged substances (worst first) and turns them into concrete guidance.
   const scannedAdvice = useMemo(() => {
@@ -938,7 +950,11 @@ export default function ProductScreen() {
         ? `[${t('badge_caution')}]`
         : verdictLevel === 'moderation'
           ? `[${t('badge_moderation')}]`
-          : `[${t('badge_danger')}]`;
+          : verdictLevel === 'toxic'
+            ? `[${t('badge_toxic')}]`
+            : verdictLevel === 'ultratoxic'
+              ? `[${t('badge_ultra_toxic')}]`
+              : `[${t('badge_danger')}]`;
     const substancesText = product.detectedAdditives.length > 0
       ? `\n\n${t('substances_detected')} :\n${product.detectedAdditives.map(a => `- ${a.name}`).join('\n')}`
       : product.substances && product.substances.filter(s => s.niveau_risque !== 'aucun').length > 0
@@ -1080,8 +1096,6 @@ export default function ProductScreen() {
 
         <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} />
 
-        {showToxicLoad ? <ToxicLoadBanner count={ultraProcessedCount} /> : null}
-
         {profileAlerts.length > 0 ? (
           <View style={styles.profileAlertsWrap}>
             <View style={styles.profileAlertsHeader}>
@@ -1155,7 +1169,7 @@ export default function ProductScreen() {
           </View>
         ) : null}
 
-        {(verdictLevel === 'danger' || verdictLevel === 'warning') && (
+        {(verdictLevel === 'danger' || verdictLevel === 'warning' || verdictLevel === 'toxic' || verdictLevel === 'ultratoxic') && (
           <View style={styles.section}>
             {locationLabel && Platform.OS !== 'web' ? (
               <TouchableOpacity
@@ -1376,6 +1390,7 @@ export default function ProductScreen() {
         <View ref={shareCardRef} {...(Platform.OS === 'web' ? {} : { collapsable: false as const })}>
           <ShareImageCard
             productName={product.name} brand={product.brand} riskGroup={product.riskGroup}
+            verdictTier={product.verdictTier}
             photoUri={product.photoUri} thumbnailBase64={product.thumbnailBase64} imageUrl={product.imageUrl}
             substances={product.substances} detectedIngredients={product.detectedIngredients}
             detectedAdditives={product.detectedAdditives} isCosmetic={isCosmetic}

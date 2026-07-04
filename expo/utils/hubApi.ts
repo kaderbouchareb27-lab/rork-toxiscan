@@ -10,7 +10,7 @@ import { compressImageNative, compressImageWeb } from '@/utils/imageCompression'
 const BASE_URL = (process.env.EXPO_PUBLIC_RORK_FUNCTIONS_URL ?? '').replace(/\/$/, '');
 
 export type HubPostKind = 'discussion' | 'denunciation';
-export type HubVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve';
+export type HubVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'toxic' | 'ultratoxic';
 export type HubScanKind = 'product' | 'meal';
 
 export type ModerationCategory =
