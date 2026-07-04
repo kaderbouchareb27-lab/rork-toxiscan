@@ -83,7 +83,7 @@ function getLabel(level: VerdictLevel): string {
     case 'warning':
       return pick({ en: 'PROCESSED', fr: 'TRANSFORMÉ', ko: '가공' });
     case 'moderation':
-      return pick({ en: 'CAUTION', fr: 'MODÉRATION', ko: '주의' });
+      return pick({ en: 'OCCASIONAL', fr: 'MODÉRATION', ko: '주의' });
     case 'approuve':
       return pick({ en: 'APPROVED', fr: 'APPROUVÉ', ko: '승인됨' });
   }
