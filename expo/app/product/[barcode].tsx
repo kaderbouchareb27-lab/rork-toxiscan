@@ -1366,7 +1366,7 @@ export default function ProductScreen() {
           testID="denounce-product"
         >
           <Megaphone color="#D0260F" size={20} strokeWidth={2.2} />
-          <Text style={styles.denounceButtonText}>{pick({ en: 'Denounce to the community', fr: 'Dénoncer à la communauté', ko: '커뮤니티에 고발하기' })}</Text>
+          <Text style={styles.denounceButtonText}>{pick({ en: 'Share to NonToxic Hub', fr: 'Partager au NonToxic Hub', ko: 'NonToxic Hub에 공유하기' })}</Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />

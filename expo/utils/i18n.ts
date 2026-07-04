@@ -672,6 +672,7 @@ const translations = {
   weekly_trend_first: { fr: 'Ta première semaine — continue de scanner !', en: 'Your first week — keep scanning!', ko: '첫 주예요 — 계속 스캔해 보세요!' },
   weekly_problem_ingredient: { fr: 'Le grand coupable de la semaine', en: 'Problem ingredient of the week', ko: '이번 주 문제 재료' },
   weekly_problem_detected: { fr: (name: string, n: number) => `${name} — détecté ${n} fois`, en: (name: string, n: number) => `${name} — detected ${n} times`, ko: (name: string, n: number) => `${name} — ${n}회 검출` },
+  weekly_meals_list_title: { fr: 'Repas de la semaine', en: "This week's meals", ko: '이번 주 식사' },
   weekly_best_meal: { fr: 'Meilleur repas', en: 'Best meal', ko: '최고의 식사' },
   weekly_worst_meal: { fr: 'Repas le plus toxique', en: 'Most toxic meal', ko: '가장 유해한 식사' },
   weekly_end_good: { fr: "Bravo, continue dans cette lancée — ta santé s'améliore.", en: 'Well done — keep this up and your health keeps improving.', ko: '잘하고 있어요 — 이대로 유지하면 건강이 계속 좋아져요.' },

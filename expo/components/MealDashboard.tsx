@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { t, tf } from '@/utils/i18n';
 import { useWeeklyMealReport } from '@/providers/MealHistoryProvider';
-import { MEAL_TIER_COLORS, mealCategoryLabel, mealTierLabel } from '@/constants/mealAvatars';
+import { MEAL_TIER_COLORS, mealCategoryLabel, mealScoreLabel } from '@/constants/mealAvatars';
 import type { MealTier } from '@/utils/mealAnalysis';
 import ToxicityScoreRing from '@/components/ToxicityScoreRing';
 
@@ -75,7 +75,7 @@ export default function MealDashboard() {
       </View>
 
       <View style={styles.bodyRow}>
-        <ToxicityScoreRing score={report.avgScore} tier={report.tier} size={104} stroke={11} caption={mealTierLabel(report.tier)} />
+        <ToxicityScoreRing score={report.avgScore} tier={report.tier} size={104} stroke={11} caption={mealScoreLabel(report.avgScore)} />
         <View style={styles.statsCol}>
           <Text style={styles.metaLabel}>{t('weekly_score_label')}</Text>
           <Text style={styles.mealsCount}>{tf('weekly_meals_scanned', report.count)}</Text>

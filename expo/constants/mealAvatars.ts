@@ -1,6 +1,6 @@
 import { DR_TOXI_BADGE_AVATARS } from '@/constants/drToxiAvatars';
-import { t } from '@/utils/i18n';
-import type { MealCategory, MealTier } from '@/utils/mealAnalysis';
+import { t, pick } from '@/utils/i18n';
+import { scoreToTier, type MealCategory, type MealTier } from '@/utils/mealAnalysis';
 
 /**
  * The 4 reactive Dr. Toxi avatars for the meal score (spec §6). Same broccoli
@@ -81,4 +81,20 @@ export function mealTierLabel(tier: MealTier): string {
 }
 export function mealTierSubtitle(tier: MealTier): string {
   return t(`tier_${tier}_sub` as 'tier_green_sub');
+}
+
+/**
+ * Caption for a numeric meal SCORE (0–10, higher = healthier). English uses a
+ * 5-band scale that better reflects the scale (Excellent/Good/Decent/Poor/Very
+ * toxic); French and Korean keep the existing 4-tier wording unchanged.
+ */
+export function mealScoreLabel(score: number): string {
+  const en =
+    score >= 9 ? 'Excellent'
+    : score >= 7 ? 'Good'
+    : score >= 5 ? 'Decent'
+    : score >= 3 ? 'Poor'
+    : 'Very toxic';
+  const fallback = mealTierLabel(scoreToTier(score));
+  return pick({ en, fr: fallback, ko: fallback });
 }

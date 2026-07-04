@@ -15,6 +15,7 @@ import {
   MEAL_TIER_COLORS,
   mealCategoryLabel,
   mealTierLabel,
+  mealScoreLabel,
 } from '@/constants/mealAvatars';
 import type { MealCategory, MealTier } from '@/utils/mealAnalysis';
 import ToxicityScoreRing from '@/components/ToxicityScoreRing';
@@ -195,7 +196,7 @@ function joinLang(parts: readonly LangText[]): LangText {
  * several signals at once (meat vs vegetables/protein, recurring sugar, salt,
  * ultra-processed, additives), detects same-day over-repetition of a single harmful
  * family (per calendar day, not just the weekly total), names the meals actually
- * responsible, and always steers back toward an athlete-level variety — a bit of
+ * responsible, and always steers back toward everyday variety — a bit of
  * everything — never toward an extreme. A genuinely balanced week is simply praised.
  */
 function buildDrAdvice(report: WeeklyReport): string {
@@ -257,22 +258,22 @@ function buildDrAdvice(report: WeeklyReport): string {
   if (signals.length === 0 && !conc) {
     if (lowProtein) {
       return pick({
-        en: `Strong week on vegetables — but protein is running a little light across your meals. Add eggs, fish, tofu or legumes so each plate stays as complete as an athlete's. Balance is a bit of everything, in the right proportions.`,
-        fr: `Belle semaine côté légumes — mais les protéines sont un peu justes sur l'ensemble de tes repas. Ajoute des œufs, du poisson, du tofu ou des légumineuses pour que chaque assiette reste aussi complète que celle d'un sportif. L'équilibre, c'est un peu de tout, dans les bonnes proportions.`,
-        ko: `채소는 훌륭한 한 주였어요 — 다만 전체적으로 단백질이 조금 부족해요. 계란, 생선, 두부, 콩류를 더해 매 끼를 운동선수처럼 완성해 보세요. 균형은 좋은 비율로 골고루 먹는 거예요.`,
+        en: `Strong week on vegetables — but protein is running a little light across your meals. Add eggs, fish, tofu or legumes so each plate stays complete and balanced. Balance is a bit of everything, in the right proportions.`,
+        fr: `Belle semaine côté légumes — mais les protéines sont un peu justes sur l'ensemble de tes repas. Ajoute des œufs, du poisson, du tofu ou des légumineuses pour que chaque assiette reste complète et équilibrée. L'équilibre, c'est un peu de tout, dans les bonnes proportions.`,
+        ko: `채소는 훌륭한 한 주였어요 — 다만 전체적으로 단백질이 조금 부족해요. 계란, 생선, 두부, 콩류를 더해 매 끼를 균형 있게 완성해 보세요. 균형은 좋은 비율로 골고루 먹는 거예요.`,
       });
     }
     if (report.avgScore >= 6) {
       return pick({
-        en: `Honestly, a well-balanced week — a bit of everything, in good proportions, with no excess creeping back across your meals. That's exactly how a top athlete eats: keep this variety going, I've got nothing to add.`,
-        fr: `Franchement, semaine bien équilibrée — un peu de tout, dans de bonnes proportions, sans excès qui revient sur l'ensemble de tes repas. C'est exactement comme mange un sportif de haut niveau : garde cette variété, je n'ai rien à redire.`,
-        ko: `솔직히 균형 잡힌 한 주였어요 — 모든 식사를 통틀어 골고루, 좋은 비율로, 반복되는 과함도 없었어요. 최고 수준의 운동선수가 먹는 방식이에요: 이 다양함을 유지해요, 더 보탤 말이 없네요.`,
+        en: `Honestly, a well-balanced week — a bit of everything, in good proportions, with no excess creeping back across your meals. That's exactly the kind of varied, healthy eating to aim for: keep this variety going, I've got nothing to add.`,
+        fr: `Franchement, semaine bien équilibrée — un peu de tout, dans de bonnes proportions, sans excès qui revient sur l'ensemble de tes repas. C'est exactement le genre d'alimentation variée et saine à viser : garde cette variété, je n'ai rien à redire.`,
+        ko: `솔직히 균형 잡힌 한 주였어요 — 모든 식사를 통틀어 골고루, 좋은 비율로, 반복되는 과함도 없었어요. 바로 이런 다양하고 건강한 식습관을 목표로 하면 돼요: 이 다양함을 유지해요, 더 보탤 말이 없네요.`,
       });
     }
     return pick({
-      en: `No single imbalance jumps out this week, but we can aim a notch higher — one more whole, colorful plate with both vegetables and protein and you're eating like an athlete. Small step, real effect.`,
-      fr: `Aucun déséquilibre net cette semaine, mais on peut viser un cran au-dessus — une assiette brute et colorée de plus, avec légumes ET protéines, et tu manges comme un sportif. Petit pas, vrai effet.`,
-      ko: `이번 주엔 뚜렷한 불균형은 없어요. 다만 한 단계 더 올려볼 수 있어요 — 채소와 단백질을 함께 담은 자연식 한 끼만 더하면 운동선수처럼 먹는 거예요. 작은 한 걸음이 진짜 효과를 내요.`,
+      en: `No single imbalance jumps out this week, but we can aim a notch higher — one more whole, colorful plate with both vegetables and protein and you're eating varied and balanced. Small step, real effect.`,
+      fr: `Aucun déséquilibre net cette semaine, mais on peut viser un cran au-dessus — une assiette brute et colorée de plus, avec légumes ET protéines, et tu manges varié et équilibré. Petit pas, vrai effet.`,
+      ko: `이번 주엔 뚜렷한 불균형은 없어요. 다만 한 단계 더 올려볼 수 있어요 — 채소와 단백질을 함께 담은 자연식 한 끼만 더하면 다양하고 균형 잡힌 식사가 돼요. 작은 한 걸음이 진짜 효과를 내요.`,
     });
   }
 
@@ -317,9 +318,9 @@ function buildDrAdvice(report: WeeklyReport): string {
   }
 
   parts.push({
-    en: `${dominant.fix.en}. Nothing to ban — just more variety, the way a top athlete eats: whole foods and a bit of everything across the week (vegetables, fish, legumes, healthy starches), never too much of one thing.`,
-    fr: `${dominant.fix.fr}. Rien à bannir — juste plus de variété, comme mange un sportif de haut niveau : des aliments bruts et un peu de tout sur la semaine (légumes, poisson, légumineuses, féculents sains), jamais trop d'une seule chose.`,
-    ko: `${dominant.fix.ko}. 금지할 건 없어요 — 그저 최고 수준의 운동선수처럼 더 다양하게: 자연식과 한 주 동안 골고루(채소, 생선, 콩류, 건강한 탄수화물), 한 가지에 치우치지 않게요.`,
+    en: `${dominant.fix.en}. Nothing to ban — just more variety: whole foods and a bit of everything across the week (vegetables, fish, legumes, healthy starches), never too much of one thing.`,
+    fr: `${dominant.fix.fr}. Rien à bannir — juste plus de variété : des aliments bruts et un peu de tout sur la semaine (légumes, poisson, légumineuses, féculents sains), jamais trop d'une seule chose.`,
+    ko: `${dominant.fix.ko}. 금지할 건 없어요 — 그저 더 다양하게: 자연식과 한 주 동안 골고루(채소, 생선, 콩류, 건강한 탄수화물), 한 가지에 치우치지 않게요.`,
   });
 
   return pick(joinLang(parts));
@@ -376,7 +377,7 @@ export default function WeeklyReportScreen() {
                 <Text style={styles.scoreHeroEyebrow}>{t('weekly_score_label')}</Text>
               </View>
               <View style={styles.scoreRingShell}>
-                <ToxicityScoreRing score={report.avgScore} tier={report.tier} size={196} label={t('weekly_score_label')} caption={mealTierLabel(report.tier)} />
+                <ToxicityScoreRing score={report.avgScore} tier={report.tier} size={196} label={t('weekly_score_label')} caption={mealScoreLabel(report.avgScore)} />
               </View>
               <View style={styles.mealsPill}>
                 <Sparkles color={tierColor} size={15} strokeWidth={2.4} />
@@ -452,6 +453,30 @@ export default function WeeklyReportScreen() {
                     <Text style={styles.bwDish} numberOfLines={2}>{report.worstMeal.dishName}</Text>
                   </TouchableOpacity>
                 ) : null}
+              </View>
+            ) : null}
+
+            {/* This week's scanned meals (everyone, real) — exactly the meals counted in the report */}
+            {report.meals.length > 0 ? (
+              <View style={styles.cardPremium}>
+                <View style={styles.cardHeaderRow}>
+                  <View style={styles.cardTitleMark} />
+                  <Text style={styles.cardTitle}>{t('weekly_meals_list_title')}</Text>
+                </View>
+                <View style={styles.mealsListCol}>
+                  {report.meals.map((m) => (
+                    <TouchableOpacity
+                      key={m.id}
+                      style={styles.mealRow}
+                      onPress={() => router.push(`/meal/${m.id}`)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.mealRowDot, { backgroundColor: MEAL_TIER_COLORS[m.tier] }]} />
+                      <Text style={styles.mealRowName} numberOfLines={1}>{m.dishName}</Text>
+                      <Text style={[styles.mealRowScore, { color: MEAL_TIER_COLORS[m.tier] }]}>{m.score}/10</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             ) : null}
 
@@ -585,6 +610,11 @@ const styles = StyleSheet.create({
   culpritMark: { backgroundColor: Colors.caution },
   problemValueBox: { backgroundColor: '#FFFBF0', borderRadius: 18, paddingHorizontal: 15, paddingVertical: 14, borderWidth: 1, borderColor: 'rgba(234,179,8,0.18)' },
   problemValue: { fontSize: 18, lineHeight: 24, fontWeight: '900' as const, color: Colors.text, letterSpacing: -0.4 },
+  mealsListCol: { gap: 2 },
+  mealRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: 'rgba(232,225,214,0.6)' },
+  mealRowDot: { width: 10, height: 10, borderRadius: 5 },
+  mealRowName: { flex: 1, fontSize: 15, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.2 },
+  mealRowScore: { fontSize: 15, fontWeight: '900' as const, letterSpacing: -0.3, fontVariant: ['tabular-nums'] },
   bestWorstRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
   bwCard: {
     flex: 1, backgroundColor: Colors.surface, borderRadius: 24, padding: 16, borderWidth: 1.5, minHeight: 142,

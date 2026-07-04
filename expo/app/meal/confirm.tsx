@@ -34,7 +34,7 @@ import {
 } from '@/utils/mealAnalysis';
 import { useMeals, buildMealRecord } from '@/providers/MealHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
-import { MEAL_CATEGORY_COLORS, mealCategoryLabel, mealTierLabel } from '@/constants/mealAvatars';
+import { MEAL_CATEGORY_COLORS, mealCategoryLabel, mealScoreLabel } from '@/constants/mealAvatars';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import ToxicityScoreRing from '@/components/ToxicityScoreRing';
 
@@ -312,7 +312,7 @@ export default function MealConfirmScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={8}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.ringWrap}>
-            <ToxicityScoreRing score={score} tier={tier} label={t('meal_toxicity_level')} caption={mealTierLabel(tier)} />
+            <ToxicityScoreRing score={score} tier={tier} label={t('meal_toxicity_level')} caption={mealScoreLabel(score)} />
           </View>
 
           <View style={styles.dishNameRow}>
