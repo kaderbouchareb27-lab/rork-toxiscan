@@ -34,7 +34,7 @@ import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
-import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected } from '@/types';
+import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected, VerdictTier } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives, verdictTierFromProduct } from '@/utils/api';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { getProfileScanAlerts } from '@/utils/healthProfile';
@@ -750,10 +750,12 @@ export default function ProductScreen() {
 
   // ✅ Verdict 100% déterministe — 6 tiers calculés par api.ts (verdictTier),
   // avec dérivation depuis riskGroup pour les anciens scans sans tier stocké.
-  const { verdictLevel } = useMemo(() => {
+  const { verdictLevel, liveVerdictTier } = useMemo(() => {
     let _verdictLevel: VerdictLevel = 'approuve';
+    let _tier: VerdictTier = 'approved';
     if (product) {
-      switch (verdictTierFromProduct(product)) {
+      _tier = verdictTierFromProduct(product);
+      switch (_tier) {
         case 'ultra_toxic':  _verdictLevel = 'ultratoxic'; break;
         case 'carcinogenic': _verdictLevel = 'danger';     break;
         case 'processed':    _verdictLevel = 'warning';    break;
@@ -762,7 +764,7 @@ export default function ProductScreen() {
         default:             _verdictLevel = 'approuve';   break;
       }
     }
-    return { verdictLevel: _verdictLevel };
+    return { verdictLevel: _verdictLevel, liveVerdictTier: _tier };
   }, [product]);
 
   // After a POSITIVE (green "approved") product scan, ask for Apple's native
@@ -1382,7 +1384,7 @@ export default function ProductScreen() {
         <View ref={shareCardRef} {...(Platform.OS === 'web' ? {} : { collapsable: false as const })}>
           <ShareImageCard
             productName={product.name} brand={product.brand} riskGroup={product.riskGroup}
-            verdictTier={product.verdictTier}
+            verdictTier={liveVerdictTier}
             photoUri={product.photoUri} thumbnailBase64={product.thumbnailBase64} imageUrl={product.imageUrl}
             substances={product.substances} detectedIngredients={product.detectedIngredients}
             detectedAdditives={product.detectedAdditives} isCosmetic={isCosmetic}

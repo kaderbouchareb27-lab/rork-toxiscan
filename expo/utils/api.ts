@@ -233,24 +233,25 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
 }
 
 /**
- * Computes the 5-tier verdict for a FOOD product using a balanced point system.
- * - SAFE  = -1 point (green ingredients compensate for problematic ones)
- * - WATCH = +1 point
- * - UP    = +3 points (1 orange ingredient counts like 3 yellow ones)
- * Final score = UP*3 + WATCH*1 - SAFE*1.
+ * Computes the 5-tier verdict for a FOOD product using STRICT count-based rules.
+ * The verdict can never be harsher than what the ingredient badges justify.
  *
- * Thresholds (least → most severe):
- * - APPROVED 🟢     : score ≤ 0.
- * - MODERATION 🟡   : score 1–3.
- * - PROCESSED 🟠    : score ≥ 4 (ultra-processed, no serious danger).
+ * Rules (least → most severe):
+ * - APPROVED 🟢     : 0 orange AND ≤ 2 yellows (a couple of yellows = still green,
+ *   the green accumulation wins).
+ * - MODERATION 🟡   : 1–4 oranges (whatever the rest) OR 3+ yellows without orange.
+ * - PROCESSED 🟠    : RESERVED — requires AT LEAST 5 orange (ultra-processed)
+ *   ingredients. 1 orange + 1 yellow can NEVER be Processed.
  * - ULTRA TOXIC 🟥  : G2A ≥ 1 OU G2B ≥ 2 OU UP ≥ 10 — really concerning,
  *   one step below a confirmed carcinogen (bordeaux #722F37).
  * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed IARC Group 1 only — never inflated with 2A/2B).
  *
- * The intermediate TOXIC (vermilion) tier was removed; its triggers moved up into ULTRA TOXIC.
- * This keeps simple products honest: 1 orange + 1 yellow + 2 greens = 2 points → Moderation,
- * 3 yellows = 3 points → Moderation, 4 yellows = 4 points → Processed.
+ * Examples: 1 orange + 1 yellow + 5 greens → MODERATION. 2 yellows + greens → APPROVED.
+ * 3 yellows → MODERATION. 5 oranges → PROCESSED.
  */
+const PROCESSED_MIN_UP = 5;
+const MODERATION_MIN_WATCH = 3;
+
 export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
   const c = countBuckets(substances);
 
@@ -262,18 +263,15 @@ export function computeVerdictTier(substances: { niveau_risque: RiskLevel; class
     console.log('[Tier] ULTRA_TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'UP:', c.up);
     return 'ultra_toxic';
   }
-
-  const score = c.up * 3 + c.watch * 1 - c.safe * 1;
-
-  if (score >= 4) {
-    console.log('[Tier] PROCESSED — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
+  if (c.up >= PROCESSED_MIN_UP) {
+    console.log('[Tier] PROCESSED — UP:', c.up, '(threshold', PROCESSED_MIN_UP + ')');
     return 'processed';
   }
-  if (score >= 1) {
-    console.log('[Tier] MODERATION — score:', score, 'UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
+  if (c.up >= 1 || c.watch >= MODERATION_MIN_WATCH) {
+    console.log('[Tier] MODERATION — UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
     return 'moderation';
   }
-  console.log('[Tier] APPROVED — score:', score, 'SAFE:', c.safe);
+  console.log('[Tier] APPROVED — WATCH:', c.watch, 'SAFE:', c.safe);
   return 'approved';
 }
 
@@ -300,14 +298,52 @@ export function legacyBadgeToTier(badge: RiskLevel): VerdictTier {
   }
 }
 
-/** 5-tier verdict for a saved scan — uses the stored tier, falls back to riskGroup for old scans. */
-export function verdictTierFromProduct(product: { verdictTier?: VerdictTier; riskGroup: RiskGroup }): VerdictTier {
+/** Categories that do NOT use the food tier engine (they have their own scales). */
+const NON_FOOD_TIER_CATEGORIES: readonly ProductCategory[] = ['cosmetic', 'household', 'clothing', 'kitchen_utensil'];
+
+/**
+ * 5-tier verdict for a saved scan. For FOOD products with stored ingredient details,
+ * the tier is ALWAYS recomputed live from the per-ingredient badges — so the global
+ * verdict can never contradict the badges shown on screen, and old scans automatically
+ * follow the latest rules without rescanning. Cosmetic/non-food scans keep their
+ * stored tier (separate engines), and legacy scans fall back to riskGroup.
+ */
+export function verdictTierFromProduct(product: {
+  verdictTier?: VerdictTier;
+  riskGroup: RiskGroup;
+  productCategory?: ProductCategory;
+  detectedIngredients?: { niveau_risque: RiskLevel; classification_circ?: string | null }[];
+}): VerdictTier {
+  const isFoodEngine = !product.productCategory || !NON_FOOD_TIER_CATEGORIES.includes(product.productCategory);
+  if (isFoodEngine && product.detectedIngredients && product.detectedIngredients.length > 0) {
+    return computeVerdictTier(product.detectedIngredients);
+  }
   if (product.verdictTier) return product.verdictTier;
   switch (product.riskGroup) {
     case 'group1': return 'carcinogenic';
     case 'group2a': return 'processed';
     case 'group2b': return 'moderation';
     default: return 'approved';
+  }
+}
+
+/**
+ * Legacy RiskGroup derived from the LIVE-recomputed verdict tier — keeps history
+ * colors, filters and stats consistent with the product-page verdict under the
+ * latest rules (old scans included).
+ */
+export function riskGroupFromProduct(product: {
+  verdictTier?: VerdictTier;
+  riskGroup: RiskGroup;
+  productCategory?: ProductCategory;
+  detectedIngredients?: { niveau_risque: RiskLevel; classification_circ?: string | null }[];
+}): RiskGroup {
+  switch (verdictTierFromProduct(product)) {
+    case 'carcinogenic':
+    case 'ultra_toxic': return 'group1';
+    case 'processed': return 'group2a';
+    case 'moderation': return 'group2b';
+    default: return 'none';
   }
 }
 

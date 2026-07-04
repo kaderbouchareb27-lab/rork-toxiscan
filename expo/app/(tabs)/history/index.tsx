@@ -28,7 +28,7 @@ import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvi
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { RiskGroup, ScannedProduct } from '@/types';
 import { t, tf, getDateLocale } from '@/utils/i18n';
-import { getDisplayBrand } from '@/utils/api';
+import { getDisplayBrand, riskGroupFromProduct } from '@/utils/api';
 import { getDrToxiBadgeAvatarForRiskGroup } from '@/constants/drToxiAvatars';
 
 type FilterType = 'all' | 'favorites' | RiskGroup;
@@ -198,7 +198,10 @@ export default function HistoryScreen() {
   }, [clearHistory]);
 
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
-    const risk = getHistoryRiskPresentation(item.riskGroup);
+    // ✅ Verdict recalculé en direct depuis les badges d'ingrédients (mêmes règles
+    // que la page produit) — les anciens scans suivent automatiquement les nouvelles règles.
+    const displayGroup = riskGroupFromProduct(item);
+    const risk = getHistoryRiskPresentation(displayGroup);
     const date = new Date(item.scannedAt);
     const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',
@@ -247,7 +250,7 @@ export default function HistoryScreen() {
             <View style={styles.metaRow}>
               <View style={[styles.riskMiniBadge, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
 
-                <RiskStatusIcon group={item.riskGroup} color={risk.color} size={12} />
+                <RiskStatusIcon group={displayGroup} color={risk.color} size={12} />
                 <Text style={[styles.riskMiniText, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
               </View>
               <Text style={styles.dateText}>{formattedDate}</Text>
@@ -261,7 +264,7 @@ export default function HistoryScreen() {
 
         <View style={[styles.statusPanel, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
           <View style={[styles.statusIconBubble, { backgroundColor: Colors.surface, borderColor: risk.borderColor }]}>
-            <RiskStatusIcon group={item.riskGroup} color={risk.color} size={18} />
+            <RiskStatusIcon group={displayGroup} color={risk.color} size={18} />
           </View>
           <View style={styles.statusCopy}>
             <View style={styles.statusHeaderRow}>

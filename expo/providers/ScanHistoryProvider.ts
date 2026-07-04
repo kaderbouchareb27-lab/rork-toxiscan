@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
 import { ScannedProduct, RiskGroup } from '@/types';
+import { riskGroupFromProduct } from '@/utils/api';
 
 const STORAGE_KEY = 'toxiscan_history';
 
@@ -74,11 +75,14 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
   }, [history]);
 
   const stats = useMemo(() => {
+    // ✅ Groupes recalculés en direct (mêmes règles que la page produit) pour que
+    // les stats et filtres restent cohérents avec le verdict affiché.
+    const groups = history.map(p => riskGroupFromProduct(p));
     const total = history.length;
-    const danger = history.filter(p => p.riskGroup === 'group1').length;
-    const probable = history.filter(p => p.riskGroup === 'group2a').length;
-    const possible = history.filter(p => p.riskGroup === 'group2b').length;
-    const safe = history.filter(p => p.riskGroup === 'none').length;
+    const danger = groups.filter(g => g === 'group1').length;
+    const probable = groups.filter(g => g === 'group2a').length;
+    const possible = groups.filter(g => g === 'group2b').length;
+    const safe = groups.filter(g => g === 'none').length;
     return { total, danger, probable, possible, safe };
   }, [history]);
 
@@ -104,6 +108,6 @@ export function useFilteredHistory(filter: RiskGroup | 'all' | 'favorites', isPr
     }
     const source = isPro ? history : history.slice(0, FREE_HISTORY_LIMIT);
     if (filter === 'all') return source;
-    return source.filter(p => p.riskGroup === filter);
+    return source.filter(p => riskGroupFromProduct(p) === filter);
   }, [history, favorites, filter, isPro]);
 }
