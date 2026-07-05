@@ -12,9 +12,12 @@ const SECRET_KEY = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY;
  */
 const CHAT_COMPLETIONS_URL = `${TOOLKIT_URL}/v2/vercel/v1/chat/completions`;
 
+// Cheaper Sonar (lightweight, web-search built in) goes FIRST to save cost on
+// most requests; Sonar Pro is only used as a fallback if the cheap one fails or
+// returns nothing, so quality/reliability is preserved.
 const ATTEMPTS: { readonly model: string; readonly timeoutMs: number }[] = [
-  { model: 'perplexity/sonar-pro', timeoutMs: 40000 },
-  { model: 'perplexity/sonar', timeoutMs: 30000 },
+  { model: 'perplexity/sonar', timeoutMs: 35000 },
+  { model: 'perplexity/sonar-pro', timeoutMs: 35000 },
 ];
 
 const MAX_ALTERNATIVES = 3;
