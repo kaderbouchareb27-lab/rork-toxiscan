@@ -20,7 +20,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Navigation, UserCheck, LocateFixed, Megaphone,
+  Store, Heart, Navigation, UserCheck, LocateFixed, Megaphone, Leaf,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
@@ -39,7 +39,7 @@ import { getCategoryLabel, generateBarcodeAlternatives, verdictTierFromProduct }
 import { findRealAlternatives, getCachedRealAlternatives } from '@/utils/realAlternatives';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { getProfileScanAlerts } from '@/utils/healthProfile';
-import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
+import { getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
 import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
@@ -303,18 +303,6 @@ function truncateName(name: string, max: number = 60): string {
   if (!name) return name;
   if (name.length <= max) return name;
   return name.slice(0, max - 1).trimEnd() + '\u2026';
-}
-
-function getRegionDisplayName(region: ReturnType<typeof detectRegion>['region']): string {
-  switch (region) {
-    case 'quebec':       return pick({ en: 'Quebec', fr: 'Québec', ko: '퀘벡' });
-    case 'canada_other': return pick({ en: 'Canada', fr: 'Canada', ko: '캐나다' });
-    case 'france':       return pick({ en: 'France', fr: 'France', ko: '프랑스' });
-    case 'usa':          return pick({ en: 'USA', fr: 'USA', ko: '미국' });
-    case 'belgium':      return pick({ en: 'Belgium', fr: 'Belgique', ko: '벨기에' });
-    case 'switzerland':  return pick({ en: 'Switzerland', fr: 'Suisse', ko: '스위스' });
-    default:             return '';
-  }
 }
 
 // ─────────────────────────────────────────────
@@ -1072,6 +1060,13 @@ export default function ProductScreen() {
   const localMarkets = getRegionLocalMarkets(userCountry);
   const hasMapStores = specialtyStores.length > 0 || groceryStores.length > 0 || localMarkets.length > 0;
 
+  // Single unified "Healthier alternatives" hub, shown only for bad products. It
+  // merges the real in-store product alternatives, the tappable store finder, the
+  // clean-brand chips and the product-specific advice into ONE fluid card (no more
+  // duplicated store lists across two sections).
+  const isBadVerdict = verdictLevel === 'danger' || verdictLevel === 'warning' || verdictLevel === 'ultratoxic';
+  const showAlternativesHub = isBadVerdict && (canFindRealAlternative || hasMapStores || cleanBrands.length > 0 || !!scannedAdvice);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -1223,72 +1218,7 @@ export default function ProductScreen() {
           </View>
         ) : null}
 
-        {canFindRealAlternative && (
-          <View style={styles.section}>
-            <View style={styles.sectionTitleRow}>
-              <Store color={Colors.safe} size={18} />
-              <Text style={styles.sectionTitle}>
-                {pick({ en: 'Real alternatives in stores', fr: 'De vraies alternatives en magasin', ko: '매장에서 찾을 수 있는 실제 대안' })}
-              </Text>
-            </View>
-            {realAlternatives.length === 0 ? (
-              <>
-                <TouchableOpacity
-                  style={[styles.enableLocationButton, isFindingRealAlternative && styles.bigShareButtonLoading]}
-                  onPress={handleFindRealAlternative}
-                  activeOpacity={0.85}
-                  disabled={isFindingRealAlternative}
-                  testID="find-real-alternative-button"
-                >
-                  {isFindingRealAlternative ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
-                  ) : (
-                    <Store color="#FFFFFF" size={15} />
-                  )}
-                  <Text style={styles.enableLocationText}>
-                    {isFindingRealAlternative
-                      ? pick({ en: 'Searching the web… (up to 30 s)', fr: 'Recherche en cours… (jusqu\u2019à 30 s)', ko: '검색 중… (최대 30초)' })
-                      : pick({ en: 'Find real alternatives', fr: 'Voir de vraies alternatives', ko: '실제 대안 찾기' })}
-                  </Text>
-                </TouchableOpacity>
-                {isFindingRealAlternative ? (
-                  <Text style={styles.realAltSearchingHint}>
-                    {pick({ en: 'Dr. Toxi is checking real store shelves for cleaner products of the same type…', fr: 'Dr. Toxi vérifie les rayons de vrais magasins pour des produits plus propres du même type…', ko: 'Dr. Toxi가 같은 종류의 더 깨끗한 제품을 실제 매장에서 확인하는 중…' })}
-                  </Text>
-                ) : null}
-              </>
-            ) : (
-              <View style={styles.realAltList}>
-                {realAlternatives.map((alt, index) => (
-                  <View key={`real-alt-${index}`} style={styles.healthyAlternativesCard} testID={`real-alternative-${index}`}>
-                    <View style={styles.healthyAlternativesCardInner}>
-                      {alt.imageUrl ? (
-                        <Image source={{ uri: alt.imageUrl }} style={styles.realAltImage} contentFit="contain" />
-                      ) : null}
-                      <View style={styles.realAltTextWrap}>
-                        <Text style={styles.realAltName}>{alt.nom}</Text>
-                        {alt.magasin ? (
-                          <View style={styles.realAltStoreRow}>
-                            <Store color="#2E9E34" size={13} />
-                            <Text style={styles.realAltStore}>{alt.magasin}</Text>
-                          </View>
-                        ) : null}
-                        <Text style={styles.realAltReason}>{alt.raison}</Text>
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-            {realAlternativeError ? (
-              <Text style={styles.realAltErrorText}>
-                {pick({ en: "Couldn't find a verified alternative right now — tap the button to try again.", fr: "Aucune alternative vérifiée trouvée pour l'instant — touche le bouton pour réessayer.", ko: '지금은 확인된 대안을 찾지 못했어요 — 버튼을 눌러 다시 시도해 주세요.' })}
-              </Text>
-            ) : null}
-          </View>
-        )}
-
-        {(verdictLevel === 'danger' || verdictLevel === 'warning' || verdictLevel === 'ultratoxic') && (
+        {showAlternativesHub && (
           <View style={styles.section}>
             {locationLabel && Platform.OS !== 'web' ? (
               <TouchableOpacity
@@ -1298,9 +1228,9 @@ export default function ProductScreen() {
                 disabled={isResolving}
                 testID="refresh-location-title"
               >
-                <MapPin color={Colors.primary} size={18} />
+                <Leaf color={Colors.safe} size={18} />
                 <Text style={[styles.sectionTitle, styles.sectionTitleFlex]}>
-                  {t('where_find_alternatives')} <Text style={styles.locationLinkText}>{locationLabel}</Text>
+                  {pick({ en: 'Healthier alternatives', fr: 'Alternatives plus saines', ko: '더 건강한 대안' })}
                 </Text>
                 {isResolving ? (
                   <ActivityIndicator size="small" color={Colors.primary} />
@@ -1310,95 +1240,160 @@ export default function ProductScreen() {
               </TouchableOpacity>
             ) : (
               <View style={styles.sectionTitleRow}>
-                <MapPin color={Colors.primary} size={18} />
+                <Leaf color={Colors.safe} size={18} />
                 <Text style={styles.sectionTitle}>
-                  {t('where_find_alternatives')} {locationLabel ?? getRegionDisplayName(userCountry)}
+                  {pick({ en: 'Healthier alternatives', fr: 'Alternatives plus saines', ko: '더 건강한 대안' })}
                 </Text>
               </View>
             )}
+
             <View style={styles.bioStoresCard}>
-              {locationLabel ? (
-                <TouchableOpacity
-                  style={styles.locationPill}
-                  onPress={handleRefreshLocation}
-                  activeOpacity={0.75}
-                  disabled={isResolving}
-                  testID="refresh-location-pill"
-                >
-                  <MapPin color="#2E9E34" size={13} />
-                  <Text style={styles.locationPillText} numberOfLines={1}>
-                    {pick({ en: 'Suggestions near', fr: 'Suggestions proches de', ko: '내 주변 추천' })} {locationLabel}
-                  </Text>
-                  {isResolving ? (
-                    <ActivityIndicator size="small" color="#2E9E34" />
-                  ) : (
-                    <LocateFixed color="#2E9E34" size={13} />
-                  )}
-                </TouchableOpacity>
-              ) : Platform.OS !== 'web' ? (
-                <TouchableOpacity
-                  style={styles.enableLocationButton}
-                  onPress={handleEnableLocation}
-                  activeOpacity={0.85}
-                  disabled={isResolving}
-                  testID="enable-location"
-                >
-                  <MapPin color="#FFFFFF" size={15} />
-                  <Text style={styles.enableLocationText}>
-                    {isResolving
-                      ? pick({ en: 'Locating…', fr: 'Localisation…', ko: '위치 찾는 중…' })
-                      : pick({ en: 'Suggest stores near me', fr: 'Magasins près de chez moi', ko: '내 주변 매장 추천' })}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-              {scannedAdvice ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>
-                    {pick({ en: 'Real advice for this product', fr: 'Conseils concrets pour ce produit', ko: '이 제품에 대한 실질적인 조언' })}
-                  </Text>
-                  <View style={styles.scannedAdviceCallout}>
-                    <Text style={styles.scannedAdviceText}>{scannedAdvice}</Text>
+              {/* 1 ─ Real product alternatives: photo, name, tappable store, why it's cleaner */}
+              {canFindRealAlternative ? (
+                realAlternatives.length > 0 ? (
+                  <View style={styles.realAltList}>
+                    {realAlternatives.map((alt, index) => (
+                      <View key={`real-alt-${index}`} style={styles.realAltCard} testID={`real-alternative-${index}`}>
+                        {alt.imageUrl ? (
+                          <Image source={{ uri: alt.imageUrl }} style={styles.realAltImage} contentFit="contain" />
+                        ) : null}
+                        <View style={styles.realAltTextWrap}>
+                          <Text style={styles.realAltName}>{alt.nom}</Text>
+                          {alt.magasin ? (
+                            <TouchableOpacity
+                              style={styles.realAltStoreRow}
+                              onPress={() => handleOpenStoreInMaps(alt.magasin ?? '')}
+                              activeOpacity={0.6}
+                              testID={`real-alt-store-${index}`}
+                            >
+                              <Store color="#2E9E34" size={13} />
+                              <Text style={styles.realAltStore}>{alt.magasin}</Text>
+                              <Navigation color="#86C091" size={12} />
+                            </TouchableOpacity>
+                          ) : null}
+                          <Text style={styles.realAltReason}>{alt.raison}</Text>
+                        </View>
+                      </View>
+                    ))}
                   </View>
-                </>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.realAltLoadingRow}
+                    onPress={handleFindRealAlternative}
+                    activeOpacity={0.7}
+                    disabled={isFindingRealAlternative}
+                    testID="find-real-alternative-button"
+                  >
+                    {isFindingRealAlternative ? (
+                      <ActivityIndicator color="#2E9E34" size="small" />
+                    ) : (
+                      <Store color="#2E9E34" size={16} />
+                    )}
+                    <Text style={styles.realAltLoadingText}>
+                      {isFindingRealAlternative
+                        ? pick({ en: 'Finding cleaner products of the same type…', fr: 'Recherche de produits plus propres du même type…', ko: '같은 종류의 더 깨끗한 제품을 찾는 중…' })
+                        : realAlternativeError
+                          ? pick({ en: "Couldn't find one — tap to try again", fr: 'Aucune trouvée — touchez pour réessayer', ko: '찾지 못했어요 — 다시 시도하려면 누르세요' })
+                          : pick({ en: 'Find real cleaner alternatives', fr: 'Voir de vraies alternatives plus propres', ko: '실제 대안 찾기' })}
+                    </Text>
+                  </TouchableOpacity>
+                )
               ) : null}
 
+              {canFindRealAlternative && (hasMapStores || cleanBrands.length > 0 || !!scannedAdvice) ? (
+                <View style={styles.altDivider} />
+              ) : null}
+
+              {/* 2 ─ Where to buy near you — every store row opens in Maps */}
               {hasMapStores ? (
-                <View style={styles.mapsHintRow}>
-                  <Navigation color="#2E9E34" size={12} />
-                  <Text style={styles.mapsHintText}>
-                    {pick({ en: 'Tap a store to find it near you in Maps', fr: 'Touchez un magasin pour le trouver près de vous dans Plans', ko: '매장을 누르면 지도에서 내 주변 위치를 찾을 수 있습니다' })}
-                  </Text>
-                </View>
-              ) : null}
-
-              {specialtyStores.length > 0 ? (
                 <>
-                  <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
-                  {specialtyStores.map((s, i) => (
-                    <StoreRow
-                      key={`spec-${i}`}
-                      name={s}
-                      icon={<Store color="#2E9E34" size={14} strokeWidth={2} />}
-                      onPress={handleOpenStoreInMaps}
-                    />
-                  ))}
+                  {locationLabel ? (
+                    <TouchableOpacity
+                      style={styles.locationPill}
+                      onPress={handleRefreshLocation}
+                      activeOpacity={0.75}
+                      disabled={isResolving}
+                      testID="refresh-location-pill"
+                    >
+                      <MapPin color="#2E9E34" size={13} />
+                      <Text style={styles.locationPillText} numberOfLines={1}>
+                        {pick({ en: 'Suggestions near', fr: 'Suggestions proches de', ko: '내 주변 추천' })} {locationLabel}
+                      </Text>
+                      {isResolving ? (
+                        <ActivityIndicator size="small" color="#2E9E34" />
+                      ) : (
+                        <LocateFixed color="#2E9E34" size={13} />
+                      )}
+                    </TouchableOpacity>
+                  ) : Platform.OS !== 'web' ? (
+                    <TouchableOpacity
+                      style={styles.enableLocationButton}
+                      onPress={handleEnableLocation}
+                      activeOpacity={0.85}
+                      disabled={isResolving}
+                      testID="enable-location"
+                    >
+                      <MapPin color="#FFFFFF" size={15} />
+                      <Text style={styles.enableLocationText}>
+                        {isResolving
+                          ? pick({ en: 'Locating…', fr: 'Localisation…', ko: '위치 찾는 중…' })
+                          : pick({ en: 'Suggest stores near me', fr: 'Magasins près de chez moi', ko: '내 주변 매장 추천' })}
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
+
+                  <View style={styles.mapsHintRow}>
+                    <Navigation color="#2E9E34" size={12} />
+                    <Text style={styles.mapsHintText}>
+                      {pick({ en: 'Tap a store to open it in Maps', fr: 'Touchez un magasin pour l\u2019ouvrir dans Plans', ko: '매장을 누르면 지도에서 열립니다' })}
+                    </Text>
+                  </View>
+
+                  {specialtyStores.length > 0 ? (
+                    <>
+                      <Text style={styles.bioStoresSubtitle}>{t('specialty_stores')}</Text>
+                      {specialtyStores.map((s, i) => (
+                        <StoreRow
+                          key={`spec-${i}`}
+                          name={s}
+                          icon={<Store color="#2E9E34" size={14} strokeWidth={2} />}
+                          onPress={handleOpenStoreInMaps}
+                        />
+                      ))}
+                    </>
+                  ) : null}
+
+                  {groceryStores.length > 0 ? (
+                    <>
+                      <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
+                      {groceryStores.map((s, i) => (
+                        <StoreRow
+                          key={`groc-${i}`}
+                          name={s}
+                          icon={<Store color="#2E9E34" size={14} strokeWidth={2} />}
+                          onPress={handleOpenStoreInMaps}
+                        />
+                      ))}
+                    </>
+                  ) : null}
+
+                  {localMarkets.length > 0 ? (
+                    <>
+                      <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
+                      {localMarkets.map((m, i) => (
+                        <StoreRow
+                          key={`mkt-${i}`}
+                          name={m}
+                          icon={<MapPin color="#2E9E34" size={14} strokeWidth={2} />}
+                          onPress={handleOpenStoreInMaps}
+                        />
+                      ))}
+                    </>
+                  ) : null}
                 </>
               ) : null}
 
-              {groceryStores.length > 0 ? (
-                <>
-                  <Text style={styles.bioStoresSubtitle}>{t('organic_sections')}</Text>
-                  {groceryStores.map((s, i) => (
-                    <StoreRow
-                      key={`groc-${i}`}
-                      name={s}
-                      icon={<Store color="#2E9E34" size={14} strokeWidth={2} />}
-                      onPress={handleOpenStoreInMaps}
-                    />
-                  ))}
-                </>
-              ) : null}
-
+              {/* 3 ─ Recommended organic / clean brands */}
               {cleanBrands.length > 0 ? (
                 <>
                   <Text style={styles.bioStoresSubtitle}>
@@ -1408,17 +1403,15 @@ export default function ProductScreen() {
                 </>
               ) : null}
 
-              {localMarkets.length > 0 ? (
+              {/* 4 ─ Product-specific advice / homemade tips (least prioritary, at the bottom) */}
+              {scannedAdvice ? (
                 <>
-                  <Text style={styles.bioStoresSubtitle}>{t('local_markets')}</Text>
-                  {localMarkets.map((m, i) => (
-                    <StoreRow
-                      key={`mkt-${i}`}
-                      name={m}
-                      icon={<MapPin color="#2E9E34" size={14} strokeWidth={2} />}
-                      onPress={handleOpenStoreInMaps}
-                    />
-                  ))}
+                  <Text style={styles.bioStoresSubtitle}>
+                    {pick({ en: 'Advice for this product', fr: 'Conseils pour ce produit', ko: '이 제품에 대한 조언' })}
+                  </Text>
+                  <View style={styles.scannedAdviceCallout}>
+                    <Text style={styles.scannedAdviceText}>{scannedAdvice}</Text>
+                  </View>
                 </>
               ) : null}
             </View>
@@ -1590,7 +1583,11 @@ const styles = StyleSheet.create({
   realAltStore: { fontSize: 13, fontWeight: '600' as const, color: '#2E9E34' },
   realAltReason: { fontSize: 13.5, lineHeight: 19, color: Colors.textSecondary },
   realAltErrorText: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 6 },
-  realAltList: { gap: 10 },
+  realAltList: { gap: 12 },
+  realAltCard: { backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden' as const, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.16)', shadowColor: '#1F5A28', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 14, elevation: 3 },
+  realAltLoadingRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 9, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
+  realAltLoadingText: { flex: 1, fontSize: 13.5, lineHeight: 19, color: '#1F5A28', fontWeight: '600' as const },
+  altDivider: { height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(46, 158, 52, 0.22)', marginVertical: 16 },
   realAltSearchingHint: { fontSize: 12.5, lineHeight: 18, color: Colors.textSecondary, marginTop: -4, marginBottom: 8 },
   healthyAltItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, padding: 14, gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(46, 158, 52, 0.18)' },
   healthyAltBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center' as const, alignItems: 'center' as const, marginTop: 2 },
