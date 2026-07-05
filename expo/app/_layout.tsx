@@ -46,6 +46,10 @@ import { HealthProfileProvider } from "@/providers/HealthProfileProvider";
 import { MealHistoryProvider } from "@/providers/MealHistoryProvider";
 import { HubProvider } from "@/providers/HubProvider";
 
+SplashScreen.setOptions({
+  duration: 650,
+  fade: true,
+});
 void SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
