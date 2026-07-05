@@ -478,6 +478,11 @@ Priorité : 1) nom Open Food Facts si fourni ; 2) texte/marque sur l'emballage ;
 - N'écris JAMAIS "Objet inconnu", "Produit inconnu", "Inconnu", "Unknown", "N/A".
 - N'écris JAMAIS la formule littérale "marque + produit" / "brand + product name" / "Nom du produit".
 - Il y a TOUJOURS un type identifiable d'après les ingrédients — donne-le.
+- Le TYPE doit être le NOM COURANT du produit tel qu'on l'achète en magasin (Mayonnaise, Ketchup, Vinaigrette, Moutarde, Houmous, Pâte à tartiner...), JAMAIS un nom fabriqué à partir du premier ingrédient de la liste.
+  • Huile (colza/canola/tournesol/soja) + jaune d'œuf/œuf + vinaigre + moutarde = "Mayonnaise" — JAMAIS "Sauce à l'huile de colza" ni "Canola oil sauce".
+  • Tomates + vinaigre + sucre = "Ketchup" — JAMAIS "Sauce tomate sucrée".
+  • Huile + vinaigre + épices = "Vinaigrette" — JAMAIS "Sauce à l'huile".
+- 🪤 PIÈGE CLASSIQUE À ÉVITER : quand la photo ne montre que la liste d'ingrédients, le PREMIER ingrédient n'est PAS le nom du produit. Ne nomme JAMAIS le produit d'après son 1er ingrédient ("Huile de canola", "Sucre", "Eau"...). Pose-toi la question : « quel produit vendu en magasin a exactement cette liste d'ingrédients ? » — et donne CE nom-là comme objet_identifie.
 
 categorie_produit : food | beverage | cosmetic | household | other.
 
@@ -729,6 +734,11 @@ Priority: 1) OpenFoodFacts name if provided; 2) text/brand on the packaging; 3) 
 - NEVER write "Unknown object", "Unknown product", "Unknown", "N/A".
 - NEVER write the literal template "brand + product name" or "Product name".
 - There is ALWAYS an identifiable type from the ingredients — provide it.
+- The TYPE must be the EVERYDAY NAME of the product as sold in stores (Mayonnaise, Ketchup, Salad dressing, Mustard, Hummus, Spread...), NEVER a name built from the first ingredient of the list.
+  • Oil (canola/sunflower/soybean) + egg yolk/egg + vinegar + mustard = "Mayonnaise" — NEVER "Canola oil sauce".
+  • Tomatoes + vinegar + sugar = "Ketchup" — NEVER "Sweetened tomato sauce".
+  • Oil + vinegar + spices = "Salad dressing" — NEVER "Oil sauce".
+- 🪤 CLASSIC TRAP TO AVOID: when the photo only shows the ingredient list, the FIRST ingredient is NOT the product name. NEVER name the product after its 1st ingredient ("Canola oil", "Sugar", "Water"...). Ask yourself: "which store-bought product has exactly this ingredient list?" — and give THAT name as objet_identifie.
 
 categorie_produit: food | beverage | cosmetic | household | other.
 
@@ -891,9 +901,30 @@ The description MUST ALWAYS, no exception:
   "erreur": ""
 }`;
 
-// Korean reuses the English instruction scaffold; the runtime language lock below
-// forces Korean OUTPUT, which overrides the English-only wording inside AI_PROMPT_EN.
-const AI_PROMPT = (isEnglish() || isKorean()) ? AI_PROMPT_EN : AI_PROMPT_FR;
+// Korean reuses the English scaffold, but its "IN ENGLISH" directives must be neutralized:
+// the text model otherwise follows them over the Korean language lock (observed bug: Korean
+// UI showing "Canola oil", "Sugar"). Korean noms use the BILINGUAL form 「한국어명 (English)」 —
+// users read the Korean part; the parenthesized English part is what the internal
+// classification database matches on (it has no Korean keywords).
+const KOREAN_NOM_RULES = `
+
+═══ 한국어 출력 규칙 (최우선 — 위의 영어 관련 규칙보다 우선) ═══
+모든 "nom"은 반드시 「한국어명 (English name)」 형식으로 작성한다 — 한국어가 먼저, 괄호 안에 영어 원명.
+모든 "explication"은 100% 한국어로만 작성한다.
+예시:
+• "Canola oil" / "Huile de canola" → "카놀라유 (Canola Oil)"
+• "Sugar" → "설탕 (Sugar)"
+• "Water" → "정제수 (Water)"
+• "Liquid whole eggs" → "액상 전란 (Liquid Whole Eggs)"
+• "Vinegar" → "식초 (Vinegar)"
+• "Salt" → "소금 (Salt)"
+• "Natural flavor" → "천연향료 (Natural Flavor)"
+• "Calcium disodium EDTA" → "칼슘 다이소듐 EDTA (Calcium Disodium EDTA)"
+영어명만 단독으로 출력하는 것은 금지된다. objet_identifie도 한국어로 작성한다.`;
+
+const AI_PROMPT = isKorean()
+  ? AI_PROMPT_EN.replace(/IN ENGLISH/g, 'IN KOREAN with English in parentheses — 「한국어명 (English)」') + KOREAN_NOM_RULES
+  : isEnglish() ? AI_PROMPT_EN : AI_PROMPT_FR;
 
 // ═══════════════════════════════════════════════════════════════════════
 // APPEL À L'IA
@@ -914,9 +945,10 @@ async function callAI(
 ║  출력 언어 잠금 — 한국어만 사용              ║
 ╚═══════════════════════════════════════════════╝
 앱 언어는 한국어입니다. 이 규칙은 아래의 다른 모든 규칙보다 우선합니다.
-- 모든 성분명("nom")과 모든 설명("explication")은 반드시 한국어로만 작성해야 합니다.
+- 모든 성분명("nom")은 반드시 「한국어명 (English name)」 형식으로 작성합니다 — 예: "카놀라유 (Canola Oil)", "설탕 (Sugar)". 영어명만 단독 출력은 금지입니다.
+- 모든 설명("explication")은 반드시 100% 한국어로만 작성해야 합니다.
 - 라벨/OCR 텍스트가 프랑스어, 영어 또는 다른 언어라면, 작성하기 전에 모든 용어를 한국어로 번역하세요.
-- JSON 출력 전체가 100% 한국어여야 합니다. 언어가 섞인 필드는 절대 안 됩니다. (성분명 옆에 원어를 괄호로 병기하는 것은 허용됩니다.)
+- 설명에 언어가 섞인 필드는 절대 안 됩니다.
 
 `
     : targetEnglish
@@ -989,9 +1021,9 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
           {
             type: 'text',
             text: pick({
-              en: 'Read every ingredient on the label and write a FRANK, EDUCATIONAL description for each. DO NOT classify ingredients — that is done automatically by the system. DO NOT reassure the user about processed ingredients. Write EVERYTHING (names and descriptions) in ENGLISH ONLY — translate any French term first, no French word allowed.',
-              fr: 'Lis chaque ingrédient de l\'étiquette et écris une description FRANCHE et PÉDAGOGIQUE pour chacun. NE CLASSIFIE PAS les ingrédients — c\'est fait automatiquement par le système. NE RASSURE PAS l\'utilisateur sur les ingrédients transformés. Écris TOUT (noms et descriptions) en FRANÇAIS UNIQUEMENT — traduis tout terme anglais d\'abord, aucun mot anglais autorisé.',
-              ko: '라벨의 모든 성분을 읽고 각 성분에 대해 솔직하고 교육적인 설명을 작성하세요. 성분을 분류하지 마세요 — 분류는 시스템이 자동으로 합니다. 가공 성분에 대해 사용자를 안심시키지 마세요. 모든 것(성분명과 설명)을 한국어로만 작성하세요.',
+              en: 'Read every ingredient on the label and write a FRANK, EDUCATIONAL description for each. DO NOT classify ingredients — that is done automatically by the system. DO NOT reassure the user about processed ingredients. Write EVERYTHING (names and descriptions) in ENGLISH ONLY — translate any French term first, no French word allowed. For objet_identifie: NEVER name the product after its first ingredient — give the everyday store-bought product name deduced from the WHOLE ingredient list (oil + egg + vinegar = "Mayonnaise", never "Canola oil sauce").',
+              fr: 'Lis chaque ingrédient de l\'étiquette et écris une description FRANCHE et PÉDAGOGIQUE pour chacun. NE CLASSIFIE PAS les ingrédients — c\'est fait automatiquement par le système. NE RASSURE PAS l\'utilisateur sur les ingrédients transformés. Écris TOUT (noms et descriptions) en FRANÇAIS UNIQUEMENT — traduis tout terme anglais d\'abord, aucun mot anglais autorisé. Pour objet_identifie : ne nomme JAMAIS le produit d\'après son premier ingrédient — donne le nom courant du produit déduit de TOUTE la liste (huile + œuf + vinaigre = « Mayonnaise », jamais « Sauce à l\'huile de colza »).',
+              ko: '라벨의 모든 성분을 읽고 각 성분에 대해 솔직하고 교육적인 설명을 작성하세요. 성분을 분류하지 마세요 — 분류는 시스템이 자동으로 합니다. 가공 성분에 대해 사용자를 안심시키지 마세요. 성분명("nom")은 반드시 「한국어명 (English name)」 형식(예: "카놀라유 (Canola Oil)")으로, 설명은 100% 한국어로 작성하세요. objet_identifie: 제품 이름을 첫 번째 성분으로 짓지 마세요 — 전체 성분 목록에서 유추한 일상적인 제품명을 한국어로 쓰세요 (기름 + 달김 + 식초 = "마요네즈").',
             })
           },
           ...(hasOcrIngredients ? [] : [{ type: 'image' as const, image: imageBase64 }]),
@@ -1610,6 +1642,41 @@ function sanitizeProductName(rawName: string, category: ProductCategory): string
   return rawName.trim();
 }
 
+// Name heads that reveal a "first-ingredient" name (fr/en/ko), after normalizeForLookup.
+const INGREDIENT_DERIVED_NAME_REGEX = /^(sauce\s+(a\s+l\s+)?huile|huile\s+de|canola|colza\b)|\boil\s+sauce\b|^(카놀라유|식용유)/;
+// Generic WRONG-TYPE guesses the model makes for a mayo label (never real brand names).
+const WRONG_TYPE_MAYO_GUESS_REGEX = /^(egg salad|oeufs? en salade|salade\s+d\s*oeufs?|salad dressing|creamy dressing|dressing|vinaigrette|sauce|sauce cremeuse|condiment|샐러드드레싱|드레싱|소스)$/;
+// Caesar-style markers: with these present the product may genuinely be a dressing.
+const CAESAR_MARKERS_REGEX = /(anchovy|anchois|parmesan|caesar|cesar|안초비|파마산|시저)/;
+
+/**
+ * Deterministic safety net for the "first-ingredient trap": when the photo only shows
+ * the ingredient list, the model sometimes names the product after its 1st ingredient
+ * (a mayonnaise becoming "Canola oil sauce" / "Sauce à l'huile de colza"). If the name
+ * looks ingredient-derived AND the ingredient signature unambiguously identifies an
+ * emulsified egg sauce (oil + egg + vinegar/lemon = mayonnaise), rename it — so the
+ * verdict card AND the alternatives search work on the TRUE product type. Real brand
+ * names and names already containing "mayo" are never touched.
+ */
+function fixIngredientDerivedName(rawName: string, substances: SubstanceDetected[], category: ProductCategory): string {
+  if (category !== 'food') return rawName;
+  const name = normalizeForLookup(rawName);
+  if (!name || /(mayo|마요)/.test(name)) return rawName;
+
+  const joined = substances.map((s) => normalizeForLookup(s.nom)).join(' | ');
+  const hasOil = /(huile|\boils?\b|카놀라유|식용유|오일)/.test(joined);
+  const hasEgg = /(oeuf|\beggs?\b|egg yolk|달김|계란|난황)/.test(joined);
+  const hasAcid = /(vinaigre|vinegar|citron|lemon|식초|레몬)/.test(joined);
+  if (!(hasOil && hasEgg && hasAcid)) return rawName;
+
+  const equalsAnIngredient = substances.some((s) => normalizeForLookup(s.nom) === name);
+  const wrongTypeGuess = WRONG_TYPE_MAYO_GUESS_REGEX.test(name) && !CAESAR_MARKERS_REGEX.test(joined);
+  if (!equalsAnIngredient && !INGREDIENT_DERIVED_NAME_REGEX.test(name) && !wrongTypeGuess) return rawName;
+
+  console.log('[Naming] Ingredient-derived name "' + rawName + '" + mayonnaise signature → renamed');
+  return pick({ fr: 'Mayonnaise', en: 'Mayonnaise', ko: '마요네즈' });
+}
+
 /** Assemble a full UniversalAnalysisResult from classified substances + product meta. */
 function assembleResult(
   meta: { categorie_produit: ProductCategory; objet_identifie: string; materiau_detecte: string; erreur?: string },
@@ -1648,7 +1715,10 @@ function assembleResult(
       : generateRecommendations(badge_global, sorted);
   return {
     categorie_produit: meta.categorie_produit,
-    objet_identifie: sanitizeProductName(meta.objet_identifie, meta.categorie_produit),
+    objet_identifie: sanitizeProductName(
+      fixIngredientDerivedName(meta.objet_identifie, sorted, meta.categorie_produit),
+      meta.categorie_produit,
+    ),
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
     badge_global,

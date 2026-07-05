@@ -792,6 +792,9 @@ export default function ProductScreen() {
       badIngredients,
       verdictTier: tier,
       productCategory: product.productCategory,
+      // Full label ingredients — lets the AI infer the TRUE product type (e.g.
+      // oil + egg yolk + vinegar = mayonnaise) even when the scanned name is off.
+      ingredients: (product.substances ?? []).map(s => s.nom),
     });
     if (alternatives.length > 0) {
       setRealAlternatives(alternatives);
