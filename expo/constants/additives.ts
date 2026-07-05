@@ -521,11 +521,6 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e392', name: 'Extrait de romarin', group: 'none', category: 'food', description: 'Antioxydant naturel, sûr.' },
 ];
 
-export function findAdditiveByCode(code: string): AdditiveInfo | undefined {
-  const normalized = code.toLowerCase().replace(/\s/g, '');
-  return ADDITIVES_DATABASE.find(a => a.code === normalized);
-}
-
 /**
  * Normalize a name for fuzzy matching (lowercase, strip accents, parentheses,
  * non-alphanumeric chars).
@@ -606,35 +601,6 @@ export function productCategoryToAdditiveCategory(cat?: ProductCategory): Additi
     case 'beverage':
     default:               return 'food';
   }
-}
-
-export function analyzeAdditives(additiveTags: string[]): { riskGroup: RiskGroup; detectedAdditives: AdditiveInfo[] } {
-  const detected: AdditiveInfo[] = [];
-
-  for (const tag of additiveTags) {
-    const additive = findAdditiveByCode(tag);
-    if (additive) {
-      detected.push(additive);
-    }
-  }
-
-  const groupPriority: Record<RiskGroup, number> = { group1: 3, group2a: 2, group2b: 1, none: 0 };
-  let worstGroup: RiskGroup = 'none';
-  for (const additive of detected) {
-    if (groupPriority[additive.group] > groupPriority[worstGroup]) {
-      worstGroup = additive.group;
-    }
-  }
-
-  // Règle cumulative : si 4+ additifs ORANGE détectés, garde ORANGE
-  // (PAS d'upgrade automatique vers ORANGE si juste des JAUNES)
-  const orangeCount = detected.filter(a => a.group === 'group2a').length;
-  if (orangeCount >= 4 && groupPriority[worstGroup] < groupPriority['group2a']) {
-    worstGroup = 'group2a';
-    console.log('[Additives] Cumulative rule: 4+ ORANGE additives detected, keeping ORANGE');
-  }
-
-  return { riskGroup: worstGroup, detectedAdditives: detected };
 }
 
 /**

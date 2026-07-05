@@ -337,26 +337,6 @@ export function verdictTierFromProduct(product: {
   }
 }
 
-/**
- * Legacy RiskGroup derived from the LIVE-recomputed verdict tier — keeps history
- * colors, filters and stats consistent with the product-page verdict under the
- * latest rules (old scans included).
- */
-export function riskGroupFromProduct(product: {
-  verdictTier?: VerdictTier;
-  riskGroup: RiskGroup;
-  productCategory?: ProductCategory;
-  detectedIngredients?: { niveau_risque: RiskLevel; classification_circ?: string | null }[];
-}): RiskGroup {
-  switch (verdictTierFromProduct(product)) {
-    case 'carcinogenic':
-    case 'ultra_toxic': return 'group1';
-    case 'processed': return 'group2a';
-    case 'moderation': return 'group2b';
-    default: return 'none';
-  }
-}
-
 // ═══════════════════════════════════════════════════════════════════════
 // COSMÉTIQUE — moteur d'analyse SÉPARÉ (🟣 TOXIC / 🟡 DISPUTED / 🟢 APPROVED)
 // La détection (looksLikeCosmetic) route un produit cosmétique vers ce moteur

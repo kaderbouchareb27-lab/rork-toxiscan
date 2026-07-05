@@ -1,5 +1,3 @@
-import type { RiskGroup } from '@/types';
-
 export type DrToxiVerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
 
 export const DR_TOXI_DEFAULT_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
@@ -54,23 +52,5 @@ export function getDrToxiAvatarForTier(tier: 'approved' | 'moderation' | 'proces
     case 'moderation': return DR_TOXI_BADGE_AVATARS.moderation;
     case 'approved':
     default: return DR_TOXI_BADGE_AVATARS.approuve;
-  }
-}
-
-/**
- * Maps saved scan risk groups to the matching Dr. Toxi badge avatar.
- */
-export function getDrToxiBadgeAvatarForRiskGroup(group: RiskGroup): string | null {
-  switch (group) {
-    case 'group1':
-      return DR_TOXI_BADGE_AVATARS.danger;
-    case 'group2a':
-      return DR_TOXI_BADGE_AVATARS.warning;
-    case 'group2b':
-      return DR_TOXI_BADGE_AVATARS.moderation;
-    case 'none':
-      return DR_TOXI_BADGE_AVATARS.approuve;
-    default:
-      return null;
   }
 }

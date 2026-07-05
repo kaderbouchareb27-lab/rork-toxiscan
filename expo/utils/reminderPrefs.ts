@@ -97,5 +97,3 @@ export function formatTime(hour: number, minute: number): string {
   const m = clampInt(minute, 0, 59, 0).toString().padStart(2, '0');
   return `${h}:${m}`;
 }
-
-export const REMINDER_SLOTS: ReminderSlot[] = ['morning', 'noon', 'evening'];

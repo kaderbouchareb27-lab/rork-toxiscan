@@ -159,16 +159,6 @@ export async function syncMealReminders(meals: { scannedAt: string }[]): Promise
   }
 }
 
-/** Cancels every scheduled reminder (e.g. when the user goes Pro and prefers silence). */
-export async function cancelAllMealReminders(): Promise<void> {
-  if (!isNative) return;
-  try {
-    await Notifications.cancelAllScheduledNotificationsAsync();
-  } catch (e) {
-    console.log('[Notifications] cancelAll failed:', e);
-  }
-}
-
 /**
  * Presents an immediate local notification for NonToxic Hub activity (new posts or
  * new replies detected while the app is running). Silent no-op when notification

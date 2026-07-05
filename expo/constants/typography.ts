@@ -9,9 +9,3 @@ export const Fonts = {
   bold: 'DMSans_700Bold',
   extraBold: 'DMSans_800ExtraBold',
 };
-
-export const LetterSpacing = {
-  tightTitle: -0.6,
-  title: -0.4,
-  body: 0,
-};
