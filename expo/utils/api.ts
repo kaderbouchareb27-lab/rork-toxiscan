@@ -236,42 +236,52 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
  * Computes the 5-tier verdict for a FOOD product using STRICT count-based rules.
  * The verdict can never be harsher than what the ingredient badges justify.
  *
+ * "Orange" = every ingredient shown with the orange INDUSTRIAL badge
+ * (niveau_risque 'probable'), INCLUDING those also flagged IARC 2A/2B — exactly
+ * what the user counts on screen. "Yellow" = the DISPUTED badge ('possible').
+ *
  * Rules (least → most severe):
  * - APPROVED 🟢     : 0 orange AND ≤ 2 yellows (a couple of yellows = still green,
  *   the green accumulation wins).
- * - MODERATION 🟡   : 1–4 oranges (whatever the rest) OR 3+ yellows without orange.
- * - PROCESSED 🟠    : RESERVED — requires AT LEAST 5 orange (ultra-processed)
- *   ingredients. 1 orange + 1 yellow can NEVER be Processed.
- * - ULTRA TOXIC 🟥  : G2A ≥ 1 OU G2B ≥ 2 OU UP ≥ 10 — really concerning,
+ * - MODERATION 🟡   : exactly 1 orange (whatever the rest) OR 3+ yellows without orange.
+ * - PROCESSED 🟠    : 2+ orange (ultra-processed) ingredients — 2 oranges already make
+ *   a product Processed, whatever the greens around them.
+ * - ULTRA TOXIC 🟥  : G2A ≥ 1 OU G2B ≥ 2 OU orange ≥ 10 — really concerning,
  *   one step below a confirmed carcinogen (bordeaux #722F37).
  * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed IARC Group 1 only — never inflated with 2A/2B).
  *
  * Examples: 1 orange + 1 yellow + 5 greens → MODERATION. 2 yellows + greens → APPROVED.
- * 3 yellows → MODERATION. 5 oranges → PROCESSED.
+ * 3 yellows → MODERATION. 2 oranges → PROCESSED. 5 oranges → PROCESSED.
  */
-const PROCESSED_MIN_UP = 5;
+const PROCESSED_MIN_ORANGE = 2;
+const ULTRA_TOXIC_MIN_ORANGE = 10;
 const MODERATION_MIN_WATCH = 3;
 
 export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
   const c = countBuckets(substances);
+  // Count the badges EXACTLY as they appear on screen: every 'probable' ingredient
+  // shows the orange INDUSTRIAL badge (even when also flagged IARC 2A/2B, which the
+  // bucket counters split out). This is what the user physically counts.
+  const orange = substances.filter((s) => s.niveau_risque === 'probable').length;
+  const yellow = substances.filter((s) => s.niveau_risque === 'possible').length;
 
   if (c.g1 >= 1) {
     console.log('[Tier] CARCINOGENIC — G1:', c.g1);
     return 'carcinogenic';
   }
-  if (c.g2a >= 1 || c.g2b >= 2 || c.up >= 10) {
-    console.log('[Tier] ULTRA_TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'UP:', c.up);
+  if (c.g2a >= 1 || c.g2b >= 2 || orange >= ULTRA_TOXIC_MIN_ORANGE) {
+    console.log('[Tier] ULTRA_TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'ORANGE:', orange);
     return 'ultra_toxic';
   }
-  if (c.up >= PROCESSED_MIN_UP) {
-    console.log('[Tier] PROCESSED — UP:', c.up, '(threshold', PROCESSED_MIN_UP + ')');
+  if (orange >= PROCESSED_MIN_ORANGE) {
+    console.log('[Tier] PROCESSED — ORANGE:', orange, '(threshold', PROCESSED_MIN_ORANGE + ')');
     return 'processed';
   }
-  if (c.up >= 1 || c.watch >= MODERATION_MIN_WATCH) {
-    console.log('[Tier] MODERATION — UP:', c.up, 'WATCH:', c.watch, 'SAFE:', c.safe);
+  if (orange >= 1 || yellow >= MODERATION_MIN_WATCH) {
+    console.log('[Tier] MODERATION — ORANGE:', orange, 'YELLOW:', yellow, 'SAFE:', c.safe);
     return 'moderation';
   }
-  console.log('[Tier] APPROVED — WATCH:', c.watch, 'SAFE:', c.safe);
+  console.log('[Tier] APPROVED — YELLOW:', yellow, 'SAFE:', c.safe);
   return 'approved';
 }
 
