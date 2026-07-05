@@ -108,6 +108,10 @@ export interface ScannedProduct {
 export interface HealthyAlternative {
   nom: string;
   raison: string;
+  /** Real store where this exact product can be bought (e.g. "Walmart", "Target", "Carrefour"). */
+  magasin?: string;
+  /** Direct URL to a real packaging photo of the product, found via web search. */
+  imageUrl?: string;
 }
 
 export interface ChatMessage {

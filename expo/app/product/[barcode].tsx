@@ -36,6 +36,7 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
 import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected, VerdictTier } from '@/types';
 import { getCategoryLabel, generateBarcodeAlternatives, verdictTierFromProduct } from '@/utils/api';
+import { findRealAlternative } from '@/utils/realAlternatives';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { getProfileScanAlerts } from '@/utils/healthProfile';
 import { detectRegion, getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRegionCleanBrands, getRegionLocalMarkets } from '@/utils/regionDetection';
@@ -730,6 +731,9 @@ export default function ProductScreen() {
   const shareCardRef = useRef<View>(null);
   const [isShareLoading, setIsShareLoading] = useState<boolean>(false);
   const hasRequestedReview = useRef<boolean>(false);
+  const [realAlternative, setRealAlternative] = useState<HealthyAlternative | null>(null);
+  const [isFindingRealAlternative, setIsFindingRealAlternative] = useState<boolean>(false);
+  const [realAlternativeError, setRealAlternativeError] = useState<boolean>(false);
 
   const product = useMemo(() => {
     return history.find(p => p.barcode === barcode);
@@ -1003,6 +1007,30 @@ export default function ProductScreen() {
   })();
 
   const showAlternatives = !isGreen && healthyAlternatives.length > 0;
+
+  const productTier = verdictTierFromProduct(product);
+  const canFindRealAlternative = !isCosmetic && (productTier === 'processed' || productTier === 'ultra_toxic' || productTier === 'carcinogenic');
+
+  const handleFindRealAlternative = async () => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsFindingRealAlternative(true);
+    setRealAlternativeError(false);
+    const badIngredients = (product.substances ?? [])
+      .filter(s => s.niveau_risque === 'danger' || s.niveau_risque === 'probable')
+      .map(s => s.nom);
+    const { alternative, error } = await findRealAlternative({
+      productName: product.name,
+      badIngredients,
+      verdictTier: productTier,
+    });
+    if (alternative) {
+      setRealAlternative(alternative);
+    } else {
+      setRealAlternativeError(true);
+      console.log('[product] findRealAlternative failed:', error);
+    }
+    setIsFindingRealAlternative(false);
+  };
 
   const isNonFood = additiveCategory !== 'food';
 
@@ -1351,6 +1379,60 @@ export default function ProductScreen() {
           </View>
         )}
 
+        {canFindRealAlternative && (
+          <View style={styles.section}>
+            <View style={styles.sectionTitleRow}>
+              <Store color={Colors.safe} size={18} />
+              <Text style={styles.sectionTitle}>
+                {pick({ en: 'A real alternative in stores', fr: 'Une vraie alternative en magasin', ko: '매장에서 찾을 수 있는 실제 대안' })}
+              </Text>
+            </View>
+            {!realAlternative ? (
+              <TouchableOpacity
+                style={[styles.enableLocationButton, isFindingRealAlternative && styles.bigShareButtonLoading]}
+                onPress={handleFindRealAlternative}
+                activeOpacity={0.85}
+                disabled={isFindingRealAlternative}
+                testID="find-real-alternative-button"
+              >
+                {isFindingRealAlternative ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Store color="#FFFFFF" size={15} />
+                )}
+                <Text style={styles.enableLocationText}>
+                  {isFindingRealAlternative
+                    ? pick({ en: 'Searching the web…', fr: 'Recherche en cours…', ko: '검색 중…' })
+                    : pick({ en: 'Find a real alternative', fr: 'Voir une vraie alternative', ko: '실제 대안 찾기' })}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.healthyAlternativesCard}>
+                <View style={styles.healthyAlternativesCardInner}>
+                  {realAlternative.imageUrl ? (
+                    <Image source={{ uri: realAlternative.imageUrl }} style={styles.realAltImage} contentFit="contain" />
+                  ) : null}
+                  <View style={styles.realAltTextWrap}>
+                    <Text style={styles.realAltName}>{realAlternative.nom}</Text>
+                    {realAlternative.magasin ? (
+                      <View style={styles.realAltStoreRow}>
+                        <Store color="#2E9E34" size={13} />
+                        <Text style={styles.realAltStore}>{realAlternative.magasin}</Text>
+                      </View>
+                    ) : null}
+                    <Text style={styles.realAltReason}>{realAlternative.raison}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+            {realAlternativeError ? (
+              <Text style={styles.realAltErrorText}>
+                {pick({ en: "Couldn't find a verified alternative right now — try again in a moment.", fr: "Aucune alternative vérifiée trouvée pour l'instant — réessaie dans un instant.", ko: '지금은 확인된 대안을 찾지 못했어요 — 잠시 후 다시 시도해 주세요.' })}
+              </Text>
+            ) : null}
+          </View>
+        )}
+
         <TouchableOpacity
           style={[styles.bigShareButton, isGreen && styles.bigShareButtonGreen, isShareLoading && styles.bigShareButtonLoading]}
           onPress={handleShare} activeOpacity={0.85} testID="big-share-button" disabled={isShareLoading}
@@ -1468,6 +1550,13 @@ const styles = StyleSheet.create({
   alternativeText: { fontSize: 14, color: Colors.text, lineHeight: 20, flex: 1 },
   healthyAlternativesCard: { backgroundColor: '#F0FAF3', borderRadius: 16, padding: 4, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)', overflow: 'hidden' as const },
   healthyAlternativesCardInner: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)', overflow: 'hidden' as const, marginBottom: 6 },
+  realAltImage: { width: '100%' as const, height: 160, backgroundColor: '#F7F7F5' },
+  realAltTextWrap: { padding: 14, gap: 6 },
+  realAltName: { fontSize: 15, fontWeight: '700' as const, color: Colors.text },
+  realAltStoreRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5 },
+  realAltStore: { fontSize: 13, fontWeight: '600' as const, color: '#2E9E34' },
+  realAltReason: { fontSize: 13.5, lineHeight: 19, color: Colors.textSecondary },
+  realAltErrorText: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 6 },
   healthyAltItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, padding: 14, gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(46, 158, 52, 0.18)' },
   healthyAltBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center' as const, alignItems: 'center' as const, marginTop: 2 },
   healthyAltContent: { flex: 1 },
