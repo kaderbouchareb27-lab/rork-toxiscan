@@ -21,6 +21,15 @@ import { DR_TOXI_BADGE_AVATARS, DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/d
 
 const BARCODE_BARS: number[] = [2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1];
 
+/** The full 5-tier verdict hierarchy shown as a scale on the intro (best → worst). */
+const VERDICT_SCALE = [
+  { key: 'approved', color: '#2E9E34', labelKey: 'filter_approved' },
+  { key: 'moderation', color: '#EAB308', labelKey: 'filter_caution' },
+  { key: 'processed', color: '#E8730A', labelKey: 'filter_warning' },
+  { key: 'ultra_toxic', color: '#722F37', labelKey: 'filter_ultra_toxic' },
+  { key: 'carcinogenic', color: '#D0260F', labelKey: 'filter_danger' },
+] as const;
+
 export default function OnboardingScreen() {
   const { completeOnboarding, hasSeenMealOnboarding } = useOnboarding();
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -157,6 +166,18 @@ export default function OnboardingScreen() {
                   <Leaf color={Colors.primary} size={17} strokeWidth={2.4} />
                   <Text style={styles.greenSignal}>{pick({ fr: 'Alternative saine', en: 'Cleaner swap', ko: '더 건강한 대안' })}</Text>
                 </View>
+              </View>
+            </View>
+
+            <View style={styles.scaleBlock}>
+              <Text style={styles.scaleTitle}>{pick({ fr: 'LES 5 NIVEAUX DR. TOXI', en: 'THE 5 DR. TOXI LEVELS', ko: 'DR. TOXI 5단계' })}</Text>
+              <View style={styles.scaleRow}>
+                {VERDICT_SCALE.map((lvl) => (
+                  <View key={lvl.key} style={styles.scaleItem}>
+                    <View style={[styles.scaleDot, { backgroundColor: lvl.color }]} />
+                    <Text style={styles.scaleLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{t(lvl.labelKey)}</Text>
+                  </View>
+                ))}
               </View>
             </View>
 
@@ -356,6 +377,12 @@ const styles = StyleSheet.create({
   miniAvatar: { width: 30, height: 30 },
   redSignal: { flex: 1, fontSize: 11.5, fontWeight: '900' as const, color: Colors.danger, letterSpacing: 0.1 },
   greenSignal: { flex: 1, fontSize: 11.5, fontWeight: '900' as const, color: Colors.primary, letterSpacing: 0.1 },
+  scaleBlock: { marginTop: 20, paddingHorizontal: 2 },
+  scaleTitle: { fontSize: 11, fontWeight: '900' as const, color: Colors.textSecondary, letterSpacing: 1, textAlign: 'center' as const, marginBottom: 12 },
+  scaleRow: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, gap: 4 },
+  scaleItem: { flex: 1, alignItems: 'center' as const, gap: 6 },
+  scaleDot: { width: 16, height: 16, borderRadius: 8 },
+  scaleLabel: { fontSize: 8.5, fontWeight: '900' as const, color: Colors.text, letterSpacing: 0.1, textAlign: 'center' as const },
   promiseRow: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, justifyContent: 'center' as const, gap: 8, marginTop: 18 },
   promiseChip: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.82)', borderWidth: 1, borderColor: Colors.borderLight },
   promiseText: { fontSize: 12.5, fontWeight: '800' as const, color: Colors.text },

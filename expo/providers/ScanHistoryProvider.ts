@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
-import { ScannedProduct, RiskGroup } from '@/types';
-import { riskGroupFromProduct } from '@/utils/api';
+import { ScannedProduct, VerdictTier } from '@/types';
+import { verdictTierFromProduct } from '@/utils/api';
 
 const STORAGE_KEY = 'toxiscan_history';
 
@@ -75,15 +75,17 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
   }, [history]);
 
   const stats = useMemo(() => {
-    // ✅ Groupes recalculés en direct (mêmes règles que la page produit) pour que
-    // les stats et filtres restent cohérents avec le verdict affiché.
-    const groups = history.map(p => riskGroupFromProduct(p));
+    // ✅ Verdict recalculé en direct (mêmes règles que la page produit) pour que
+    // les stats et filtres restent cohérents avec le verdict affiché. Les 5 niveaux
+    // sont comptés séparément (Ultra Toxique distinct de Cancérigène).
+    const tiers = history.map(p => verdictTierFromProduct(p));
     const total = history.length;
-    const danger = groups.filter(g => g === 'group1').length;
-    const probable = groups.filter(g => g === 'group2a').length;
-    const possible = groups.filter(g => g === 'group2b').length;
-    const safe = groups.filter(g => g === 'none').length;
-    return { total, danger, probable, possible, safe };
+    const carcinogenic = tiers.filter(t => t === 'carcinogenic').length;
+    const ultraToxic = tiers.filter(t => t === 'ultra_toxic').length;
+    const processed = tiers.filter(t => t === 'processed').length;
+    const moderation = tiers.filter(t => t === 'moderation').length;
+    const approved = tiers.filter(t => t === 'approved').length;
+    return { total, carcinogenic, ultraToxic, processed, moderation, approved };
   }, [history]);
 
   return useMemo(() => ({
@@ -100,7 +102,7 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
 
 const FREE_HISTORY_LIMIT = 3;
 
-export function useFilteredHistory(filter: RiskGroup | 'all' | 'favorites', isPro: boolean) {
+export function useFilteredHistory(filter: VerdictTier | 'all' | 'favorites', isPro: boolean) {
   const { history, favorites } = useScanHistory();
   return useMemo(() => {
     if (filter === 'favorites') {
@@ -108,6 +110,6 @@ export function useFilteredHistory(filter: RiskGroup | 'all' | 'favorites', isPr
     }
     const source = isPro ? history : history.slice(0, FREE_HISTORY_LIMIT);
     if (filter === 'all') return source;
-    return source.filter(p => riskGroupFromProduct(p) === filter);
+    return source.filter(p => verdictTierFromProduct(p) === filter);
   }, [history, favorites, filter, isPro]);
 }

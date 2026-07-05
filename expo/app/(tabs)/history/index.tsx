@@ -26,12 +26,12 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
-import { RiskGroup, ScannedProduct } from '@/types';
+import { VerdictTier, ScannedProduct } from '@/types';
 import { t, tf, getDateLocale } from '@/utils/i18n';
-import { getDisplayBrand, riskGroupFromProduct } from '@/utils/api';
-import { getDrToxiBadgeAvatarForRiskGroup } from '@/constants/drToxiAvatars';
+import { getDisplayBrand, verdictTierFromProduct } from '@/utils/api';
+import { getDrToxiAvatarForTier } from '@/constants/drToxiAvatars';
 
-type FilterType = 'all' | 'favorites' | RiskGroup;
+type FilterType = 'all' | 'favorites' | VerdictTier;
 
 type FilterConfig = { key: FilterType; label: string; color?: string };
 
@@ -47,16 +47,17 @@ function getFilters(): FilterConfig[] {
   return [
     { key: 'all', label: t('filter_all'), color: Colors.primary },
     { key: 'favorites', label: t('filter_favorites'), color: '#FF2D55' },
-    { key: 'group1', label: t('filter_danger'), color: '#D0260F' },
-    { key: 'group2a', label: t('filter_warning'), color: '#E8730A' },
-    { key: 'group2b', label: t('filter_caution'), color: '#EAB308' },
-    { key: 'none', label: t('filter_approved'), color: Colors.primary },
+    { key: 'carcinogenic', label: t('filter_danger'), color: '#D0260F' },
+    { key: 'ultra_toxic', label: t('badge_ultra_toxic'), color: '#722F37' },
+    { key: 'processed', label: t('filter_warning'), color: '#E8730A' },
+    { key: 'moderation', label: t('filter_caution'), color: '#EAB308' },
+    { key: 'approved', label: t('filter_approved'), color: Colors.primary },
   ];
 }
 
-function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
-  switch (group) {
-    case 'group1':
+function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation {
+  switch (tier) {
+    case 'carcinogenic':
       return {
         label: t('history_status_carcinogenic'),
         description: t('history_status_carcinogenic_desc'),
@@ -64,7 +65,15 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
         tint: 'rgba(208, 38, 15, 0.10)',
         borderColor: 'rgba(208, 38, 15, 0.22)',
       };
-    case 'group2a':
+    case 'ultra_toxic':
+      return {
+        label: t('badge_ultra_toxic'),
+        description: t('intro_ultra_toxic'),
+        color: '#722F37',
+        tint: 'rgba(114, 47, 55, 0.11)',
+        borderColor: 'rgba(114, 47, 55, 0.26)',
+      };
+    case 'processed':
       return {
         label: t('history_status_ultra_processed'),
         description: t('history_status_ultra_processed_desc'),
@@ -72,7 +81,7 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
         tint: 'rgba(232, 115, 10, 0.11)',
         borderColor: 'rgba(232, 115, 10, 0.24)',
       };
-    case 'group2b':
+    case 'moderation':
       return {
         label: t('history_status_caution'),
         description: t('history_status_caution_desc'),
@@ -80,7 +89,7 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
         tint: 'rgba(234, 179, 8, 0.13)',
         borderColor: 'rgba(234, 179, 8, 0.28)',
       };
-    case 'none':
+    case 'approved':
     default:
       return {
         label: t('history_status_approved'),
@@ -92,10 +101,10 @@ function getHistoryRiskPresentation(group: RiskGroup): HistoryRiskPresentation {
   }
 }
 
-function RiskStatusIcon({ group, color, size = 16 }: { group: RiskGroup; color: string; size?: number }) {
-  const avatarUri = getDrToxiBadgeAvatarForRiskGroup(group);
+function RiskStatusIcon({ tier, color, size = 16 }: { tier: VerdictTier; color: string; size?: number }) {
+  const avatarUri = getDrToxiAvatarForTier(tier);
   if (avatarUri) {
-    const avatarSize = Math.max(size + 12, 26);
+    const avatarSize = Math.max(size + 16, 32);
     return <Image source={{ uri: avatarUri }} style={{ width: avatarSize, height: avatarSize }} contentFit="contain" />;
   }
   return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
@@ -158,7 +167,7 @@ export default function HistoryScreen() {
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
   const totalHistoryCount = history.length;
-  const maxStat = Math.max(stats.danger, stats.probable, stats.possible, stats.safe, 1);
+  const maxStat = Math.max(stats.carcinogenic, stats.ultraToxic, stats.processed, stats.moderation, stats.approved, 1);
   const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
 
   const handleProductPress = useCallback((barcode: string) => {
@@ -200,8 +209,8 @@ export default function HistoryScreen() {
   const renderProduct = useCallback(({ item }: { item: ScannedProduct }) => {
     // ✅ Verdict recalculé en direct depuis les badges d'ingrédients (mêmes règles
     // que la page produit) — les anciens scans suivent automatiquement les nouvelles règles.
-    const displayGroup = riskGroupFromProduct(item);
-    const risk = getHistoryRiskPresentation(displayGroup);
+    const displayTier = verdictTierFromProduct(item);
+    const risk = getHistoryRiskPresentation(displayTier);
     const date = new Date(item.scannedAt);
     const formattedDate = date.toLocaleDateString(getDateLocale(), {
       day: 'numeric',
@@ -250,7 +259,7 @@ export default function HistoryScreen() {
             <View style={styles.metaRow}>
               <View style={[styles.riskMiniBadge, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
 
-                <RiskStatusIcon group={displayGroup} color={risk.color} size={12} />
+                <RiskStatusIcon tier={displayTier} color={risk.color} size={16} />
                 <Text style={[styles.riskMiniText, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
               </View>
               <Text style={styles.dateText}>{formattedDate}</Text>
@@ -264,7 +273,7 @@ export default function HistoryScreen() {
 
         <View style={[styles.statusPanel, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
           <View style={[styles.statusIconBubble, { backgroundColor: Colors.surface, borderColor: risk.borderColor }]}>
-            <RiskStatusIcon group={displayGroup} color={risk.color} size={18} />
+            <RiskStatusIcon tier={displayTier} color={risk.color} size={18} />
           </View>
           <View style={styles.statusCopy}>
             <View style={styles.statusHeaderRow}>
@@ -287,10 +296,11 @@ export default function HistoryScreen() {
         <Text style={styles.statsCardTitle}>{t('statistics')}</Text>
         <Text style={styles.statsCardTotal}>{tf('products_analyzed', stats.total)}</Text>
         <View style={styles.statsBreakdown}>
-          <StatBar label={t('stat_danger')} count={stats.danger} max={maxStat} color="#D0260F" />
-          <StatBar label={t('stat_probable')} count={stats.probable} max={maxStat} color="#E8730A" />
-          <StatBar label={t('stat_possible')} count={stats.possible} max={maxStat} color="#EAB308" />
-          <StatBar label={t('stat_safe')} count={stats.safe} max={maxStat} color="#2E9E34" />
+          <StatBar label={t('stat_danger')} count={stats.carcinogenic} max={maxStat} color="#D0260F" />
+          <StatBar label={t('badge_ultra_toxic')} count={stats.ultraToxic} max={maxStat} color="#722F37" />
+          <StatBar label={t('stat_probable')} count={stats.processed} max={maxStat} color="#E8730A" />
+          <StatBar label={t('stat_possible')} count={stats.moderation} max={maxStat} color="#EAB308" />
+          <StatBar label={t('stat_safe')} count={stats.approved} max={maxStat} color="#2E9E34" />
         </View>
       </View>
     );
@@ -362,7 +372,7 @@ export default function HistoryScreen() {
                 {filter.key === 'favorites' ? (
                   <Heart color={isActive ? Colors.white : '#FF2D55'} size={13} fill={isActive ? Colors.white : '#FF2D55'} strokeWidth={2.4} />
                 ) : isRiskFilter && filter.color ? (
-                  <RiskStatusIcon group={filter.key as RiskGroup} color={isActive ? Colors.white : filter.color} size={13} />
+                  <RiskStatusIcon tier={filter.key as VerdictTier} color={isActive ? Colors.white : filter.color} size={15} />
                 ) : null}
                 <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
                   {filter.label}

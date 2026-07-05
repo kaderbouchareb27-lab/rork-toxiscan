@@ -104,6 +104,7 @@ const translations = {
   filter_warning: { fr: 'Transformé', en: 'Processed', ko: '가공' },
   filter_caution: { fr: 'Modération', en: 'Occasional', ko: '주의' },
   filter_moderation: { fr: 'Modération', en: 'Occasional', ko: '주의' },
+  filter_ultra_toxic: { fr: 'Ultra toxique', en: 'Ultra toxic', ko: '초독성' },
   filter_approved: { fr: 'Approuvé', en: 'Approved', ko: '승인됨' },
   clear_history_title: { fr: "Effacer l'historique", en: 'Clear history', ko: '기록 삭제' },
   clear_history_msg: { fr: "Voulez-vous vraiment supprimer tout l'historique de vos scans ?", en: 'Do you really want to delete all your scan history?', ko: '모든 스캔 기록을 정말 삭제하시겠습니까?' },
