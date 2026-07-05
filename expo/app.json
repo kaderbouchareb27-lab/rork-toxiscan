@@ -18,7 +18,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "app.rork.toxis",
       "appleTeamId": "X8MBSD9JM3",
-      "buildNumber": "24",
+      "buildNumber": "25",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "en",
         "CFBundleLocalizations": ["en", "fr", "ko"],
