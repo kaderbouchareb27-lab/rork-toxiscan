@@ -1,4 +1,4 @@
-import { HealthyAlternative } from '@/types';
+import { HealthyAlternative, ProductCategory } from '@/types';
 import { getResponseLanguage, getResponseStoreRegion, getLanguageInstruction, getRegionStoreContext } from '@/utils/regionDetection';
 
 const TOOLKIT_URL = process.env.EXPO_PUBLIC_TOOLKIT_URL;
@@ -158,12 +158,27 @@ export function getCachedRealAlternatives(productName: string, verdictTier: stri
   return alternativesCache.get(cacheKey(productName, verdictTier)) ?? null;
 }
 
-function buildPrompt(params: { productName: string; badIngredients: string[]; verdictTier: string }): string {
+/**
+ * The single most important constraint: an alternative must be the SAME KIND of
+ * product, consumed the exact same way, only cleaner. A beverage can only be
+ * replaced by another beverage — never a bar, snack, or powder. This phrasing is
+ * what stops the model from latching onto a keyword ("protein", "whey") and
+ * suggesting the wrong format (e.g. protein bars for a protein drink).
+ */
+function describeFormat(category?: ProductCategory): string {
+  if (category === 'beverage') {
+    return `"${'{PRODUCT}'}" is a DRINK / BEVERAGE — it is CONSUMED BY DRINKING. Every single alternative MUST also be a drink you consume by drinking (a cleaner bottled or canned beverage, protein drink/shake, sparkling water, juice, kombucha, etc.). NEVER suggest a bar, snack, powder, chocolate, or anything that is EATEN rather than drunk.`;
+  }
+  return `Match the EXACT sub-type of "${'{PRODUCT}'}" and how it is consumed: chips → chips, chocolate → chocolate, cereal → cereal, yogurt → yogurt, cookies → cookies, cooking oil → a better cooking oil, sauce → sauce, soda → a cleaner sparkling drink. Never swap it for a different kind of food (e.g. never "eat fruit instead of chips").`;
+}
+
+function buildPrompt(params: { productName: string; badIngredients: string[]; verdictTier: string; productCategory?: ProductCategory }): string {
   const language = getResponseLanguage();
   const region = getResponseStoreRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
   const worstIngredients = params.badIngredients.slice(0, 5).join(', ') || 'none listed';
+  const formatConstraint = describeFormat(params.productCategory).replace(/\{PRODUCT\}/g, params.productName);
 
   return `You are helping a user of a food-scanning app find real, currently sold, healthier alternatives to a product they just scanned.
 
@@ -173,10 +188,16 @@ PROBLEMATIC INGREDIENTS: ${worstIngredients}
 
 ${storeContext}
 
-Search the web and find ${MAX_ALTERNATIVES} real, specific, currently-available products (exact brand name + exact product name, each from a DIFFERENT brand) sold at the stores listed above, that are genuinely cleaner alternatives to "${params.productName}". If you can only verify 1 or 2 real products, return only those — never invent one to fill the list. STRICT RULES for every alternative:
-1. SAME product category and use-case — chocolate must be replaced by chocolate, chips by chips, soda by a sparkling drink, cereal by cereal, salad dressing by salad dressing. Never suggest a different food type (e.g. never "eat fruit instead of chocolate").
-2. Genuinely cleaner ingredient list — no IARC-classified ingredients, no artificial flavors/colors/sweeteners, fewer and simpler ingredients overall. Prefer better fats when relevant (e.g. olive or avocado oil instead of refined sunflower/canola/palm oil).
-3. It MUST be a real product that exists right now at one of the listed stores — never invent a brand or a fictional product.
+Search the web and find ${MAX_ALTERNATIVES} real, specific, currently-available products (exact brand name + exact product name, each from a DIFFERENT brand) sold at the stores listed above, that are genuinely cleaner alternatives to "${params.productName}".
+
+#1 RULE — SAME KIND OF PRODUCT, SAME FORMAT (most important, never break this):
+Every alternative must be the SAME type of product as "${params.productName}", consumed the exact same way — only with a cleaner ingredient list. ${formatConstraint}
+Before finalizing, re-check EACH alternative: is it consumed the same way (drunk vs eaten) and is it truly the same kind of product? If not, discard it and find one that is.
+
+OTHER RULES:
+- Genuinely cleaner ingredient list — no IARC-classified ingredients, no artificial flavors/colors/sweeteners, fewer and simpler ingredients overall. Prefer better fats when relevant (e.g. olive or avocado oil instead of refined sunflower/canola/palm oil).
+- It MUST be a real product that exists right now at one of the listed stores — never invent a brand or a fictional product.
+- If you can only verify 1 or 2 real SAME-FORMAT products, return only those — never invent one, and NEVER pad the list with a different kind of product just to reach ${MAX_ALTERNATIVES}.
 
 For imageUrl: only include a DIRECT packaging photo URL if you actually found one from images.openfoodfacts.org, a brand's official website, or m.media-amazon.com (grocery retailer CDNs like metro.ca / walmart / target block mobile apps). Use empty string if unsure — never guess a URL.
 
@@ -233,6 +254,7 @@ export async function findRealAlternatives(params: {
   productName: string;
   badIngredients: string[];
   verdictTier: string;
+  productCategory?: ProductCategory;
 }): Promise<RealAlternativesResult> {
   if (!TOOLKIT_URL || !SECRET_KEY) {
     return { alternatives: [], error: 'missing_config' };

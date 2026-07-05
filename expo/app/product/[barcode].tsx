@@ -791,6 +791,7 @@ export default function ProductScreen() {
       productName: product.name,
       badIngredients,
       verdictTier: tier,
+      productCategory: product.productCategory,
     });
     if (alternatives.length > 0) {
       setRealAlternatives(alternatives);
