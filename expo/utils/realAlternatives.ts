@@ -11,23 +11,58 @@ const gateway = createGateway({
   apiKey: SECRET_KEY,
 });
 
-// Claude Opus 4.8 — Anthropic's newest flagship, tool-use + native web search built in.
-// Picked for real-world accuracy on "does this exact product exist at this exact store"
-// rather than the cheaper Haiku/Sonnet tiers, since a wrong brand/store here is worse
-// than a slower answer.
-const MODEL_ID = 'anthropic/claude-opus-4.8';
+/**
+ * Two-attempt strategy for reliability on-device: the flagship Opus model first
+ * (best real-world accuracy on "does this exact product exist at this exact
+ * store"), then Sonnet as a faster fallback if Opus times out or errors.
+ * Both support Anthropic's native web search.
+ */
+const ATTEMPTS: { readonly model: string; readonly timeoutMs: number; readonly maxSearches: number }[] = [
+  { model: 'anthropic/claude-opus-4.8', timeoutMs: 55000, maxSearches: 6 },
+  { model: 'anthropic/claude-sonnet-5', timeoutMs: 45000, maxSearches: 5 },
+];
 
-/** Loose parse of a fenced or raw JSON object out of a model's text reply. */
-function extractJson<T>(text: string): T | null {
+const MAX_ALTERNATIVES = 3;
+
+interface RawAlternative {
+  nom?: string;
+  magasin?: string;
+  raison?: string;
+  imageUrl?: string;
+  searchName?: string;
+}
+
+/**
+ * Tolerant JSON extraction: handles fenced blocks, preamble text before the
+ * JSON, a top-level {"alternatives":[...]} object, a bare array, or a single
+ * object (legacy single-alternative shape).
+ */
+function parseAlternatives(text: string): RawAlternative[] {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const raw = fenced ? fenced[1] : text;
-  const start = raw.indexOf('{');
-  const end = raw.lastIndexOf('}');
-  if (start === -1 || end === -1 || end <= start) return null;
+  const raw = (fenced ? fenced[1] : text).trim();
+
+  const objStart = raw.indexOf('{');
+  const arrStart = raw.indexOf('[');
+
+  let candidate = '';
+  if (arrStart !== -1 && (objStart === -1 || arrStart < objStart)) {
+    candidate = raw.slice(arrStart, raw.lastIndexOf(']') + 1);
+  } else if (objStart !== -1) {
+    candidate = raw.slice(objStart, raw.lastIndexOf('}') + 1);
+  }
+  if (!candidate) return [];
+
   try {
-    return JSON.parse(raw.slice(start, end + 1)) as T;
+    const parsed: unknown = JSON.parse(candidate);
+    if (Array.isArray(parsed)) return parsed as RawAlternative[];
+    if (parsed && typeof parsed === 'object') {
+      const obj = parsed as { alternatives?: unknown } & RawAlternative;
+      if (Array.isArray(obj.alternatives)) return obj.alternatives as RawAlternative[];
+      if (typeof obj.nom === 'string') return [obj];
+    }
+    return [];
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -87,33 +122,49 @@ async function findOpenFoodFactsImage(productName: string): Promise<string | nul
   }
 }
 
-export interface RealAlternativeResult {
-  alternative: HealthyAlternative | null;
+/** Resolves the best displayable photo for one alternative (model URL → OFF fallback → none). */
+async function resolveImage(alt: RawAlternative): Promise<string | undefined> {
+  let imageUrl = (alt.imageUrl ?? '').trim();
+  if (imageUrl && !(await isImageReachable(imageUrl))) {
+    imageUrl = '';
+  }
+  if (!imageUrl) {
+    const searchName = (alt.searchName ?? '').trim() || (alt.nom ?? '').trim();
+    if (searchName) {
+      imageUrl = (await findOpenFoodFactsImage(searchName)) ?? '';
+    }
+  }
+  return imageUrl || undefined;
+}
+
+export interface RealAlternativesResult {
+  alternatives: HealthyAlternative[];
   error?: string;
 }
 
-/**
- * Finds ONE real, currently-sold alternative product (specific brand, specific store,
- * with a real packaging photo when findable) for a product that scored badly. Uses
- * Claude's native web search so the result reflects the actual current market, not the
- * app's static ingredient database. On-demand only (called from a button tap).
- */
-export async function findRealAlternative(params: {
-  productName: string;
-  badIngredients: string[];
-  verdictTier: string;
-}): Promise<RealAlternativeResult> {
-  if (!TOOLKIT_URL || !SECRET_KEY) {
-    return { alternative: null, error: 'missing_config' };
-  }
+// ─────────────────────────────────────────────
+// Session cache: one paid web search per product per app session, and results
+// survive leaving/reopening the product screen.
+// ─────────────────────────────────────────────
+const alternativesCache = new Map<string, HealthyAlternative[]>();
 
+function cacheKey(productName: string, verdictTier: string): string {
+  return `${productName.trim().toLowerCase()}|${verdictTier}|${getResponseLanguage()}`;
+}
+
+/** Returns previously found alternatives for this product in this session, if any. */
+export function getCachedRealAlternatives(productName: string, verdictTier: string): HealthyAlternative[] | null {
+  return alternativesCache.get(cacheKey(productName, verdictTier)) ?? null;
+}
+
+function buildPrompt(params: { productName: string; badIngredients: string[]; verdictTier: string }): string {
   const language = getResponseLanguage();
   const region = getResponseStoreRegion();
   const storeContext = getRegionStoreContext(region);
   const langInstruction = getLanguageInstruction(language);
   const worstIngredients = params.badIngredients.slice(0, 5).join(', ') || 'none listed';
 
-  const prompt = `You are helping a user of a food-scanning app find ONE real, currently sold, healthier alternative to a product they just scanned.
+  return `You are helping a user of a food-scanning app find real, currently sold, healthier alternatives to a product they just scanned.
 
 SCANNED PRODUCT: "${params.productName}"
 VERDICT: ${params.verdictTier} (bad — user wants to avoid it)
@@ -121,52 +172,86 @@ PROBLEMATIC INGREDIENTS: ${worstIngredients}
 
 ${storeContext}
 
-Use web search to find ONE real, specific, currently-available product (exact brand name + exact product name) sold at one of the stores listed above, that is a genuinely cleaner alternative to "${params.productName}". STRICT RULES for the alternative:
-1. SAME product category and use-case — chips must be replaced by chips, soda by a sparkling drink, cereal by cereal, cookies by cookies. Never suggest a different food type (e.g. never "eat fruit instead of chips").
+Use web search to find ${MAX_ALTERNATIVES} real, specific, currently-available products (exact brand name + exact product name, each from a DIFFERENT brand) sold at the stores listed above, that are genuinely cleaner alternatives to "${params.productName}". If you can only verify 1 or 2 real products, return only those — never invent one to fill the list. STRICT RULES for every alternative:
+1. SAME product category and use-case — chocolate must be replaced by chocolate, chips by chips, soda by a sparkling drink, cereal by cereal. Never suggest a different food type (e.g. never "eat fruit instead of chocolate").
 2. Genuinely cleaner ingredient list — no IARC-classified ingredients, no artificial flavors/colors/sweeteners, fewer and simpler ingredients overall. Prefer better fats when relevant (e.g. olive or avocado oil instead of refined sunflower/palm oil).
 3. It MUST be a real product you can verify exists right now at one of the listed stores — never invent a brand or a fictional product.
 
-Then, still using web search, try to find a DIRECT image URL of that product's real packaging photo. IMPORTANT — grocery retailer CDNs (metro.ca, walmart, target, iga…) block mobile apps with anti-bot 403s, so PREFER these sources in order: (1) images.openfoodfacts.org (search "openfoodfacts <brand> <product>"), (2) the brand's official website product page, (3) m.media-amazon.com. Only include imageUrl if you found an actual direct image link (ending in .jpg/.png/.webp or a recognizable image CDN path) — leave it empty string if unsure, never guess a URL.
+For each alternative, try to find a DIRECT image URL of its real packaging photo. IMPORTANT — grocery retailer CDNs (metro.ca, walmart, target, iga…) block mobile apps with anti-bot 403s, so PREFER these sources in order: (1) images.openfoodfacts.org, (2) the brand's official website product page, (3) m.media-amazon.com. Only include imageUrl if you found an actual direct image link (ending in .jpg/.png/.webp or a recognizable image CDN path) — use empty string if unsure, never guess a URL. Do not spend more than 1 extra search on images.
 
-Also include "searchName": the product's plain ENGLISH brand + product name (e.g. "Hardbite Avocado Oil Black Sea Salt Chips") regardless of the answer language — it is used for a database photo lookup.
+Each alternative must also include "searchName": the product's plain ENGLISH brand + product name (e.g. "Camino Organic 71% Dark Chocolate") regardless of the answer language — it is used for a database photo lookup.
 
 ${langInstruction}
 
 Respond with ONLY a JSON object, no other text, in this exact shape:
-{"nom": "Brand + Product Name", "magasin": "Store name", "raison": "One short sentence, in the required language, on why it's genuinely cleaner", "imageUrl": "https://... or empty string", "searchName": "English brand + product name"}`;
+{"alternatives": [{"nom": "Brand + Product Name", "magasin": "Store name", "raison": "One short sentence, in the required language, on why it's genuinely cleaner", "imageUrl": "https://... or empty string", "searchName": "English brand + product name"}]}`;
+}
 
-  try {
-    const result = await generateText({
-      model: gateway(MODEL_ID),
-      prompt,
-      tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: 5 }) },
-    });
-
-    const parsed = extractJson<{ nom?: string; magasin?: string; raison?: string; imageUrl?: string; searchName?: string }>(result.text);
-    if (!parsed?.nom || !parsed?.raison) {
-      return { alternative: null, error: 'no_result' };
-    }
-
-    let imageUrl = (parsed.imageUrl ?? '').trim();
-    if (imageUrl && !(await isImageReachable(imageUrl))) {
-      imageUrl = '';
-    }
-    if (!imageUrl) {
-      // Retailer CDNs frequently 403 — fall back to Open Food Facts real packaging photos.
-      const searchName = (parsed.searchName ?? '').trim() || parsed.nom.trim();
-      imageUrl = (await findOpenFoodFactsImage(searchName)) ?? '';
-    }
-
-    return {
-      alternative: {
-        nom: parsed.nom.trim(),
-        raison: parsed.raison.trim(),
-        magasin: (parsed.magasin ?? '').trim() || undefined,
-        imageUrl: imageUrl || undefined,
-      },
-    };
-  } catch (e) {
-    console.log('[realAlternatives] findRealAlternative error:', e);
-    return { alternative: null, error: 'request_failed' };
+/**
+ * Finds up to ${MAX_ALTERNATIVES} real, currently-sold alternative products (specific
+ * brand, specific store, real packaging photo when findable) for a product that scored
+ * badly. Uses Claude's native web search so results reflect the actual current market.
+ * Reliability: hard timeout per attempt + automatic retry on a faster fallback model,
+ * so one slow/failed request never leaves the user with nothing. On-demand only.
+ */
+export async function findRealAlternatives(params: {
+  productName: string;
+  badIngredients: string[];
+  verdictTier: string;
+}): Promise<RealAlternativesResult> {
+  if (!TOOLKIT_URL || !SECRET_KEY) {
+    return { alternatives: [], error: 'missing_config' };
   }
+
+  const key = cacheKey(params.productName, params.verdictTier);
+  const cached = alternativesCache.get(key);
+  if (cached && cached.length > 0) {
+    return { alternatives: cached };
+  }
+
+  const prompt = buildPrompt(params);
+  let lastError = 'no_result';
+
+  for (const attempt of ATTEMPTS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), attempt.timeoutMs);
+    try {
+      console.log(`[realAlternatives] trying ${attempt.model} (timeout ${attempt.timeoutMs / 1000}s)`);
+      const result = await generateText({
+        model: gateway(attempt.model),
+        prompt,
+        abortSignal: controller.signal,
+        tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: attempt.maxSearches }) },
+      });
+      clearTimeout(timer);
+
+      const rawList = parseAlternatives(result.text)
+        .filter((a) => typeof a.nom === 'string' && a.nom.trim().length > 0 && typeof a.raison === 'string' && a.raison.trim().length > 0)
+        .slice(0, MAX_ALTERNATIVES);
+
+      if (rawList.length === 0) {
+        console.log(`[realAlternatives] ${attempt.model} returned no parsable alternatives`);
+        lastError = 'no_result';
+        continue;
+      }
+
+      const images = await Promise.all(rawList.map((a) => resolveImage(a)));
+      const alternatives: HealthyAlternative[] = rawList.map((a, i) => ({
+        nom: (a.nom ?? '').trim(),
+        raison: (a.raison ?? '').trim(),
+        magasin: (a.magasin ?? '').trim() || undefined,
+        imageUrl: images[i],
+      }));
+
+      alternativesCache.set(key, alternatives);
+      return { alternatives };
+    } catch (e) {
+      clearTimeout(timer);
+      const message = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+      console.log(`[realAlternatives] ${attempt.model} failed:`, message);
+      lastError = controller.signal.aborted ? 'timeout' : 'request_failed';
+    }
+  }
+
+  return { alternatives: [], error: lastError };
 }
