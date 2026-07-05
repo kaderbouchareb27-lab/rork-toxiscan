@@ -318,12 +318,12 @@ function getRegionDisplayName(region: ReturnType<typeof detectRegion>['region'])
 }
 
 // ─────────────────────────────────────────────
-// Product-specific real-world advice
-// Returns concrete, actionable guidance based on the product type
-// (e.g. candy → organic candy without artificial dyes / aspartame)
-// (e.g. charcuterie → nitrite-free deli from a real butcher)
+// (Removed) Generic product-specific advice bullets — replaced by the
+// auto-loaded real in-store alternatives + the personalized substance-based
+// callout below, which are specific to the exact product scanned.
 // ─────────────────────────────────────────────
-function getProductSpecificAdvice(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _removedGetProductSpecificAdvice(
   productName: string,
   productCategory: string | undefined,
   detectedAdditiveNames: string[],
@@ -789,6 +789,46 @@ export default function ProductScreen() {
     if (cached && cached.length > 0) setRealAlternatives(cached);
   }, [product]);
 
+  // Runs the real-alternatives web search for an eligible (bad) product.
+  const runRealAlternativesSearch = useCallback(async () => {
+    if (!product || product.productCategory === 'cosmetic') return;
+    const tier = verdictTierFromProduct(product);
+    if (tier !== 'processed' && tier !== 'ultra_toxic' && tier !== 'carcinogenic') return;
+    setIsFindingRealAlternative(true);
+    setRealAlternativeError(false);
+    const badIngredients = (product.substances ?? [])
+      .filter(s => s.niveau_risque === 'danger' || s.niveau_risque === 'probable')
+      .map(s => s.nom);
+    const { alternatives, error } = await findRealAlternatives({
+      productName: product.name,
+      badIngredients,
+      verdictTier: tier,
+    });
+    if (alternatives.length > 0) {
+      setRealAlternatives(alternatives);
+      if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      setRealAlternativeError(true);
+      console.log('[product] findRealAlternatives failed:', error);
+    }
+    setIsFindingRealAlternative(false);
+  }, [product]);
+
+  // Kicks off the search automatically (once per product) the moment an eligible
+  // bad product opens — so real alternatives are already found by the time the
+  // user finishes scrolling through the ingredient list. No button tap needed.
+  const hasAutoSearchedRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (!product || hasAutoSearchedRef.current) return;
+    if (product.productCategory === 'cosmetic') return;
+    const tier = verdictTierFromProduct(product);
+    if (tier !== 'processed' && tier !== 'ultra_toxic' && tier !== 'carcinogenic') return;
+    const cached = getCachedRealAlternatives(product.name, tier);
+    if (cached && cached.length > 0) { setRealAlternatives(cached); return; }
+    hasAutoSearchedRef.current = true;
+    void runRealAlternativesSearch();
+  }, [product, runRealAlternativesSearch]);
+
   const { location, isResolving, requestAndResolve } = useLocation();
   // Store suggestions follow the user's REAL location (GPS), not the phone
   // language — so an English phone in Quebec gets Quebec stores, not BC chains.
@@ -1021,24 +1061,7 @@ export default function ProductScreen() {
 
   const handleFindRealAlternative = async () => {
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsFindingRealAlternative(true);
-    setRealAlternativeError(false);
-    const badIngredients = (product.substances ?? [])
-      .filter(s => s.niveau_risque === 'danger' || s.niveau_risque === 'probable')
-      .map(s => s.nom);
-    const { alternatives, error } = await findRealAlternatives({
-      productName: product.name,
-      badIngredients,
-      verdictTier: productTier,
-    });
-    if (alternatives.length > 0) {
-      setRealAlternatives(alternatives);
-      if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } else {
-      setRealAlternativeError(true);
-      console.log('[product] findRealAlternatives failed:', error);
-    }
-    setIsFindingRealAlternative(false);
+    await runRealAlternativesSearch();
   };
 
   const isNonFood = additiveCategory !== 'food';
@@ -1328,26 +1351,16 @@ export default function ProductScreen() {
                   </Text>
                 </TouchableOpacity>
               ) : null}
-              <Text style={styles.bioStoresIntro}>{t('bio_stores_intro')}</Text>
-
-              <Text style={styles.bioStoresSubtitle}>
-                {pick({ en: 'Real advice for this product', fr: 'Conseils concrets pour ce produit', ko: '이 제품에 대한 실질적인 조언' })}
-              </Text>
               {scannedAdvice ? (
-                <View style={styles.scannedAdviceCallout}>
-                  <Text style={styles.scannedAdviceText}>{scannedAdvice}</Text>
-                </View>
+                <>
+                  <Text style={styles.bioStoresSubtitle}>
+                    {pick({ en: 'Real advice for this product', fr: 'Conseils concrets pour ce produit', ko: '이 제품에 대한 실질적인 조언' })}
+                  </Text>
+                  <View style={styles.scannedAdviceCallout}>
+                    <Text style={styles.scannedAdviceText}>{scannedAdvice}</Text>
+                  </View>
+                </>
               ) : null}
-              {getProductSpecificAdvice(
-                product.name,
-                product.productCategory,
-                product.detectedAdditives.map(a => a.name),
-              ).map((tip, i) => (
-                <View key={`tip-${i}`} style={styles.adviceItem}>
-                  <View style={styles.adviceBullet} />
-                  <Text style={styles.adviceText}>{tip}</Text>
-                </View>
-              ))}
 
               {hasMapStores ? (
                 <View style={styles.mapsHintRow}>
