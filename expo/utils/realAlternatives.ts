@@ -1,25 +1,20 @@
-import { createGateway, generateText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
 import { HealthyAlternative } from '@/types';
 import { getResponseLanguage, getResponseStoreRegion, getLanguageInstruction, getRegionStoreContext } from '@/utils/regionDetection';
 
 const TOOLKIT_URL = process.env.EXPO_PUBLIC_TOOLKIT_URL;
 const SECRET_KEY = process.env.EXPO_PUBLIC_RORK_TOOLKIT_SECRET_KEY;
 
-const gateway = createGateway({
-  baseURL: `${TOOLKIT_URL}/v2/vercel/v3/ai`,
-  apiKey: SECRET_KEY,
-});
-
 /**
- * Two-attempt strategy for reliability on-device: the flagship Opus model first
- * (best real-world accuracy on "does this exact product exist at this exact
- * store"), then Sonnet as a faster fallback if Opus times out or errors.
- * Both support Anthropic's native web search.
+ * Plain fetch to the Rork proxy chat-completions endpoint with Perplexity Sonar
+ * models (web search is built into the model, no tool plumbing). A raw fetch is
+ * the only approach that is 100% reliable inside React Native on-device — the
+ * Vercel AI SDK gateway path hangs silently on Hermes.
  */
-const ATTEMPTS: { readonly model: string; readonly timeoutMs: number; readonly maxSearches: number }[] = [
-  { model: 'anthropic/claude-opus-4.8', timeoutMs: 55000, maxSearches: 6 },
-  { model: 'anthropic/claude-sonnet-5', timeoutMs: 45000, maxSearches: 5 },
+const CHAT_COMPLETIONS_URL = `${TOOLKIT_URL}/v2/vercel/v1/chat/completions`;
+
+const ATTEMPTS: { readonly model: string; readonly timeoutMs: number }[] = [
+  { model: 'perplexity/sonar-pro', timeoutMs: 40000 },
+  { model: 'perplexity/sonar', timeoutMs: 30000 },
 ];
 
 const MAX_ALTERNATIVES = 3;
@@ -34,8 +29,8 @@ interface RawAlternative {
 
 /**
  * Tolerant JSON extraction: handles fenced blocks, preamble text before the
- * JSON, a top-level {"alternatives":[...]} object, a bare array, or a single
- * object (legacy single-alternative shape).
+ * JSON, citation markers like [1], a top-level {"alternatives":[...]} object,
+ * a bare array, or a single object (legacy single-alternative shape).
  */
 function parseAlternatives(text: string): RawAlternative[] {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -70,7 +65,10 @@ function parseAlternatives(text: string): RawAlternative[] {
 async function isImageReachable(url: string): Promise<boolean> {
   if (!/^https:\/\//i.test(url)) return false;
   try {
-    const res = await fetch(url, { method: 'HEAD' });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(url, { method: 'HEAD', signal: controller.signal });
+    clearTimeout(timer);
     if (!res.ok) return false;
     const type = res.headers.get('content-type') ?? '';
     return type.startsWith('image/');
@@ -93,8 +91,11 @@ interface OffSearchProduct {
  */
 async function findOpenFoodFactsImage(productName: string): Promise<string | null> {
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
     const url = `https://search.openfoodfacts.org/search?q=${encodeURIComponent(productName)}&page_size=5&fields=product_name,brands,image_front_url`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'ToxiScan/1.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': 'ToxiScan/1.0' }, signal: controller.signal });
+    clearTimeout(timer);
     if (!res.ok) return null;
     const data = (await res.json()) as { hits?: OffSearchProduct[] };
     const products = data.hits ?? [];
@@ -172,27 +173,61 @@ PROBLEMATIC INGREDIENTS: ${worstIngredients}
 
 ${storeContext}
 
-Use web search to find ${MAX_ALTERNATIVES} real, specific, currently-available products (exact brand name + exact product name, each from a DIFFERENT brand) sold at the stores listed above, that are genuinely cleaner alternatives to "${params.productName}". If you can only verify 1 or 2 real products, return only those — never invent one to fill the list. STRICT RULES for every alternative:
-1. SAME product category and use-case — chocolate must be replaced by chocolate, chips by chips, soda by a sparkling drink, cereal by cereal. Never suggest a different food type (e.g. never "eat fruit instead of chocolate").
-2. Genuinely cleaner ingredient list — no IARC-classified ingredients, no artificial flavors/colors/sweeteners, fewer and simpler ingredients overall. Prefer better fats when relevant (e.g. olive or avocado oil instead of refined sunflower/palm oil).
-3. It MUST be a real product you can verify exists right now at one of the listed stores — never invent a brand or a fictional product.
+Search the web and find ${MAX_ALTERNATIVES} real, specific, currently-available products (exact brand name + exact product name, each from a DIFFERENT brand) sold at the stores listed above, that are genuinely cleaner alternatives to "${params.productName}". If you can only verify 1 or 2 real products, return only those — never invent one to fill the list. STRICT RULES for every alternative:
+1. SAME product category and use-case — chocolate must be replaced by chocolate, chips by chips, soda by a sparkling drink, cereal by cereal, salad dressing by salad dressing. Never suggest a different food type (e.g. never "eat fruit instead of chocolate").
+2. Genuinely cleaner ingredient list — no IARC-classified ingredients, no artificial flavors/colors/sweeteners, fewer and simpler ingredients overall. Prefer better fats when relevant (e.g. olive or avocado oil instead of refined sunflower/canola/palm oil).
+3. It MUST be a real product that exists right now at one of the listed stores — never invent a brand or a fictional product.
 
-For each alternative, try to find a DIRECT image URL of its real packaging photo. IMPORTANT — grocery retailer CDNs (metro.ca, walmart, target, iga…) block mobile apps with anti-bot 403s, so PREFER these sources in order: (1) images.openfoodfacts.org, (2) the brand's official website product page, (3) m.media-amazon.com. Only include imageUrl if you found an actual direct image link (ending in .jpg/.png/.webp or a recognizable image CDN path) — use empty string if unsure, never guess a URL. Do not spend more than 1 extra search on images.
+For imageUrl: only include a DIRECT packaging photo URL if you actually found one from images.openfoodfacts.org, a brand's official website, or m.media-amazon.com (grocery retailer CDNs like metro.ca / walmart / target block mobile apps). Use empty string if unsure — never guess a URL.
 
 Each alternative must also include "searchName": the product's plain ENGLISH brand + product name (e.g. "Camino Organic 71% Dark Chocolate") regardless of the answer language — it is used for a database photo lookup.
 
 ${langInstruction}
 
-Respond with ONLY a JSON object, no other text, in this exact shape:
+Respond with ONLY a JSON object, no other text, no citations, no markdown, in this exact shape:
 {"alternatives": [{"nom": "Brand + Product Name", "magasin": "Store name", "raison": "One short sentence, in the required language, on why it's genuinely cleaner", "imageUrl": "https://... or empty string", "searchName": "English brand + product name"}]}`;
+}
+
+interface ChatCompletionResponse {
+  choices?: { message?: { content?: string } }[];
+}
+
+/** One raw chat-completions call with a hard timeout. Returns the assistant text. */
+async function callModel(model: string, prompt: string, timeoutMs: number): Promise<string> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(CHAT_COMPLETIONS_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${SECRET_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1500,
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${body.slice(0, 300)}`);
+    }
+    const data = (await res.json()) as ChatCompletionResponse;
+    return data.choices?.[0]?.message?.content ?? '';
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**
  * Finds up to ${MAX_ALTERNATIVES} real, currently-sold alternative products (specific
  * brand, specific store, real packaging photo when findable) for a product that scored
- * badly. Uses Claude's native web search so results reflect the actual current market.
- * Reliability: hard timeout per attempt + automatic retry on a faster fallback model,
- * so one slow/failed request never leaves the user with nothing. On-demand only.
+ * badly. Uses Perplexity Sonar (built-in web search) via a plain fetch to the Rork
+ * proxy — no AI SDK, so it works reliably on-device. Hard timeout per attempt +
+ * automatic retry on a faster model, so one slow/failed request never leaves the
+ * user with an infinite spinner. On-demand only.
  */
 export async function findRealAlternatives(params: {
   productName: string;
@@ -213,19 +248,11 @@ export async function findRealAlternatives(params: {
   let lastError = 'no_result';
 
   for (const attempt of ATTEMPTS) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), attempt.timeoutMs);
     try {
       console.log(`[realAlternatives] trying ${attempt.model} (timeout ${attempt.timeoutMs / 1000}s)`);
-      const result = await generateText({
-        model: gateway(attempt.model),
-        prompt,
-        abortSignal: controller.signal,
-        tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: attempt.maxSearches }) },
-      });
-      clearTimeout(timer);
+      const text = await callModel(attempt.model, prompt, attempt.timeoutMs);
 
-      const rawList = parseAlternatives(result.text)
+      const rawList = parseAlternatives(text)
         .filter((a) => typeof a.nom === 'string' && a.nom.trim().length > 0 && typeof a.raison === 'string' && a.raison.trim().length > 0)
         .slice(0, MAX_ALTERNATIVES);
 
@@ -246,10 +273,9 @@ export async function findRealAlternatives(params: {
       alternativesCache.set(key, alternatives);
       return { alternatives };
     } catch (e) {
-      clearTimeout(timer);
       const message = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
       console.log(`[realAlternatives] ${attempt.model} failed:`, message);
-      lastError = controller.signal.aborted ? 'timeout' : 'request_failed';
+      lastError = message.includes('Abort') ? 'timeout' : 'request_failed';
     }
   }
 
