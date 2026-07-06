@@ -6,7 +6,7 @@ export const DR_TOXI_DEFAULT_AVATAR_URI = 'https://r2-pub.rork.com/generated-ima
  * ULTRA TOXIC 🟥 avatar — same Dr. Toxi cat with an EXTREME fear/alarm expression,
  * tinted in the bordeaux ultra-toxic color (#722F37).
  */
-export const DR_TOXI_ULTRA_TOXIC_AVATAR = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/041a925d-93b4-43ab-829a-5a634484cbe0.png';
+export const DR_TOXI_ULTRA_TOXIC_AVATAR = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/86cbb082-3233-4cd5-b354-525ed2ab29d6.png';
 
 export const DR_TOXI_BADGE_AVATARS: Record<DrToxiVerdictLevel, string> = {
   danger: 'https://r2-pub.rork.com/generated-images/27e289be-6c64-40c0-bfe4-ebbf77f17086.png',
