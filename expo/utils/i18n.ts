@@ -416,7 +416,7 @@ const translations = {
   benefit_unlimited_history: { fr: 'Historique illimité', en: 'Unlimited history', ko: '무제한 기록' },
   benefit_favorites: { fr: 'Favoris produits', en: 'Product favorites', ko: '제품 즐겨찾기' },
   benefit_notifications: { fr: 'Notifications rappel produits', en: 'Product reminder notifications', ko: '제품 알림' },
-  save_45: { fr: 'Économisez 45%', en: 'Save 45%', ko: '45% 절약' },
+  save_percent: { fr: (percent: number) => `Économisez ${percent}%`, en: (percent: number) => `Save ${percent}%`, ko: (percent: number) => `${percent}% 절약` },
   annual_plan: { fr: (price: string) => `Annuel — ${price}/an`, en: (price: string) => `Annual — ${price}/year`, ko: (price: string) => `연간 — ${price}/년` },
   monthly_equivalent: { fr: (price: string) => `soit ${price}/mois`, en: (price: string) => `i.e. ${price}/month`, ko: (price: string) => `월 ${price} 상당` },
   monthly_plan: { fr: (price: string) => `Mensuel — ${price}/mois`, en: (price: string) => `Monthly — ${price}/month`, ko: (price: string) => `월간 — ${price}/월` },

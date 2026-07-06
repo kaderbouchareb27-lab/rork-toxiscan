@@ -21,7 +21,7 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Pages légales (confidentialité, FAQ, transparence IA)
 - [x] Historique des scans du jour uniquement (non persisté le lendemain)
 
-### PREMIUM ToxiScan Pro (2,99$/mois ou 29,99$/an)
+### PREMIUM ToxiScan Pro (4,99$/mois ou 29,99$/an)
 - [x] Scans de produits illimités (plus de limite quotidienne)
 - [x] Dr. Toxi illimité
 - [x] Historique permanent de tous les scans (sauvegardé)
@@ -34,8 +34,8 @@ Une app épurée et lumineuse, inspirée par la simplicité de Shazam. Fond blan
 - [x] Paywall accessible depuis Historique pour débloquer l'historique permanent
 - [x] Paywall accessible depuis Alertes pour débloquer les alertes en temps réel
 - [x] Paywall accessible depuis Profil → "Passer à ToxiScan Pro" (avec bouton Fermer)
-- [x] Option annuelle 29,99$/an avec badge "Économisez 17%"
-- [x] Option mensuelle 2,99$/mois
+- [x] Option annuelle 29,99$/an avec badge "Économisez ~50%" (calculé dynamiquement)
+- [x] Option mensuelle 4,99$/mois
 - [x] Texte donation cancer toujours visible
 - [x] Lien "Restaurer un achat"
 - [x] Pas d'essai gratuit

@@ -48,9 +48,11 @@ if (Platform.OS !== 'web') {
 type PlanType = 'annual' | 'monthly';
 
 const PAYWALL_BG = '#F5F0E8';
-const FALLBACK_MONTHLY_PRICE = '2,99 CA$';
+const FALLBACK_MONTHLY_PRICE = '4,99 CA$';
 const FALLBACK_ANNUAL_PRICE = '29,99 CA$';
 const FALLBACK_ANNUAL_MONTHLY = '2,50 CA$';
+// Fallback savings when live prices are unavailable: 4,99 × 12 = 59,88 vs 29,99 → ~50%
+const FALLBACK_SAVINGS_PERCENT = 50;
 
 function formatAnnualMonthly(price: number | null | undefined, currencyCode: string | null | undefined): string {
   if (price == null) {
@@ -99,6 +101,16 @@ export default function PaywallScreen() {
   const annualMonthly = useMemo(() => {
     return formatAnnualMonthly(annualPackage?.product?.price, annualPackage?.product?.currencyCode);
   }, [annualPackage?.product?.currencyCode, annualPackage?.product?.price]);
+
+  const savingsPercent = useMemo(() => {
+    const monthly = monthlyPackage?.product?.price;
+    const annual = annualPackage?.product?.price;
+    if (typeof monthly === 'number' && typeof annual === 'number' && monthly > 0) {
+      const pct = Math.round((1 - annual / (monthly * 12)) * 100);
+      if (pct > 0) return pct;
+    }
+    return FALLBACK_SAVINGS_PERCENT;
+  }, [monthlyPackage?.product?.price, annualPackage?.product?.price]);
 
   const handlePlanSelect = useCallback((plan: PlanType) => {
     console.log('[Paywall] Plan selected:', plan);
@@ -349,7 +361,7 @@ export default function PaywallScreen() {
               disabled={isLoading}
             >
               <LinearGradient colors={['#FF8A4C', '#FF6B35']} style={styles.planBadge}>
-                <Text style={styles.planBadgeText}>{t('save_45')}</Text>
+                <Text style={styles.planBadgeText}>{tf('save_percent', savingsPercent)}</Text>
               </LinearGradient>
               <View style={styles.bestChoicePill}>
                 <Crown color="#2E9E34" size={12} strokeWidth={2.7} />
