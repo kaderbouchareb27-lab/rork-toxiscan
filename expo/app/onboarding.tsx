@@ -145,7 +145,7 @@ export default function OnboardingScreen() {
                   </View>
                 </View>
                 <View style={styles.verdictMiniRow}>
-                  <Image source={{ uri: DR_TOXI_BADGE_AVATARS.danger }} style={styles.miniAvatar} contentFit="contain" />
+                  <Image source={DR_TOXI_BADGE_AVATARS.danger} style={styles.miniAvatar} contentFit="contain" />
                   <Text style={styles.redSignal}>{t('badge_danger')}</Text>
                 </View>
               </View>

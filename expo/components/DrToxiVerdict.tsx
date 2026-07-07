@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { isEnglish, pick } from '@/utils/i18n';
-import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
+import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict, type DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
 export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
 
@@ -17,7 +17,7 @@ interface VerdictCardConfig {
   label: string;
   subtitle: string;
   description: string;
-  avatarUri: string | null;
+  avatarUri: DrToxiAvatarSource | null;
 }
 
 /**
@@ -189,7 +189,7 @@ export default function DrToxiVerdict({ level, isCosmetic = false }: DrToxiVerdi
       <View style={styles.headerRow}>
         <Animated.View style={[styles.avatarBubble, { opacity: avatarOpacity, transform: [{ scale: avatarScale }] }]}>
           <Image
-            source={{ uri: config.avatarUri ?? DR_TOXI_DEFAULT_AVATAR_URI }}
+            source={config.avatarUri ?? DR_TOXI_DEFAULT_AVATAR_URI}
             style={styles.avatar}
             contentFit="contain"
             transition={200}

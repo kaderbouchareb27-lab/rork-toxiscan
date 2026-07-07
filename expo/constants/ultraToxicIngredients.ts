@@ -189,7 +189,3 @@ export function getUltraToxicDescription(entry: UltraToxicEntry, lang: UltraToxi
   return entry.description[lang] ?? entry.description.fr;
 }
 
-/** Counts how many detected substances are ULTRA TOXIC (via the circ sentinel). */
-export function countUltraToxicSubstances(substances: { classification_circ?: string | null }[]): number {
-  return substances.reduce((n, s) => (isUltraToxicCirc(s.classification_circ) ? n + 1 : n), 0);
-}

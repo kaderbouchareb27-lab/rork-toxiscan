@@ -1,4 +1,9 @@
-import { DR_TOXI_BADGE_AVATARS } from '@/constants/drToxiAvatars';
+import {
+  DR_TOXI_DEFAULT_AVATAR_URI,
+  DR_TOXI_MODERATION_AVATAR_URI,
+  DR_TOXI_WARNING_AVATAR_URI,
+  DR_TOXI_DANGER_AVATAR_URI,
+} from '@/constants/drToxiAvatars';
 import { t, pick } from '@/utils/i18n';
 import { scoreToTier, type MealCategory, type MealTier } from '@/utils/mealAnalysis';
 
@@ -12,10 +17,10 @@ import { scoreToTier, type MealCategory, type MealTier } from '@/utils/mealAnaly
  *   red    → alarmed              (danger)
  */
 export const MEAL_TIER_AVATARS: Record<MealTier, string> = {
-  green: DR_TOXI_BADGE_AVATARS.approuve,
-  yellow: DR_TOXI_BADGE_AVATARS.moderation,
-  orange: DR_TOXI_BADGE_AVATARS.warning,
-  red: DR_TOXI_BADGE_AVATARS.danger,
+  green: DR_TOXI_DEFAULT_AVATAR_URI,
+  yellow: DR_TOXI_MODERATION_AVATAR_URI,
+  orange: DR_TOXI_WARNING_AVATAR_URI,
+  red: DR_TOXI_DANGER_AVATAR_URI,
 };
 
 /** Tier accent colors (spec §5). Tasteful, brand-aligned. */

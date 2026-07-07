@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { RiskGroup, SubstanceDetected, DetectedIngredient, AdditiveInfo, VerdictTier } from '@/types';
 import { t, pick } from '@/utils/i18n';
 import Colors from '@/constants/colors';
-import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
+import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict, toDrToxiImageSource } from '@/constants/drToxiAvatars';
 
 type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';
 
@@ -318,7 +318,7 @@ export default function ShareImageCard(props: ShareImageCardProps) {
 
         {drToxiAvatarUri ? (
           <View style={[styles.drToxiBubble, { borderColor: badge.color, backgroundColor: badge.softColor }]}>
-            <Image source={{ uri: drToxiAvatarUri }} style={styles.drToxiAvatar} resizeMode="cover" />
+            <Image source={toDrToxiImageSource(drToxiAvatarUri)} style={styles.drToxiAvatar} resizeMode="contain" />
           </View>
         ) : null}
       </View>

@@ -108,7 +108,7 @@ function RiskStatusIcon({ tier, color, size = 16 }: { tier: VerdictTier; color: 
     return (
       <View style={{ width: boxSize, height: boxSize, alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
         <Image
-          source={{ uri: avatarUri }}
+          source={avatarUri}
           style={{ width: boxSize, height: boxSize }}
           contentFit="contain"
         />
@@ -279,20 +279,6 @@ export default function HistoryScreen() {
           </View>
         </View>
 
-        <View style={[styles.statusPanel, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
-          <View style={[styles.statusIconBubble, { backgroundColor: Colors.surface, borderColor: risk.borderColor }]}>
-            <RiskStatusIcon tier={displayTier} color={risk.color} size={18} />
-          </View>
-          <View style={styles.statusCopy}>
-            <View style={styles.statusHeaderRow}>
-              <Text style={[styles.statusLabel, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
-              <View style={[styles.signalPill, { backgroundColor: risk.color }]}>
-                <Text style={styles.signalPillText}>{t('history_risk_signal')}</Text>
-              </View>
-            </View>
-            <Text style={styles.statusDescription} numberOfLines={2}>{risk.description}</Text>
-          </View>
-        </View>
       </TouchableOpacity>
     );
   }, [handleProductPress]);
@@ -724,70 +710,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statusPanel: {
-    display: 'none',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  skeletonStatusPanel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: '#F1F4EC',
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-  },
-  statusIconBubble: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'visible',
-    borderWidth: 1,
-  },
-  statusCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  statusHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statusLabel: {
-    flex: 1,
-    fontSize: 12,
-    fontWeight: '900' as const,
-    letterSpacing: 0.2,
-    textTransform: 'uppercase' as const,
-  },
-  signalPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  signalPillText: {
-    fontSize: 8,
-    lineHeight: 10,
-    color: Colors.white,
-    fontWeight: '900' as const,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.25,
-  },
-  statusDescription: {
-    fontSize: 12,
-    lineHeight: 16,
-    color: Colors.textSecondary,
-    fontWeight: '700' as const,
-    marginTop: 3,
-  },
   skeletonTitle: {
     width: 150,
     height: 15,
@@ -813,19 +735,6 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: 17,
     backgroundColor: '#E9EEE4',
-  },
-  skeletonStatusTitle: {
-    width: 128,
-    height: 13,
-    borderRadius: 7,
-    backgroundColor: '#E2EBDD',
-    marginBottom: 6,
-  },
-  skeletonStatusLine: {
-    width: '84%',
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#E7EFE3',
   },
   emptyState: {
     flex: 1,

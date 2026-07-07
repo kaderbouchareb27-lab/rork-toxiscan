@@ -43,7 +43,7 @@ function HubPostCard({ post, onPress, onLike, onMenu }: Props) {
       <View style={styles.headerRow}>
         {verdictAvatar ? (
           <View style={[styles.verdictAvatar, { borderColor: verdictColor }]}>
-            <Image source={{ uri: verdictAvatar }} style={styles.verdictAvatarImg} contentFit="contain" />
+            <Image source={verdictAvatar} style={styles.verdictAvatarImg} contentFit="contain" />
           </View>
         ) : (
           <View style={[styles.avatar, { backgroundColor: avatarColor }]}>

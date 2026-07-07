@@ -44,6 +44,7 @@ import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 import { isUltraToxicCirc } from '@/constants/ultraToxicIngredients';
+import type { DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
 // ✅ Conversion directe niveau_risque → couleur/label
@@ -149,7 +150,7 @@ function getLevelBadgeLabel(level: DisplayLevel, domain: VerdictDomain = 'food')
   }
 }
 
-function getBannerConfig(rawLevel: VerdictLevel, domain: VerdictDomain = 'food'): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: string | null } {
+function getBannerConfig(rawLevel: VerdictLevel, domain: VerdictDomain = 'food'): { color: string; label: string; intro: string; icon: React.ReactNode; avatarUri: DrToxiAvatarSource | null } {
   if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
     const level = clampLevel(rawLevel);
     switch (level) {
@@ -1554,7 +1555,6 @@ const styles = StyleSheet.create({
   badgeContent: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   verdictTopLine: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 13, marginBottom: 16 },
   verdictIconBubble: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.22)', justifyContent: 'center' as const, alignItems: 'center' as const, overflow: 'hidden' as const, borderWidth: 1, borderColor: 'rgba(255,255,255,0.34)' },
-  verdictAvatar: { width: 58, height: 58 },
   badgeTextContainer: { flex: 1 },
   verdictEyebrow: { fontSize: 11, fontWeight: '900' as const, color: 'rgba(255,255,255,0.76)', letterSpacing: 1.2, marginBottom: 3 },
   badgeLabel: { fontSize: 25, lineHeight: 30, fontWeight: '900' as const, letterSpacing: 0.6, color: '#FFFFFF' },
