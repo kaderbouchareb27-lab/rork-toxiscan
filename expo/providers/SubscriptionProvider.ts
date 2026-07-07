@@ -24,14 +24,15 @@ if (Platform.OS !== 'web') {
   }
 }
 
-// Freemium model (spec §13): product scan is 3 FREE PER LOCAL DAY (resets daily).
-// Meal scan (3) and Dr. Toxi chat (6) are LIFETIME counters.
+// Freemium model (spec §13): product scan is 2 FREE PER LOCAL DAY (resets daily).
+// Meal scan (3) and Dr. Toxi chat (3) are LIFETIME counters.
 // The counters are persisted in the device Keychain (utils/usageStore) so an
 // uninstall/reinstall can NEVER reset them, and are tagged with the RevenueCat appUserID.
-const FREE_DRTOXI_LIMIT = 6; // lifetime chat messages
+const FREE_DRTOXI_LIMIT = 3; // lifetime chat messages
 const FREE_MEAL_SCAN_LIMIT = 3; // lifetime meal scans
-const FREE_PRODUCT_SCAN_PER_DAY = 3; // product scans per local day (resets daily)
-const FREE_HISTORY_LIMIT = 3;
+const FREE_PRODUCT_SCAN_PER_DAY = 2; // product scans per local day (resets daily)
+// Keep the 2 free daily scans viewable in history for free (matches the daily scan allowance).
+const FREE_HISTORY_LIMIT = 2;
 const ENTITLEMENT_ID = 'toxiscan_pro';
 
 function getDefaultUsage(): LifetimeUsage {
@@ -223,7 +224,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     },
   });
 
-  // ── Dr. Toxi chat — 6 free messages, LIFETIME (the verdict of a meal scan is NOT a chat message) ──
+  // ── Dr. Toxi chat — 3 free messages, LIFETIME (the verdict of a meal scan is NOT a chat message) ──
   const drToxiRemaining = useMemo(() => {
     if (isPro) return Infinity;
     return Math.max(0, FREE_DRTOXI_LIMIT - usage.drToxiCount);
@@ -253,7 +254,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     incrementUsageMutation.mutate('mealScanCount');
   }, [isPro, incrementUsageMutation]);
 
-  // ── Product scan — 3 free per local day (resets daily), then paywall ──
+  // ── Product scan — 2 free per local day (resets daily), then paywall ──
   const todayStr = todayLocalDateString();
   const productScanCountToday = usage.productScanDay === todayStr ? usage.productScanCount : 0;
 
@@ -310,7 +311,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     mealScanRemaining,
     consumeMealScan,
     mealScanLimit: FREE_MEAL_SCAN_LIMIT,
-    // Product scan (3 free per day, resets daily)
+    // Product scan (2 free per day, resets daily)
     canScan,
     scanRemaining: productScanRemaining,
     consumeScan,

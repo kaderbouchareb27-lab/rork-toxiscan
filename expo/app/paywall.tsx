@@ -443,6 +443,13 @@ export default function PaywallScreen() {
       </ScrollView>
 
       <View style={[styles.stickyFooter, { paddingBottom: insets.bottom + 10 }]}>
+        <View style={styles.trialBanner}>
+          <View style={styles.trialBadge}>
+            <Sparkles color="#FFF2B8" size={13} strokeWidth={2.8} />
+            <Text style={styles.trialBadgeText}>{t('paywall_trial_banner')}</Text>
+          </View>
+          <Text style={styles.trialSubText}>{t('paywall_trial_sub')}</Text>
+        </View>
         <View style={styles.ctaMetaRow}>
           <ShieldCheck color={Colors.primary} size={14} strokeWidth={2.5} />
           <Text style={styles.ctaMetaText}>{t('paywall_secure_purchase')}</Text>
@@ -460,7 +467,7 @@ export default function PaywallScreen() {
             ) : (
               <>
                 <Crown color={Colors.white} size={20} strokeWidth={2.6} />
-                <Text style={styles.ctaButtonText}>{t('upgrade_pro')}</Text>
+                <Text style={styles.ctaButtonText}>{t('start_free_trial')}</Text>
                 <ChevronRight color={Colors.white} size={20} strokeWidth={2.8} />
               </>
             )}
@@ -1093,6 +1100,36 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.10,
     shadowRadius: 26,
     elevation: 14,
+  },
+  trialBanner: {
+    alignItems: 'center',
+    marginBottom: 10,
+    gap: 4,
+  },
+  trialBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: '#147624',
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    shadowColor: '#147624',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  trialBadgeText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '900' as const,
+    letterSpacing: -0.2,
+  },
+  trialSubText: {
+    color: Colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700' as const,
   },
   ctaMetaRow: {
     flexDirection: 'row',
