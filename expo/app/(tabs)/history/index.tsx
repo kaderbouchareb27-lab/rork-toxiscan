@@ -29,7 +29,6 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import { VerdictTier, ScannedProduct } from '@/types';
 import { t, tf, getDateLocale } from '@/utils/i18n';
 import { getDisplayBrand, verdictTierFromProduct } from '@/utils/api';
-import { getDrToxiAvatarForTier } from '@/constants/drToxiAvatars';
 
 type FilterType = 'all' | 'favorites' | VerdictTier;
 
@@ -101,21 +100,11 @@ function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation 
   }
 }
 
-function RiskStatusIcon({ tier, color, size = 16 }: { tier: VerdictTier; color: string; size?: number }) {
-  const avatarUri = getDrToxiAvatarForTier(tier);
-  if (avatarUri) {
-    const boxSize = Math.max(size + 22, 40);
-    return (
-      <View style={{ width: boxSize, height: boxSize, alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
-        <Image
-          source={avatarUri}
-          style={{ width: boxSize, height: boxSize }}
-          contentFit="contain"
-        />
-      </View>
-    );
-  }
-  return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
+// History cards stay compact: just a small colored dot + label, no Dr. Toxi
+// avatar (the ULTRA TOXIC avatar lives only on the main scan verdict card).
+function RiskStatusIcon({ color, size = 16 }: { tier: VerdictTier; color: string; size?: number }) {
+  const dotSize = Math.max(Math.round(size * 0.6), 8);
+  return <View style={{ width: dotSize, height: dotSize, borderRadius: dotSize / 2, backgroundColor: color }} />;
 }
 
 function StatBar({ label, count, max, color }: { label: string; count: number; max: number; color: string }) {

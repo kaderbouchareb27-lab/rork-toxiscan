@@ -816,20 +816,10 @@ export default function ProductScreen() {
     setIsFindingRealAlternative(false);
   }, [product]);
 
-  // Kicks off the search automatically (once per product) the moment an eligible
-  // bad product opens — so real alternatives are already found by the time the
-  // user finishes scrolling through the ingredient list. No button tap needed.
-  const hasAutoSearchedRef = useRef<boolean>(false);
-  useEffect(() => {
-    if (!product || hasAutoSearchedRef.current) return;
-    if (product.productCategory === 'cosmetic') return;
-    const tier = verdictTierFromProduct(product);
-    if (tier !== 'processed' && tier !== 'ultra_toxic' && tier !== 'carcinogenic') return;
-    const cached = getCachedRealAlternatives(product.name, tier);
-    if (cached && cached.length > 0) { setRealAlternatives(cached); return; }
-    hasAutoSearchedRef.current = true;
-    void runRealAlternativesSearch();
-  }, [product, runRealAlternativesSearch]);
+  // Alternatives are NOT loaded automatically anymore — the user taps the green
+  // "Show alternatives" button to run the search on demand (saves credits and
+  // keeps the scan result instant). Previously-found results still rehydrate
+  // from the in-memory cache via the effect above.
 
   const { location, isResolving, requestAndResolve } = useLocation();
   // Store suggestions follow the user's REAL location (GPS), not the phone
@@ -1302,23 +1292,23 @@ export default function ProductScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    style={styles.realAltLoadingRow}
+                    style={styles.showAlternativesButton}
                     onPress={handleFindRealAlternative}
-                    activeOpacity={0.7}
+                    activeOpacity={0.85}
                     disabled={isFindingRealAlternative}
                     testID="find-real-alternative-button"
                   >
                     {isFindingRealAlternative ? (
-                      <ActivityIndicator color="#2E9E34" size="small" />
+                      <ActivityIndicator color="#FFFFFF" size="small" />
                     ) : (
-                      <Store color="#2E9E34" size={16} />
+                      <Leaf color="#FFFFFF" size={18} strokeWidth={2.4} />
                     )}
-                    <Text style={styles.realAltLoadingText}>
+                    <Text style={styles.showAlternativesButtonText}>
                       {isFindingRealAlternative
-                        ? pick({ en: 'Finding cleaner products of the same type…', fr: 'Recherche de produits plus propres du même type…', ko: '같은 종류의 더 깨끗한 제품을 찾는 중…' })
+                        ? pick({ en: 'Finding cleaner products…', fr: 'Recherche en cours…', ko: '찾는 중…' })
                         : realAlternativeError
-                          ? pick({ en: "Couldn't find one — tap to try again", fr: 'Aucune trouvée — touchez pour réessayer', ko: '찾지 못했어요 — 다시 시도하려면 누르세요' })
-                          : pick({ en: 'Find real cleaner alternatives', fr: 'Voir de vraies alternatives plus propres', ko: '실제 대안 찾기' })}
+                          ? pick({ en: 'No results — tap to try again', fr: 'Aucune trouvée — réessayer', ko: '결과 없음 — 다시 시도' })
+                          : pick({ en: 'Show alternatives', fr: 'Suggérer des alternatives', ko: '대안 보기' })}
                     </Text>
                   </TouchableOpacity>
                 )
@@ -1610,6 +1600,8 @@ const styles = StyleSheet.create({
   realAltCard: { backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden' as const, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.16)', shadowColor: '#1F5A28', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 14, elevation: 3 },
   realAltLoadingRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 9, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)' },
   realAltLoadingText: { flex: 1, fontSize: 13.5, lineHeight: 19, color: '#1F5A28', fontWeight: '600' as const },
+  showAlternativesButton: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 9, paddingVertical: 15, paddingHorizontal: 18, backgroundColor: '#2E9E34', borderRadius: 16, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.28, shadowRadius: 12, elevation: 4 },
+  showAlternativesButtonText: { fontSize: 15.5, color: '#FFFFFF', fontWeight: '800' as const, letterSpacing: -0.2 },
   altDivider: { height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(46, 158, 52, 0.22)', marginVertical: 16 },
   realAltSearchingHint: { fontSize: 12.5, lineHeight: 18, color: Colors.textSecondary, marginTop: -4, marginBottom: 8 },
   healthyAltItem: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, padding: 14, gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(46, 158, 52, 0.18)' },
