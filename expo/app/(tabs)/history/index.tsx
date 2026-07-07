@@ -104,8 +104,16 @@ function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation 
 function RiskStatusIcon({ tier, color, size = 16 }: { tier: VerdictTier; color: string; size?: number }) {
   const avatarUri = getDrToxiAvatarForTier(tier);
   if (avatarUri) {
-    const avatarSize = Math.max(size + 16, 32);
-    return <Image source={{ uri: avatarUri }} style={{ width: avatarSize, height: avatarSize }} contentFit="contain" />;
+    const boxSize = Math.max(size + 22, 40);
+    return (
+      <View style={{ width: boxSize, height: boxSize, alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
+        <Image
+          source={{ uri: avatarUri }}
+          style={{ width: boxSize, height: boxSize }}
+          contentFit="contain"
+        />
+      </View>
+    );
   }
   return <CheckCircle color={color} size={size} strokeWidth={2.4} />;
 }
@@ -736,12 +744,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderLight,
   },
   statusIconBubble: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+    overflow: 'visible',
     borderWidth: 1,
   },
   statusCopy: {
