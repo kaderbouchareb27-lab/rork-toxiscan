@@ -25,11 +25,11 @@ if (Platform.OS !== 'web') {
 }
 
 // Freemium model (spec §13): product scan is 2 FREE PER LOCAL DAY (resets daily).
-// Meal scan (3) and Dr. Toxi chat (3) are LIFETIME counters.
+// Meal scan (2) and Dr. Toxi chat (3) are LIFETIME counters.
 // The counters are persisted in the device Keychain (utils/usageStore) so an
 // uninstall/reinstall can NEVER reset them, and are tagged with the RevenueCat appUserID.
 const FREE_DRTOXI_LIMIT = 3; // lifetime chat messages
-const FREE_MEAL_SCAN_LIMIT = 3; // lifetime meal scans
+const FREE_MEAL_SCAN_LIMIT = 2; // lifetime meal scans
 const FREE_PRODUCT_SCAN_PER_DAY = 2; // product scans per local day (resets daily)
 // Keep the 2 free daily scans viewable in history for free (matches the daily scan allowance).
 const FREE_HISTORY_LIMIT = 2;
@@ -239,7 +239,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     incrementUsageMutation.mutate('drToxiCount');
   }, [isPro, incrementUsageMutation]);
 
-  // ── Meal scan — 3 free, LIFETIME (full verdict each time) ──
+  // ── Meal scan — 2 free, LIFETIME (full verdict each time) ──
   const mealScanRemaining = useMemo(() => {
     if (isPro) return Infinity;
     return Math.max(0, FREE_MEAL_SCAN_LIMIT - usage.mealScanCount);

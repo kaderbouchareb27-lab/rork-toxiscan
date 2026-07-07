@@ -706,7 +706,7 @@ const translations = {
 
   // ===== MEAL SCAN — PAYWALL =====
   paywall_meal: { fr: 'Transforme chaque repas en décision claire', en: 'Turn every meal into a clear decision', ko: '모든 식사를 명확한 선택으로' },
-  paywall_sub_meal: { fr: 'Tes 3 scans repas gratuits sont terminés. Passe en Pro pour laisser Dr. Toxi analyser chaque assiette, tous les jours.', en: "You've used your 3 free meal scans. Go Pro to let Dr. Toxi analyze every plate, every day.", ko: '무료 식사 스캔 3회를 모두 사용했어요. Pro로 매일 모든 식사를 분석하세요.' },
+  paywall_sub_meal: { fr: 'Tes 2 scans repas gratuits sont terminés. Passe en Pro pour laisser Dr. Toxi analyser chaque assiette, tous les jours.', en: "You've used your 2 free meal scans. Go Pro to let Dr. Toxi analyze every plate, every day.", ko: '무료 식사 스캔 2회를 모두 사용했어요. Pro로 매일 모든 식사를 분석하세요.' },
   paywall_report: { fr: 'Ton bilan complet t’attend', en: 'Your full report awaits', ko: '전체 리포트가 기다려요' },
   paywall_sub_report: { fr: 'Débloque ton rapport hebdo complet : tendances, équilibre alimentaire et recommandations de Dr. Toxi.', en: 'Unlock your full weekly report: trends, food balance, and Dr. Toxi recommendations.', ko: '주간 전체 리포트: 추세, 식단 균형, Dr. Toxi 추천을 잠금 해제하세요.' },
   benefit_unlimited_meal_scans: { fr: 'Scans repas illimités', en: 'Unlimited meal scans', ko: '무제한 식사 스캔' },
