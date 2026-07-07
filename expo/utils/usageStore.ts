@@ -20,7 +20,10 @@ import * as SecureStore from 'expo-secure-store';
  */
 
 export interface LifetimeUsage {
+  /** Number of meal scans used on `mealScanDay` (resets each local day). */
   mealScanCount: number;
+  /** Local 'YYYY-MM-DD' the meal-scan count applies to. */
+  mealScanDay: string;
   drToxiCount: number;
   /** Number of product scans used on `productScanDay` (resets each local day). */
   productScanCount: number;
@@ -46,7 +49,7 @@ const MIRROR_KEY = 'toxiscan_lifetime_usage';
 const secureAvailable = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function getDefaultUsage(): LifetimeUsage {
-  return { mealScanCount: 0, drToxiCount: 0, productScanCount: 0, productScanDay: '' };
+  return { mealScanCount: 0, mealScanDay: '', drToxiCount: 0, productScanCount: 0, productScanDay: '' };
 }
 
 function parse(raw: string | null): Partial<LifetimeUsage> | null {
@@ -81,30 +84,36 @@ function mergeMax(
   a: Partial<LifetimeUsage> | null,
   b: Partial<LifetimeUsage> | null,
 ): LifetimeUsage {
-  // Lifetime counters take the element-wise max. The daily product-scan counter is
-  // date-aware: the most recent day wins (and its count); same-day takes the max so a
-  // reinstall can't reset today's quota, while a new day naturally starts fresh.
-  const aDay = a?.productScanDay ?? '';
-  const bDay = b?.productScanDay ?? '';
-  let productScanDay: string;
-  let productScanCount: number;
-  if (aDay === bDay) {
-    productScanDay = aDay;
-    productScanCount = Math.max(a?.productScanCount ?? 0, b?.productScanCount ?? 0);
-  } else if (aDay > bDay) {
-    productScanDay = aDay;
-    productScanCount = a?.productScanCount ?? 0;
-  } else {
-    productScanDay = bDay;
-    productScanCount = b?.productScanCount ?? 0;
-  }
+  // Lifetime counters take the element-wise max. The daily product/meal-scan counters
+  // are date-aware: the most recent day wins (and its count); same-day takes the max so
+  // a reinstall can't reset today's quota, while a new day naturally starts fresh.
+  const mealMerged = mergeDaily(
+    a?.mealScanDay ?? '',
+    a?.mealScanCount ?? 0,
+    b?.mealScanDay ?? '',
+    b?.mealScanCount ?? 0,
+  );
+  const productMerged = mergeDaily(
+    a?.productScanDay ?? '',
+    a?.productScanCount ?? 0,
+    b?.productScanDay ?? '',
+    b?.productScanCount ?? 0,
+  );
   return {
-    mealScanCount: Math.max(a?.mealScanCount ?? 0, b?.mealScanCount ?? 0),
+    mealScanCount: mealMerged.count,
+    mealScanDay: mealMerged.day,
     drToxiCount: Math.max(a?.drToxiCount ?? 0, b?.drToxiCount ?? 0),
-    productScanCount,
-    productScanDay,
+    productScanCount: productMerged.count,
+    productScanDay: productMerged.day,
     appUserId: b?.appUserId ?? a?.appUserId,
   };
+}
+
+/** Date-aware merge for a daily counter: most-recent day wins, same-day takes the max. */
+function mergeDaily(aDay: string, aCount: number, bDay: string, bCount: number): { day: string; count: number } {
+  if (aDay === bDay) return { day: aDay, count: Math.max(aCount, bCount) };
+  if (aDay > bDay) return { day: aDay, count: aCount };
+  return { day: bDay, count: bCount };
 }
 
 /** Writes the usage to BOTH the Keychain (when available) and the AsyncStorage mirror. */
@@ -145,7 +154,7 @@ export async function loadLifetimeUsage(): Promise<LifetimeUsage> {
  * can never lower them.
  */
 export async function incrementLifetimeUsage(
-  field: 'mealScanCount' | 'drToxiCount',
+  field: 'drToxiCount',
   appUserId?: string,
 ): Promise<LifetimeUsage> {
   const current = await loadLifetimeUsage();
@@ -156,6 +165,26 @@ export async function incrementLifetimeUsage(
   };
   await persistLifetimeUsage(updated);
   console.log(`[UsageStore] ${field} incremented to`, updated[field]);
+  return updated;
+}
+
+/**
+ * Increments the DAILY meal-scan counter. If the persisted day is not today, the
+ * count starts fresh at 1 for today; otherwise it bumps the existing count. The result
+ * is written to both stores so deleting/reinstalling the app cannot reset today's quota.
+ */
+export async function incrementMealScan(appUserId?: string): Promise<LifetimeUsage> {
+  const current = await loadLifetimeUsage();
+  const today = todayLocalDateString();
+  const sameDay = current.mealScanDay === today;
+  const updated: LifetimeUsage = {
+    ...current,
+    mealScanDay: today,
+    mealScanCount: sameDay ? (current.mealScanCount ?? 0) + 1 : 1,
+    appUserId: appUserId ?? current.appUserId,
+  };
+  await persistLifetimeUsage(updated);
+  console.log('[UsageStore] mealScan incremented to', updated.mealScanCount, 'for', today);
   return updated;
 }
 

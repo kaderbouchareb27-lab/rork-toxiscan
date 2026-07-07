@@ -6,6 +6,7 @@ import {
   loadLifetimeUsage,
   incrementLifetimeUsage,
   incrementProductScan,
+  incrementMealScan,
   todayLocalDateString,
   tagAppUserId,
   type LifetimeUsage,
@@ -24,19 +25,19 @@ if (Platform.OS !== 'web') {
   }
 }
 
-// Freemium model (spec §13): product scan is 2 FREE PER LOCAL DAY (resets daily).
-// Meal scan (2) and Dr. Toxi chat (3) are LIFETIME counters.
+// Freemium model (spec §13): product scan AND meal scan are 2 FREE PER LOCAL DAY
+// (both reset daily). Dr. Toxi chat (3) is a LIFETIME counter.
 // The counters are persisted in the device Keychain (utils/usageStore) so an
 // uninstall/reinstall can NEVER reset them, and are tagged with the RevenueCat appUserID.
 const FREE_DRTOXI_LIMIT = 3; // lifetime chat messages
-const FREE_MEAL_SCAN_LIMIT = 2; // lifetime meal scans
+const FREE_MEAL_SCAN_PER_DAY = 2; // meal scans per local day (resets daily)
 const FREE_PRODUCT_SCAN_PER_DAY = 2; // product scans per local day (resets daily)
 // Keep the 2 free daily scans viewable in history for free (matches the daily scan allowance).
 const FREE_HISTORY_LIMIT = 2;
 const ENTITLEMENT_ID = 'toxiscan_pro';
 
 function getDefaultUsage(): LifetimeUsage {
-  return { mealScanCount: 0, drToxiCount: 0, productScanCount: 0, productScanDay: '' };
+  return { mealScanCount: 0, mealScanDay: '', drToxiCount: 0, productScanCount: 0, productScanDay: '' };
 }
 
 function getRCToken(): string {
@@ -157,7 +158,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   // Increments a lifetime counter in the persistent (Keychain-backed) store and
   // reconciles local state to the authoritative, monotonic value.
   const incrementUsageMutation = useMutation({
-    mutationFn: async (field: 'mealScanCount' | 'drToxiCount') => {
+    mutationFn: async (field: 'drToxiCount') => {
       const appUserId = customerInfoQuery.data?.originalAppUserId as string | undefined;
       return incrementLifetimeUsage(field, appUserId);
     },
@@ -171,6 +172,17 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     mutationFn: async () => {
       const appUserId = customerInfoQuery.data?.originalAppUserId as string | undefined;
       return incrementProductScan(appUserId);
+    },
+    onSuccess: (updated) => {
+      setUsage(updated);
+      queryClient.setQueryData(['lifetimeUsage'], updated);
+    },
+  });
+
+  const incrementMealScanMutation = useMutation({
+    mutationFn: async () => {
+      const appUserId = customerInfoQuery.data?.originalAppUserId as string | undefined;
+      return incrementMealScan(appUserId);
     },
     onSuccess: (updated) => {
       setUsage(updated);
@@ -239,23 +251,36 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     incrementUsageMutation.mutate('drToxiCount');
   }, [isPro, incrementUsageMutation]);
 
-  // ── Meal scan — 2 free, LIFETIME (full verdict each time) ──
+  // ── Meal scan — 2 free per local day (resets daily), then paywall ──
+  const todayStr = todayLocalDateString();
+  const mealScanCountToday = usage.mealScanDay === todayStr ? usage.mealScanCount : 0;
+
   const mealScanRemaining = useMemo(() => {
     if (isPro) return Infinity;
-    return Math.max(0, FREE_MEAL_SCAN_LIMIT - usage.mealScanCount);
-  }, [isPro, usage.mealScanCount]);
+    return Math.max(0, FREE_MEAL_SCAN_PER_DAY - mealScanCountToday);
+  }, [isPro, mealScanCountToday]);
 
-  const canMealScan = useMemo(() => isPro || usage.mealScanCount < FREE_MEAL_SCAN_LIMIT, [isPro, usage.mealScanCount]);
+  const canMealScan = useMemo(
+    () => isPro || mealScanCountToday < FREE_MEAL_SCAN_PER_DAY,
+    [isPro, mealScanCountToday],
+  );
 
   const consumeMealScan = useCallback(() => {
     if (isPro) return;
-    // Optimistic bump for instant gating; the mutation persists & reconciles to the max.
-    setUsage((current) => ({ ...current, mealScanCount: current.mealScanCount + 1 }));
-    incrementUsageMutation.mutate('mealScanCount');
-  }, [isPro, incrementUsageMutation]);
+    const today = todayLocalDateString();
+    // Optimistic bump for instant gating; the mutation persists & reconciles.
+    setUsage((current) => {
+      const sameDay = current.mealScanDay === today;
+      return {
+        ...current,
+        mealScanDay: today,
+        mealScanCount: sameDay ? current.mealScanCount + 1 : 1,
+      };
+    });
+    incrementMealScanMutation.mutate();
+  }, [isPro, incrementMealScanMutation]);
 
   // ── Product scan — 2 free per local day (resets daily), then paywall ──
-  const todayStr = todayLocalDateString();
   const productScanCountToday = usage.productScanDay === todayStr ? usage.productScanCount : 0;
 
   const productScanRemaining = useMemo(() => {
@@ -310,7 +335,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     canMealScan,
     mealScanRemaining,
     consumeMealScan,
-    mealScanLimit: FREE_MEAL_SCAN_LIMIT,
+    mealScanLimit: FREE_MEAL_SCAN_PER_DAY,
     // Product scan (2 free per day, resets daily)
     canScan,
     scanRemaining: productScanRemaining,
