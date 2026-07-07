@@ -120,7 +120,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
 
   // --- Conservateurs problématiques ---
   { code: 'en:e320', name: 'BHA (Butylhydroxyanisole)', group: 'group2a', category: 'food', description: 'Interdit dans certains pays. Considéré cancérigène possible par le CIRC (Groupe 2B). À éviter.' },
-  { code: 'en:e319', name: 'TBHQ (Tert-butylhydroquinone)', group: 'group2a', category: 'food', description: 'Lié à des tumeurs dans des études animales. Limité en UE.' },
+  { code: 'en:e319', name: 'TBHQ (Tert-butylhydroquinone)', group: 'group2a', category: 'food', description: 'Conservateur de synthèse dérivé du pétrole. Non classé cancérigène par le CIRC. Des études animales à hautes doses suggèrent des effets sur le système immunitaire et un stress oxydatif. Additif autorisé dans l\'UE mais à limiter.' },
 
   // --- Colorants azoïques (hyperactivité enfant) ---
   { code: 'en:e102', name: 'Tartrazine / Yellow 5', group: 'group2a', category: 'food', description: 'Colorant azoïque lié à l\'hyperactivité chez l\'enfant. Avertissement obligatoire en UE. Souvent contaminé par la benzidine.' },
