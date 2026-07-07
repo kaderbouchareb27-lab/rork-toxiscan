@@ -7,7 +7,7 @@ export const DR_TOXI_DEFAULT_AVATAR_URI = 'https://r2-pub.rork.com/generated-ima
  * (same shocked/terrified pose, hands on face, lab coat, stethoscope), but the
  * character is tinted deep bordeaux (#6A3338) instead of bright red.
  */
-export const DR_TOXI_ULTRA_TOXIC_AVATAR = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/9a6b5672-f6d6-4287-814c-a24a98c1612d.png';
+export const DR_TOXI_ULTRA_TOXIC_AVATAR = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/106f8727-2966-4581-b3a7-b66b4fe6c7df.png';
 
 export const DR_TOXI_BADGE_AVATARS: Record<DrToxiVerdictLevel, string> = {
   danger: 'https://r2-pub.rork.com/generated-images/27e289be-6c64-40c0-bfe4-ebbf77f17086.png',
