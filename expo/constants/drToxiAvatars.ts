@@ -14,12 +14,12 @@ export const DR_TOXI_WARNING_AVATAR_URI = 'https://r2-pub.rork.com/generated-ima
 export const DR_TOXI_MODERATION_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/060a2f78-45c6-4c6f-953f-9d8ca12edcce.png';
 
 /**
- * ULTRA TOXIC 🟥 avatar — same shocked pose as the CARCINOGENIC (danger) avatar
- * but tinted deep bordeaux (#6A3338). Bundled locally with normalized framing
- * (transparent padding around the character) so the hair is NEVER clipped by
- * small circular containers, regardless of how the original was framed.
+ * ULTRA TOXIC 🟥 avatar — the original terrified bordeaux Dr. Toxi (hands on face,
+ * full broccoli hair, sweat drops, doctor coat). This generation is framed with
+ * generous padding around the character, so the hair fits the circular badge
+ * without being clipped.
  */
-export const DR_TOXI_ULTRA_TOXIC_AVATAR: DrToxiAvatarSource = require('../assets/images/dr-toxi-ultra-toxic.png') as number;
+export const DR_TOXI_ULTRA_TOXIC_AVATAR: DrToxiAvatarSource = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/041a925d-93b4-43ab-829a-5a634484cbe0.png';
 
 export const DR_TOXI_BADGE_AVATARS: Record<DrToxiVerdictLevel, DrToxiAvatarSource> = {
   danger: DR_TOXI_DANGER_AVATAR_URI,
