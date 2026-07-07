@@ -43,13 +43,14 @@ import { getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRe
 import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
+import { isUltraToxicCirc } from '@/constants/ultraToxicIngredients';
 
 // ─────────────────────────────────────────────
 // ✅ Conversion directe niveau_risque → couleur/label
 // On utilise niveau_risque stocké par lookupIngredient (api.ts)
 // PAS de re-classification textuelle qui écrase la base de données
 // ─────────────────────────────────────────────
-type DisplayLevel = 'danger' | 'probable' | 'possible' | 'aucun';
+type DisplayLevel = 'danger' | 'ultratoxic' | 'probable' | 'possible' | 'aucun';
 
 // Verdict vocabulary domain. Food and cosmetics each have their own scale; the
 // three non-food categories (household chemicals, textiles, kitchen materials)
@@ -89,7 +90,10 @@ function nonFoodIntro(domain: 'household' | 'textile' | 'kitchen', rawLevel: Ver
   }
 }
 
-function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
+function getDisplayLevel(ing: { niveau_risque?: string | null; classification_circ?: string | null }): DisplayLevel {
+  // 🟥 The 9 banned ULTRA TOXIC additives are stamped with the dedicated circ sentinel and
+  // always show the bordeaux ULTRA TOXIC badge (checked before the generic risk mapping).
+  if (isUltraToxicCirc(ing.classification_circ)) return 'ultratoxic';
   switch (ing.niveau_risque) {
     case 'danger':   return 'danger';
     case 'probable': return 'probable';
@@ -101,42 +105,47 @@ function getDisplayLevel(ing: { niveau_risque?: string | null }): DisplayLevel {
 function getLevelBadgeColor(level: DisplayLevel, domain: VerdictDomain = 'food'): string {
   if (domain === 'cosmetic') {
     switch (level) {
-      case 'danger':   return '#7C3AED'; // 🟣 TOXIC
-      case 'probable': return '#EAB308'; // (n'arrive pas en cosmétique — sécurité)
-      case 'possible': return '#EAB308'; // 🟡 DISPUTED
-      case 'aucun':    return '#2E9E34'; // 🟢 APPROVED
+      case 'danger':     return '#7C3AED'; // 🟣 TOXIC
+      case 'ultratoxic': return '#7C3AED'; // (n'arrive pas en cosmétique — sécurité)
+      case 'probable':   return '#EAB308'; // (n'arrive pas en cosmétique — sécurité)
+      case 'possible':   return '#EAB308'; // 🟡 DISPUTED
+      case 'aucun':      return '#2E9E34'; // 🟢 APPROVED
     }
   }
   switch (level) {
-    case 'danger':   return '#D0260F'; // 🔴 CANCÉRIGÈNE
-    case 'probable': return '#E8730A'; // 🟠 ULTRA-TRANSFORMÉ
-    case 'possible': return '#EAB308'; // 🟡 MODÉRATION
-    case 'aucun':    return '#2E9E34'; // 🟢 APPROUVÉ
+    case 'danger':     return '#D0260F'; // 🔴 CANCÉRIGÈNE
+    case 'ultratoxic': return '#722F37'; // 🟥 ULTRA TOXIC (bordeaux)
+    case 'probable':   return '#E8730A'; // 🟠 ULTRA-TRANSFORMÉ
+    case 'possible':   return '#EAB308'; // 🟡 MODÉRATION
+    case 'aucun':      return '#2E9E34'; // 🟢 APPROUVÉ
   }
 }
 
 function getLevelBadgeLabel(level: DisplayLevel, domain: VerdictDomain = 'food'): string {
   if (domain === 'cosmetic') {
     switch (level) {
-      case 'danger':   return t('cosmetic_badge_toxic');     // TOXIQUE / TOXIC
-      case 'probable': return t('cosmetic_badge_disputed');  // (sécurité)
-      case 'possible': return t('cosmetic_badge_disputed');  // CONTESTÉ / DISPUTED
-      case 'aucun':    return t('cosmetic_badge_approved');  // APPROUVÉ / APPROVED
+      case 'danger':     return t('cosmetic_badge_toxic');     // TOXIQUE / TOXIC
+      case 'ultratoxic': return t('cosmetic_badge_toxic');     // (sécurité)
+      case 'probable':   return t('cosmetic_badge_disputed');  // (sécurité)
+      case 'possible':   return t('cosmetic_badge_disputed');  // CONTESTÉ / DISPUTED
+      case 'aucun':      return t('cosmetic_badge_approved');  // APPROUVÉ / APPROVED
     }
   }
   if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
     switch (level) {
-      case 'danger':   return t('nf_badge_danger');    // CANCÉRIGÈNE / CARCINOGENIC
-      case 'probable': return t('nf_badge_hazardous'); // DANGEREUX / HAZARDOUS
-      case 'possible': return t('nf_badge_caution');   // PRÉCAUTION / CAUTION
-      case 'aucun':    return t('nf_badge_safe');      // SÛR / SAFE
+      case 'danger':     return t('nf_badge_danger');    // CANCÉRIGÈNE / CARCINOGENIC
+      case 'ultratoxic': return t('nf_badge_danger');    // (sécurité)
+      case 'probable':   return t('nf_badge_hazardous'); // DANGEREUX / HAZARDOUS
+      case 'possible':   return t('nf_badge_caution');   // PRÉCAUTION / CAUTION
+      case 'aucun':      return t('nf_badge_safe');      // SÛR / SAFE
     }
   }
   switch (level) {
-    case 'danger':   return t('badge_danger');     // CANCÉRIGÈNE
-    case 'probable': return t('ingredient_badge_industrial'); // INDUSTRIEL / INDUSTRIAL
-    case 'possible': return t('ingredient_badge_disputed');   // CONTESTÉ / DISPUTED
-    case 'aucun':    return t('badge_approved');   // APPROUVÉ
+    case 'danger':     return t('badge_danger');     // CANCÉRIGÈNE
+    case 'ultratoxic': return t('badge_ultra_toxic'); // ULTRA TOXIQUE / ULTRA TOXIC / 초독성
+    case 'probable':   return t('ingredient_badge_industrial'); // INDUSTRIEL / INDUSTRIAL
+    case 'possible':   return t('ingredient_badge_disputed');   // CONTESTÉ / DISPUTED
+    case 'aucun':      return t('badge_approved');   // APPROUVÉ
   }
 }
 
@@ -907,7 +916,7 @@ export default function ProductScreen() {
   // Advice built from what was ACTUALLY found on this scanned label — names the
   // flagged substances (worst first) and turns them into concrete guidance.
   const scannedAdvice = useMemo(() => {
-    const severityRank: Record<DisplayLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
+    const severityRank: Record<DisplayLevel, number> = { danger: 0, ultratoxic: 1, probable: 2, possible: 3, aucun: 4 };
     const flagged = ingredientsList
       .filter((ing) => getDisplayLevel(ing) !== 'aucun')
       .slice()

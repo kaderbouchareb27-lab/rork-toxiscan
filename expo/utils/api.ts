@@ -15,6 +15,23 @@ import {
   CosmeticTier,
   CosmeticVerdictCounts,
 } from '@/constants/cosmeticsDatabase';
+import {
+  computeVerdictTier,
+  verdictTierFromProduct,
+  bucketSubstance,
+  tierToLegacyBadge,
+  legacyBadgeToTier,
+} from '@/utils/verdictTier';
+import {
+  matchUltraToxicIngredient,
+  getUltraToxicDescription,
+  ULTRA_TOXIC_CIRC,
+} from '@/constants/ultraToxicIngredients';
+
+// The 5-tier verdict engine now lives in the pure '@/utils/verdictTier' module
+// (testable in isolation). Re-exported here so existing screens/providers can keep
+// importing them from '@/utils/api'.
+export { computeVerdictTier, verdictTierFromProduct };
 
 // ═══════════════════════════════════════════════════════════════════════
 // LOOKUP DÉTERMINISTE — l'IA NE CLASSE PAS, ELLE CHERCHE DANS LA BASE
@@ -186,156 +203,12 @@ function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLev
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// MOTEUR 5 TIERS — hiérarchie validée (du moins au plus grave) :
-//   🟢 approved → 🟡 moderation → 🟠 processed (neutre) →
-//   🟥 ultra_toxic (bordeaux #722F37 — CIRC 2A/2B ou accumulation massive,
-//   juste EN DESSOUS du cancérigène confirmé) → 🔴 carcinogenic (Groupe 1 SEUL).
-// Chaque ingrédient est d'abord classé dans un des 5 seaux : G1 / G2A / G2B /
-// UP (marqueur ultra-transformé sans base cancérigène) / WATCH (jaune) / SAFE.
-// Le rouge vif reste EXCLUSIVEMENT réservé au Groupe 1 confirmé.
-// Le badge intermédiaire TOXIC (vermillon) a été SUPPRIMÉ : ses déclencheurs
-// remontent dans ULTRA TOXIC, plus discriminant.
+// MOTEUR 5 TIERS + dérivation legacy → déplacé dans '@/utils/verdictTier'
+// (module pur, sans dépendance RN/i18n, donc testable isolément). Importé et
+// ré-exporté en tête de fichier pour la compat des écrans/providers existants.
+// Le badge rouge vif reste EXCLUSIVEMENT réservé au Groupe 1 confirmé ; le bordeaux
+// ULTRA TOXIC couvre les 9 additifs bannis (voir enforceUltraToxicFloor + verdictTier).
 // ═══════════════════════════════════════════════════════════════════
-
-type IngredientBucket = 'g1' | 'g2a' | 'g2b' | 'up' | 'watch' | 'safe';
-
-interface TierCounts {
-  g1: number;
-  g2a: number;
-  g2b: number;
-  up: number;
-  watch: number;
-  safe: number;
-}
-
-/** Classify one substance into its 6-tier bucket from risk level + IARC label. */
-function bucketSubstance(s: { niveau_risque: RiskLevel; classification_circ?: string | null }): IngredientBucket {
-  if (s.niveau_risque === 'danger') return 'g1';
-  const circ = normalizeForLookup(s.classification_circ ?? '');
-  const is2a = /\b2a\b/.test(circ);
-  const is2b = /\b2b\b/.test(circ);
-  if (s.niveau_risque === 'probable') {
-    if (is2a) return 'g2a';
-    if (is2b) return 'g2b';
-    return 'up';
-  }
-  if (s.niveau_risque === 'possible') {
-    if (is2b) return 'g2b';
-    return 'watch';
-  }
-  return 'safe';
-}
-
-function countBuckets(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): TierCounts {
-  const counts: TierCounts = { g1: 0, g2a: 0, g2b: 0, up: 0, watch: 0, safe: 0 };
-  for (const s of substances) counts[bucketSubstance(s)] += 1;
-  return counts;
-}
-
-/**
- * Computes the 5-tier verdict for a FOOD product using STRICT count-based rules.
- * The verdict can never be harsher than what the ingredient badges justify.
- *
- * "Orange" = every ingredient shown with the orange INDUSTRIAL badge
- * (niveau_risque 'probable'), INCLUDING those also flagged IARC 2A/2B — exactly
- * what the user counts on screen. "Yellow" = the DISPUTED badge ('possible').
- *
- * Rules (least → most severe):
- * - APPROVED 🟢     : 0 orange AND ≤ 2 yellows (a couple of yellows = still green,
- *   the green accumulation wins).
- * - MODERATION 🟡   : exactly 1 orange (whatever the rest) OR 3+ yellows without orange.
- * - PROCESSED 🟠    : 2+ orange (ultra-processed) ingredients — 2 oranges already make
- *   a product Processed, whatever the greens around them.
- * - ULTRA TOXIC 🟥  : G2A ≥ 1 OU G2B ≥ 2 OU orange ≥ 10 — really concerning,
- *   one step below a confirmed carcinogen (bordeaux #722F37).
- * - CARCINOGENIC 🔴 : G1 ≥ 1 (confirmed IARC Group 1 only — never inflated with 2A/2B).
- *
- * Examples: 1 orange + 1 yellow + 5 greens → MODERATION. 2 yellows + greens → APPROVED.
- * 3 yellows → MODERATION. 2 oranges → PROCESSED. 5 oranges → PROCESSED.
- */
-const PROCESSED_MIN_ORANGE = 2;
-const ULTRA_TOXIC_MIN_ORANGE = 10;
-const MODERATION_MIN_WATCH = 3;
-
-export function computeVerdictTier(substances: { niveau_risque: RiskLevel; classification_circ?: string | null }[]): VerdictTier {
-  const c = countBuckets(substances);
-  // Count the badges EXACTLY as they appear on screen: every 'probable' ingredient
-  // shows the orange INDUSTRIAL badge (even when also flagged IARC 2A/2B, which the
-  // bucket counters split out). This is what the user physically counts.
-  const orange = substances.filter((s) => s.niveau_risque === 'probable').length;
-  const yellow = substances.filter((s) => s.niveau_risque === 'possible').length;
-
-  if (c.g1 >= 1) {
-    console.log('[Tier] CARCINOGENIC — G1:', c.g1);
-    return 'carcinogenic';
-  }
-  if (c.g2a >= 1 || c.g2b >= 2 || orange >= ULTRA_TOXIC_MIN_ORANGE) {
-    console.log('[Tier] ULTRA_TOXIC — G2A:', c.g2a, 'G2B:', c.g2b, 'ORANGE:', orange);
-    return 'ultra_toxic';
-  }
-  if (orange >= PROCESSED_MIN_ORANGE) {
-    console.log('[Tier] PROCESSED — ORANGE:', orange, '(threshold', PROCESSED_MIN_ORANGE + ')');
-    return 'processed';
-  }
-  if (orange >= 1 || yellow >= MODERATION_MIN_WATCH) {
-    console.log('[Tier] MODERATION — ORANGE:', orange, 'YELLOW:', yellow, 'SAFE:', c.safe);
-    return 'moderation';
-  }
-  console.log('[Tier] APPROVED — YELLOW:', yellow, 'SAFE:', c.safe);
-  return 'approved';
-}
-
-/** Legacy 4-level badge derived from the 6-tier verdict (storage / riskGroup compat). */
-function tierToLegacyBadge(tier: VerdictTier): RiskLevel {
-  switch (tier) {
-    case 'ultra_toxic':
-    case 'carcinogenic': return 'danger';
-    case 'processed': return 'probable';
-    case 'moderation': return 'possible';
-    case 'approved':
-    default: return 'aucun';
-  }
-}
-
-/** 5-tier verdict derived from a legacy 4-level badge (cosmetic / non-food / old scans). */
-export function legacyBadgeToTier(badge: RiskLevel): VerdictTier {
-  switch (badge) {
-    case 'danger': return 'carcinogenic';
-    case 'probable': return 'processed';
-    case 'possible': return 'moderation';
-    case 'aucun':
-    default: return 'approved';
-  }
-}
-
-/** Categories that do NOT use the food tier engine (they have their own scales). */
-const NON_FOOD_TIER_CATEGORIES: readonly ProductCategory[] = ['cosmetic', 'household', 'clothing', 'kitchen_utensil'];
-
-/**
- * 5-tier verdict for a saved scan. For FOOD products with stored ingredient details,
- * the tier is ALWAYS recomputed live from the per-ingredient badges — so the global
- * verdict can never contradict the badges shown on screen, and old scans automatically
- * follow the latest rules without rescanning. Cosmetic/non-food scans keep their
- * stored tier (separate engines), and legacy scans fall back to riskGroup.
- */
-export function verdictTierFromProduct(product: {
-  verdictTier?: VerdictTier;
-  riskGroup: RiskGroup;
-  productCategory?: ProductCategory;
-  detectedIngredients?: { niveau_risque: RiskLevel; classification_circ?: string | null }[];
-}): VerdictTier {
-  const isFoodEngine = !product.productCategory || !NON_FOOD_TIER_CATEGORIES.includes(product.productCategory);
-  if (isFoodEngine && product.detectedIngredients && product.detectedIngredients.length > 0) {
-    return computeVerdictTier(product.detectedIngredients);
-  }
-  if (product.verdictTier) return product.verdictTier;
-  switch (product.riskGroup) {
-    case 'group1': return 'carcinogenic';
-    case 'group2a': return 'processed';
-    case 'group2b': return 'moderation';
-    default: return 'approved';
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════════
 // COSMÉTIQUE — moteur d'analyse SÉPARÉ (🟣 TOXIC / 🟡 DISPUTED / 🟢 APPROVED)
@@ -1431,6 +1304,31 @@ function enforcePalmOilFloor(sub: SubstanceDetected): SubstanceDetected {
   };
 }
 
+/**
+ * Forces the 9 banned ULTRA TOXIC additives (potassium bromate, Red 3, titanium dioxide,
+ * BHA, azodicarbonamide, BVO, sodium nitrite/nitrate, propylparaben, Red 40) to the ULTRA
+ * TOXIC tier with their curated HARDCODED description (FR/EN/KO) — no AI generation for these,
+ * for speed and accuracy. Priority #1 exception: a genuine IARC Group 1 carcinogen (e.g. sodium
+ * nitrite/nitrate, circ "Groupe 1") outranks ULTRA TOXIC and stays CARCINOGENIC (red).
+ */
+function enforceUltraToxicFloor(sub: SubstanceDetected): SubstanceDetected {
+  const entry = matchUltraToxicIngredient(sub.nom, sub.code);
+  if (!entry) return sub;
+  // A confirmed IARC Group 1 carcinogen keeps the higher CARCINOGENIC tier (priority #1).
+  if (normalizeForLookup(sub.classification_circ ?? '').includes('groupe 1')) {
+    console.log('[Classify] ULTRA TOXIC match kept CARCINOGENIC (Group 1) — "' + sub.nom + '"');
+    return sub;
+  }
+  console.log('[Classify] ULTRA TOXIC — "' + sub.nom + '" → forced ultra_toxic (' + entry.id + ')');
+  return {
+    ...sub,
+    niveau_risque: 'danger',
+    classification_circ: ULTRA_TOXIC_CIRC,
+    explication: getUltraToxicDescription(entry, getDeviceLanguage()),
+    descriptionPending: false,
+  };
+}
+
 /** Classify ingredient names parsed locally from OCR. Known → DB description now; unknown → pending. */
 function classifyLocal(names: string[]): SubstanceDetected[] {
   return names
@@ -1474,7 +1372,8 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
         descriptionPending: true,
       };
     })
-    .map(enforcePalmOilFloor);
+    .map(enforcePalmOilFloor)
+    .map(enforceUltraToxicFloor);
 }
 
 function classifyIngredients(aiIngredients: { nom: string; explication: string }[]): SubstanceDetected[] {
@@ -1556,7 +1455,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       explication: finalExplication,
       source_exposition: null,
     };
-  }).map(enforcePalmOilFloor);
+  }).map(enforcePalmOilFloor).map(enforceUltraToxicFloor);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
