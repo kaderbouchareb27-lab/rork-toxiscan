@@ -914,6 +914,16 @@ export default function ProductScreen() {
       : product.substances ?? [];
   }, [product]);
 
+  // The instant local verdict shows first; the AI then verifies every ingredient
+  // in the background and may upgrade/downgrade the tier. While any ingredient
+  // description is still pending, the verdict is only PROVISIONAL — surface a
+  // spinning green ring on the verdict card until every ingredient is verified.
+  const isAnalyzing = useMemo(() => {
+    return ingredientsList.some(
+      (ing) => ing.descriptionPending === true && !(ing.explication && ing.explication.trim().length > 0),
+    );
+  }, [ingredientsList]);
+
   // Advice built from what was ACTUALLY found on this scanned label — names the
   // flagged substances (worst first) and turns them into concrete guidance.
   const scannedAdvice = useMemo(() => {
@@ -1157,7 +1167,7 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} />
+        <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} isAnalyzing={isAnalyzing} />
 
         {profileAlerts.length > 0 ? (
           <View style={styles.profileAlertsWrap}>

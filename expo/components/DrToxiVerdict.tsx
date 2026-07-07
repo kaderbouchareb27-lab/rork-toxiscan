@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, Animated, Platform, Easing } from 'react-native';
 import { Image } from 'expo-image';
 import { isEnglish, pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict, type DrToxiAvatarSource } from '@/constants/drToxiAvatars';
@@ -10,6 +10,43 @@ interface DrToxiVerdictProps {
   level: VerdictLevel;
   /** Cosmetic products use the separate TOXIC / DISPUTED / APPROVED scale. */
   isCosmetic?: boolean;
+  /**
+   * True while the AI is still verifying ingredients in the background. The shown
+   * verdict is only PROVISIONAL until this turns false — we surface a spinning
+   * green ring + a clear "not final yet" caption so the user never mistakes the
+   * instant verdict for the final one.
+   */
+  isAnalyzing?: boolean;
+}
+
+/**
+ * Small spinning green ring (matches the scanner's loading spinner) that signals
+ * the AI is still thinking. Rendered next to the verdict label while analyzing.
+ */
+function AnalyzingSpinner({ size = 22 }: { size?: number }) {
+  const rotation = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.timing(rotation, {
+        toValue: 1,
+        duration: 900,
+        easing: Easing.linear,
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [rotation]);
+  const spin = rotation.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  return (
+    <Animated.View
+      style={[
+        styles.analyzingRing,
+        { width: size, height: size, borderRadius: size / 2, transform: [{ rotate: spin }] },
+      ]}
+      testID="verdict-analyzing-spinner"
+    />
+  );
 }
 
 interface VerdictCardConfig {
@@ -154,7 +191,7 @@ function getVerdictConfig(level: VerdictLevel, isCosmetic: boolean): VerdictCard
   };
 }
 
-export default function DrToxiVerdict({ level, isCosmetic = false }: DrToxiVerdictProps) {
+export default function DrToxiVerdict({ level, isCosmetic = false, isAnalyzing = false }: DrToxiVerdictProps) {
   const config = getVerdictConfig(level, isCosmetic);
   const eyebrow = isCosmetic
     ? pick({ en: 'COSMETIC VERDICT', fr: 'VERDICT COSMÉTIQUE', ko: '화장품 판정' })
@@ -197,9 +234,24 @@ export default function DrToxiVerdict({ level, isCosmetic = false }: DrToxiVerdi
         </Animated.View>
         <View style={styles.headerText}>
           <Text style={styles.eyebrow}>{eyebrow}</Text>
-          <Text style={styles.label}>{config.label}</Text>
+          <View style={styles.labelRow}>
+            <Text style={styles.label}>{config.label}</Text>
+            {isAnalyzing ? <AnalyzingSpinner /> : null}
+          </View>
         </View>
       </View>
+      {isAnalyzing ? (
+        <View style={styles.analyzingBanner} testID="verdict-analyzing-banner">
+          <AnalyzingSpinner size={16} />
+          <Text style={styles.analyzingText}>
+            {pick({
+              en: 'Dr. Toxi is still checking every ingredient — this verdict is provisional.',
+              fr: 'Dr. Toxi vérifie encore chaque ingrédient — ce verdict est provisoire.',
+              ko: 'Dr. Toxi가 아직 모든 성분을 확인하고 있어요 — 이 판정은 잠정적입니다.',
+            })}
+          </Text>
+        </View>
+      ) : null}
       <Text style={styles.subtitle}>{config.subtitle}</Text>
       <Text style={styles.description}>{config.description}</Text>
     </View>
@@ -240,6 +292,35 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
+  },
+  labelRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 10,
+  },
+  analyzingRing: {
+    borderWidth: 2.5,
+    borderColor: 'rgba(255,255,255,0.32)',
+    borderTopColor: '#5BE584',
+    borderRightColor: '#5BE584',
+  },
+  analyzingBanner: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 9,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderRadius: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  analyzingText: {
+    flex: 1,
+    fontSize: 12.5,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    lineHeight: 17,
+    letterSpacing: -0.1,
   },
   eyebrow: {
     fontSize: 11,
