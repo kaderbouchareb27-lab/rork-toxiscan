@@ -8,8 +8,9 @@
 //   2. ULTRA TOXIC   : ≥ 1 ingrédient de la liste ULTRA TOXIC (RÈGLE N°1 : ≥ 2 = override
 //                      total, aucun downgrade possible), OU les déclencheurs historiques
 //                      (2A ≥ 1, 2B ≥ 2, 10+ orange).
-//   3. PROCESSED     : ≥ 2 ingrédients orange (ultra-transformés).
-//   4. MODERATION    : 1 orange, ou 3+ jaunes.
+//   3. PROCESSED     : ≥ 4 ingrédients orange (ultra-transformés) — seuil relevé pour ne plus
+//                      déclencher « Transformé » avec seulement 2 ingrédients transformés.
+//   4. MODERATION    : 1 à 3 orange, ou 3+ jaunes.
 //   5. APPROVED      : sinon.
 // ═══════════════════════════════════════════════════════════════════
 
@@ -66,7 +67,9 @@ function countBuckets(substances: { niveau_risque: RiskLevel; classification_cir
   return counts;
 }
 
-const PROCESSED_MIN_ORANGE = 2;
+// Global « Transformé » verdict requires at least 4 processed (orange) ingredients —
+// 1-3 orange now fall to MODERATION instead of tipping the whole product.
+const PROCESSED_MIN_ORANGE = 4;
 const ULTRA_TOXIC_MIN_ORANGE = 10;
 const MODERATION_MIN_WATCH = 3;
 

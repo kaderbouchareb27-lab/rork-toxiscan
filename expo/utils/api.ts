@@ -148,17 +148,34 @@ export function classifyFoodIngredient(name: string): { risk: RiskLevel; circ: s
   return { risk: entry.risk, circ: entry.circ };
 }
 
-// A compound ingredient like "Sugars (sugar, dextrose)" that lists refined sugar or dextrose
-// among its sub-ingredients must always classify as ULTRA-PROCESSED (orange), never CAUTION.
-const REFINED_SUGAR_TOKENS = ['sugars', 'sugar', 'sucres', 'sucre', 'dextrose'] as const;
+// A compound ingredient like "Sugars (sugar, dextrose)" is classified from its SUB-ingredients,
+// with the DATABASE always having priority. Only when a listed sub-ingredient genuinely resolves
+// to a refined sugar (orange in the DB) does the compound inherit that entry. Natural sugars
+// listed inside "Sugars (…)" (coconut sugar, maple, date sugar, monk fruit…) KEEP their own
+// database badge — they are never forced to orange by the mere word "sugar" in the header.
+const SUGAR_HEADER_TOKENS = ['sugars', 'sugar', 'sucres', 'sucre', 'dextrose'] as const;
 const REFINED_SUGAR_ENTRY: IngredientEntry | null = lookupIngredient('sugars');
+const RISK_SEVERITY: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
 
-function isCompoundRefinedSugar(name: string): boolean {
+/**
+ * Resolves the database entry a compound sugar declaration should inherit: each listed
+ * sub-ingredient is looked up individually and the harshest DB match wins. Returns null when
+ * the name is not a compound sugar declaration, and falls back to the generic refined-sugar
+ * entry ONLY when no sub-ingredient is recognized at all.
+ */
+function resolveCompoundSugarEntry(name: string): IngredientEntry | null {
   // Compound = lists sub-ingredients via a parenthesis or comma (e.g. "Sugars (sugar, dextrose)").
-  if (!/[(),]/.test(name)) return false;
+  if (!/[(),]/.test(name)) return null;
   const normalized = normalizeForLookup(name);
-  if (!normalized) return false;
-  return REFINED_SUGAR_TOKENS.some((t) => normalized.includes(t));
+  if (!normalized || !SUGAR_HEADER_TOKENS.some((t) => normalized.includes(t))) return null;
+  const inner = /\(([^)]*)\)/.exec(name)?.[1] ?? name;
+  const parts = inner.split(/[,;]/).map((p) => p.trim()).filter((p) => p.length >= 2);
+  let worst: IngredientEntry | null = null;
+  for (const part of parts) {
+    const sub = lookupIngredient(part);
+    if (sub && (!worst || RISK_SEVERITY[sub.risk] < RISK_SEVERITY[worst.risk])) worst = sub;
+  }
+  return worst ?? REFINED_SUGAR_ENTRY;
 }
 
 function computeBadgeGlobal(substances: { niveau_risque: RiskLevel }[]): RiskLevel {
@@ -485,17 +502,17 @@ Pour CHAQUE ingrédient, écris 3 à 5 phrases en français clair, tutoiement, T
   6. Description SPÉCIFIQUE à CET ingrédient — JAMAIS de description générique ni passe-partout.
 
   EXEMPLES OBLIGATOIRES (à reproduire dans cet esprit) :
-  • Sucre / Sucre de canne : "Sucre industriel raffiné sans valeur nutritive. Nourrit les cellules cancéreuses, favorise l'obésité, la résistance à l'insuline et l'inflammation chronique — tous des facteurs majeurs de risque de cancer. À éviter."
+  • Sucre / Sucre de canne : "Sucre industriel raffiné sans valeur nutritive. Absorbé très rapidement, il favorise l'obésité, la résistance à l'insuline, le diabète de type 2 et l'inflammation chronique. À éviter au quotidien."
   • Huile végétale hydrogénée : "Huile végétale hydrogénée industriellement. Le processus d'hydrogénation crée des gras trans qui favorisent l'inflammation chronique, obstruent les artères et sont directement liés à un risque accru de cancer. Évitez la consommation régulière."
 
   🚫🚫 ERREURS RÉELLES CONSTATÉES — À NE PLUS JAMAIS REPRODUIRE 🚫🚫
   • Sirop de glucose-fructose / HFCS : il est STRICTEMENT INTERDIT d'écrire "index glycémique bas" ou toute phrase positive/neutre. LA VÉRITÉ : son fructose isolé est métabolisé directement par le foie → stéatose hépatique non alcoolique, obésité, résistance à l'insuline et risque accru de cancer. "Sirop de glucose-fructose industriel extrait du maïs (souvent OGM). Son fructose isolé surcharge le foie et favorise la stéatose hépatique, l'obésité et l'inflammation chronique — facteurs de risque de cancer. À éviter."
   • Poudre à lever / agents levants ("leavening") : JAMAIS de description générique. Explique qu'ils contiennent des phosphates industriels (E450-E452) dont l'excès est lié à la calcification des artères et aux troubles rénaux, marqueur d'aliment transformé.
-  • Arômes naturels ET artificiels : JAMAIS neutre. Composés industriels à composition secrète (extraits aux solvants, pétrochimie pour les artificiels), marqueurs certains d'ultra-transformation (NOVA 4).
+  • Arômes naturels ET artificiels : JAMAIS neutre. Composés industriels à composition secrète (extraits aux solvants, pétrochimie pour les artificiels), marqueurs certains d'ultra-transformation (NOVA 4). EXCEPTION — arômes certifiés BIO (« arômes bio », « organic flavors ») : ton ÉQUILIBRÉ, pas alarmiste — la certification bio interdit les solvants pétrochimiques type hexane ; composition non divulguée et marqueur de transformation, acceptable occasionnellement.
   • Vitamines de synthèse (cyanocobalamine/B12, niacine/B3, B5, B6, inositol…) ET minéraux/sels industriels (carbonate de calcium, citrate de sodium…) : N'INVENTE JAMAIS de cancer. Explique qu'ils sont fabriqués par synthèse/fermentation industrielle pour re-fortifier ou stabiliser un produit appauvri, et que leur présence trahit un aliment ultra-transformé. Termine par « marqueur d'aliment ultra-transformé (NOVA 4). À éviter au quotidien. » SANS mot « cancer ».
   ⛔ Toute description d'ingrédient ORANGE (ultra-transformé) DOIT : (a) expliquer le procédé industriel, (b) ne JAMAIS rassurer ni citer un bienfait, (c) se terminer par une reco claire. Le mot « cancer » (ou une maladie grave) n'apparaît QUE s'il est réellement fondé pour cet ingrédient (CIRC / preuve solide) — sinon termine par « À éviter au quotidien — marqueur d'aliment ultra-transformé (NOVA 4) ». NE COLLE JAMAIS « cancer » par défaut sur une vitamine de synthèse, un minéral ou un sel industriel.
 
-▸ INGRÉDIENT CONTROVERSÉ / JAUNE (acceptable occasionnellement : certains additifs modérés, acide citrique, gommes, conservateurs légers, etc.) :
+▸ INGRÉDIENT CONTROVERSÉ / JAUNE (acceptable occasionnellement : certains additifs modérés, gommes, conservateurs légers, etc.) :
   Description ÉQUILIBRÉE :
   1. Explique ce qu'est l'ingrédient.
   2. Mentionne pourquoi il est controversé ou potentiellement nocif.
@@ -511,7 +528,7 @@ EXEMPLES OBLIGATOIRES À SUIVRE :
 
 • Sirop de glucose-fructose : "Édulcorant industriel ultra-transformé extrait de l'amidon de maïs. Son fructose isolé est métabolisé directement par le foie et favorise la stéatose hépatique non alcoolique, l'insulinorésistance et l'obésité. Très différent du sucre des fruits entiers — à éviter au quotidien."
 
-• Acide citrique : "L'acide citrique alimentaire (E330) n'est PAS extrait des agrumes : il est produit industriellement par fermentation du moisissure Aspergillus niger sur du sirop de maïs (souvent OGM). En excès, il érode l'émail dentaire et irrite les muqueuses digestives. Marqueur de produit transformé."
+• Acide citrique : "Acide présent naturellement dans les agrumes, produit pour l'alimentation par fermentation (Aspergillus niger). L'EFSA n'a identifié aucun problème de sécurité aux doses alimentaires. En excès dans les boissons très acides, il peut fragiliser l'émail dentaire." (ingrédient VERT — ton factuel et rassurant)
 
 • Arômes naturels : "Le mot 'naturel' est trompeur. Ces arômes sont extraits avec des solvants industriels (hexane, alcool) et leur composition exacte reste secrète — pouvant inclure jusqu'à 100 substances chimiques. Marqueur certain de produit ultra-transformé. Les vrais aliments n'ont pas besoin d'arômes ajoutés."
 
@@ -694,17 +711,17 @@ The user downloaded this app BECAUSE THEY WANT THE TRUTH. If you reassure them, 
   6. SPECIFIC to THIS ingredient — NEVER a generic or boilerplate description.
 
   MANDATORY EXAMPLES (reproduce in this spirit):
-  • Sugar / Cane sugar: "Refined industrial sugar with zero nutritional value. Feeds cancer cells, promotes obesity, insulin resistance and chronic inflammation — all major cancer risk factors. Avoid."
+  • Sugar / Cane sugar: "Refined industrial sugar with zero nutritional value. Rapidly absorbed, it promotes obesity, insulin resistance, type 2 diabetes and chronic inflammation. Avoid daily consumption."
   • Hydrogenated vegetable oil: "Industrially hydrogenated vegetable oil. The hydrogenation process creates trans fats that promote chronic inflammation, block arteries and are directly linked to increased cancer risk. Avoid regular consumption."
 
   🚫🚫 REAL ERRORS OBSERVED — MUST NEVER HAPPEN AGAIN 🚫🚫
   • High Fructose Corn Syrup / HFCS: it is STRICTLY FORBIDDEN to write "low glycemic index" or any positive/neutral phrase. THE TRUTH: its isolated fructose is metabolized directly by the liver → non-alcoholic fatty liver disease, obesity, insulin resistance and increased cancer risk. "Industrial sweetener extracted from corn (often GMO). Its isolated fructose overloads the liver and promotes fatty liver disease, obesity and chronic inflammation — cancer risk factors. Avoid."
   • Leavening / raising agents / baking powder: NEVER a generic description. Explain they contain industrial phosphates (E450-E452) whose excess is linked to artery calcification and kidney problems — a marker of processed food.
-  • Natural AND artificial flavors: NEVER neutral. Industrial compounds with secret composition (solvent extraction, petrochemistry for artificial), certain markers of ultra-processing (NOVA 4).
+  • Natural AND artificial flavors: NEVER neutral. Industrial compounds with secret composition (solvent extraction, petrochemistry for artificial), certain markers of ultra-processing (NOVA 4). EXCEPTION — certified ORGANIC flavors ("organic flavors", "arômes bio"): BALANCED tone, not alarmist — organic certification bans petrochemical solvents like hexane; still undisclosed composition and a processing marker, acceptable occasionally.
   • Synthetic vitamins (cyanocobalamin/B12, niacin/B3, B5, B6, inositol…) AND industrial minerals/salts (calcium carbonate, sodium citrate…): NEVER invent cancer. Explain they are made by industrial synthesis/fermentation to re-fortify or stabilize a nutrient-stripped product, and that their presence betrays an ultra-processed food. End with "a marker of ultra-processed food (NOVA 4). Avoid regular consumption." WITHOUT the word "cancer".
   ⛔ Every ORANGE (ultra-processed) ingredient description MUST: (a) explain the industrial process, (b) NEVER reassure or cite a benefit, (c) end with a clear recommendation. The word "cancer" (or a serious disease) appears ONLY when genuinely grounded for this ingredient (IARC / strong evidence) — otherwise end with "Avoid regular consumption — a marker of ultra-processed food (NOVA 4)". NEVER slap "cancer" by default onto a synthetic vitamin, a mineral or an industrial salt.
 
-▸ CONTROVERSIAL / YELLOW INGREDIENT (acceptable occasionally: some moderate additives, citric acid, gums, light preservatives, etc.):
+▸ CONTROVERSIAL / YELLOW INGREDIENT (acceptable occasionally: some moderate additives, gums, light preservatives, etc.):
   BALANCED description:
   1. Explain what the ingredient is.
   2. Mention why it is controversial or potentially harmful.
@@ -720,7 +737,7 @@ MANDATORY EXAMPLES TO FOLLOW:
 
 • Glucose-fructose syrup (HFCS): "Ultra-processed industrial sweetener extracted from corn starch. Its isolated fructose is metabolized directly by the liver and promotes non-alcoholic fatty liver disease, insulin resistance, and obesity. Very different from fruit sugar — avoid daily."
 
-• Citric acid: "Food-grade citric acid (E330) is NOT extracted from citrus: it's industrially produced through fermentation of Aspergillus niger mold on corn syrup (often GMO). In excess, it erodes tooth enamel and irritates digestive mucosa. Marker of processed food."
+• Citric acid: "An acid naturally present in citrus fruits, produced for food use by fermentation (Aspergillus niger). EFSA has identified no safety concern at food doses. In excess in very acidic drinks it can weaken tooth enamel." (GREEN ingredient — factual, reassuring tone)
 
 • Natural flavors: "The word 'natural' is misleading. These flavors are extracted using industrial solvents (hexane, alcohol) and their exact composition remains secret — up to 100 chemical substances. Certain marker of ultra-processed food. Real foods don't need added flavors."
 
@@ -1336,8 +1353,9 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
     .filter((name) => name.length >= 2 && !ALLERGEN_LINE_REGEX.test(name))
     .map((name) => {
       let entry = lookupIngredient(name);
-      if (isCompoundRefinedSugar(name) && REFINED_SUGAR_ENTRY && (!entry || (entry.risk !== 'danger' && entry.risk !== 'probable'))) {
-        entry = REFINED_SUGAR_ENTRY;
+      const compoundSugar = resolveCompoundSugarEntry(name);
+      if (compoundSugar && (!entry || RISK_SEVERITY[compoundSugar.risk] < RISK_SEVERITY[entry.risk])) {
+        entry = compoundSugar;
       }
       if (entry) {
         let explication = getLocalizedNote(entry) ?? '';
@@ -1392,8 +1410,9 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
   });
   return filtered.map((ing) => {
     let entry = lookupIngredient(ing.nom);
-    if (isCompoundRefinedSugar(ing.nom) && REFINED_SUGAR_ENTRY && (!entry || (entry.risk !== 'danger' && entry.risk !== 'probable'))) {
-      entry = REFINED_SUGAR_ENTRY;
+    const compoundSugar = resolveCompoundSugarEntry(ing.nom);
+    if (compoundSugar && (!entry || RISK_SEVERITY[compoundSugar.risk] < RISK_SEVERITY[entry.risk])) {
+      entry = compoundSugar;
     }
 
     if (entry) {
