@@ -513,7 +513,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e504', name: 'Carbonate de magnésium', group: 'none', category: 'food', description: 'Sel minéral naturel, sûr.' },
   { code: 'en:e508', name: 'Chlorure de potassium', group: 'group2b', category: 'food', description: 'Minéral mais utilisé comme substitut de sel industriel. À modérer chez les personnes avec insuffisance rénale.' },
   { code: 'en:e322-sunflower', name: 'Lécithine de tournesol', group: 'none', category: 'food', description: 'Émulsifiant naturel sans OGM, sûr.' },
-  { code: 'en:e960', name: 'Stévia / Steviol glycosides', group: 'group2b', category: 'food', description: 'Extrait industriel ultra-purifié de la feuille de stévia (rebaudioside A à 95%+) obtenu par solvants. Très différent de la feuille brute. Peut perturber le microbiome intestinal.' },
+  { code: 'en:e960', name: 'Stévia / Steviol glycosides', group: 'group2b', category: 'food', description: 'Édulcorant d\'origine naturelle extrait des feuilles de Stevia rebaudiana, purifié industriellement. Zéro calorie, sans danger connu aux doses usuelles (DJA EFSA : 4 mg/kg/jour). Signale un produit transformé, sans plus.' },
   { code: 'erythritol', name: 'Érythritol', group: 'none', category: 'food', description: 'Édulcorant naturel fermenté, considéré sûr par EFSA et FDA.' },
   { code: 'monk-fruit', name: 'Fruit du moine / Monk fruit', group: 'none', category: 'food', description: 'Édulcorant naturel, sûr.' },
   { code: 'allulose', name: 'Allulose', group: 'none', category: 'food', description: 'Sucre rare naturel, faible impact glycémique.' },
