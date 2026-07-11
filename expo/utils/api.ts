@@ -1140,7 +1140,18 @@ function buildNegativeDescription(name: string, risk: RiskLevel, entry: Ingredie
       ko: name + '은(는) 초가공 산업 성분' + circInfo + '입니다. 정제·수소화·용매·고온 등 강력한 화학 공정으로 생산되어 영양가가 사라지고 만성 염증, 비만, 제2형 당뇨, 암 위험 증가를 유발하는 물질을 생성합니다. 실질적인 건강 이점이 없으며 초가공식품의 지표입니다(NOVA 4). 정기적인 섭취를 피하세요.',
     });
   }
-  // Ultra-processed WITHOUT a proven cancer/disease basis (synthetic vitamins, industrial minerals/salts…).
+  // UNKNOWN ingredient (no database entry). NEVER fabricate a NOVA 4 "a whole natural food never
+  // needs it" narrative for something we do not actually recognize — that generic text was the
+  // source of the false orange badges (coconut oil, etc.). Be honest: it is unrecognized and only
+  // its NAME hints at an industrial process. Curated entries never reach here (they carry a note).
+  if (!entry) {
+    return pick({
+      en: name + ' is not individually listed in the ToxiScan database' + circInfo + '. Its name points to an industrially processed ingredient (isolate, extract, hydrolysate, refined…), so it is best limited until it can be verified.',
+      fr: name + " n'est pas répertorié individuellement dans la base ToxiScan" + circInfo + '. Son nom évoque un ingrédient issu d\'un procédé industriel (isolat, extrait, hydrolysat, raffiné…) : à limiter par prudence en attendant vérification.',
+      ko: name + '은(는) ToxiScan 데이터베이스에 개별 등록되어 있지 않습니다' + circInfo + '. 이름상 산업 공정(분리물·추출물·가수분해물·정제 등)을 거친 성분으로 보이므로 확인 전까지는 제한하는 것이 좋습니다.',
+    });
+  }
+  // Curated ultra-processed entry WITHOUT a proven cancer/disease basis (synthetic vitamins, salts…).
   return pick({
     en: name + ' is an ultra-processed industrial ingredient' + circInfo + '. It is produced by a heavy industrial process that strips away any real nutritional value — a whole, natural food never needs it. Avoid regular consumption — a marker of ultra-processed food (NOVA 4).',
     fr: name + ' est un ingrédient industriel ultra-transformé' + circInfo + '. Il est produit par un lourd procédé industriel qui le prive de toute vraie valeur nutritive — un aliment entier et naturel n\'en a jamais besoin. Éviter la consommation régulière — marqueur d\'aliment ultra-transformé (NOVA 4).',
@@ -1224,11 +1235,17 @@ function buildPositiveFallback(name: string, note: string | undefined): string {
 const INDUSTRIAL_MARKERS = ['chemically', 'industrially', 'synthetic', 'refined', 'imitation', 'modified', 'defatted', 'enriched', 'fortified', 'rehydrated', 'processed', 'extract', 'isolate', 'concentrate', 'hydrolyzed', 'chimiquement', 'industriellement', 'synthétique', 'synthetique', 'raffiné', 'raffine', 'modifié', 'modifie', 'déshydraté', 'deshydrate', 'enrichie', 'fortifié', 'fortifie', 'transformé', 'transforme', 'extrait', 'isolat', 'concentré', 'concentre', 'hydrolysé', 'hydrolyse'];
 const WHOLE_FOOD_MARKERS = ['fresh ', 'frais ', 'entier', 'whole ', 'feuille', 'leaf'];
 
-/** Deterministic risk for an ingredient absent from the database (unchanged heuristic). */
-function classifyUnknownRisk(name: string, explication: string): RiskLevel {
-  const lowerExplication = explication.toLowerCase();
+/**
+ * Deterministic risk for an ingredient absent from the database.
+ * IMPORTANT: the industrial-marker test runs ONLY on the ingredient NAME, never on the
+ * AI-written description. Reading the prose used to force natural foods to orange — e.g. the
+ * AI describing coconut oil as "extraite de la chair, pressée" triggered the marker "extrait"
+ * and turned a group-2 culinary oil into a fake NOVA 4 ultra-processed badge. A name like
+ * "isolat de protéines" or "extrait de levure" still carries the marker and is judged fairly.
+ */
+function classifyUnknownRisk(name: string, _explication: string): RiskLevel {
   const lowerName = normalizeForLookup(name);
-  const hasIndustrialMarker = INDUSTRIAL_MARKERS.some((kw) => lowerExplication.includes(kw) || lowerName.includes(kw));
+  const hasIndustrialMarker = INDUSTRIAL_MARKERS.some((kw) => lowerName.includes(kw));
   const isObviousWholeFood = WHOLE_FOOD_MARKERS.some((kw) => lowerName.includes(kw)) && !hasIndustrialMarker;
   return hasIndustrialMarker ? 'probable' : isObviousWholeFood ? 'aucun' : 'possible';
 }
