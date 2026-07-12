@@ -498,7 +498,12 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   const heavyAccumulation = hasSugar && hasOil && hasProcessed;
   const canReachTen = hasG1 && heavyAccumulation;
   if (!canReachTen) score = Math.min(score, 9);
-  if (!hasCarcinogen) score = Math.max(score, 1);
+  // A PERFECT meal must reach 10/10 health (toxicity 0): no carcinogen, no junk family at
+  // all, and at least one genuine whole food. Otherwise, a non-carcinogen meal keeps a floor
+  // of 1 toxicity (health capped at 9) so a purely neutral/empty plate isn't rated perfect.
+  const hasAnyJunk = JUNK_FAMILY_CATEGORIES.some((fam) => ingredients.some((i) => i.category === fam));
+  const isCleanHealthyMeal = !hasCarcinogen && !hasAnyJunk && effectiveHealthy >= 1;
+  if (!hasCarcinogen && !isCleanHealthyMeal) score = Math.max(score, 1);
 
   // `score` here is the internal TOXICITY (higher = worse). The app displays a HEALTH
   // score (higher = better), so invert at the boundary. A carcinogen toxicity floor of 6
@@ -754,6 +759,10 @@ ${ingredientLines}
 WRITE:
 1. verdict_text: a broken-down, ingredient-by-ingredient verdict (e.g. "The ham contains sodium nitrites (carcinogenic). The oil is refined. The cheese is fine. The tomato is healthy."). Pedagogical, clear, 3-6 sentences. Tone: ${TONE_BY_TIER[tier]}.
    GOLDEN RULE: NEVER call sugar/fat/refined flour/processed food "carcinogenic". Distinguish SERIOUS (dangerous/IARC) from NOT HEALTHY (processed/sugary/fatty/refined).
+   HEALTH IMPACT (MANDATORY — every verdict, no exception): after the breakdown, ALWAYS finish by explaining the CONCRETE health impact of eating this kind of meal on the body.
+     - Healthy meal (high score / green): explain the real BENEFITS these foods bring — sustained energy, vitamins & minerals, fiber, quality protein, antioxidants, protection for the heart, gut and immune system — in a motivating, encouraging tone.
+     - Unhealthy meal (lower score / orange-red): honestly explain the real HEALTH RISKS of eating this kind of meal regularly — weight gain, blood-sugar spikes, higher type-2 diabetes risk, chronic inflammation, cardiovascular strain — truthful but WITHOUT scaremongering and never guilt-tripping.
+     In French, always use tutoiement ("tu").
 ${needsAlternatives
       ? `2. alternative_home: a HEALTHY and SIMILAR homemade version of the SAME dish (stay close to the craving — a pizza lover wants a better pizza, not a salad). One or two sentences.
 3. alternative_restaurant: what TYPE of dish to pick instead next time at a restaurant. One sentence.`
