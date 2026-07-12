@@ -44,7 +44,7 @@ const translations = {
   nav_transparency: { fr: 'Transparence IA', en: 'AI Transparency', ko: 'AI 투명성' },
 
   // ===== SCANNER =====
-  protect_health: { fr: 'Protégez votre santé au quotidien', en: 'Protect your health every day', ko: '매일 건강을 지키세요' },
+  protect_health: { fr: 'Sais ce que tu manges', en: 'Know what you eat', ko: '무엇을 먹는지 알아보세요' },
   home_premium_label: { fr: 'Scanner intelligent', en: 'Smart scanner', ko: '스마트 스캐너' },
   home_authority_label: { fr: 'CIRC/OMS', en: 'IARC/WHO', ko: 'IARC/WHO' },
   home_database_label: { fr: 'Base clean', en: 'Clean database', ko: '클린 데이터베이스' },
