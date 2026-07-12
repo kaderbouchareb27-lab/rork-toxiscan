@@ -24,7 +24,11 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
-import { DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR } from '@/constants/drToxiAvatars';
+import {
+  DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR,
+  getDrToxiAvatarForTier,
+  toDrToxiImageSource,
+} from '@/constants/drToxiAvatars';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { VerdictTier, ScannedProduct } from '@/types';
@@ -101,11 +105,18 @@ function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation 
   }
 }
 
-// History cards stay compact: just a small colored dot + label, no Dr. Toxi
-// avatar (the ULTRA TOXIC avatar lives only on the main scan verdict card).
+// Filter chips keep the compact colored dot to indicate their risk level.
 function RiskStatusIcon({ color, size = 16 }: { tier: VerdictTier; color: string; size?: number }) {
   const dotSize = Math.max(Math.round(size * 0.6), 8);
   return <View style={{ width: dotSize, height: dotSize, borderRadius: dotSize / 2, backgroundColor: color }} />;
+}
+
+// History rows display the same Dr. Toxi avatar used for each verdict level on the
+// scan result screen. ULTRA TOXIC keeps its history-only burgundy variant.
+function getHistoryRowAvatarUri(tier: VerdictTier): string {
+  if (tier === 'ultra_toxic') return DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR;
+  const source = toDrToxiImageSource(getDrToxiAvatarForTier(tier));
+  return typeof source === 'object' ? source.uri : DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR;
 }
 
 function StatBar({ label, count, max, color }: { label: string; count: number; max: number; color: string }) {
@@ -256,16 +267,12 @@ export default function HistoryScreen() {
             <Text style={styles.productBrand} numberOfLines={1}>{brandLabel}</Text>
             <View style={styles.metaRow}>
               <View style={[styles.riskMiniBadge, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
-                {displayTier === 'ultra_toxic' ? (
-                  <Image
-                    source={{ uri: DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR }}
-                    style={styles.riskMiniAvatar}
-                    contentFit="contain"
-                    testID="history-ultratoxic-avatar"
-                  />
-                ) : (
-                  <RiskStatusIcon tier={displayTier} color={risk.color} size={16} />
-                )}
+                <Image
+                  source={{ uri: getHistoryRowAvatarUri(displayTier) }}
+                  style={styles.riskMiniAvatar}
+                  contentFit="contain"
+                  testID={`history-avatar-${displayTier}`}
+                />
                 <Text style={[styles.riskMiniText, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
               </View>
               <Text style={styles.dateText}>{formattedDate}</Text>
