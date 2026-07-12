@@ -215,7 +215,7 @@ const translations = {
   enriched_off: { fr: 'Enrichi par Open Food Facts', en: 'Enriched by Open Food Facts', ko: 'Open Food Facts로 보강됨' },
   photo_tip: { fr: "Pour un résultat plus précis, photographiez la liste d'ingrédients au dos du produit", en: 'For a more accurate result, photograph the ingredient list on the back of the product', ko: '더 정확한 결과를 위해 제품 뒷면의 성분표를 촬영하세요' },
   badge_danger: { fr: 'CANCÉRIGÈNE', en: 'CARCINOGENIC', ko: '발암성' },
-  badge_caution: { fr: 'TRANSFORMÉ', en: 'PROCESSED', ko: '가공' },
+  badge_caution: { fr: 'Transformé', en: 'Processed', ko: '가공됨' },
   badge_ultra_toxic: { fr: 'ULTRA TOXIQUE', en: 'ULTRA TOXIC', ko: '초독성' },
   badge_moderation: { fr: 'MODÉRATION', en: 'OCCASIONAL', ko: '주의' },
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED', ko: '승인됨' },

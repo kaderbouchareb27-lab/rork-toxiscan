@@ -118,7 +118,7 @@ function getLabel(level: VerdictLevel): string {
     case 'danger':
       return pick({ en: 'Carcinogenic', fr: 'Cancérigène', ko: '발암성' });
     case 'warning':
-      return pick({ en: 'Too processed — grab an alternative', fr: 'Trop transformé — prends une alternative', ko: '너무 가공됨 — 대체 제품을 골라요' });
+      return pick({ en: 'Processed', fr: 'Transformé', ko: '가공됨' });
     case 'moderation':
       return pick({ en: 'Fine', fr: 'Correct', ko: '괜찮음' });
     case 'approuve':
