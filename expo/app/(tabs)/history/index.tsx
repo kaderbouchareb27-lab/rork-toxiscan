@@ -24,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
+import { DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR } from '@/constants/drToxiAvatars';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { VerdictTier, ScannedProduct } from '@/types';
@@ -47,7 +48,7 @@ function getFilters(): FilterConfig[] {
     { key: 'all', label: t('filter_all'), color: Colors.primary },
     { key: 'favorites', label: t('filter_favorites'), color: '#FF2D55' },
     { key: 'carcinogenic', label: t('filter_danger'), color: '#D0260F' },
-    { key: 'ultra_toxic', label: t('badge_ultra_toxic'), color: '#722F37' },
+    { key: 'ultra_toxic', label: t('filter_ultra_toxic'), color: '#722F37' },
     { key: 'processed', label: t('filter_warning'), color: '#E8730A' },
     { key: 'moderation', label: t('filter_caution'), color: '#EAB308' },
     { key: 'approved', label: t('filter_approved'), color: Colors.primary },
@@ -66,7 +67,7 @@ function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation 
       };
     case 'ultra_toxic':
       return {
-        label: t('badge_ultra_toxic'),
+        label: t('filter_ultra_toxic'),
         description: t('intro_ultra_toxic'),
         color: '#722F37',
         tint: 'rgba(114, 47, 55, 0.11)',
@@ -255,8 +256,16 @@ export default function HistoryScreen() {
             <Text style={styles.productBrand} numberOfLines={1}>{brandLabel}</Text>
             <View style={styles.metaRow}>
               <View style={[styles.riskMiniBadge, { backgroundColor: risk.tint, borderColor: risk.borderColor }]}>
-
-                <RiskStatusIcon tier={displayTier} color={risk.color} size={16} />
+                {displayTier === 'ultra_toxic' ? (
+                  <Image
+                    source={{ uri: DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR }}
+                    style={styles.riskMiniAvatar}
+                    contentFit="contain"
+                    testID="history-ultratoxic-avatar"
+                  />
+                ) : (
+                  <RiskStatusIcon tier={displayTier} color={risk.color} size={16} />
+                )}
                 <Text style={[styles.riskMiniText, { color: risk.color }]} numberOfLines={1}>{risk.label}</Text>
               </View>
               <Text style={styles.dateText}>{formattedDate}</Text>
@@ -280,7 +289,7 @@ export default function HistoryScreen() {
         <Text style={styles.statsCardTotal}>{tf('products_analyzed', stats.total)}</Text>
         <View style={styles.statsBreakdown}>
           <StatBar label={t('stat_danger')} count={stats.carcinogenic} max={maxStat} color="#D0260F" />
-          <StatBar label={t('badge_ultra_toxic')} count={stats.ultraToxic} max={maxStat} color="#722F37" />
+          <StatBar label={t('filter_ultra_toxic')} count={stats.ultraToxic} max={maxStat} color="#722F37" />
           <StatBar label={t('stat_probable')} count={stats.processed} max={maxStat} color="#E8730A" />
           <StatBar label={t('stat_possible')} count={stats.moderation} max={maxStat} color="#EAB308" />
           <StatBar label={t('stat_safe')} count={stats.approved} max={maxStat} color="#2E9E34" />
@@ -685,6 +694,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: 11,
     fontWeight: '900' as const,
+  },
+  riskMiniAvatar: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
   },
   dateText: {
     fontSize: 11,

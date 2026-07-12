@@ -21,6 +21,14 @@ export const DR_TOXI_MODERATION_AVATAR_URI = 'https://r2-pub.rork.com/generated-
  */
 export const DR_TOXI_ULTRA_TOXIC_AVATAR: DrToxiAvatarSource = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/041a925d-93b4-43ab-829a-5a634484cbe0.png';
 
+/**
+ * ULTRA TOXIC 🟥 avatar used in the HISTORY LIST ONLY — a cleaner, friendlier
+ * Dr. Toxi with deep burgundy (bordeaux) broccoli hair matching the Ultra toxique
+ * badge color, instead of the heavier terrified monster. The scan-result verdict
+ * card keeps the original DR_TOXI_ULTRA_TOXIC_AVATAR untouched.
+ */
+export const DR_TOXI_ULTRA_TOXIC_HISTORY_AVATAR: string = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/a1dce06b-e0bc-4a27-9139-b092d3f74567.png';
+
 export const DR_TOXI_BADGE_AVATARS: Record<DrToxiVerdictLevel, DrToxiAvatarSource> = {
   danger: DR_TOXI_DANGER_AVATAR_URI,
   warning: DR_TOXI_WARNING_AVATAR_URI,

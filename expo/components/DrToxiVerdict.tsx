@@ -77,21 +77,21 @@ function getFixedDescription(level: VerdictLevel): string {
       });
     case 'warning':
       return pick({
-        en: 'This product is industrially processed: it contains several ultra-processed ingredients without serious danger. Prefer products with a short, natural ingredient list.',
-        fr: 'Ce produit est transformé industriellement : il contient plusieurs ingrédients ultra-transformés, sans danger grave. Préfère des produits à liste courte et naturelle.',
-        ko: '이 제품은 산업적으로 가공된 제품입니다: 심각한 위험은 없지만 초가공 성분이 여러 개 들어 있습니다. 성분이 짧고 자연스러운 제품을 선택하세요.',
+        en: 'This product is industrially processed and packed with ultra-processed ingredients — save it for rare occasions. Otherwise, check out the healthier alternatives below the ingredients.',
+        fr: 'Ce produit est transformé industriellement : il contient plusieurs ingrédients ultra-transformés, à consommer vraiment rarement. Sinon, tu as des alternatives plus saines en bas des ingrédients.',
+        ko: '이 제품은 공장에서 많이 가공된 식품이에요. 초가공 성분이 여러 개 들어 있으니 정말 가끔만 드세요. 대신, 아래 성분 밑에 더 건강한 대체 제품을 확인해 보세요.',
       });
     case 'moderation':
       return pick({
-        en: 'This product contains some controversial ingredients. Consume occasionally and avoid making it a daily habit.',
-        fr: 'Ce produit contient certains ingrédients controversés. Consommez occasionnellement et évitez d’en faire une habitude quotidienne.',
-        ko: '이 제품에는 논란이 있는 성분이 일부 들어 있습니다. 가끔만 드시고 매일 습관처럼 드시지 마세요.',
+        en: 'Nothing to worry about, go for it. This product is perfectly fine to enjoy. It has a few debated ingredients, but nothing concerning. Go ahead and treat yourself.',
+        fr: "Rien de grave, tu peux y aller. Ce produit est tout à fait correct à consommer. Il contient quelques ingrédients discutés, mais rien d'inquiétant. Tu peux te faire plaisir tranquillement.",
+        ko: '걱정할 거 없어요, 드셔도 돼요. 이 제품은 충분히 드셔도 괜찮아요. 논란이 있는 성분이 몇 개 있지만 걱정할 정도는 아니에요. 편하게 즐기셔도 돼요.',
       });
     case 'approuve':
       return pick({
-        en: 'This product is made of healthy, natural ingredients with no major health concerns. A good everyday choice.',
-        fr: 'Ce produit est composé d’ingrédients sains et naturels, sans préoccupation majeure pour la santé. Un bon choix au quotidien.',
-        ko: '이 제품은 건강에 큰 문제가 없는 자연스럽고 건강한 성분으로 만들어졌습니다. 매일 먹기 좋은 선택입니다.',
+        en: 'Great choice! This product is clean with nothing concerning. You can enjoy it with total peace of mind.',
+        fr: 'Excellent choix ! Ce produit est propre et ne contient rien de préoccupant. Tu peux le consommer en toute tranquillité.',
+        ko: '훌륭한 선택이에요! 이 제품은 깨끗하고 걱정할 만한 성분이 없어요. 안심하고 드셔도 돼요.',
       });
   }
 }
@@ -114,15 +114,15 @@ function getSubtitle(level: VerdictLevel): string {
 function getLabel(level: VerdictLevel): string {
   switch (level) {
     case 'ultratoxic':
-      return pick({ en: 'ULTRA TOXIC', fr: 'ULTRA TOXIQUE', ko: '초독성' });
+      return pick({ en: 'Ultra toxic', fr: 'Ultra toxique', ko: '초독성' });
     case 'danger':
-      return pick({ en: 'CARCINOGENIC', fr: 'CANCÉRIGÈNE', ko: '발암성' });
+      return pick({ en: 'Carcinogenic', fr: 'Cancérigène', ko: '발암성' });
     case 'warning':
-      return pick({ en: 'PROCESSED', fr: 'TRANSFORMÉ', ko: '가공' });
+      return pick({ en: 'Too processed — grab an alternative', fr: 'Trop transformé — prends une alternative', ko: '너무 가공됨 — 대체 제품을 골라요' });
     case 'moderation':
-      return pick({ en: 'OCCASIONAL', fr: 'MODÉRATION', ko: '주의' });
+      return pick({ en: 'Fine', fr: 'Correct', ko: '괜찮음' });
     case 'approuve':
-      return pick({ en: 'APPROVED', fr: 'APPROUVÉ', ko: '승인됨' });
+      return pick({ en: 'Healthy', fr: 'Sain', ko: '건강함' });
   }
 }
 
@@ -136,7 +136,7 @@ function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
   if (level === 'danger') {
     return {
       accentColor: '#7C3AED',
-      label: pick({ en: 'TOXIC', fr: 'TOXIQUE', ko: '독성' }),
+      label: pick({ en: 'Toxic', fr: 'Toxique', ko: '독성' }),
       subtitle: pick({ en: 'Avoid this product', fr: 'À éviter', ko: '사용하지 마세요' }),
       description: pick({
         en: 'This cosmetic contains ingredients recognized as dangerous (endocrine disruptors, carcinogens or banned substances). Avoid skin contact and choose a clean alternative.',
@@ -149,7 +149,7 @@ function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
   if (level === 'approuve') {
     return {
       accentColor: '#2E9E34',
-      label: pick({ en: 'APPROVED', fr: 'APPROUVÉ', ko: '승인됨' }),
+      label: pick({ en: 'Approved', fr: 'Approuvé', ko: '승인됨' }),
       subtitle: pick({ en: 'Clean formula', fr: 'Formule clean', ko: '클린 포뮬러' }),
       description: pick({
         en: 'This cosmetic is made of ingredients with no known risk. A clean choice for your skin.',
@@ -162,7 +162,7 @@ function getCosmeticConfig(level: VerdictLevel): VerdictCardConfig {
   // moderation / warning → DISPUTED
   return {
     accentColor: '#EAB308',
-    label: pick({ en: 'DISPUTED', fr: 'CONTESTÉ', ko: '논란 있음' }),
+    label: pick({ en: 'Disputed', fr: 'Contesté', ko: '논란 있음' }),
     subtitle: pick({ en: 'Use with caution', fr: 'À utiliser avec prudence', ko: '주의해서 사용하세요' }),
     description: pick({
       en: 'This cosmetic contains several controversial ingredients with divided science. Use it occasionally and prefer a cleaner formula.',
