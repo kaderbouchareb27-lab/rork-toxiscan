@@ -415,53 +415,50 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   const hasG1 = ingredients.some((i) => i.category === 'carcinogen_g1');
   const hasCarcinogen = ingredients.some((i) => isCarcinogenCategory(i.category) || i.isGrave);
 
-  // TEMPS 1 — floor set by the most serious ingredient (IARC group 1/2A/2B).
+  // TEMPS 1 — floor set by the most serious ingredient (IARC group 1/2A/2B). A carcinogen
+  // pins a high toxicity; an ordinary meal starts from the clean floor of 1.
   const base = hasCarcinogen ? 6 : 1;
 
-  // TEMPS 2 — accumulation: each junk family makes the score climb.
-  const sugarCount = ingredients.filter((i) => i.category === 'added_sugar').length;
-  const massiveSugar = ingredients.some((i) => i.category === 'added_sugar' && i.intensity === 'high');
-  const oilCount = ingredients.filter((i) => i.category === 'refined_oil').length;
-  const processedCount = ingredients.filter((i) => i.category === 'processed').length;
-  const additiveCount = ingredients.filter((i) => i.category === 'additive').length;
-  const saltCount = ingredients.filter((i) => i.category === 'excess_salt').length;
-  const flourCount = ingredients.filter((i) => i.category === 'refined_flour').length;
-
-  const hasSugar = sugarCount > 0;
-  const hasOil = oilCount > 0;
-  const hasProcessed = processedCount > 0;
-  const hasFlour = flourCount > 0;
-
-  let accumulation = 0;
-  // Sugar by INTENSITY (spec §4 tightening): present → +1, massive/dominant → +2.
-  // Several distinct added-sugar sources is also treated as a massive dose.
-  if (hasSugar) accumulation += (massiveSugar || sugarCount >= 2) ? 2 : 1;
-  if (hasOil) accumulation += Math.min(oilCount, 2);
-  if (hasProcessed) accumulation += Math.min(processedCount, 3);
-  if (additiveCount > 0) accumulation += Math.min(additiveCount, 2);
-  if (saltCount > 0) accumulation += 1;
-  // Refined flour / refined carbs family (spec fix §3): white flour, viennoiseries, pastries, white bread.
-  if (hasFlour) accumulation += 1;
-  accumulation = Math.min(accumulation, 8);
-
-  // TEMPS 3 — health bonus: ONLY genuine whole foods that actually compose the meal
-  // (vegetables, fruits, whole grains, lean grilled/steamed proteins). Incidental drink
-  // components (the milk in a coffee, a splash of cream) never count (spec fix §4).
-  const effectiveHealthy = ingredients.filter((i) => i.category === 'healthy' && !isIncidentalHealthy(i.name)).length;
-  let bonus = 0;
-  if (!hasCarcinogen) {
-    if (effectiveHealthy >= 3) bonus = -2;
-    else if (effectiveHealthy >= 1) bonus = -1;
+  // TEMPS 2 — WEIGHTED junk load. EVERY junk-family ingredient adds its own weight, so the
+  // score reacts CONTINUOUSLY to edits: add an orange/red item → the load climbs; remove or
+  // replace one with a green food → it drops. Sugar counts by intensity (a dominant dessert
+  // sugar hits harder than a splash). This per-item accumulation is what makes swapping
+  // refined spaghetti for whole-grain pasta actually move the score.
+  let rawJunk = 0;
+  for (const i of ingredients) {
+    switch (i.category) {
+      case 'added_sugar': rawJunk += i.intensity === 'high' ? 4 : 2.5; break;
+      case 'refined_flour': rawJunk += 2.5; break;
+      case 'processed': rawJunk += 2.5; break;
+      case 'refined_oil': rawJunk += 1.5; break;
+      case 'additive': rawJunk += 1.5; break;
+      case 'excess_salt': rawJunk += 1; break;
+      default: break;
+    }
   }
-  // The bonus must NEVER pull a junky meal into green: when added sugar coexists with
-  // ultra-processing / refined oil / refined flour, cancel the discount (spec fix §4).
-  const junkyContext = hasSugar && (hasProcessed || hasOil || hasFlour || additiveCount > 0);
-  if (junkyContext) bonus = 0;
+  rawJunk = Math.min(rawJunk, 9);
 
-  let score = base + accumulation + bonus;
+  // TEMPS 3 — health RATIO. Genuine whole foods (not incidental milk/cream) SOFTEN the junk
+  // load: the more of the plate is healthy, the less a lone processed item weighs — but they
+  // can NEVER fully erase it (softening floors at 50%), so one refined item in an otherwise
+  // healthy meal still costs a moderate amount (lands ~7-8/10) instead of crashing to red OR
+  // disappearing into a perfect 10. Adding more green raises the score; adding junk lowers it.
+  const effectiveHealthy = ingredients.filter((i) => i.category === 'healthy' && !isIncidentalHealthy(i.name)).length;
+  const junkItemCount = ingredients.filter((i) => JUNK_FAMILY_CATEGORIES.includes(i.category)).length;
+  const denom = effectiveHealthy + junkItemCount;
+  const healthyRatio = denom > 0 ? effectiveHealthy / denom : 0;
+  const soften = hasCarcinogen ? 1 : 1 - 0.5 * healthyRatio;
 
-  // Ultra-processed "bomb" nudges (no carcinogen, nothing fresh): push junk/desserts
-  // into the 8-9 range so an ultra-sweet dessert doesn't land at 6-7.
+  let score = base + rawJunk * soften;
+
+  // Signals reused by the guardrails / bounds below.
+  const hasSugar = ingredients.some((i) => i.category === 'added_sugar');
+  const hasOil = ingredients.some((i) => i.category === 'refined_oil');
+  const hasProcessed = ingredients.some((i) => i.category === 'processed');
+  const massiveSugar = ingredients.some((i) => i.category === 'added_sugar' && i.intensity === 'high');
+
+  // Ultra-processed "bomb" nudges (no carcinogen, nothing fresh): push a pure junk plate /
+  // dessert into the high-toxicity range so an ultra-sweet dessert doesn't land mid-scale.
   const junkFamilies = JUNK_FAMILY_CATEGORIES.filter((fam) => ingredients.some((i) => i.category === fam)).length;
   if (!hasCarcinogen && effectiveHealthy === 0) {
     if (junkFamilies >= 4) score += 1; // many junk families stacked together
@@ -475,33 +472,38 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   if (hasDessertBase(ingredients, dishName)) score = Math.max(score, 5);
 
   // COHERENCE FLOOR (spec): the final tier must never contradict the ORANGE dots the user
-  // sees in the ingredient list. Like the IARC floor, but for accumulation — a meal showing
-  // 2+ orange (ultra-processed) ingredients can never read "good meal" (green): yellow minimum.
-  // 3+ orange ingredients land at "toxic" (orange) minimum. Salt/additive (yellow dots) still
-  // add accumulation points but don't trigger this floor on their own.
+  // sees in the ingredient list. 2+ orange (ultra-processed) ingredients can never read
+  // "good meal" (green): yellow minimum. 3+ orange land at "toxic" (orange) minimum.
   const orangeCount = ingredients.filter((i) => ORANGE_TIER_CATEGORIES.includes(i.category)).length;
   if (orangeCount >= 3) score = Math.max(score, 6);
   else if (orangeCount >= 2) score = Math.max(score, 4);
 
-  // REFERENCE / ANCHOR FOOD FLOOR (spec): a popular indulgent dish (pizza, burger, fried
-  // chicken, tteokbokki, ramyeon, croissant, donut…) carries a known realistic minimum, so the
-  // AI's idealized "clean homemade recipe" view can never push it too green. Genuinely healthy
-  // dishes have no anchor and stay green. Keyed on the dish name → recomputes live on edits.
+  // A meal has junk when at least one junk-family ingredient is present.
+  const hasAnyJunk = JUNK_FAMILY_CATEGORIES.some((fam) => ingredients.some((i) => i.category === fam));
+
+  // SOFT REFERENCE / ANCHOR FLOOR (spec): a popular indulgent dish carries a realistic minimum
+  // so the AI's idealized "clean homemade recipe" view can't score known junk too green. But
+  // the anchor is keyed on the dish NAME, so it MUST yield to real ingredient edits: when the
+  // user has cleaned the plate (healthy-dominant, at most one junk item) we relax it, and when
+  // NO junk remains at all we drop it entirely — otherwise swapping refined pasta for
+  // whole-grain could never move the score. Genuinely healthy dishes have no anchor → stay green.
   const anchor = matchReferenceFood(dishName);
-  if (anchor) score = Math.max(score, anchor.floor);
+  if (anchor && hasAnyJunk) {
+    const healthyDominant = effectiveHealthy >= 3 && junkItemCount <= 1;
+    const softFloor = healthyDominant ? Math.max(2, anchor.floor - 2) : anchor.floor;
+    score = Math.max(score, softFloor);
+  }
 
   // ── Bounds (spec §4 + the 10/10 tightening) ──
   // The full 10 is RESERVED for a CIRC group-1 carcinogen (processed/cured meat, nitrites)
   // COMBINED with heavy accumulation (added sugar + refined oils + ultra-processing).
-  // A group 2A/2B carcinogen (industrial substances such as acrylamide) or pure accumulation
-  // CAPS AT 9 — never a full 10, so an ordinary junky dish can't reach 10.
+  // A group 2A/2B carcinogen or pure accumulation CAPS AT 9 — never a full 10.
   const heavyAccumulation = hasSugar && hasOil && hasProcessed;
   const canReachTen = hasG1 && heavyAccumulation;
   if (!canReachTen) score = Math.min(score, 9);
   // A PERFECT meal must reach 10/10 health (toxicity 0): no carcinogen, no junk family at
   // all, and at least one genuine whole food. Otherwise, a non-carcinogen meal keeps a floor
   // of 1 toxicity (health capped at 9) so a purely neutral/empty plate isn't rated perfect.
-  const hasAnyJunk = JUNK_FAMILY_CATEGORIES.some((fam) => ingredients.some((i) => i.category === fam));
   const isCleanHealthyMeal = !hasCarcinogen && !hasAnyJunk && effectiveHealthy >= 1;
   if (!hasCarcinogen && !isCleanHealthyMeal) score = Math.max(score, 1);
 

@@ -96,10 +96,7 @@ const SORTED_KEYWORDS: readonly IndexedKeyword[] = (() => {
   return list;
 })();
 
-function lookupIngredient(ingredientName: string): IngredientEntry | null {
-  const normalized = normalizeForLookup(ingredientName);
-  if (!normalized) return null;
-
+function findBestMatch(normalized: string): IngredientEntry | null {
   // 1) Match exact — O(1) via Map
   const exact = EXACT_KEYWORD_INDEX.get(normalized);
   if (exact) return exact;
@@ -130,6 +127,50 @@ function lookupIngredient(ingredientName: string): IngredientEntry | null {
     }
   }
   return bestMatch;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// NÉGATION — un ingrédient explicitement déclaré SANS sucre ne doit JAMAIS hériter
+// de la description/classification du sucre raffiné juste parce que le mot « sucre »
+// apparaît dans son nom (ex. « chocolat non sucré », « yaourt sans sucre »).
+// ─────────────────────────────────────────────────────────────────────
+
+// Mots « sucre / édulcorant » retirés du nom quand une négation est détectée.
+const SUGAR_STRIP_REGEX = /\b(?:sucres?|sugars?|saccharose|sucrose|dextrose|glucose|fructose|sirops?|syrups?|maltodextrines?|maltodextrins?|sweetened|sweetener)\b|설탕|시럽/g;
+
+/** True when the (already normalized) name explicitly declares it contains NO sugar. */
+function hasSugarNegation(normalized: string): boolean {
+  return (
+    /\b(?:sans|non|zero)\s+sucres?\b/.test(normalized) || // sans sucre / non sucré / zéro sucre
+    /\bno\s+(?:added\s+)?sugars?\b/.test(normalized) || // no sugar / no added sugar
+    /\b(?:without|zero)\s+sugars?\b/.test(normalized) || // without sugar / zero sugar
+    /\bunsweetened\b/.test(normalized) || // unsweetened
+    /\bsugars?\s+free\b/.test(normalized) || // sugar-free / sugars free
+    normalized.includes('무설탕') || // ko: no sugar
+    normalized.includes('무가당') // ko: no added sugar
+  );
+}
+
+/** True when the matched entry is a REFINED-sugar entry (its CIRC label is a sugar family). */
+function isRefinedSugarEntry(entry: IngredientEntry): boolean {
+  return normalizeForLookup(entry.circ).startsWith('sucre');
+}
+
+function lookupIngredient(ingredientName: string): IngredientEntry | null {
+  const normalized = normalizeForLookup(ingredientName);
+  if (!normalized) return null;
+  const entry = findBestMatch(normalized);
+  // NEGATION GUARD (spec): "chocolat non sucré", "sans sucre (ajouté)", "unsweetened",
+  // "no (added) sugar", "sugar-free", "무설탕/무가당" must NEVER inherit a refined-sugar
+  // description just because "sucre/sugar" appears in the name. Explicit entries (e.g. the
+  // unsweetened-chocolate entry) already win via the longest-keyword match above; this net
+  // only fires when the ONLY thing matched was a refined-sugar keyword — we then blank the
+  // sugar words and re-match, so the item is classified on the REST of its name (or unknown).
+  if (entry && isRefinedSugarEntry(entry) && hasSugarNegation(normalized)) {
+    const stripped = normalized.replace(SUGAR_STRIP_REGEX, ' ').replace(/\s+/g, ' ').trim();
+    return stripped && stripped !== normalized ? findBestMatch(stripped) : null;
+  }
+  return entry;
 }
 
 // Allergen declarations ("Contains: …", "May contain: …", "Peut contenir : …") are regulatory
