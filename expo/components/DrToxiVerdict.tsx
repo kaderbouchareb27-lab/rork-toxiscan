@@ -120,7 +120,7 @@ function getLabel(level: VerdictLevel): string {
     case 'warning':
       return pick({ en: 'Processed', fr: 'Transformé', ko: '가공됨' });
     case 'moderation':
-      return pick({ en: 'Fine', fr: 'Correct', ko: '괜찮음' });
+      return pick({ en: 'Occasionally', fr: 'Occasionnel', ko: '가끔' });
     case 'approuve':
       return pick({ en: 'Healthy', fr: 'Sain', ko: '건강함' });
   }

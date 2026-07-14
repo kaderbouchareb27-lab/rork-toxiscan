@@ -220,7 +220,7 @@ const translations = {
   badge_moderation: { fr: 'MODÉRATION', en: 'OCCASIONAL', ko: '주의' },
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED', ko: '승인됨' },
   ingredient_badge_industrial: { fr: 'INDUSTRIEL', en: 'INDUSTRIAL', ko: '산업 가공' },
-  ingredient_badge_disputed: { fr: 'OK', en: 'OK', ko: 'OK' },
+  ingredient_badge_disputed: { fr: 'ACCEPTABLE', en: 'ACCEPTABLE', ko: '적당함' },
   cosmetic_badge_toxic: { fr: 'TOXIQUE', en: 'TOXIC', ko: '독성' },
   cosmetic_badge_disputed: { fr: 'CONTESTÉ', en: 'DISPUTED', ko: '논란 있음' },
   cosmetic_badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED', ko: '승인됨' },
