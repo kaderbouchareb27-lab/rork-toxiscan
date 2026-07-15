@@ -151,7 +151,9 @@ export default function ScannerScreen() {
         ocrData: instant.ocrData,
         cacheKey: instant.cacheKey,
         instantResult: instant.result,
-        needsEnrich: !instant.cached,
+        // FAST-PATH: when the instant result is already complete (all ingredients known in the
+        // DB + a real product name read), there is nothing for the AI to add — skip enrichment.
+        needsEnrich: !instant.cached && !instant.complete,
       };
     },
     onSuccess: ({ product, base64, imageUri, thumbnailUri, ocrData, cacheKey, instantResult, needsEnrich }) => {

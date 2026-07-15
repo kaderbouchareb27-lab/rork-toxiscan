@@ -1542,6 +1542,16 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
 const ANALYSIS_CACHE = new Map<string, UniversalAnalysisResult>();
 const CACHE_MAX = 50;
 
+/** Store a final result under its OCR-derived cache key (LRU-evicting the oldest entry). */
+function cacheResult(cacheKey: string | null, result: UniversalAnalysisResult): void {
+  if (!cacheKey) return;
+  if (ANALYSIS_CACHE.size >= CACHE_MAX) {
+    const firstKey = ANALYSIS_CACHE.keys().next().value;
+    if (firstKey) ANALYSIS_CACHE.delete(firstKey);
+  }
+  ANALYSIS_CACHE.set(cacheKey, result);
+}
+
 function hashString(s: string): string {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
@@ -1566,6 +1576,13 @@ export interface InstantScan {
   cached: boolean;
   /** True when a usable instant local verdict was produced (at least one ingredient parsed). */
   instant: boolean;
+  /**
+   * FAST-PATH — true when EVERY parsed ingredient was found in the database AND a real
+   * product name was read from the label. The instant local result is then already final:
+   * the AI enrichment call is skipped entirely. The AI only re-runs when something is NOT in
+   * the database — an unknown ingredient (descriptionPending) or a missing product name/brand.
+   */
+  complete: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1783,7 +1800,7 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
 
   if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
     console.log('[API] Cache hit (instant)');
-    return { result: ANALYSIS_CACHE.get(cacheKey)!, ocrData, cacheKey, cached: true, instant: true };
+    return { result: ANALYSIS_CACHE.get(cacheKey)!, ocrData, cacheKey, cached: true, instant: true, complete: true };
   }
 
   const source = ocrData.ingredientsBlock || ocrData.fullText;
@@ -1805,7 +1822,25 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
     substances,
   );
 
-  return { result, ocrData, cacheKey, cached: false, instant: substances.length > 0 };
+  // FAST-PATH: if every ingredient resolved to a DB entry (nothing pending) AND the label
+  // gave us a real product name, there is nothing left for the AI to add → the instant
+  // result is final. We cache it so a re-scan is instant too, and signal `complete` so the
+  // caller skips the enrichment call. Otherwise the AI runs to fill unknown ingredients
+  // and/or identify the product name/brand.
+  // "Known" for the fast-path means: matched a DB entry (not pending) AND already carries a
+  // non-empty description in the CURRENT language. This guards Korean (and any locale) whose
+  // entry may lack a localized note — an empty description keeps the AI in the loop to fill it.
+  const allIngredientsKnown =
+    substances.length > 0 &&
+    substances.every((s) => !s.descriptionPending && (s.explication?.trim().length ?? 0) > 0);
+  const hasRealName = !isPlaceholderName(guessedName);
+  const complete = allIngredientsKnown && hasRealName;
+  if (complete) {
+    console.log('[API] FAST-PATH — all', substances.length, 'ingredients known + real name → skipping AI enrichment');
+    if (!result.erreur) cacheResult(cacheKey, result);
+  }
+
+  return { result, ocrData, cacheKey, cached: false, instant: substances.length > 0, complete };
 }
 
 /**
@@ -1850,13 +1885,7 @@ export async function scanAiEnrich(
 
       console.log('[API] Final:', result.objet_identifie, '— badge:', result.badge_global, '— substances:', substances.length);
 
-      if (cacheKey && !result.erreur) {
-        if (ANALYSIS_CACHE.size >= CACHE_MAX) {
-          const firstKey = ANALYSIS_CACHE.keys().next().value;
-          if (firstKey) ANALYSIS_CACHE.delete(firstKey);
-        }
-        ANALYSIS_CACHE.set(cacheKey, result);
-      }
+      if (!result.erreur) cacheResult(cacheKey, result);
       return result;
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
