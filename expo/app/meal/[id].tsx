@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,7 @@ import {
 } from '@/constants/mealAvatars';
 import type { MealTier } from '@/utils/mealAnalysis';
 import { maybeRequestReviewAfterPositiveScan } from '@/utils/reviewPrompt';
+import MealConfetti from '@/components/MealConfetti';
 
 const TIER_TO_VERDICT: Record<MealTier, 'approuve' | 'moderation' | 'warning' | 'danger'> = {
   green: 'approuve',
@@ -44,6 +45,17 @@ export default function MealResultScreen() {
   const { isPro } = useSubscription();
   const meal = useMemo(() => (typeof id === 'string' ? getMeal(id) : undefined), [id, getMeal]);
   const hasRequestedReview = useRef<boolean>(false);
+
+  // Confetti celebration — fires ONCE when a perfect 10/10 meal result appears.
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const hasCelebrated = useRef<boolean>(false);
+  useEffect(() => {
+    if (!meal || hasCelebrated.current) return;
+    if (meal.score >= 10) {
+      hasCelebrated.current = true;
+      setShowConfetti(true);
+    }
+  }, [meal]);
 
   // Personalized profile alerts: cross the user's health profile (pregnancy,
   // vegetarian/vegan, zero-additive, allergies…) with the ingredients ACTUALLY
@@ -253,6 +265,7 @@ export default function MealResultScreen() {
 
         <View style={{ height: 24 }} />
       </ScrollView>
+      <MealConfetti active={showConfetti} />
     </SafeAreaView>
   );
 }

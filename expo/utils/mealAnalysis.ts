@@ -507,6 +507,19 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   const isCleanHealthyMeal = !hasCarcinogen && !hasAnyJunk && effectiveHealthy >= 1;
   if (!hasCarcinogen && !isCleanHealthyMeal) score = Math.max(score, 1);
 
+  // CLEAN-MEAL RULES (user spec — the /10 shown is a HEALTH score, higher = better):
+  //  • Only-green plate (healthy whole foods, ZERO orange & ZERO yellow): a perfect 10/10
+  //    no matter how many ingredients (3, 5 or 45). Internal toxicity forced to 0.
+  //  • Only-green plate + a SINGLE yellow item (excess salt / additive) stays high (9/10):
+  //    one lone yellow never drags the score down.
+  //  • Two+ yellow items, or ANY orange (processed / added sugar / refined oil or flour),
+  //    fall through to the weighted engine above and genuinely lower the score.
+  if (!hasCarcinogen && effectiveHealthy >= 1 && orangeCount === 0) {
+    const yellowCount = ingredients.filter((i) => i.category === 'excess_salt' || i.category === 'additive').length;
+    if (yellowCount === 0) score = 0; // all green → 10/10
+    else if (yellowCount === 1) score = Math.min(score, 1); // + one yellow → 9/10
+  }
+
   // `score` here is the internal TOXICITY (higher = worse). The app displays a HEALTH
   // score (higher = better), so invert at the boundary. A carcinogen toxicity floor of 6
   // therefore becomes a health CAP of 4, exactly as specified.
