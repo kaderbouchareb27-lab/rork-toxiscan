@@ -83,9 +83,9 @@ function getFixedDescription(level: VerdictLevel): string {
       });
     case 'moderation':
       return pick({
-        en: 'Nothing to worry about, go for it. This product is perfectly fine to enjoy. It has a few debated ingredients, but nothing concerning. Go ahead and treat yourself.',
-        fr: "Rien de grave, tu peux y aller. Ce produit est tout à fait correct à consommer. Il contient quelques ingrédients discutés, mais rien d'inquiétant. Tu peux te faire plaisir tranquillement.",
-        ko: '걱정할 거 없어요, 드셔도 돼요. 이 제품은 충분히 드셔도 괜찮아요. 논란이 있는 성분이 몇 개 있지만 걱정할 정도는 아니에요. 편하게 즐기셔도 돼요.',
+        en: 'Consume with moderation. Some ingredients here are debatable, but you can enjoy this occasionally in moderation.',
+        fr: 'À consommer avec modération. Certains ingrédients ici sont discutables, mais tu peux en profiter occasionnellement, avec modération.',
+        ko: '적당히 드세요. 여기 있는 일부 성분은 논란의 여지가 있지만, 가끔 적당히 즐기셔도 괜찮아요.',
       });
     case 'approuve':
       return pick({

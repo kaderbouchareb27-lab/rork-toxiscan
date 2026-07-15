@@ -11,7 +11,13 @@ export const DR_TOXI_DEFAULT_AVATAR_URI = 'https://r2-pub.rork.com/generated-ima
 
 export const DR_TOXI_DANGER_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/27e289be-6c64-40c0-bfe4-ebbf77f17086.png';
 export const DR_TOXI_WARNING_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/b9ff7bc4-d4a6-403e-8395-770f89c2fa8a.png';
-export const DR_TOXI_MODERATION_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/060a2f78-45c6-4c6f-953f-9d8ca12edcce.png';
+/**
+ * MODERATION 🟡 ("Occasionally") avatar — the same broccoli-doctor character in his
+ * lab coat, but with the danger sign removed and a warm, relaxed smile. A moderate
+ * verdict is reassuring, not alarming, so this yellow avatar stays friendly. The
+ * worried/hazard expression is reserved for the orange (warning) tier and above.
+ */
+export const DR_TOXI_MODERATION_AVATAR_URI = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/94480753-1473-44d4-93b5-06b7fa0d7f0e.png';
 
 /**
  * ULTRA TOXIC 🟥 avatar — the original terrified bordeaux Dr. Toxi (hands on face,
