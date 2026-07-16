@@ -89,17 +89,18 @@ export function mealTierSubtitle(tier: MealTier): string {
 }
 
 /**
- * Caption for a numeric meal SCORE (0–10, higher = healthier). English uses a
- * 5-band scale that better reflects the scale (Excellent/Good/Decent/Poor/Very
- * toxic); French and Korean keep the existing 4-tier wording unchanged.
+ * Caption for a numeric meal SCORE (0–10, higher = healthier). Uses a 5-band
+ * scale, localized in all three languages:
+ *   9-10 Excellent / Excellent / 훌륭함
+ *   7-8  Good / Bon / 좋음
+ *   5-6  Average / Moyen / 보통
+ *   3-4  Poor / Mauvais / 나쁨
+ *   1-2  Unhealthy / Très mauvais / 매우 나쁨
  */
 export function mealScoreLabel(score: number): string {
-  const en =
-    score >= 9 ? 'Excellent'
-    : score >= 7 ? 'Good'
-    : score >= 5 ? 'Decent'
-    : score >= 3 ? 'Poor'
-    : 'Very toxic';
-  const fallback = mealTierLabel(scoreToTier(score));
-  return pick({ en, fr: fallback, ko: fallback });
+  if (score >= 9) return pick({ en: 'Excellent', fr: 'Excellent', ko: '훌륭함' });
+  if (score >= 7) return pick({ en: 'Good', fr: 'Bon', ko: '좋음' });
+  if (score >= 5) return pick({ en: 'Average', fr: 'Moyen', ko: '보통' });
+  if (score >= 3) return pick({ en: 'Poor', fr: 'Mauvais', ko: '나쁨' });
+  return pick({ en: 'Unhealthy', fr: 'Très mauvais', ko: '매우 나쁨' });
 }
