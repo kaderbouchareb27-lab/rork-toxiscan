@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   Share,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { ChevronLeft, MessageCircle, Share2, ChefHat, Store, AlertTriangle, UserCheck, Megaphone } from 'lucide-react-native';
+import { ChevronLeft, MessageCircle, Share2, ChefHat, AlertTriangle, UserCheck, Megaphone, Leaf, ArrowRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { t, pick } from '@/utils/i18n';
@@ -30,6 +31,8 @@ import {
 import type { MealTier } from '@/utils/mealAnalysis';
 import { maybeRequestReviewAfterPositiveScan } from '@/utils/reviewPrompt';
 import MealConfetti from '@/components/MealConfetti';
+import NearbyStores from '@/components/NearbyStores';
+import { findHealthierMealRecipe, getCachedHealthierRecipe, type HealthierRecipe } from '@/utils/mealRecipe';
 
 const TIER_TO_VERDICT: Record<MealTier, 'approuve' | 'moderation' | 'warning' | 'danger'> = {
   green: 'approuve',
@@ -55,6 +58,17 @@ export default function MealResultScreen() {
       hasCelebrated.current = true;
       setShowConfetti(true);
     }
+  }, [meal]);
+
+  // Healthier-recipe alternative (on-demand). Generated only when the user taps the
+  // "Alternatives" button; cached for the session so it reappears instantly on re-open.
+  const [recipe, setRecipe] = useState<HealthierRecipe | null>(null);
+  const [isFindingRecipe, setIsFindingRecipe] = useState<boolean>(false);
+  const [recipeError, setRecipeError] = useState<boolean>(false);
+  useEffect(() => {
+    if (!meal) return;
+    const cached = getCachedHealthierRecipe(meal.dishName);
+    if (cached) setRecipe(cached);
   }, [meal]);
 
   // Personalized profile alerts: cross the user's health profile (pregnancy,
@@ -106,6 +120,25 @@ export default function MealResultScreen() {
     }
   }, [meal]);
 
+  const handleFindAlternatives = useCallback(async () => {
+    if (!meal) return;
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsFindingRecipe(true);
+    setRecipeError(false);
+    const result = await findHealthierMealRecipe({
+      dishName: meal.dishName,
+      ingredients: meal.ingredients,
+      score: meal.score,
+    });
+    if (result) {
+      setRecipe(result);
+      if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      setRecipeError(true);
+    }
+    setIsFindingRecipe(false);
+  }, [meal]);
+
   if (!meal) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -124,8 +157,9 @@ export default function MealResultScreen() {
 
   const tierColor = MEAL_TIER_COLORS[meal.tier];
   const avatar = MEAL_TIER_AVATARS[meal.tier];
-  // Low health score = toxic meal → show healthier alternatives.
-  const showAlternatives = meal.score <= 4 && meal.alternatives;
+  // Meals that aren't great (health score ≤ 6) get a healthier-recipe alternative;
+  // a good meal (7+) needs none, so the whole section is hidden.
+  const showAlternatives = meal.score <= 6;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -212,33 +246,75 @@ export default function MealResultScreen() {
           ))}
         </View>
 
-        {/* 4. Alternatives — only for low (toxic) health scores */}
-        {showAlternatives && meal.alternatives ? (
-          <>
-            <Text style={styles.sectionTitle}>{t('meal_alt_title')}</Text>
-            {meal.alternatives.home ? (
-              <View style={[styles.altCard, { borderColor: 'rgba(46,158,52,0.25)' }]}>
-                <View style={styles.altHeader}>
-                  <View style={[styles.altIcon, { backgroundColor: 'rgba(46,158,52,0.12)' }]}>
+        {/* 4. Healthier alternative — only for meals that aren't great (score ≤ 6).
+            A tap generates a same-spirit healthier recipe (full shopping list) plus a
+            geolocated finder for where to buy the ingredients near the user. */}
+        {showAlternatives ? (
+          recipe ? (
+            <>
+              <Text style={styles.sectionTitle}>
+                {pick({ en: 'A healthier version', fr: 'Une version plus saine', ko: '더 건강한 버전' })}
+              </Text>
+              <View style={styles.recipeCard}>
+                <View style={styles.recipeHeader}>
+                  <View style={styles.recipeIcon}>
                     <ChefHat color={Colors.primary} size={18} strokeWidth={2} />
                   </View>
-                  <Text style={styles.altLabel}>{t('meal_alt_home')}</Text>
+                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
                 </View>
-                <Text style={styles.altText}>{meal.alternatives.home}</Text>
-              </View>
-            ) : null}
-            {meal.alternatives.restaurant ? (
-              <View style={[styles.altCard, { borderColor: 'rgba(232,115,10,0.22)' }]}>
-                <View style={styles.altHeader}>
-                  <View style={[styles.altIcon, { backgroundColor: 'rgba(232,115,10,0.12)' }]}>
-                    <Store color="#E8730A" size={18} strokeWidth={2} />
+                {recipe.intro ? <Text style={styles.recipeIntro}>{recipe.intro}</Text> : null}
+
+                {recipe.swaps.length > 0 ? (
+                  <View style={styles.swapsWrap}>
+                    {recipe.swaps.map((s, i) => (
+                      <View key={`swap-${i}`} style={styles.swapRow}>
+                        <Text style={styles.swapFrom} numberOfLines={2}>{s.from}</Text>
+                        <ArrowRight color={Colors.primary} size={15} strokeWidth={2.4} />
+                        <Text style={styles.swapTo} numberOfLines={2}>{s.to}</Text>
+                      </View>
+                    ))}
                   </View>
-                  <Text style={styles.altLabel}>{t('meal_alt_restaurant')}</Text>
+                ) : null}
+
+                <Text style={styles.recipeSubtitle}>
+                  {pick({ en: 'Shopping list', fr: 'Liste des ingrédients', ko: '재료 목록' })}
+                </Text>
+                <View style={styles.ingredientChipsWrap}>
+                  {recipe.ingredients.map((ing, i) => (
+                    <View key={`ri-${i}`} style={styles.ingredientChip}>
+                      <Text style={styles.ingredientChipText}>{ing}</Text>
+                    </View>
+                  ))}
                 </View>
-                <Text style={styles.altText}>{meal.alternatives.restaurant}</Text>
               </View>
-            ) : null}
-          </>
+
+              <Text style={styles.sectionTitle}>
+                {pick({ en: 'Where to buy near you', fr: 'Où acheter près de toi', ko: '내 주변에서 사는 곳' })}
+              </Text>
+              <NearbyStores />
+            </>
+          ) : (
+            <TouchableOpacity
+              style={styles.altButton}
+              onPress={handleFindAlternatives}
+              activeOpacity={0.9}
+              disabled={isFindingRecipe}
+              testID="meal-find-alternatives"
+            >
+              {isFindingRecipe ? (
+                <ActivityIndicator color={Colors.white} size="small" />
+              ) : (
+                <Leaf color={Colors.white} size={19} strokeWidth={2.2} />
+              )}
+              <Text style={styles.altButtonText}>
+                {isFindingRecipe
+                  ? pick({ en: 'Cooking up a healthier version…', fr: 'Je te prépare une version plus saine…', ko: '더 건강한 버전을 준비 중…' })
+                  : recipeError
+                    ? pick({ en: 'No luck — tap to try again', fr: 'Échec — réessayer', ko: '실패 — 다시 시도' })
+                    : pick({ en: 'See a healthier alternative', fr: 'Voir une alternative plus saine', ko: '더 건강한 대안 보기' })}
+              </Text>
+            </TouchableOpacity>
+          )
         ) : null}
 
         {/* Actions */}
@@ -323,15 +399,29 @@ const styles = StyleSheet.create({
   graveTagText: { fontSize: 10, fontWeight: '900' as const, color: '#D0260F', letterSpacing: 0.4 },
   ingredientCat: { fontSize: 12.5, fontWeight: '700' as const, marginTop: 2 },
   ingredientNote: { fontSize: 13.5, lineHeight: 19, color: Colors.textSecondary, marginTop: 4 },
-  altCard: {
-    backgroundColor: Colors.surface, borderRadius: 20, padding: 16, marginBottom: 12,
-    borderWidth: 1.5,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+  altButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    backgroundColor: Colors.primary, borderRadius: 18, paddingVertical: 16, marginTop: 4,
+    shadowColor: Colors.primary, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.26, shadowRadius: 16, elevation: 6,
   },
-  altHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-  altIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  altLabel: { fontSize: 15, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.2 },
-  altText: { fontSize: 14.5, lineHeight: 21, color: Colors.text },
+  altButtonText: { color: Colors.white, fontSize: 16, fontWeight: '800' as const, letterSpacing: -0.2 },
+  recipeCard: {
+    backgroundColor: Colors.surface, borderRadius: 22, padding: 18, marginBottom: 4,
+    borderWidth: 1, borderColor: 'rgba(46,158,52,0.28)',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 2,
+  },
+  recipeHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  recipeIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(46,158,52,0.12)' },
+  recipeTitle: { flex: 1, fontSize: 16.5, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.3 },
+  recipeIntro: { fontSize: 14.5, lineHeight: 21, color: Colors.textSecondary, marginBottom: 4 },
+  swapsWrap: { marginTop: 12, gap: 8, backgroundColor: 'rgba(46,158,52,0.06)', borderRadius: 14, padding: 12 },
+  swapRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  swapFrom: { flex: 1, textAlign: 'right' as const, fontSize: 13.5, color: Colors.textSecondary, textDecorationLine: 'line-through' as const, fontWeight: '600' as const },
+  swapTo: { flex: 1, fontSize: 13.5, color: Colors.primary, fontWeight: '800' as const },
+  recipeSubtitle: { fontSize: 12.5, fontWeight: '800' as const, color: Colors.textTertiary, letterSpacing: 0.4, textTransform: 'uppercase' as const, marginTop: 16, marginBottom: 10 },
+  ingredientChipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  ingredientChip: { backgroundColor: Colors.surfaceSecondary, borderRadius: 10, paddingHorizontal: 11, paddingVertical: 7, borderWidth: 1, borderColor: Colors.borderLight },
+  ingredientChipText: { fontSize: 13.5, color: Colors.text, fontWeight: '600' as const },
   askButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
     backgroundColor: Colors.primary, borderRadius: 18, paddingVertical: 17, marginTop: 22,
