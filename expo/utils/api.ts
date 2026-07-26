@@ -383,6 +383,126 @@ const aiAnalysisSchema = z.object({
   erreur: safeString('').optional(),
 });
 
+// Schema for the dedicated extraction step: only atomic ingredient names + product meta.
+const atomicIngredientsSchema = z.object({
+  categorie_produit: categoryEnum,
+  objet_identifie: safeString(''),
+  ingredients: z.preprocess(
+    (v) => (Array.isArray(v) ? v : []),
+    z.array(safeString(''))
+  ),
+  erreur: safeString('').optional(),
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// PROMPT — ÉTAPE 1 : EXTRACTION ATOMIQUE (l'IA ne classe ni ne décrit)
+// ═══════════════════════════════════════════════════════════════════════
+
+const AI_EXTRACTION_PROMPT_FR = `Tu es ToxiScan, un assistant qui lit les étiquettes de produits.
+
+⚠️ RÔLE UNIQUE : EXTRACTION ATOMIQUE DES INGRÉDIENTS. Tu ne classes pas. Tu ne décrives pas. Tu ne résumes pas.
+
+═══ ÉTAPE A — IDENTIFIER LE PRODUIT ═══
+- Extrais le NOM DU PRODUIT tel qu'affiché sur l'emballage (marque + nom commercial).
+- Ce nom doit venir de l'emballage (face avant), JAMAIS de la liste d'ingrédients.
+- Si le nom est illisible ou absent, laisse objet_identifie vide.
+- NOMMAGE INTERDIT : "Produit inconnu", "Unknown", "Inconnu", "Objet", "Produit".
+- Catégorie : food | beverage | cosmetic | household | kitchen_utensil | clothing | electronics | furniture | toy | other.
+
+═══ ÉTAPE B — EXTRAIRE CHAQUE INGRÉDIENT SÉPARÉMENT ═══
+
+Tu dois retourner UN TABLEAU PLAT d'ingrédients atomiques. Chaque ingrédient = une entrée unique.
+
+RÈGLES STRICTES :
+1. ÉCLATE toutes les parenthèses et crochets.
+   Exemple : "Assaisonnement [sucres (maltodextrine de maïs, sucre), acide citrique]"
+   → ["maltodextrine de maïs", "sucre", "acide citrique"]
+   Le mot "assaisonnement" ne doit PAS rester comme en-tête de groupe.
+
+2. Ne retourne JAMAIS une chaîne contenant une virgule, une parenthèse (, un crochet [, un point-virgule ou un slash de liste.
+
+3. Chaque entrée doit être un SEUL ingrédient. Même s'il y en a 20, 30 ou 50.
+
+4. Si l'étiquette est bilingue (ex. "Corn flour / Farine de maïs"), ne garde qu'UNE SEULE langue, le FRANÇAIS en priorité. Ne duplique pas.
+
+5. Traduis les noms anglais en français si l'app est en français. Si l'app est en anglais, traduis en anglais. Si l'app est en coréen, traduits en coréen avec le nom anglais entre parenthèses (ex: "설탕 (Sugar)").
+
+6. Ignore les lignes d'allergènes ("Contient:", "Peut contenir:", "Contains:", "May contain:").
+
+7. Réponds UNIQUEMENT avec le JSON demandé, aucun texte avant/après, aucun markdown.
+
+═══ FORMAT JSON ═══
+{
+  "objet_identifie": "Nom du produit",
+  "categorie_produit": "food",
+  "ingredients": [
+    "maltodextrine de maïs",
+    "sucre",
+    "acide citrique"
+  ],
+  "erreur": ""
+}
+
+Si la photo est illisible, mets erreur="Photo illisible" et ingredients=[].`;
+
+const AI_EXTRACTION_PROMPT_EN = `You are ToxiScan, a product label reading assistant.
+
+⚠️ SINGLE ROLE: ATOMIC INGREDIENT EXTRACTION. You do NOT classify. You do NOT describe. You do NOT summarize.
+
+═══ STEP A — IDENTIFY THE PRODUCT ═══
+- Extract the PRODUCT NAME as shown on the packaging (brand + commercial name).
+- The name must come from the packaging (front), NEVER from the ingredient list.
+- If the name is unreadable or missing, leave objet_identifie empty.
+- FORBIDDEN names: "Unknown product", "Unknown", "Product", "Object", "Item".
+- Category: food | beverage | cosmetic | household | kitchen_utensil | clothing | electronics | furniture | toy | other.
+
+═══ STEP B — EXTRACT EACH INGREDIENT SEPARATELY ═══
+
+Return a FLAT ARRAY of atomic ingredients. Each ingredient = one unique entry.
+
+STRICT RULES:
+1. EXPLODE all parentheses and brackets.
+   Example: "Seasoning [sugars (corn maltodextrin, sugar), citric acid]"
+   → ["corn maltodextrin", "sugar", "citric acid"]
+   The word "Seasoning" must NOT remain as a group header.
+
+2. NEVER return a string containing a comma, parenthesis (, bracket [, semicolon, or list slash.
+
+3. Every entry must be a SINGLE ingredient. Even if there are 20, 30, or 50.
+
+4. If the label is bilingual (e.g. "Corn flour / Farine de maïs"), keep only ONE language, ENGLISH preferred. Do not duplicate.
+
+5. Translate French names into English when the app is in English. Translate into French when the app is in French. Translate into Korean with the English name in parentheses when the app is in Korean (e.g. "설탕 (Sugar)").
+
+6. Ignore allergen lines ("Contains:", "May contain:").
+
+7. Respond ONLY with the requested JSON, no text before/after, no markdown.
+
+═══ JSON FORMAT ═══
+{
+  "objet_identifie": "Product name",
+  "categorie_produit": "food",
+  "ingredients": [
+    "corn maltodextrin",
+    "sugar",
+    "citric acid"
+  ],
+  "erreur": ""
+}
+
+If the photo is unreadable, set erreur="Photo illisible" and ingredients=[].`;
+
+const KOREAN_EXTRACTION_RULES = `
+
+═══ 한국어 출력 규칙 (최우선) ═══
+모든 성분명("ingredients" 배열의 각 항목)은 반드시 「한국어명 (English name)」 형식으로 작성한다 — 한국어가 먼저, 괄호 안에 영어 원명.
+예시: "설탕 (Sugar)", "카놀라유 (Canola Oil)", "소금 (Salt)".
+objet_identifie도 한국어로 작성한다.`;
+
+const AI_EXTRACTION_PROMPT = isKorean()
+  ? AI_EXTRACTION_PROMPT_EN.replace(/ENGLISH preferred/g, 'KOREAN with English in parentheses — Korean first, English in parentheses') + KOREAN_EXTRACTION_RULES
+  : isEnglish() ? AI_EXTRACTION_PROMPT_EN : AI_EXTRACTION_PROMPT_FR;
+
 // ═══════════════════════════════════════════════════════════════════════
 // PROMPT — L'IA LIT + DÉCRIT, ELLE NE CLASSE PAS
 // ═══════════════════════════════════════════════════════════════════════
@@ -972,6 +1092,109 @@ La langue de l'app est le FRANÇAIS. Cette règle PRIME sur tout le reste ci-des
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// ÉTAPE 1 — EXTRACTION ATOMIQUE PAR L'IA
+// ═══════════════════════════════════════════════════════════════════════
+
+async function extractAtomicIngredients(
+  imageBase64: string,
+  ocrText?: string,
+  ocrIngredientsBlock?: string,
+): Promise<{ ingredients: string[]; objet_identifie: string; categorie_produit: ProductCategory; erreur?: string }> {
+  console.log('[API] Step 1 — atomic extraction starting...');
+
+  const lang = getDeviceLanguage();
+  const targetEnglish = lang === 'en';
+  const languageLock = lang === 'ko'
+    ? `╔═══════════════════════════════════════════════╗
+║  출력 언어 잠금 — 한국어만 사용              ║
+╚═══════════════════════════════════════════════╝
+앱 언어는 한국어입니다. 모든 성분명은 「한국어명 (English name)」 형식, objet_identifie는 한국어로 작성합니다. 다른 언어가 섞이지 않도록 하세요.
+`
+    : targetEnglish
+    ? `╔═══════════════════════════════════════════════╗
+║  OUTPUT LANGUAGE LOCK — ENGLISH ONLY          ║
+╚═══════════════════════════════════════════════╝
+The app language is ENGLISH. Every ingredient name must be written in ENGLISH ONLY. Translate French terms into English.
+`
+    : `╔═══════════════════════════════════════════════╗
+║  VERROU DE LANGUE — FRANÇAIS UNIQUEMENT       ║
+╚═══════════════════════════════════════════════╝
+La langue de l'app est le FRANÇAIS. Chaque nom d'ingrédient doit être écrit en FRANÇAIS UNIQUEMENT. Traduis les termes anglais en français.
+`;
+
+  const systemParts: string[] = [languageLock, AI_EXTRACTION_PROMPT];
+
+  if (ocrText) {
+    const cleanedOcr = ocrText
+      .split('\n')
+      .filter((line) => !ALLERGEN_LINE_REGEX.test(line.trim()))
+      .join('\n');
+    const cleanedBlock = ocrIngredientsBlock
+      ? ocrIngredientsBlock
+          .split('\n')
+          .filter((line) => !ALLERGEN_LINE_REGEX.test(line.trim()))
+          .join('\n')
+      : null;
+
+    systemParts.push(
+      pick({
+        en: '\n\n═══ GOOGLE VISION OCR — RAW TEXT ═══\nSource text for the ingredient list. NEVER omit an ingredient present in the OCR.\n--- FULL OCR TEXT ---\n',
+        fr: '\n\n═══ OCR GOOGLE VISION — TEXTE BRUT ═══\nTexte source pour la liste d\'ingrédients. N\'omets JAMAIS un ingrédient présent dans l\'OCR.\n--- TEXTE OCR COMPLET ---\n',
+        ko: '\n\n═══ GOOGLE VISION OCR — 원문 텍스트 ═══\n성분 목록의 원문입니다. OCR에 나타난 성분을 절대 빠뜨리지 마세요.\n--- 전체 OCR 텍스트 ---\n',
+      })
+    );
+    systemParts.push(cleanedOcr.substring(0, 8000));
+    if (cleanedBlock && cleanedBlock.length > 10) {
+      systemParts.push(
+        pick({
+          en: '\n--- INGREDIENTS BLOCK (highest priority) ---\n',
+          fr: '\n--- BLOC INGRÉDIENTS (priorité max) ---\n',
+          ko: '\n--- 성분 블록 (최우선) ---\n',
+        })
+      );
+      systemParts.push(cleanedBlock.substring(0, 4000));
+    }
+    systemParts.push('\n--- END OCR ---\n');
+  }
+
+  const result = await aiGenerateObject({
+    system: systemParts.join(''),
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: pick({
+              en: 'Extract every atomic ingredient from the label as a flat array. Do not group ingredients. Do not include commas or brackets inside any name. Return only the requested JSON.',
+              fr: 'Extrais chaque ingrédient atomique de l\'étiquette sous forme de tableau plat. Ne regroupe pas les ingrédients. N\'inclus pas de virgules ni de crochets dans un nom. Réponds uniquement avec le JSON demandé.',
+              ko: '라벨의 모든 성분을 원자적 단위로 평탄한 배열로 추출하세요. 성분을 그룹화하지 마세요. 이름에 쉼표나 괄호를 포함하지 마세요. 요청한 JSON으로만 응답하세요.',
+            }),
+          },
+          { type: 'image', image: imageBase64 },
+        ],
+      },
+    ],
+    schema: atomicIngredientsSchema,
+    toolName: 'extract_atomic_ingredients',
+    toolDescription: pick({
+      en: 'Extract a flat list of atomic ingredients from the label.',
+      fr: 'Extraire une liste plate d\'ingrédients atomiques de l\'étiquette.',
+      ko: '라벨에서 원자적 성분의 평탄한 목록을 추출합니다.',
+    }),
+    maxTokens: 2048,
+  });
+
+  console.log('[API] Atomic extraction returned', result.ingredients.length, 'ingredients, product:', result.objet_identifie);
+  return {
+    ingredients: result.ingredients,
+    objet_identifie: result.objet_identifie,
+    categorie_produit: result.categorie_produit,
+    erreur: result.erreur || '',
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // CLASSIFICATION DÉTERMINISTE
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -1307,25 +1530,17 @@ function splitOcrIngredients(block: string): string[] {
   if (headerMatch && headerMatch.index !== undefined) {
     text = text.substring(headerMatch.index + headerMatch[0].length);
   }
-  // Split on commas / semicolons / newlines that are NOT inside parentheses or brackets.
-  const segments: string[] = [];
-  let depth = 0;
-  let current = '';
-  for (const ch of text) {
-    if (ch === '(' || ch === '[' || ch === '{') { depth++; current += ch; continue; }
-    if (ch === ')' || ch === ']' || ch === '}') { depth = Math.max(0, depth - 1); current += ch; continue; }
-    if (depth === 0 && (ch === ',' || ch === ';' || ch === '\n' || ch === '•' || ch === '|')) {
-      if (current.trim()) segments.push(current.trim());
-      current = '';
-      continue;
-    }
-    current += ch;
-  }
-  if (current.trim()) segments.push(current.trim());
+  // Explode EVERY delimiter — parentheses, brackets, braces, commas, semicolons, newlines,
+  // bullets — so compound headers like "Seasoning [sugars (corn maltodextrin, sugar), citric acid]"
+  // become atomic pieces. We intentionally split inside parentheses/brackets too.
+  const rawParts = text
+    .split(/[\(\)\[\]\{\},;\n•|]/g)
+    .map((p) => p.trim())
+    .filter((p) => p.length >= 2);
 
   const cleaned: string[] = [];
   const seen = new Set<string>();
-  for (const seg of segments) {
+  for (const seg of rawParts) {
     let s = seg
       .replace(/\.+$/, '')
       .replace(/^[\s\-•*:]+/, '')
@@ -1341,6 +1556,76 @@ function splitOcrIngredients(block: string): string[] {
     cleaned.push(s);
   }
   return cleaned;
+}
+
+/** Returns true when an ingredient name looks like a grouped/compound entry. */
+function isGroupedIngredient(name: string): boolean {
+  const MAX_NAME_LENGTH = 40;
+  return /[(),\[\]{}]/.test(name) || name.length > MAX_NAME_LENGTH;
+}
+
+/**
+ * Deterministic validation step between extraction and classification.
+ * Any entry that contains grouping characters (parentheses/brackets) or is too long is
+ * re-split on delimiters. If groupings remain, the caller should retry extraction.
+ */
+function validateAndAtomicize(ingredients: string[]): { clean: string[]; hadGroupings: boolean } {
+  let hadGroupings = false;
+  const out: string[] = [];
+
+  for (const raw of ingredients) {
+    const name = raw.trim();
+    if (name.length < 2) continue;
+    if (ALLERGEN_LINE_REGEX.test(name)) continue;
+
+    if (isGroupedIngredient(name)) {
+      hadGroupings = true;
+      const parts = name
+        .split(/[\(\)\[\]\{\},;]/g)
+        .map((p) => p.trim())
+        .filter((p) => p.length >= 2);
+      for (const part of parts) {
+        if (isGroupedIngredient(part)) {
+          // One more level of splitting.
+          const subParts = part
+            .split(/[\(\)\[\]\{\},;]/g)
+            .map((p) => p.trim())
+            .filter((p) => p.length >= 2);
+          for (const sub of subParts) out.push(sub);
+        } else {
+          out.push(part);
+        }
+      }
+    } else {
+      out.push(name);
+    }
+  }
+
+  return { clean: out, hadGroupings };
+}
+
+/** Normalize for deduplication: lowercase, strip accents, remove extra spaces. */
+function dedupKey(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\u1100-\u11ff\u3130-\u318f\uac00-\ud7a3]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Remove duplicate ingredient names, preserving order and the first occurrence. */
+function deduplicateIngredients(ingredients: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const name of ingredients) {
+    const key = dedupKey(name);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(name);
+  }
+  return result;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1844,9 +2129,12 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
 }
 
 /**
- * STEP 2 — Full AI analysis (runs in the background after the instant verdict). Reads the
- * label, writes descriptions for every ingredient, then classifies via the same database
- * logic. This is the authoritative final result and replaces the instant one.
+ * STEP 2 — Full AI analysis (runs in the background after the instant verdict).
+ * Two-step pipeline:
+ *   1. AI extracts a flat list of atomic ingredient names (no grouping, no descriptions).
+ *   2. JS validates + re-splits any grouped entry, deduplicates, then classifies each
+ *      ingredient one-by-one through the deterministic database (badge + description).
+ * This is the authoritative final result and replaces the instant one.
  */
 export async function scanAiEnrich(
   imageBase64: string,
@@ -1858,27 +2146,58 @@ export async function scanAiEnrich(
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       console.log('[API] AI enrich attempt', attempt);
-      const aiResult = await callAI(
+
+      // ═══ ÉTAPE 1 — EXTRACTION ATOMIQUE ═══
+      const extracted = await extractAtomicIngredients(
         imageBase64,
         ocrData.fullText || undefined,
         ocrData.ingredientsBlock || undefined,
       );
-      if (!aiResult || !aiResult.categorie_produit) {
+
+      if (!extracted.categorie_produit) {
         throw new Error(pick({ en: 'Invalid AI result', fr: 'Résultat IA invalide', ko: 'AI 결과가 올바르지 않습니다' }));
       }
+      if (extracted.erreur) {
+        throw new Error(extracted.erreur);
+      }
+
+      // ═══ ÉTAPE 1b — VALIDATION DÉTERMINISTE + RE-DÉCOPE ═══
+      let validated = validateAndAtomicize(extracted.ingredients);
+      if (validated.hadGroupings && attempt < MAX_RETRIES) {
+        console.log('[API] Grouped ingredients detected after extraction, retrying atomic extraction...');
+        continue;
+      }
+
+      // ═══ ÉTAPE 1c — DÉDUPLICATION ═══
+      const uniqueNames = deduplicateIngredients(validated.clean);
+
+      // ═══ ÉTAPE 2 — CLASSIFICATION UN PAR UN ═══
+      // Build a list of {nom, explication} where explication is empty: classifyIngredients
+      // will look up the database and fill the curated description for known ingredients.
+      const aiIngredients = uniqueNames.map((nom) => ({ nom, explication: '' }));
 
       // Cosmetic if the AI says so OR the INCI list clearly looks cosmetic.
-      const aiNames = aiResult.ingredients_lus.map((i) => i.nom);
-      const isCosmetic = aiResult.categorie_produit === 'cosmetic' || looksLikeCosmetic(aiNames);
+      const isCosmetic = extracted.categorie_produit === 'cosmetic' || looksLikeCosmetic(uniqueNames);
       const substances = isCosmetic
-        ? classifyCosmeticNames(aiNames)
-        : classifyIngredients(aiResult.ingredients_lus);
+        ? classifyCosmeticNames(uniqueNames)
+        : classifyIngredients(aiIngredients);
+
+      // Safety net: if the AI returned a product name that is actually one of the
+      // extracted ingredients, it picked an ingredient fragment instead of the real name.
+      // Blank it so sanitizeProductName falls back to a clean generic product name.
+      const normalizedNames = new Set(uniqueNames.map((n) => normalizeForLookup(n)));
+      let productName = extracted.objet_identifie.trim();
+      if (productName && normalizedNames.has(normalizeForLookup(productName))) {
+        console.log('[API] Product name is an ingredient fragment ("' + productName + '") → falling back to generic name');
+        productName = '';
+      }
+
       const result = assembleResult(
         {
-          categorie_produit: isCosmetic ? 'cosmetic' : aiResult.categorie_produit,
-          objet_identifie: aiResult.objet_identifie,
-          materiau_detecte: aiResult.materiau_detecte || '',
-          erreur: aiResult.erreur || '',
+          categorie_produit: isCosmetic ? 'cosmetic' : extracted.categorie_produit,
+          objet_identifie: productName,
+          materiau_detecte: '',
+          erreur: '',
         },
         substances,
       );
@@ -1891,7 +2210,7 @@ export async function scanAiEnrich(
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error('[API] AI enrich error (attempt ' + attempt + '):', errorMsg);
       if (attempt < MAX_RETRIES) {
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise((resolve) => setTimeout(resolve, 250));
         continue;
       }
       // AI failed: keep the instant local verdict but stop the loading spinners.
