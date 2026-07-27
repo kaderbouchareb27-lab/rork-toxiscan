@@ -35,7 +35,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { getRiskBadgeInfo, productCategoryToAdditiveCategory, findAdditiveByName, getAdditiveDescription } from '@/constants/additives';
 import { PhotoType, HealthyAlternative, DetectedIngredient, SubstanceDetected, VerdictTier } from '@/types';
-import { getCategoryLabel, generateBarcodeAlternatives, verdictTierFromProduct } from '@/utils/api';
+import { getCategoryLabel, generateBarcodeAlternatives, verdictTierFromProduct, buildApprovedDescription } from '@/utils/api';
 import { findRealAlternatives, getCachedRealAlternatives } from '@/utils/realAlternatives';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { getProfileScanAlerts } from '@/utils/healthProfile';
@@ -937,12 +937,10 @@ export default function ProductScreen() {
     );
   }, [healthProfile, ingredientsList]);
 
+  // Full 2-3 sentence description (what it is, why approved, concrete health impact),
+  // with correct capitalization and subject/verb agreement ("Potatoes are…").
   const getApprovedDescription = useCallback((name: string): string => {
-    return pick({
-      en: `${name} is a natural or commonly accepted ingredient with no identified health risk at typical food levels.`,
-      fr: `${name} est un ingrédient naturel ou couramment accepté, sans risque identifié aux doses alimentaires habituelles.`,
-      ko: `${name}은(는) 일반적인 식품 섭취량에서 알려진 건강 위험이 없는 천연 또는 통상적으로 인정된 성분입니다.`,
-    });
+    return buildApprovedDescription(name);
   }, []);
 
   const additiveCategory = useMemo(

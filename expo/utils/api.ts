@@ -1485,12 +1485,174 @@ function buildPositiveFallback(name: string, note: string | undefined): string {
   if (lowerName.includes('noix') || lowerName.includes('nut') || lowerName.includes('amande') || lowerName.includes('almond') || lowerName.includes('noisette') || lowerName.includes('hazelnut') || lowerName.includes('cajou') || lowerName.includes('cashew') || lowerName.includes('pistache') || lowerName.includes('graine') || lowerName.includes('seed')) {
     return pick({ en: 'Nuts and seeds are rich in healthy fats, protein, fiber, and minerals. Excellent for heart health and satiety.', fr: 'Noix et graines riches en bonnes graisses, protéines, fibres et minéraux. Excellentes pour la santé cardiovasculaire et la satiété.', ko: '견과류와 씨앗은 건강한 지방, 단백질, 식이섬유, 미네랄이 풍부합니다. 심장 건강과 포만감에 훌륭합니다.' });
   }
-  // Fallback descriptions must still be specific, not generic.
+  // Fallback descriptions must still be specific, not generic — and grammatically correct.
+  return buildApprovedDescription(name);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// DESCRIPTION QUALITY — grammar + minimum length. Every ingredient card must read
+// as 2-3 complete sentences: what it is, why it is classified this way, and the
+// concrete health impact. Curated database notes are often a single clause
+// ("Excitotoxin that over-stimulates neurons."), so we append risk-specific
+// complements until the minimum is met.
+// ─────────────────────────────────────────────────────────────────────
+
+/** Minimum number of complete sentences an ingredient description must contain. */
+const MIN_DESCRIPTION_SENTENCES = 3;
+
+/** Endings where a trailing "s" does NOT mean plural (molasses, dextrose, sucralose…). */
+const SINGULAR_S_ENDINGS = /(ss|us|is|ose|ase|ous|sis|ics)$/;
+
+/** Heuristic plural detection so we can write "Potatoes are…" instead of "potatoes is…". */
+function isPluralIngredientName(name: string): boolean {
+  const words = name.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return false;
+  const isPluralWord = (w: string): boolean => {
+    const word = w.replace(/[^a-zà-ÿ]/g, '');
+    if (word.length < 4) return false;
+    if (word.endsWith('oes') || word.endsWith('ies')) return true;
+    if (!word.endsWith('s')) return false;
+    return !SINGULAR_S_ENDINGS.test(word);
+  };
+  // English plurals sit on the LAST word ("corn flakes"), French ones on the FIRST
+  // word ("pommes de terre").
+  return isPluralWord(words[words.length - 1] ?? '') || isPluralWord(words[0] ?? '');
+}
+
+function capitalizeFirst(text: string): string {
+  const s = text.trimStart();
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function countSentences(text: string): number {
+  return text
+    .split(/[.!?…]+(?:\s|$)/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 2).length;
+}
+
+/** Localized complement sentences used to reach the minimum description length. */
+function descriptionComplements(risk: RiskLevel): string[] {
+  if (risk === 'aucun') {
+    return pick({
+      en: [
+        'It is rated approved because it is a whole or minimally processed food, with no additive, industrial residue or known toxicity concern.',
+        'At usual food levels it brings nutrients without burdening the body, so it can be eaten regularly without concern.',
+      ],
+      fr: [
+        "Il est classé approuvé car c'est un aliment entier ou peu transformé, sans additif, résidu industriel ni toxicité connue.",
+        "Aux doses alimentaires habituelles, il apporte des nutriments sans surcharger l'organisme et peut être consommé régulièrement sans inquiétude.",
+      ],
+      ko: [
+        '첨가물이나 산업 잔류물, 알려진 독성 없이 온전하거나 최소한으로 가공된 식품이므로 승인 등급을 받았습니다.',
+        '일반적인 식품 섭취량에서는 몸에 부담을 주지 않고 영양을 공급하므로 꾸준히 먹어도 걱정할 필요가 없습니다.',
+      ],
+    });
+  }
+  if (risk === 'possible') {
+    return pick({
+      en: [
+        'It is rated acceptable because it is refined or processed, or easily eaten in excess, without being a proven risk on its own.',
+        'An occasional intake poses no problem; it is the regular, repeated consumption that adds up and should be kept in check.',
+      ],
+      fr: [
+        "Il est classé acceptable car il est raffiné ou transformé, ou facilement consommé en excès, sans constituer à lui seul un risque prouvé.",
+        "Une consommation occasionnelle ne pose pas de problème ; c'est l'apport régulier et répété qui s'accumule et doit être surveillé.",
+      ],
+      ko: [
+        '정제 또는 가공된 성분이거나 과다 섭취하기 쉬운 성분이지만, 그 자체로 입증된 위험은 아니므로 보통 등급입니다.',
+        '가끔 섭취하는 것은 문제가 없지만, 반복적으로 자주 먹으면 누적되므로 양을 조절해야 합니다.',
+      ],
+    });
+  }
+  if (risk === 'probable') {
+    return pick({
+      en: [
+        'It is rated industrial because it is produced by a heavy industrial process typical of ultra-processed food (NOVA 4) — a whole food never needs it.',
+        'Repeated consumption is linked to metabolic disorders such as weight gain, insulin resistance and chronic inflammation.',
+      ],
+      fr: [
+        "Il est classé industriel car il est produit par un lourd procédé industriel typique des aliments ultra-transformés (NOVA 4) — un aliment entier n'en a jamais besoin.",
+        'Une consommation répétée est associée à des troubles métaboliques : prise de poids, résistance à l’insuline et inflammation chronique.',
+      ],
+      ko: [
+        '초가공식품(NOVA 4)에 전형적인 강력한 산업 공정으로 만들어지기 때문에 산업 등급입니다 — 온전한 식품에는 필요하지 않습니다.',
+        '반복 섭취는 체중 증가, 인슐린 저항성, 만성 염증 등 대사 장애와 관련이 있습니다.',
+      ],
+    });
+  }
   return pick({
-    en: `${name} is a natural ingredient. It is a source of nutrients that contributes to the nutritional value of this product.`,
-    fr: `${name} est un ingrédient naturel. C'est une source de nutriments qui contribue à la valeur nutritionnelle de ce produit.`,
-    ko: `${name}은(는) 천연 성분입니다. 이 제품의 영양 가치에 기여하는 영양소의 공급원입니다.`,
+    en: [
+      'It sits at the highest risk level because health agencies link it to a proven or probable cancer risk, or because it is banned in several countries.',
+      'Every repeated exposure accumulates in the body — this ingredient should be avoided rather than merely limited.',
+    ],
+    fr: [
+      "Il est au niveau de risque le plus élevé car les agences sanitaires le relient à un risque de cancer prouvé ou probable, ou parce qu'il est interdit dans plusieurs pays.",
+      "Chaque exposition répétée s'accumule dans le corps — cet ingrédient doit être évité, et pas seulement limité.",
+    ],
+    ko: [
+      '보건 당국이 입증된 또는 유력한 발암 위험과 연결하거나 여러 국가에서 금지된 성분이므로 최고 위험 등급입니다.',
+      '반복 노출은 체내에 누적됩니다 — 이 성분은 줄이는 것이 아니라 피해야 합니다.',
+    ],
   });
+}
+
+/** Fix capitalization and subject/verb agreement ("potatoes is a natural…" → "Potatoes are a natural…"). */
+function fixDescriptionGrammar(name: string, text: string): string {
+  let out = text.trim();
+  if (!out) return '';
+  const trimmedName = name.trim();
+  if (trimmedName && isPluralIngredientName(trimmedName)) {
+    const esc = trimmedName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    out = out
+      .replace(new RegExp('^(' + esc + ')\\s+is\\s+(?:a|an)\\s+', 'i'), '$1 are ')
+      .replace(new RegExp('^(' + esc + ')\\s+is\\b', 'i'), '$1 are')
+      .replace(new RegExp('^(' + esc + ')\\s+est\\s+(?:un|une)\\s+', 'i'), '$1 sont des ')
+      .replace(new RegExp('^(' + esc + ')\\s+est\\b', 'i'), '$1 sont');
+  }
+  return capitalizeFirst(out);
+}
+
+/**
+ * Guarantees an ingredient description is grammatically clean AND at least 2-3 complete
+ * sentences long (what it is → why it is classified this way → concrete health impact).
+ */
+export function ensureFullDescription(name: string, risk: RiskLevel, text: string): string {
+  const base = fixDescriptionGrammar(name, text);
+  if (!base) return base;
+  const complements = descriptionComplements(risk);
+  let out = base;
+  for (const complement of complements) {
+    if (countSentences(out) >= MIN_DESCRIPTION_SENTENCES) break;
+    if (!/[.!?…]$/.test(out)) out += '.';
+    out += ' ' + complement;
+  }
+  return out;
+}
+
+/** Full, grammatically correct description for an APPROVED (green) ingredient. */
+export function buildApprovedDescription(name: string): string {
+  const plural = isPluralIngredientName(name);
+  const n = capitalizeFirst(name.trim());
+  const base = pick({
+    en: plural
+      ? `${n} are natural, minimally processed food ingredients with no identified health risk at typical food levels.`
+      : `${n} is a natural, minimally processed food ingredient with no identified health risk at typical food levels.`,
+    fr: plural
+      ? `${n} sont des ingrédients naturels et peu transformés, sans risque identifié aux doses alimentaires habituelles.`
+      : `${n} est un ingrédient naturel et peu transformé, sans risque identifié aux doses alimentaires habituelles.`,
+    ko: `${n}은(는) 일반적인 식품 섭취량에서 알려진 건강 위험이 없는 천연·최소 가공 성분입니다.`,
+  });
+  return ensureFullDescription(name, 'aucun', base);
+}
+
+/** Post-processing step: every classified substance gets a full, well-formed description. */
+function withFullDescription(sub: SubstanceDetected): SubstanceDetected {
+  if (sub.descriptionPending === true) return sub;
+  const current = sub.explication?.trim() ?? '';
+  if (!current) return sub;
+  return { ...sub, explication: ensureFullDescription(sub.nom, sub.niveau_risque, current) };
 }
 
 // Markers used to classify UNKNOWN ingredients (not in the database). Shared between the
@@ -1734,7 +1896,8 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
       };
     })
     .map(enforcePalmOilFloor)
-    .map(enforceUltraToxicFloor);
+    .map(enforceUltraToxicFloor)
+    .map(withFullDescription);
 }
 
 function classifyIngredients(aiIngredients: { nom: string; explication: string }[]): SubstanceDetected[] {
@@ -1817,7 +1980,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       explication: finalExplication,
       source_exposition: null,
     };
-  }).map(enforcePalmOilFloor).map(enforceUltraToxicFloor);
+  }).map(enforcePalmOilFloor).map(enforceUltraToxicFloor).map(withFullDescription);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1914,10 +2077,136 @@ function isPlaceholderName(name: string): boolean {
   return false;
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// PRODUCT TYPE DEDUCTION — when no brand/name could be read, never fall back to a
+// flat "Food product". Instead deduce the product CATEGORY from the ingredient
+// signature (corn flour + oil + seasoning → "Corn chips"; potatoes + oil + salt →
+// "Potato chips"). A category only, never a brand.
+// ─────────────────────────────────────────────────────────────────────
+
+interface ProductTypeSignature {
+  id: string;
+  matches: (has: (...keywords: string[]) => boolean) => boolean;
+  label: { en: string; fr: string; ko: string };
+}
+
+const PRODUCT_TYPE_SIGNATURES: readonly ProductTypeSignature[] = [
+  {
+    id: 'potato-chips',
+    matches: (has) =>
+      has('pomme de terre', 'pommes de terre', 'potato', 'potatoes', 'flocon de pomme', '감자') &&
+      has('huile', 'oil', 'graisse', 'fat', '유'),
+    label: { en: 'Potato chips', fr: 'Chips de pommes de terre', ko: '감자칩' },
+  },
+  {
+    id: 'corn-chips',
+    matches: (has) =>
+      has('mais', 'maize', 'corn', 'masa', 'tortilla', '옥수수') &&
+      has('huile', 'oil', 'graisse', 'fat', '유'),
+    label: { en: 'Corn chips', fr: 'Chips de maïs', ko: '옥수수칩' },
+  },
+  {
+    id: 'chocolate',
+    matches: (has) =>
+      has('cacao', 'cocoa', 'chocolat', 'chocolate', '카카오', '코코아') &&
+      has('sucre', 'sugar', 'sirop', 'syrup', '설탕'),
+    label: { en: 'Chocolate confection', fr: 'Confiserie chocolatée', ko: '초콜릿 과자' },
+  },
+  {
+    id: 'biscuit',
+    matches: (has) =>
+      has('farine', 'flour', 'semoule', '밀가루') &&
+      has('sucre', 'sugar', 'sirop', 'syrup', '설탕') &&
+      has('huile', 'oil', 'beurre', 'butter', 'graisse', 'fat', '유'),
+    label: { en: 'Sweet biscuit', fr: 'Biscuit sucré', ko: '단과자' },
+  },
+  {
+    id: 'bakery',
+    matches: (has) =>
+      has('farine', 'flour', '밀가루') && has('levure', 'yeast', 'levain', '이스트'),
+    label: { en: 'Bakery product', fr: 'Produit de boulangerie', ko: '빵류' },
+  },
+  {
+    id: 'breakfast-cereal',
+    matches: (has) =>
+      has('avoine', 'oat', 'oats', 'flocon', 'flake', 'cereale', 'cereal', 'granola', '오트', '시리얼') &&
+      has('sucre', 'sugar', 'sirop', 'syrup', 'miel', 'honey', '설탕'),
+    label: { en: 'Breakfast cereal', fr: 'Céréales de petit-déjeuner', ko: '아침 시리얼' },
+  },
+  {
+    id: 'processed-meat',
+    matches: (has) =>
+      has('porc', 'pork', 'boeuf', 'beef', 'poulet', 'chicken', 'dinde', 'turkey', 'jambon', 'ham', 'bacon', 'viande', 'meat', '돼지', '소고기') &&
+      has('nitrite', 'nitrate', 'sel', 'salt', 'dextrose', '아질산', '소금'),
+    label: { en: 'Processed meat', fr: 'Viande transformée', ko: '가공육' },
+  },
+  {
+    id: 'dairy-dessert',
+    matches: (has) =>
+      has('lait', 'milk', 'creme', 'cream', 'yogourt', 'yaourt', 'yogurt', '우유', '크림') &&
+      has('sucre', 'sugar', 'sirop', 'syrup', '설탕'),
+    label: { en: 'Dairy dessert', fr: 'Dessert lacté', ko: '유제품 디저트' },
+  },
+  {
+    id: 'sweet-drink',
+    matches: (has) =>
+      has('eau', 'water', 'eau gazeifiee', 'carbonated', '물') &&
+      has('sucre', 'sugar', 'sirop', 'syrup', 'aspartame', 'sucralose', 'stevia', '설탕'),
+    label: { en: 'Sweetened beverage', fr: 'Boisson sucrée', ko: '가당 음료' },
+  },
+  {
+    id: 'condiment',
+    matches: (has) =>
+      has('vinaigre', 'vinegar', 'tomate', 'tomato', 'moutarde', 'mustard', '식초', '토마토') &&
+      has('sucre', 'sugar', 'sel', 'salt', 'amidon', 'starch', '설탕', '소금'),
+    label: { en: 'Condiment sauce', fr: 'Sauce condiment', ko: '소스류' },
+  },
+  {
+    id: 'pasta',
+    matches: (has) => has('pate alimentaire', 'pasta', 'nouille', 'noodle', 'semoule', 'vermicelle', '면', '국수'),
+    label: { en: 'Pasta or noodles', fr: 'Pâtes ou nouilles', ko: '면류' },
+  },
+];
+
+/**
+ * Deduce a product CATEGORY label from the ingredient signature. Returns null when no
+ * reliable deduction is possible, so the caller can pick a sharper generic label.
+ */
+function deduceProductTypeName(substances: SubstanceDetected[], ocrText: string): string | null {
+  if (substances.length === 0) return null;
+  const joined = normalizeForLookup(
+    substances.map((s) => s.nom).join(' | ') + ' ' + (ocrText || '').slice(0, 600),
+  );
+  const has = (...keywords: string[]): boolean => keywords.some((k) => joined.includes(normalizeForLookup(k)));
+
+  for (const signature of PRODUCT_TYPE_SIGNATURES) {
+    if (signature.matches(has)) {
+      console.log('[Naming] Product type deduced from ingredients →', signature.id);
+      return pick(signature.label);
+    }
+  }
+
+  // No exact type: still be sharper than "Food product".
+  const isSweet = has('sucre', 'sugar', 'sirop', 'syrup', 'dextrose', 'glucose', 'fructose', 'miel', 'honey', '설탕');
+  const isSalty = has('sel', 'salt', 'arome', 'flavour', 'flavor', 'glutamate', 'assaisonnement', 'seasoning', '소금');
+  if (isSweet) return pick({ en: 'Sweet product', fr: 'Produit sucré', ko: '단 제품' });
+  if (isSalty) return pick({ en: 'Processed snack', fr: 'Snack transformé', ko: '가공 스낵' });
+  return pick({ en: 'Processed food', fr: 'Aliment transformé', ko: '가공식품' });
+}
+
 /** Guarantee a clean, non-"unknown" product name, deriving a category label when needed. */
-function sanitizeProductName(rawName: string, category: ProductCategory): string {
-  if (isPlaceholderName(rawName)) return genericProductName(category);
-  return rawName.trim();
+function sanitizeProductName(
+  rawName: string,
+  category: ProductCategory,
+  substances: SubstanceDetected[] = [],
+  ocrText: string = '',
+): string {
+  if (!isPlaceholderName(rawName)) return rawName.trim();
+  if (category === 'food' || category === 'beverage') {
+    const deduced = deduceProductTypeName(substances, ocrText);
+    if (deduced) return deduced;
+  }
+  return genericProductName(category);
 }
 
 // Name heads that reveal a "first-ingredient" name (fr/en/ko), after normalizeForLookup.
@@ -1957,7 +2246,14 @@ function fixIngredientDerivedName(rawName: string, substances: SubstanceDetected
 
 /** Assemble a full UniversalAnalysisResult from classified substances + product meta. */
 function assembleResult(
-  meta: { categorie_produit: ProductCategory; objet_identifie: string; materiau_detecte: string; erreur?: string },
+  meta: {
+    categorie_produit: ProductCategory;
+    objet_identifie: string;
+    materiau_detecte: string;
+    erreur?: string;
+    /** Raw OCR text, used to deduce a product-type label when no name could be read. */
+    ocr_text?: string;
+  },
   substances: SubstanceDetected[],
 ): UniversalAnalysisResult {
   const riskOrder: Record<RiskLevel, number> = { danger: 0, probable: 1, possible: 2, aucun: 3 };
@@ -1996,6 +2292,8 @@ function assembleResult(
     objet_identifie: sanitizeProductName(
       fixIngredientDerivedName(meta.objet_identifie, sorted, meta.categorie_produit),
       meta.categorie_produit,
+      sorted,
+      meta.ocr_text ?? '',
     ),
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
@@ -2055,7 +2353,7 @@ function finalizeInstant(result: UniversalAnalysisResult): UniversalAnalysisResu
             ko: `${s.nom}은(는) ToxiScan 데이터베이스에 등록되어 있지 않습니다. 현재 데이터로는 건강 영향을 판단할 수 없습니다.`,
           });
     }
-    return { ...s, explication, descriptionPending: false };
+    return { ...s, explication: ensureFullDescription(s.nom, s.niveau_risque, explication), descriptionPending: false };
   });
   return { ...result, substances_detectees: substances };
 }
@@ -2103,6 +2401,7 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
       categorie_produit: isCosmetic ? 'cosmetic' : 'food',
       objet_identifie: guessedName,
       materiau_detecte: '',
+      ocr_text: ocrData.fullText,
     },
     substances,
   );
@@ -2198,6 +2497,7 @@ export async function scanAiEnrich(
           objet_identifie: productName,
           materiau_detecte: '',
           erreur: '',
+          ocr_text: ocrData.fullText,
         },
         substances,
       );
