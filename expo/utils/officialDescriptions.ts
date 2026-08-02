@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { z } from 'zod';
 import { OFFICIAL_DESCRIPTION_KEYS, OFFICIAL_DESCRIPTION_TEXTS } from '@/constants/officialDescriptions';
+import { OFFICIAL_DESCRIPTIONS_FR, OFFICIAL_DESCRIPTIONS_KO } from '@/constants/officialDescriptionsI18n';
 import { getDeviceLanguage } from '@/utils/i18n';
 import { aiGenerateObject } from '@/utils/aiApi';
 
@@ -11,9 +12,10 @@ import { aiGenerateObject } from '@/utils/aiApi';
 // RÉFÉRENCE validée : quand un ingrédient en possède une, elle est servie
 // telle quelle et l'IA ne génère PLUS JAMAIS de description pour lui.
 //
-// FR/KO : traduction automatique du texte anglais (une seule fois par texte,
-// mise en cache en mémoire + AsyncStorage). Tant que la traduction n'est pas
-// disponible, le texte anglais de référence est affiché en secours.
+// FR/KO : traductions FIGÉES, pré-générées hors ligne et livrées avec l'app
+// (constants/officialDescriptionsI18n.ts, alignées par index sur l'anglais).
+// Affichage instantané, hors ligne, zéro appel IA. La traduction runtime plus
+// bas n'est plus qu'un filet de sécurité si un texte figé venait à manquer.
 // ═══════════════════════════════════════════════════════════════════════
 
 /** Same normalization as normalizeForLookup in utils/api.ts (ASCII + Hangul kept). */
@@ -43,6 +45,34 @@ export function getOfficialEn(name?: string | null, code?: string | null): strin
 }
 
 const OFFICIAL_EN_SET: ReadonlySet<string> = new Set(OFFICIAL_DESCRIPTION_TEXTS);
+
+/** English reference text -> its index, used for the frozen FR/KO lookup. */
+const EN_INDEX: ReadonlyMap<string, number> = new Map(
+  OFFICIAL_DESCRIPTION_TEXTS.map((t, i) => [t, i] as const),
+);
+
+const FROZEN_BY_LANG: Readonly<Record<string, readonly string[]>> = {
+  fr: OFFICIAL_DESCRIPTIONS_FR,
+  ko: OFFICIAL_DESCRIPTIONS_KO,
+};
+
+/** Every bundled translation, so callers can recognize an official translated text. */
+const FROZEN_TEXT_SET: ReadonlySet<string> = new Set(
+  [...OFFICIAL_DESCRIPTIONS_FR, ...OFFICIAL_DESCRIPTIONS_KO].filter((t) => t.length > 0),
+);
+
+/**
+ * Bundled pre-translated text for an English reference description in `lang`,
+ * or undefined when none ships for it (runtime translation then acts as fallback).
+ */
+function getFrozenTranslation(en: string, lang: string): string | undefined {
+  const list = FROZEN_BY_LANG[lang];
+  if (!list) return undefined;
+  const idx = EN_INDEX.get(en);
+  if (idx === undefined) return undefined;
+  const translated = list[idx];
+  return translated && translated.length > 0 ? translated : undefined;
+}
 
 /** True when `text` is one of the official ENGLISH reference descriptions. */
 export function isOfficialEnText(text?: string | null): boolean {
@@ -74,7 +104,7 @@ function storageKey(lang: string): string {
 /** True when `text` is an official description (English reference OR a cached translation). */
 export function isOfficialDescriptionText(text?: string | null): boolean {
   if (!text) return false;
-  return OFFICIAL_EN_SET.has(text) || translatedTextSet.has(text);
+  return OFFICIAL_EN_SET.has(text) || FROZEN_TEXT_SET.has(text) || translatedTextSet.has(text);
 }
 
 /** Loads the persisted translation cache for the current language (no-op for EN / already loaded). */
@@ -106,13 +136,13 @@ export async function hydrateOfficialTranslations(): Promise<void> {
 
 /**
  * Returns the display version of an official ENGLISH description in the current app
- * language: the cached FR/KO translation when available, otherwise the English
- * reference text (EN stays the source of truth).
+ * language: the bundled FR/KO translation (instant, offline), then any runtime-cached
+ * translation, otherwise the English reference text (EN stays the source of truth).
  */
 export function localizeOfficialText(en: string): string {
   const lang = getDeviceLanguage();
   if (lang === 'en') return en;
-  return translationCache.get(`${lang}:${hashText(en)}`) ?? en;
+  return getFrozenTranslation(en, lang) ?? translationCache.get(`${lang}:${hashText(en)}`) ?? en;
 }
 
 const TranslationSchema = z.object({ translations: z.array(z.string()) });
@@ -130,18 +160,23 @@ async function persistTranslations(lang: string, added: Record<string, string>):
 }
 
 /**
- * Ensures FR/KO translations exist (memory + AsyncStorage) for the given official
- * ENGLISH texts. One batched AI TRANSLATION call per missing chunk — this is pure
- * translation of the fixed reference texts, never content generation. Failures are
- * non-blocking: callers fall back to the English reference.
+ * Safety net for official texts that have NO bundled FR/KO translation (should be
+ * none today). Anything already shipped in officialDescriptionsI18n.ts is skipped,
+ * so this normally performs zero AI calls. Failures are non-blocking: callers fall
+ * back to the English reference.
  */
 export async function ensureOfficialTranslations(enTexts: string[]): Promise<void> {
   const lang = getDeviceLanguage();
   if (lang === 'en') return;
   await hydrateOfficialTranslations();
 
+  // Les traductions figées couvrent toute la base : en pratique `missing` est vide
+  // et aucun appel IA n'est déclenché.
   const missing = [...new Set(enTexts)].filter(
-    (t) => OFFICIAL_EN_SET.has(t) && !translationCache.has(`${lang}:${hashText(t)}`),
+    (t) =>
+      OFFICIAL_EN_SET.has(t) &&
+      getFrozenTranslation(t, lang) === undefined &&
+      !translationCache.has(`${lang}:${hashText(t)}`),
   );
   if (missing.length === 0) return;
 
