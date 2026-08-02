@@ -38,6 +38,7 @@ const TITLE_FONT_FAMILY = Platform.select({ ios: 'Georgia', android: 'serif', we
 const ANALYZING_DR_TOXI_AVATAR_URI = 'https://r2-pub.rork.com/generated-images/256dc913-0f70-4358-b3aa-5bc9a38cc427.png';
 const LOADER_BAR_WIDTH = 232;
 const LOADER_BAR_SEGMENT = 78;
+const MEAL_SCAN_IMAGE_URI = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhbn3e/assets/b54ffecf-2f9f-4b18-bd28-1e2295ccd9ff.png';
 
 export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
@@ -504,115 +505,121 @@ export default function ScannerScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            <View style={styles.heroSection}>
-              <LinearGradient
-                colors={['#FFFFFC', '#FAFAF8', '#F3EFE6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroCard}
-              >
-                <View style={styles.heroMainRow}>
-                  <View style={styles.heroCopy}>
-                    <Text style={styles.brandTitle}>Dr. Toxi</Text>
-                    <Text style={styles.subtitle}>{t('protect_health')}</Text>
-                    <View style={styles.titleAccent} />
-                  </View>
-                  <View style={styles.avatarHalo}>
-                    <RNImage
-                      source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }}
-                      style={styles.heroAvatar}
-                      resizeMode="contain"
-                    />
-                  </View>
-                </View>
-
-                <View style={styles.trustStrip}>
-                  <View style={styles.trustItem}>
-                    <ShieldCheck color="#183A2E" size={17} strokeWidth={1.9} />
-                    <Text style={styles.trustText}>{pick({ fr: 'CIRC/OMS', en: 'IARC/WHO', ko: 'IARC/WHO' })}</Text>
-                  </View>
-                  <View style={styles.trustItem}>
-                    <Database color="#183A2E" size={17} strokeWidth={1.9} />
-                    <Text style={styles.trustText}>{t('home_database_label')}</Text>
-                  </View>
-                  <View style={styles.trustItem}>
-                    <Zap color="#183A2E" size={17} strokeWidth={1.9} />
-                    <Text style={styles.trustText}>{t('home_instant_label')}</Text>
-                  </View>
-                </View>
-              </LinearGradient>
+            <View style={styles.redesignHero}>
+              <View style={styles.redesignCopy}>
+                <Text style={styles.redesignGreeting}>{pick({ fr: 'Bonjour !', en: 'Hello!', ko: '안녕하세요!' })}</Text>
+                <Text style={styles.redesignBrand}>Dr. Toxi</Text>
+                <Text style={styles.redesignSubtitle}>{t('protect_health')}</Text>
+                <View style={styles.redesignAccent} />
+              </View>
+              <View style={styles.redesignAvatarStage}>
+                <RNImage
+                  source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }}
+                  style={styles.redesignAvatar}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
 
-            <View style={styles.actionSection}>
-              <Text style={styles.sectionLabel}>{t('scan_section_label')}</Text>
-
-              <Animated.View style={[styles.entryCardWrap, { transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }]}>
-                <TouchableOpacity
-                  style={styles.entryCard}
-                  onPress={handleTakePhoto}
-                  onPressIn={handleButtonPressIn}
-                  onPressOut={handleButtonPressOut}
-                  activeOpacity={0.9}
-                  testID="photo-button"
-                >
-                  <View style={styles.entryIconProduct}>
-                    <Camera color="#0A2A1D" size={24} strokeWidth={2.1} />
-                  </View>
-                  <View style={styles.entryTextCol}>
-                    <Text style={styles.entryTitle}>{t('scan_entry_product_title')}</Text>
-                    <Text style={styles.entryDesc}>{t('scan_entry_product_desc')}</Text>
-                    {!isPro ? (
-                      <Text style={styles.mealCounterText}>{tf('product_scans_counter', scanRemaining, scanLimit)}</Text>
-                    ) : (
-                      <View style={styles.freePill}>
-                        <Text style={styles.freePillText}>{t('product_scan_unlimited')}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <ChevronRight color="#9AA39E" size={22} strokeWidth={2} />
-                </TouchableOpacity>
-              </Animated.View>
-
-              <TouchableOpacity
-                style={[styles.entryCard, styles.entryCardMeal]}
-                onPress={handleScanMeal}
-                activeOpacity={0.9}
-                testID="meal-button"
-              >
-                <View style={styles.entryIconMeal}>
-                  <Utensils color="#FFFFFF" size={24} strokeWidth={2.1} />
+            <View style={styles.redesignTrustCard}>
+              <View style={styles.redesignTrustItem}>
+                <ShieldCheck color="#0A5030" size={26} strokeWidth={1.8} />
+                <View style={styles.redesignTrustCopy}>
+                  <Text style={styles.redesignTrustTitle}>{pick({ fr: 'CIRC/OMS', en: 'IARC/WHO', ko: 'IARC/WHO' })}</Text>
+                  <Text style={styles.redesignTrustCaption}>{pick({ fr: 'Sources fiables', en: 'Trusted sources', ko: '신뢰할 수 있는 출처' })}</Text>
                 </View>
-                <View style={styles.entryTextCol}>
-                  <Text style={styles.entryTitle}>{t('scan_entry_meal_title')}</Text>
-                  <Text style={styles.entryDesc}>{t('scan_entry_meal_desc')}</Text>
-                  {!isPro ? (
-                    <Text style={styles.mealCounterText}>{tf('meal_scans_counter', mealScanRemaining, mealScanLimit)}</Text>
-                  ) : (
-                    <View style={styles.freePill}>
-                      <Text style={styles.freePillText}>{t('meal_scan_unlimited')}</Text>
-                    </View>
-                  )}
+              </View>
+              <View style={styles.redesignTrustDivider} />
+              <View style={styles.redesignTrustItem}>
+                <Database color="#0A5030" size={26} strokeWidth={1.8} />
+                <View style={styles.redesignTrustCopy}>
+                  <Text style={styles.redesignTrustTitle}>{t('home_database_label')}</Text>
+                  <Text style={styles.redesignTrustCaption}>{pick({ fr: 'Ingrédients sûrs', en: 'Safer ingredients', ko: '안전한 성분' })}</Text>
                 </View>
-                <ChevronRight color="#2E9E34" size={22} strokeWidth={2} />
-              </TouchableOpacity>
-
-              <View style={styles.scanTypesRow}>
-                <View style={styles.scanTypeChip}>
-                  <View style={styles.scanTypeIconWrap}>
-                    <ScanLine color="#2E9E34" size={17} strokeWidth={2.1} />
-                  </View>
-                  <Text style={styles.scanTypeText}>{t('cat_food')}</Text>
-                </View>
-                <View style={styles.scanTypeChip}>
-                  <View style={[styles.scanTypeIconWrap, styles.scanTypeIconWrapCosmetic]}>
-                    <Droplets color="#7C3AED" size={17} strokeWidth={2.1} />
-                  </View>
-                  <Text style={styles.scanTypeText}>{t('cat_cosmetics')}</Text>
+              </View>
+              <View style={styles.redesignTrustDivider} />
+              <View style={styles.redesignTrustItem}>
+                <Zap color="#0A5030" size={26} strokeWidth={1.8} />
+                <View style={styles.redesignTrustCopy}>
+                  <Text style={styles.redesignTrustTitle}>{t('home_instant_label')}</Text>
+                  <Text style={styles.redesignTrustCaption}>{pick({ fr: 'Analyse rapide', en: 'Quick analysis', ko: '빠른 분석' })}</Text>
                 </View>
               </View>
             </View>
 
-            <View style={styles.cardsSection}>
+            <View style={styles.redesignScanSection}>
+              <Text style={styles.redesignSectionTitle}>{t('scan_section_label')}</Text>
+              <View style={styles.redesignCardGrid}>
+                <Animated.View style={[styles.redesignScanCardWrap, { transform: [{ scale: Animated.multiply(buttonScale, pulseAnim) }] }]}>
+                  <TouchableOpacity
+                    style={[styles.redesignScanCard, styles.redesignProductCard]}
+                    onPress={handleTakePhoto}
+                    onPressIn={handleButtonPressIn}
+                    onPressOut={handleButtonPressOut}
+                    activeOpacity={0.92}
+                    testID="photo-button"
+                  >
+                    <View style={styles.redesignProductLabel} pointerEvents="none">
+                      <View style={styles.redesignLabelTitleLine} />
+                      <View style={styles.redesignLabelRule} />
+                      <View style={styles.redesignLabelRow}><View style={styles.redesignLabelShortLine} /><View style={styles.redesignLabelValueLine} /></View>
+                      <View style={styles.redesignLabelRow}><View style={styles.redesignLabelShortLine} /><View style={styles.redesignLabelValueLine} /></View>
+                      <View style={styles.redesignLabelRow}><View style={styles.redesignLabelShortLine} /><View style={styles.redesignLabelValueLine} /></View>
+                      <View style={styles.redesignBarcodeRow}>
+                        {[7, 3, 5, 2, 6, 3, 4, 7, 2, 5, 3, 6, 2].map((height: number, index: number) => (
+                          <View key={`${height}-${index}`} style={[styles.redesignBarcodeBar, { height: height * 2.6 }]} />
+                        ))}
+                      </View>
+                    </View>
+                    <View style={styles.redesignCardCopy}>
+                      <Text style={styles.redesignCardTitle}>{t('scan_entry_product_title')}</Text>
+                      <Text style={styles.redesignCardDescription}>{t('scan_entry_product_desc')}</Text>
+                    </View>
+                    <LinearGradient colors={['#38B83E', '#08732C']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.redesignCardButton}>
+                      <View style={styles.redesignButtonIcon}><Camera color="#168735" size={21} strokeWidth={2.6} /></View>
+                      <Text style={styles.redesignButtonText}>{t('scan_entry_product_title')}</Text>
+                    </LinearGradient>
+                    {!isPro && <Text style={styles.redesignCounter}>{tf('product_scans_counter', scanRemaining, scanLimit)}</Text>}
+                  </TouchableOpacity>
+                </Animated.View>
+
+                <TouchableOpacity
+                  style={[styles.redesignScanCard, styles.redesignMealCard]}
+                  onPress={handleScanMeal}
+                  activeOpacity={0.92}
+                  testID="meal-button"
+                >
+                  <LinearGradient colors={['#F7FAEE', '#ECF4E0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                  {MEAL_SCAN_IMAGE_URI ? (
+                    <RNImage source={{ uri: MEAL_SCAN_IMAGE_URI }} style={styles.redesignMealImage} resizeMode="contain" />
+                  ) : (
+                    <View style={styles.redesignMealImageFallback} pointerEvents="none" />
+                  )}
+                  <View style={styles.redesignCardCopy}>
+                    <Text style={styles.redesignCardTitle}>{t('scan_entry_meal_title')}</Text>
+                    <Text style={styles.redesignCardDescription}>{t('scan_entry_meal_desc')}</Text>
+                  </View>
+                  <LinearGradient colors={['#38B83E', '#08732C']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.redesignCardButton}>
+                    <View style={styles.redesignButtonIcon}><Utensils color="#168735" size={20} strokeWidth={2.5} /></View>
+                    <Text style={styles.redesignButtonText}>{t('scan_entry_meal_title')}</Text>
+                  </LinearGradient>
+                  {!isPro && <Text style={styles.redesignCounter}>{tf('meal_scans_counter', mealScanRemaining, mealScanLimit)}</Text>}
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.redesignCategoryRow}>
+                <View style={styles.redesignCategoryChip}>
+                  <View style={styles.redesignCategoryIcon}><ScanLine color="#24973A" size={20} strokeWidth={2.1} /></View>
+                  <Text style={styles.redesignCategoryText}>{t('cat_food')}</Text>
+                </View>
+                <View style={[styles.redesignCategoryChip, styles.redesignCosmeticChip]}>
+                  <View style={[styles.redesignCategoryIcon, styles.redesignCosmeticIcon]}><Droplets color="#8B5DE5" size={20} strokeWidth={2.1} /></View>
+                  <Text style={styles.redesignCategoryText}>{t('cat_cosmetics')}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.redesignFactSection}>
               <DailyFact />
             </View>
           </ScrollView>
@@ -1067,6 +1074,335 @@ const styles = StyleSheet.create({
   cardsSection: {
     paddingHorizontal: 20,
     gap: 14,
+  },
+  redesignHero: {
+    minHeight: 178,
+    paddingTop: 22,
+    paddingHorizontal: 28,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    overflow: 'hidden' as const,
+  },
+  redesignCopy: {
+    flex: 1,
+    zIndex: 1,
+  },
+  redesignGreeting: {
+    color: '#168735',
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 18,
+    letterSpacing: -0.35,
+  },
+  redesignBrand: {
+    marginTop: 6,
+    color: '#092D1D',
+    fontFamily: 'DMSans_800ExtraBold',
+    fontSize: 43,
+    lineHeight: 48,
+    letterSpacing: -2.2,
+  },
+  redesignSubtitle: {
+    marginTop: 6,
+    color: '#5B625E',
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 16,
+    lineHeight: 22,
+    letterSpacing: -0.25,
+  },
+  redesignAccent: {
+    width: 46,
+    height: 4,
+    borderRadius: 8,
+    marginTop: 14,
+    backgroundColor: '#24973A',
+  },
+  redesignAvatarStage: {
+    width: 142,
+    height: 150,
+    alignItems: 'center' as const,
+    justifyContent: 'flex-end' as const,
+    marginRight: -13,
+    marginBottom: -5,
+  },
+  redesignAvatar: {
+    width: 150,
+    height: 150,
+  },
+  redesignTrustCard: {
+    marginHorizontal: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 12,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EEEAE1',
+    shadowColor: '#1B4332',
+    shadowOffset: { width: 0, height: 9 },
+    shadowOpacity: 0.055,
+    shadowRadius: 19,
+    elevation: 3,
+  },
+  redesignTrustItem: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center' as const,
+    gap: 7,
+  },
+  redesignTrustCopy: {
+    alignItems: 'center' as const,
+  },
+  redesignTrustTitle: {
+    color: '#10281D',
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    letterSpacing: -0.3,
+    textAlign: 'center' as const,
+  },
+  redesignTrustCaption: {
+    marginTop: 2,
+    color: '#737A74',
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 9.5,
+    lineHeight: 12,
+    textAlign: 'center' as const,
+  },
+  redesignTrustDivider: {
+    width: 1,
+    height: 46,
+    backgroundColor: '#E9E7E1',
+  },
+  redesignScanSection: {
+    paddingTop: 27,
+    paddingHorizontal: 20,
+  },
+  redesignSectionTitle: {
+    color: '#173326',
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 17,
+    letterSpacing: -0.45,
+    marginBottom: 14,
+  },
+  redesignCardGrid: {
+    flexDirection: 'row' as const,
+    gap: 14,
+  },
+  redesignScanCardWrap: {
+    flex: 1,
+  },
+  redesignScanCard: {
+    flex: 1,
+    height: 266,
+    overflow: 'hidden' as const,
+    borderRadius: 29,
+    justifyContent: 'flex-end' as const,
+    shadowColor: '#173326',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.06,
+    shadowRadius: 19,
+    elevation: 3,
+  },
+  redesignProductCard: {
+    backgroundColor: '#F2F8EC',
+    borderWidth: 1,
+    borderColor: '#E5ECD9',
+  },
+  redesignMealCard: {
+    backgroundColor: '#EFF6E8',
+  },
+  redesignCardCopy: {
+    position: 'absolute' as const,
+    top: 19,
+    left: 17,
+    right: 13,
+    zIndex: 2,
+  },
+  redesignCardTitle: {
+    color: '#0E3322',
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 21,
+    lineHeight: 25,
+    letterSpacing: -0.8,
+  },
+  redesignCardDescription: {
+    marginTop: 8,
+    maxWidth: 142,
+    color: '#46564D',
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 13.5,
+    lineHeight: 18,
+    letterSpacing: -0.2,
+  },
+  redesignCardButton: {
+    minHeight: 58,
+    marginHorizontal: 12,
+    marginBottom: 26,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    gap: 8,
+    borderRadius: 999,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    shadowColor: '#08732C',
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  redesignButtonIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: '#FFFFFF',
+  },
+  redesignButtonText: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 13.5,
+    lineHeight: 17,
+    letterSpacing: -0.25,
+  },
+  redesignCounter: {
+    position: 'absolute' as const,
+    bottom: 7,
+    left: 12,
+    right: 12,
+    color: '#728176',
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 9.5,
+    textAlign: 'center' as const,
+  },
+  redesignProductLabel: {
+    position: 'absolute' as const,
+    top: 59,
+    right: -18,
+    width: 106,
+    minHeight: 157,
+    paddingHorizontal: 11,
+    paddingTop: 12,
+    borderRadius: 11,
+    backgroundColor: '#FFFEF9',
+    borderWidth: 1,
+    borderColor: '#D9E4D6',
+    shadowColor: '#25412F',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.13,
+    shadowRadius: 11,
+    elevation: 5,
+    transform: [{ rotate: '7deg' }],
+  },
+  redesignLabelTitleLine: {
+    width: 57,
+    height: 8,
+    borderRadius: 2,
+    backgroundColor: '#165D31',
+    marginBottom: 8,
+  },
+  redesignLabelRule: {
+    height: 2,
+    backgroundColor: '#273B2C',
+    opacity: 0.55,
+    marginBottom: 7,
+  },
+  redesignLabelRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    paddingVertical: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#CAD3CA',
+  },
+  redesignLabelShortLine: {
+    width: 35,
+    height: 3,
+    borderRadius: 3,
+    backgroundColor: '#68806E',
+  },
+  redesignLabelValueLine: {
+    width: 20,
+    height: 3,
+    borderRadius: 3,
+    backgroundColor: '#A8B3A9',
+  },
+  redesignBarcodeRow: {
+    height: 28,
+    marginTop: 9,
+    flexDirection: 'row' as const,
+    alignItems: 'flex-end' as const,
+    gap: 2,
+  },
+  redesignBarcodeBar: {
+    width: 2,
+    borderRadius: 1,
+    backgroundColor: '#1B2C21',
+  },
+  redesignMealImage: {
+    position: 'absolute' as const,
+    width: 202,
+    height: 202,
+    right: -48,
+    top: 21,
+    zIndex: 1,
+  },
+  redesignMealImageFallback: {
+    position: 'absolute' as const,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    right: -45,
+    top: 37,
+    borderWidth: 13,
+    borderColor: '#FAFBF6',
+    backgroundColor: '#BAD49A',
+    shadowColor: '#486737',
+    shadowOffset: { width: 0, height: 9 },
+    shadowOpacity: 0.18,
+    shadowRadius: 11,
+  },
+  redesignCategoryRow: {
+    marginTop: 15,
+    flexDirection: 'row' as const,
+    gap: 12,
+  },
+  redesignCategoryChip: {
+    flex: 1,
+    minHeight: 66,
+    paddingHorizontal: 13,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 9,
+    borderRadius: 22,
+    backgroundColor: '#EFF8EC',
+  },
+  redesignCosmeticChip: {
+    backgroundColor: '#F5F0FE',
+  },
+  redesignCategoryIcon: {
+    width: 35,
+    height: 35,
+    borderRadius: 13,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: '#FFFFFF',
+  },
+  redesignCosmeticIcon: {
+    backgroundColor: '#FFFFFF',
+  },
+  redesignCategoryText: {
+    flex: 1,
+    color: '#193025',
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 13.5,
+    letterSpacing: -0.25,
+  },
+  redesignFactSection: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
   loadingCenterSection: {
     flex: 1,
