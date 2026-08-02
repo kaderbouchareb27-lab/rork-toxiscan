@@ -9,6 +9,11 @@ import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, get
 import { getOfficialEn, localizeOfficialText, ensureOfficialTranslations, hydrateOfficialTranslations, isOfficialEnText, isOfficialDescriptionText } from '@/utils/officialDescriptions';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 import {
+  getIngredientKnowledge,
+  describeUnknownIngredient,
+  buildRiskReasonDescription,
+} from '@/utils/ingredientKnowledge';
+import {
   classifyCosmeticIngredient,
   getCosmeticNote,
   computeCosmeticVerdict,
@@ -157,10 +162,141 @@ function isRefinedSugarEntry(entry: IngredientEntry): boolean {
   return normalizeForLookup(entry.circ).startsWith('sucre');
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// RECHERCHE APPROFONDIE — avant de déclarer un ingrédient « inconnu », on explore
+// TOUTE la base avec des variantes du nom : singulier/pluriel, qualificatifs retirés
+// (bio, en poudre, moulu…), numéro E normalisé (« E 129 », « INS 129 » → « e129 »),
+// mot par mot, puis tolérance aux fautes d'OCR (distance de Levenshtein ≤ 2).
+// ─────────────────────────────────────────────────────────────────────
+
+/** Descriptive words that qualify an ingredient without changing WHAT it is. */
+const QUALIFIER_WORDS: ReadonlySet<string> = new Set([
+  'bio', 'biologique', 'organic', 'naturel', 'naturelle', 'natural', 'pur', 'pure', 'pures', 'purs',
+  'en', 'de', 'du', 'des', 'la', 'le', 'les', 'au', 'aux', 'a', 'and', 'or', 'et', 'the', 'of',
+  'poudre', 'powder', 'powdered', 'moulu', 'moulue', 'ground', 'entier', 'entiere', 'whole',
+  'sec', 'seche', 'sechee', 'dried', 'dry', 'frais', 'fraiche', 'fresh', 'cru', 'crue', 'raw',
+  'fin', 'fine', 'gros', 'grosse', 'grand', 'petit', 'petite', 'small', 'large',
+  'qualite', 'quality', 'premium', 'grade', 'food', 'alimentaire', 'ingredient', 'ingredients',
+  'contient', 'contains', 'moins', 'less', 'than', 'plus', 'more', 'chaque', 'each', 'one', 'two',
+]);
+
+/** Rough singular form of a normalized token (FR/EN plurals). */
+function singularizeToken(token: string): string {
+  if (token.length < 4) return token;
+  if (token.endsWith('ies')) return token.slice(0, -3) + 'y';
+  if (token.endsWith('oes') || token.endsWith('ses') || token.endsWith('xes') || token.endsWith('ches') || token.endsWith('shes')) return token.slice(0, -2);
+  if (token.endsWith('aux')) return token.slice(0, -3) + 'al';
+  if (token.endsWith('eaux')) return token.slice(0, -1);
+  if (token.endsWith('s') || token.endsWith('x')) return token.slice(0, -1);
+  return token;
+}
+
+/** Canonical E-number form ("e 129", "e-129", "ins 129", "colour 129" → "e129"). */
+function canonicalENumber(normalized: string): string | null {
+  const match = /\b(?:e|ins|int)\s?(\d{3,4}\s?[a-z]{0,2})\b/.exec(normalized);
+  if (!match) return null;
+  return ('e' + match[1]).replace(/\s+/g, '');
+}
+
+/** Levenshtein distance, bounded: returns `max + 1` as soon as it is clearly larger. */
+function editDistance(a: string, b: string, max: number): number {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const prev: number[] = new Array<number>(b.length + 1);
+  const curr: number[] = new Array<number>(b.length + 1);
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i;
+    let rowMin = curr[0];
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      if (curr[j] < rowMin) rowMin = curr[j];
+    }
+    if (rowMin > max) return max + 1;
+    for (let j = 0; j <= b.length; j++) prev[j] = curr[j];
+  }
+  return prev[b.length];
+}
+
+/** Single-word keywords (≥ 5 chars) used for the typo-tolerant pass. */
+const SINGLE_WORD_KEYWORDS: readonly IndexedKeyword[] = (() => {
+  const list: IndexedKeyword[] = [];
+  for (const [key, entry] of EXACT_KEYWORD_INDEX) {
+    if (key.length >= 5 && !key.includes(' ')) list.push({ key, entry });
+  }
+  return list;
+})();
+
+/** Typo-tolerant match for a single OCR token (Levenshtein ≤ 1, or ≤ 2 for long words). */
+function findTypoMatch(token: string): IngredientEntry | null {
+  if (token.length < 5) return null;
+  const max = token.length >= 9 ? 2 : 1;
+  let best: IngredientEntry | null = null;
+  let bestDistance = max + 1;
+  for (const { key, entry } of SINGLE_WORD_KEYWORDS) {
+    const distance = editDistance(token, key, max);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = entry;
+      if (distance === 0) break;
+    }
+  }
+  return bestDistance <= max ? best : null;
+}
+
+/**
+ * Explores the WHOLE database with name variants before an ingredient can be called
+ * unknown: qualifier stripping, singular/plural, E-number canonicalization, per-word
+ * lookup and finally OCR-typo tolerance. Returns null only when nothing plausible matches.
+ */
+function findDeepMatch(normalized: string): IngredientEntry | null {
+  const tokens = normalized.split(' ').filter(Boolean);
+
+  // 1) E-number written with a space/dash or an INS prefix.
+  const eNumber = canonicalENumber(normalized);
+  if (eNumber) {
+    const byCode = EXACT_KEYWORD_INDEX.get(eNumber);
+    if (byCode) return byCode;
+  }
+
+  // 2) Same name without descriptive qualifiers, and its singular form.
+  const meaningful = tokens.filter((t) => !QUALIFIER_WORDS.has(t));
+  const variants: string[] = [];
+  if (meaningful.length > 0 && meaningful.length !== tokens.length) variants.push(meaningful.join(' '));
+  const singular = tokens.map(singularizeToken).join(' ');
+  if (singular !== normalized) variants.push(singular);
+  const meaningfulSingular = meaningful.map(singularizeToken).join(' ');
+  if (meaningfulSingular && meaningfulSingular !== singular) variants.push(meaningfulSingular);
+  for (const variant of variants) {
+    const match = findBestMatch(variant);
+    if (match) return match;
+  }
+
+  // 3) Word by word — the longest meaningful word first ("sirop d'érable pur" → "sirop").
+  const words = [...new Set([...meaningful, ...meaningful.map(singularizeToken)])]
+    .filter((w) => w.length >= 4)
+    .sort((a, b) => b.length - a.length);
+  for (const word of words) {
+    const exact = EXACT_KEYWORD_INDEX.get(word);
+    if (exact) return exact;
+  }
+
+  // 4) OCR typo tolerance on the longest meaningful word.
+  for (const word of words) {
+    const typo = findTypoMatch(word);
+    if (typo) {
+      console.log('[Lookup] Typo-tolerant match — "' + normalized + '" → "' + (typo.keywords[0] ?? '?') + '"');
+      return typo;
+    }
+  }
+
+  return null;
+}
+
 function lookupIngredient(ingredientName: string): IngredientEntry | null {
   const normalized = normalizeForLookup(ingredientName);
   if (!normalized) return null;
-  const entry = findBestMatch(normalized);
+  const entry = findBestMatch(normalized) ?? findDeepMatch(normalized);
   // NEGATION GUARD (spec): "chocolat non sucré", "sans sucre (ajouté)", "unsweetened",
   // "no (added) sugar", "sugar-free", "무설탕/무가당" must NEVER inherit a refined-sugar
   // description just because "sucre/sugar" appears in the name. Explicit entries (e.g. the
@@ -318,16 +454,17 @@ function buildCosmeticSubstance(name: string): SubstanceDetected {
       descriptionPending: false,
     };
   }
-  // Unknown INCI → no known risk in our database (treated as APPROVED / neutral).
+  // Unknown INCI → functional ingredient with no identified hazard (APPROVED / neutral).
+  // The wording explains WHAT it does and WHY it is rated this way — never "not in our database".
   return {
     nom: name,
     code: null,
     classification_circ: pick({ en: 'No known risk', fr: 'Sans risque connu', ko: '알려진 위험 없음' }),
     niveau_risque: 'aucun',
     explication: officialEn ? localizeOfficialText(officialEn) : pick({
-      en: `${name} is a functional cosmetic ingredient with no known risk in our database.`,
-      fr: `${name} est un ingrédient cosmétique fonctionnel, sans risque connu dans notre base.`,
-      ko: `${name}은(는) 데이터베이스에서 알려진 위험이 없는 기능성 화장품 성분입니다.`,
+      en: `${name} is a functional cosmetic ingredient (texture, solvent, conditioning or preservation role) with no hazard identified by the safety agencies. It is not on any restricted or watch list for cosmetics. Rated approved at the concentrations used in finished products.`,
+      fr: `${name} est un ingrédient cosmétique fonctionnel (rôle de texture, solvant, conditionnement ou conservation) sans danger identifié par les agences sanitaires. Il ne figure sur aucune liste de substances restreintes ou sous surveillance en cosmétique. Approuvé aux concentrations utilisées dans les produits finis.`,
+      ko: `${name}은(는) 질감, 용제, 컨디셔닝, 보존 등의 역할을 하는 기능성 화장품 성분으로, 규제 기관이 확인한 위험이 없습니다. 화장품 제한 물질이나 감시 목록에도 포함되어 있지 않습니다. 완제품에서 사용되는 농도에서는 승인 등급입니다.`,
     }),
     source_exposition: null,
     descriptionPending: false,
@@ -1420,16 +1557,12 @@ function buildNegativeDescription(name: string, risk: RiskLevel, entry: Ingredie
       ko: name + '은(는) 초가공 산업 성분' + circInfo + '입니다. 정제·수소화·용매·고온 등 강력한 화학 공정으로 생산되어 영양가가 사라지고 만성 염증, 비만, 제2형 당뇨, 암 위험 증가를 유발하는 물질을 생성합니다. 실질적인 건강 이점이 없으며 초가공식품의 지표입니다(NOVA 4). 정기적인 섭취를 피하세요.',
     });
   }
-  // UNKNOWN ingredient (no database entry). NEVER fabricate a NOVA 4 "a whole natural food never
-  // needs it" narrative for something we do not actually recognize — that generic text was the
-  // source of the false orange badges (coconut oil, etc.). Be honest: it is unrecognized and only
-  // its NAME hints at an industrial process. Curated entries never reach here (they carry a note).
+  // UNKNOWN ingredient (no database entry). We NEVER print a "not listed in the ToxiScan
+  // database" message: the knowledge engine explains the ingredient FAMILY (colouring,
+  // preservative, emulsifier, modified starch, isolate…) or, failing that, why this badge
+  // was assigned. Curated entries never reach here (they carry a note).
   if (!entry) {
-    return pick({
-      en: name + ' is not individually listed in the ToxiScan database' + circInfo + '. Its name points to an industrially processed ingredient (isolate, extract, hydrolysate, refined…), so it is best limited until it can be verified.',
-      fr: name + " n'est pas répertorié individuellement dans la base ToxiScan" + circInfo + '. Son nom évoque un ingrédient issu d\'un procédé industriel (isolat, extrait, hydrolysat, raffiné…) : à limiter par prudence en attendant vérification.',
-      ko: name + '은(는) ToxiScan 데이터베이스에 개별 등록되어 있지 않습니다' + circInfo + '. 이름상 산업 공정(분리물·추출물·가수분해물·정제 등)을 거친 성분으로 보이므로 확인 전까지는 제한하는 것이 좋습니다.',
-    });
+    return describeUnknownIngredient(name, risk);
   }
   // Curated ultra-processed entry WITHOUT a proven cancer/disease basis (synthetic vitamins, salts…).
   return pick({
@@ -1890,7 +2023,10 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
           explication = localizeOfficialText(officialEn);
         } else {
           explication = getLocalizedNote(entry) ?? '';
-          if (entry.risk === 'aucun') {
+          // `fixed` entries carry validated copy displayed exactly as written.
+          if (entry.fixed === true && explication) {
+            // keep as-is
+          } else if (entry.risk === 'aucun') {
             if (!explication || hasNegativeTone(explication)) {
               explication = buildPositiveFallback(name, getLocalizedNote(entry));
             }
@@ -1910,17 +2046,21 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
           descriptionPending: false,
         };
       }
-      // Unknown ingredient → deterministic risk now. An official description (if any)
-      // is served immediately; otherwise the AI fills it in the background.
-      const fallbackRisk = classifyUnknownRisk(name, '');
+      // Unknown ingredient → deterministic risk + FAMILY knowledge now (colouring, preservative,
+      // emulsifier, modified starch…). A recognized family is already a final description, so it
+      // is displayed immediately; only a completely unrecognized name waits for the AI.
+      const knowledge = getIngredientKnowledge(name);
+      const fallbackRisk = knowledge?.risk ?? classifyUnknownRisk(name, '');
+      const localExplication = officialEn ? localizeOfficialText(officialEn) : (knowledge?.description ?? '');
       return {
         nom: name,
         code: null,
-        classification_circ: pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
+        classification_circ:
+          knowledge?.circ ?? pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
         niveau_risque: fallbackRisk,
-        explication: officialEn ? localizeOfficialText(officialEn) : '',
+        explication: localExplication,
         source_exposition: null,
-        descriptionPending: !officialEn,
+        descriptionPending: localExplication.length === 0,
       };
     })
     .map(enforcePalmOilFloor)
@@ -1955,13 +2095,16 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     if (entry) {
       console.log('[Classify] "' + ing.nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
 
+      // A `fixed` entry carries validated copy: it wins over any AI text and is never rewritten.
+      const fixedNote = entry.fixed === true ? getLocalizedNote(entry) : undefined;
       let explication = officialEn
         ? localizeOfficialText(officialEn)
-        : (ing.explication || (getLocalizedNote(entry) ?? ''));
+        : (fixedNote || ing.explication || (getLocalizedNote(entry) ?? ''));
+      const isFinalText = Boolean(officialEn) || Boolean(fixedNote);
 
       // 🟢 Anti-contradiction : si l'ingredient est VERT mais l'IA a ecrit du negatif.
       // (jamais appliqué à une description officielle — elle est définitive)
-      if (!officialEn && entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
+      if (!isFinalText && entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
         explication = buildPositiveFallback(ing.nom, getLocalizedNote(entry));
         console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced.');
       }
@@ -1971,7 +2114,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       // when it is missing, carries any positive spin, OR is merely neutral (no danger/disease tone) —
       // this is what catches cases like HFCS "low glycemic index" or a flavor described too softly.
       if (
-        !officialEn &&
+        !isFinalText &&
         (entry.risk === 'danger' || entry.risk === 'probable') &&
         (!explication || hasPositiveSpin(explication) || !hasNegativeTone(explication))
       ) {
@@ -1989,28 +2132,28 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       };
     }
 
-    // BUG 1 FIX — No more generic fallback for unknown ingredients.
-    const explication = (officialEn ? localizeOfficialText(officialEn) : ing.explication) || pick({
-      en: `${ing.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`,
-      fr: `${ing.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`,
-      ko: `${ing.nom}은(는) ToxiScan 데이터베이스에 등록되어 있지 않습니다. 현재 데이터로는 건강 영향을 판단할 수 없습니다.`,
-    });
-    // Fallback STRICT : un ingrédient inconnu = JAUNE par défaut (modération).
-    // Un vrai ingrédient sain (eau, sel, œuf, épice…) doit être dans la base. Si on ne le connaît pas,
-    // on ne peut PAS supposer qu'il est sain — surtout dans un produit industriel.
-    // Seuls quelques mots-clés très spécifiques (fruits/légumes/herbes entiers) peuvent rester verts.
-    const fallbackRisk: RiskLevel = classifyUnknownRisk(ing.nom, explication);
-    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk);
-    // Even for unknown ingredients, an ULTRA-PROCESSED classification must carry a specific,
-    // negative description — never a positive/neutral or generic "not listed" fallback.
+    // UNKNOWN ingredient — the deep database search (synonyms, singular/plural, E-number,
+    // word-by-word, OCR typos) already failed. We now REASON about it instead of printing a
+    // generic "not listed" message: the knowledge engine recognizes the ingredient family and
+    // derives both the badge and a concrete 2-3 sentence description.
+    const knowledge = getIngredientKnowledge(ing.nom);
+    const fallbackRisk: RiskLevel = knowledge?.risk ?? classifyUnknownRisk(ing.nom, '');
+    const explication =
+      (officialEn ? localizeOfficialText(officialEn) : ing.explication?.trim()) ||
+      knowledge?.description ||
+      buildRiskReasonDescription(ing.nom, fallbackRisk);
+    console.log('[Classify] "' + ing.nom + '" → NON TROUVÉ → ' + fallbackRisk + (knowledge ? ' (famille: ' + knowledge.family + ')' : ''));
+    // An ULTRA-PROCESSED classification must always carry a specific, negative description.
+    // A recognized family description is authoritative and is never rewritten.
     const finalExplication =
-      !officialEn && fallbackRisk === 'probable' && (hasPositiveSpin(explication) || !hasNegativeTone(explication))
+      !officialEn && !knowledge && fallbackRisk === 'probable' && (hasPositiveSpin(explication) || !hasNegativeTone(explication))
         ? buildNegativeDescription(ing.nom, 'probable', null)
         : explication;
     return {
       nom: ing.nom,
       code: null,
-      classification_circ: pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
+      classification_circ:
+        knowledge?.circ ?? pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
       niveau_risque: fallbackRisk,
       explication: finalExplication,
       source_exposition: null,
@@ -2398,13 +2541,11 @@ function finalizeInstant(result: UniversalAnalysisResult): UniversalAnalysisResu
     if (!s.descriptionPending) return s;
     let explication = s.explication?.trim() ?? '';
     if (!explication) {
+      // NEVER a "not listed in the database" message: either the curated negative description
+      // (red/orange) or the family knowledge / badge-reason explanation.
       explication = s.niveau_risque === 'danger' || s.niveau_risque === 'probable'
         ? buildNegativeDescription(s.nom, s.niveau_risque, lookupIngredient(s.nom))
-        : pick({
-            en: `${s.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`,
-            fr: `${s.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`,
-            ko: `${s.nom}은(는) ToxiScan 데이터베이스에 등록되어 있지 않습니다. 현재 데이터로는 건강 영향을 판단할 수 없습니다.`,
-          });
+        : describeUnknownIngredient(s.nom, s.niveau_risque);
     }
     return { ...s, explication: ensureFullDescription(s.nom, s.niveau_risque, explication), descriptionPending: false };
   });
@@ -2485,6 +2626,97 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
   return { result, ocrData, cacheKey, cached: false, instant: substances.length > 0, complete };
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// INGRÉDIENT INCONNU — DESCRIPTION RAISONNÉE. Quand ni la base (recherche approfondie
+// incluse), ni une description officielle, ni une famille technologique connue ne
+// couvrent l'ingrédient, on demande à l'IA une description factuelle et concise basée
+// sur les connaissances scientifiques — JAMAIS un message « non répertorié ».
+// L'échec est non bloquant : le texte déterministe local reste affiché.
+// ─────────────────────────────────────────────────────────────────────
+
+const ReasonedDescriptionsSchema = z.object({
+  descriptions: z.array(z.object({ nom: z.string(), description: z.string() })),
+});
+
+/** Badge label handed to the AI so the text it writes can never contradict the badge. */
+function badgeLabelForPrompt(risk: RiskLevel): string {
+  switch (risk) {
+    case 'danger': return 'CARCINOGENIC / ULTRA TOXIC (red) - avoid';
+    case 'probable': return 'PROCESSED (orange) - ultra-processed industrial ingredient';
+    case 'possible': return 'OCCASIONAL (yellow) - acceptable now and then';
+    default: return 'APPROVED (green) - natural, no identified risk';
+  }
+}
+
+/** True when this substance still has no curated, official or family-based description. */
+function needsReasonedDescription(sub: SubstanceDetected): boolean {
+  if (lookupIngredient(sub.nom)) return false;
+  if (officialDescriptionEnFor(sub.nom, null)) return false;
+  return getIngredientKnowledge(sub.nom) === null;
+}
+
+/**
+ * Asks the AI for a short, factual description of the ingredients that remain unknown
+ * after every deterministic pass. The badge stays deterministic: the AI only explains it.
+ */
+async function reasonUnknownDescriptions(substances: SubstanceDetected[]): Promise<SubstanceDetected[]> {
+  const targets = substances.filter(needsReasonedDescription);
+  if (targets.length === 0) return substances;
+
+  const language = pick({ en: 'English', fr: 'French', ko: 'Korean' });
+  try {
+    const result = await aiGenerateObject({
+      system:
+        'You are a food-science expert writing ingredient cards for a consumer food-safety app. ' +
+        'For EACH ingredient given, write a factual description in ' + language + ', 2 to 3 complete sentences: ' +
+        'what it is, why it carries the badge indicated, and the concrete health impact. ' +
+        'Use established scientific knowledge (EFSA, FDA, IARC, WHO) and stay conservative - never invent a cancer link. ' +
+        'The badge is FIXED: your text must justify it and must never contradict it. ' +
+        'NEVER write that the ingredient is unknown, unlisted, missing from a database, or that its impact cannot be determined. ' +
+        'Return one item per ingredient, in the same order, each with the exact name given and its description.',
+      messages: [
+        {
+          role: 'user',
+          content: JSON.stringify(
+            targets.map((s) => ({ nom: s.nom, badge: badgeLabelForPrompt(s.niveau_risque) })),
+          ),
+        },
+      ],
+      schema: ReasonedDescriptionsSchema,
+      maxTokens: 2048,
+    });
+
+    const byName = new Map<string, string>();
+    for (const item of result.descriptions) {
+      const text = item.description?.trim() ?? '';
+      if (text.length >= 40) byName.set(normalizeForLookup(item.nom), text);
+    }
+    if (byName.size === 0) return substances;
+    console.log('[API] Reasoned descriptions generated for', byName.size, 'unknown ingredient(s)');
+
+    return substances.map((s) => {
+      if (!needsReasonedDescription(s)) return s;
+      const text = byName.get(normalizeForLookup(s.nom));
+      if (!text) return s;
+      // A red/orange ingredient can never end up with reassuring wording.
+      const contradicts =
+        (s.niveau_risque === 'danger' || s.niveau_risque === 'probable') && hasPositiveSpin(text);
+      if (contradicts) return s;
+      return {
+        ...s,
+        explication: ensureFullDescription(s.nom, s.niveau_risque, text),
+        descriptionPending: false,
+      };
+    });
+  } catch (err) {
+    console.warn(
+      '[API] Reasoned descriptions failed (deterministic text kept):',
+      err instanceof Error ? err.message : String(err),
+    );
+    return substances;
+  }
+}
+
 /**
  * STEP 2 — Full AI analysis (runs in the background after the instant verdict).
  * Two-step pipeline:
@@ -2539,7 +2771,10 @@ export async function scanAiEnrich(
         ? classifyCosmeticNames(uniqueNames)
         : classifyIngredients(aiIngredients);
       // Official descriptions: swap English reference texts for their FR/KO translations.
-      const substances = await localizeOfficialSubstances(classified);
+      const localized = await localizeOfficialSubstances(classified);
+      // Ingredients still unknown after every deterministic pass get a reasoned, factual
+      // description from the AI — never a generic "not in the database" message.
+      const substances = isCosmetic ? localized : await reasonUnknownDescriptions(localized);
 
       // Safety net: if the AI returned a product name that is actually one of the
       // extracted ingredients, it picked an ingredient fragment instead of the real name.

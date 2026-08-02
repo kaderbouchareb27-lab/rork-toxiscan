@@ -13,6 +13,11 @@ export interface IngredientEntry {
   readonly noteEn?: string;
   /** Korean description — served directly when the app language is Korean (no AI translation). */
   readonly noteKo?: string;
+  /**
+   * Curated FINAL description: the note is validated copy and must be displayed as-is.
+   * The tone/length post-processing in utils/api.ts never rewrites or pads it.
+   */
+  readonly fixed?: boolean;
 }
 
 /**
@@ -249,6 +254,10 @@ export const INGREDIENTS_DATABASE: readonly IngredientEntry[] = [
   // TBHQ (E319) — NON classé cancérigène par le CIRC ; additif autorisé dans l'UE. Conservateur ultra-transformé → PROCESSED (orange), jamais CANCÉRIGÈNE.
   // Les mots-clés longs (« butylhydroquinone », « tertiary butylhydroquinone ») DOIVENT être présents ici pour battre le mot-clé « hydroquinone » (cosmétique) lors du lookup par sous-chaîne — sinon « TBHQ (Tertiary Butylhydroquinone) » serait faussement classé via hydroquinone.
   { keywords: ['tbhq', 'tert-butylhydroquinone', 'tertiary butylhydroquinone', 'tertiary-butylhydroquinone', 'mono-tert-butylhydroquinone', 'butylhydroquinone', 'e319'], code: 'E319', risk: 'probable', circ: 'Ultra-transformé', note: 'TBHQ (E319) — Conservateur de synthèse dérivé du pétrole. Non classé cancérigène par le CIRC, mais des études animales à hautes doses suggèrent des effets sur le système immunitaire et un possible stress oxydatif. Non recommandé pour les nourrissons selon l\'EFSA. Additif autorisé dans l\'UE mais à limiter.', noteEn: 'TBHQ (E319) — Synthetic preservative derived from petroleum. Not classified as a carcinogen by IARC, but high-dose animal studies suggest effects on the immune system and possible oxidative stress. EFSA advises against its use for infants. Permitted as an additive in the EU but best limited.', noteKo: 'TBHQ (E319) — 석유에서 유래한 합성 보존료입니다. 국제암연구소(IARC)가 발암물질로 분류하지 않았으나, 고용량 동물 실험에서 면역계에 대한 영향과 산화 스트레스 가능성이 시사됩니다. EFSA는 영유아에게 사용을 권고하지 않습니다. EU에서 허용된 첨가물이지만 제한하는 것이 좋습니다.' },
+
+  // --- Mention générique « colorants » (sans précision de substance) → ORANGE / Transformé ---
+  // Texte validé : affiché tel quel (fixed) — aucune réécriture de ton ni de longueur.
+  { keywords: ['colorant', 'colorants', 'colorant alimentaire', 'colorants alimentaires', 'colouring', 'colourings', 'coloring', 'colorings', 'food colouring', 'food coloring', 'colour added', 'color added', 'artificial colour', 'artificial color', 'artificial colours', 'artificial colors', 'added colour', 'added color', '착색료', '색소'], code: null, risk: 'probable', circ: 'Transformé', fixed: true, note: 'Additifs utilisés pour donner ou renforcer la couleur d\'un aliment. Cette mention ne précise pas quels colorants sont présents. Leur sécurité dépend de la substance utilisée. La présence de colorants indique surtout un produit transformé.', noteEn: 'Additives used to give or reinforce the colour of a food. This wording does not say which colourings are present. Their safety depends on the specific substance used. The presence of colourings mainly indicates a processed product.', noteKo: '식품의 색을 내거나 강화하기 위해 사용하는 첨가물입니다. 이 표기만으로는 어떤 색소가 들어 있는지 알 수 없습니다. 안전성은 실제 사용된 물질에 따라 달라집니다. 색소의 존재는 무엇보다 가공식품임을 나타냅니다.' },
 
   // --- Colorants azoïques et colorants jaunes/oranges → ORANGE ---
   { keywords: ['annatto', 'rocou', 'extrait d\'annatto', 'annatto extract', 'e160b'], code: 'E160b', risk: 'possible', circ: 'Hyperactivité', note: 'Colorant semi-synthétique (jaune/orange) lié à des réactions allergiques, à l\'hyperactivité chez l\'enfant et à des perturbations hormonales.', noteEn: 'Semi-synthetic (yellow/orange) coloring linked to allergic reactions, hyperactivity in children and hormonal disruption.', noteKo: '알레르기 반응, 어린이 과잉행동, 호르몬 교란과 관련된 반합성 (황/주황) 색소입니다.' },
