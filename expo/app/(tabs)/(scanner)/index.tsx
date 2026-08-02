@@ -49,6 +49,7 @@ export default function ScannerScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const mealCardFade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (hasSeenOnboarding === false) {
@@ -361,6 +362,26 @@ export default function ScannerScreen() {
 
   const isLoading = photoMutation.isPending;
 
+  useEffect(() => {
+    if (isLoading) {
+      mealCardFade.setValue(0);
+      return;
+    }
+
+    const entrance = Animated.timing(mealCardFade, {
+      toValue: 1,
+      duration: 620,
+      delay: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    entrance.start();
+
+    return () => {
+      entrance.stop();
+    };
+  }, [isLoading, mealCardFade]);
+
   // Lean loader: a slim, indeterminate loader calibrated for the new ~1-3s OCR wait.
   // No fake percentage; a short reassuring status line transitions as time passes,
   // and the slow AI-fallback path (unreadable label) gracefully shows "Looking closer…".
@@ -583,6 +604,28 @@ export default function ScannerScreen() {
                   </TouchableOpacity>
                 </Animated.View>
 
+                <Animated.View
+                  style={[
+                    styles.redesignScanCardWrap,
+                    {
+                      opacity: mealCardFade,
+                      transform: [
+                        {
+                          translateY: mealCardFade.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [16, 0],
+                          }),
+                        },
+                        {
+                          scale: mealCardFade.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.97, 1],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
                 <TouchableOpacity
                   style={[styles.redesignScanCard, styles.redesignMealCard]}
                   onPress={handleScanMeal}
@@ -605,6 +648,7 @@ export default function ScannerScreen() {
                   </LinearGradient>
                   {!isPro && <Text style={styles.redesignCounter}>{tf('meal_scans_counter', mealScanRemaining, mealScanLimit)}</Text>}
                 </TouchableOpacity>
+                </Animated.View>
               </View>
 
               <View style={styles.redesignCategoryRow}>
