@@ -11,6 +11,11 @@ interface DrToxiVerdictProps {
   /** Cosmetic products use the separate TOXIC / DISPUTED / APPROVED scale. */
   isCosmetic?: boolean;
   /**
+   * Deterministic ToxiScore /10 (utils/toxiScore.ts). Its band is derived from
+   * `level`, so the number can never contradict the verdict shown here.
+   */
+  toxiScore?: number | null;
+  /**
    * True while the AI is still verifying ingredients in the background. The shown
    * verdict is only PROVISIONAL until this turns false — we surface a spinning
    * green ring + a clear "not final yet" caption so the user never mistakes the
@@ -191,7 +196,39 @@ function getVerdictConfig(level: VerdictLevel, isCosmetic: boolean): VerdictCard
   };
 }
 
-export default function DrToxiVerdict({ level, isCosmetic = false, isAnalyzing = false }: DrToxiVerdictProps) {
+/**
+ * Big ToxiScore readout: the score out of 10 plus an animated fill bar that
+ * grows to the score on mount, so the number lands with a bit of motion.
+ */
+function ToxiScoreBlock({ score }: { score: number }) {
+  const fill = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fill, {
+      toValue: Math.max(0, Math.min(10, score)) / 10,
+      duration: 780,
+      delay: 160,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [fill, score]);
+  const width = fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
+  return (
+    <View style={styles.scoreBlock} testID="toxiscore-block">
+      <View style={styles.scoreTopRow}>
+        <Text style={styles.scoreLabel}>ToxiScore</Text>
+        <View style={styles.scoreValueRow}>
+          <Text style={styles.scoreValue} testID="toxiscore-value">{score}</Text>
+          <Text style={styles.scoreOutOf}>/10</Text>
+        </View>
+      </View>
+      <View style={styles.scoreTrack}>
+        <Animated.View style={[styles.scoreFill, { width }]} />
+      </View>
+    </View>
+  );
+}
+
+export default function DrToxiVerdict({ level, isCosmetic = false, isAnalyzing = false, toxiScore = null }: DrToxiVerdictProps) {
   const config = getVerdictConfig(level, isCosmetic);
   const eyebrow = isCosmetic
     ? pick({ en: 'COSMETIC VERDICT', fr: 'VERDICT COSMÉTIQUE', ko: '화장품 판정' })
@@ -254,6 +291,7 @@ export default function DrToxiVerdict({ level, isCosmetic = false, isAnalyzing =
       ) : null}
       <Text style={styles.subtitle}>{config.subtitle}</Text>
       <Text style={styles.description}>{config.description}</Text>
+      {typeof toxiScore === 'number' ? <ToxiScoreBlock score={toxiScore} /> : null}
     </View>
   );
 }
@@ -347,5 +385,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.9)',
     lineHeight: 20,
+  },
+  scoreBlock: {
+    marginTop: 16,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.26)',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 14,
+  },
+  scoreTopRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-end' as const,
+    justifyContent: 'space-between' as const,
+    marginBottom: 10,
+  },
+  scoreLabel: {
+    fontSize: 12,
+    fontWeight: '900' as const,
+    color: 'rgba(255,255,255,0.82)',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase' as const,
+    marginBottom: 6,
+  },
+  scoreValueRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-end' as const,
+  },
+  scoreValue: {
+    fontSize: 44,
+    lineHeight: 46,
+    fontWeight: '900' as const,
+    color: '#FFFFFF',
+    letterSpacing: -1.6,
+  },
+  scoreOutOf: {
+    fontSize: 17,
+    fontWeight: '800' as const,
+    color: 'rgba(255,255,255,0.72)',
+    marginBottom: 5,
+    marginLeft: 2,
+  },
+  scoreTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    overflow: 'hidden' as const,
+  },
+  scoreFill: {
+    height: '100%' as const,
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
   },
 });

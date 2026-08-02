@@ -44,6 +44,7 @@ import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 import { isUltraToxicCirc } from '@/constants/ultraToxicIngredients';
+import { computeToxiScore, computeIngredientToxiScore } from '@/utils/toxiScore';
 import type { DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
@@ -973,6 +974,14 @@ export default function ProductScreen() {
   const isUniversalScan = product.barcode.startsWith('universal_');
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
+  // ToxiScore /10 — 100 % déterministe (utils/toxiScore.ts). La tranche vient du
+  // verdict affiché (donc du badge le plus sévère), la position dans la tranche
+  // vient de la proportion d'ingrédients propres. Note et verdict sont toujours alignés.
+  const toxiScore = useMemo<number>(
+    () => computeToxiScore(verdictLevel, ingredientsList),
+    [verdictLevel, ingredientsList],
+  );
+
   const isGreen = verdictLevel === 'approuve';
   const isCosmetic = product.productCategory === 'cosmetic';
   const verdictDomain: VerdictDomain =
@@ -1155,7 +1164,7 @@ export default function ProductScreen() {
           </View>
         )}
 
-        <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} isAnalyzing={isAnalyzing} />
+        <DrToxiVerdict level={verdictLevel} isCosmetic={isCosmetic} isAnalyzing={isAnalyzing} toxiScore={toxiScore} />
 
         {profileAlerts.length > 0 ? (
           <View style={styles.profileAlertsWrap}>
@@ -1205,6 +1214,11 @@ export default function ProductScreen() {
                     <View style={styles.allIngRow}>
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
+                      <View style={[styles.allIngScore, { borderColor: color + '55' }]}>
+                        <Text style={[styles.allIngScoreText, { color }]} testID={`ingredient-score-${index}`}>
+                          {computeIngredientToxiScore(ing)}<Text style={styles.allIngScoreOutOf}>/10</Text>
+                        </Text>
+                      </View>
                       <View style={[styles.allIngBadge, { backgroundColor: color }]}>
                         <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level, verdictDomain)}</Text>
                       </View>
@@ -1649,6 +1663,9 @@ const styles = StyleSheet.create({
   allIngRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 },
   allIngDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   allIngName: { flex: 1, fontSize: 15, lineHeight: 20, color: Colors.text, fontWeight: '800' as const, letterSpacing: -0.15 },
+  allIngScore: { paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999, borderWidth: 1, backgroundColor: '#FFFFFF', flexShrink: 0 },
+  allIngScoreText: { fontSize: 11.5, fontWeight: '900' as const, letterSpacing: -0.2 },
+  allIngScoreOutOf: { fontSize: 9, fontWeight: '800' as const, opacity: 0.65 },
   allIngBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999, flexShrink: 0 },
   allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25 },
   allIngExplanation: { marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8', backgroundColor: '#FFFFFF' },
