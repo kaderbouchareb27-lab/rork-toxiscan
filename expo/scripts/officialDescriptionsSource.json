@@ -1,0 +1,2370 @@
+{
+  "generatedAt": "2026-08-02T21:05:54Z",
+  "files": 13,
+  "descriptions": [
+    {
+      "name": "1,4-Dioxane",
+      "description_en": "A by-product formed when surfactants are ethoxylated, so it appears as a contaminant rather than a listed ingredient. IARC classifies it Group 2B, possibly carcinogenic, and manufacturers are expected to strip it out.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "2-Butoxyéthanol",
+      "description_en": "A solvent in window and multi-surface cleaners. It passes readily through the skin and, at high exposure, damages red blood cells, the liver and kidneys. Workplace exposure limits apply in the EU and US.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "acesulfame",
+      "description_en": "An artificial sweetener (E950) roughly 200 times sweeter than sugar, often blended with aspartame. Approved in the EU and US with an acceptable daily intake of 9–15 mg/kg, but it is a marker of ultra-processed formulation.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "acide borique",
+      "description_en": "Boric acid (E284), a preservative now allowed in the EU for caviar only. It is classified as toxic to reproduction under EU chemical law and accumulates in the body, which is why its use is so tightly limited.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "acide citrique",
+      "description_en": "An acid naturally present in citrus fruit, produced for food use by fermentation. EFSA has identified no safety concern at food levels, making it one of the most benign additives.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "acide glutamique",
+      "description_en": "Glutamic acid (E620), the free amino acid behind the savoury \"umami\" taste. It is used to intensify flavour in industrial foods and signals a product built on additives rather than real ingredients.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "Acide tartrique",
+      "description_en": "A natural acid from grapes (E334), used to adjust acidity and in baking powder. It is well tolerated and one of the simplest acidity regulators available.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "acides gras",
+      "description_en": "Fatty acids (E570) used as anti-foaming and glazing agents rather than as a food fat. They are refined industrial derivatives, typical of processed formulations.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "acrylamide",
+      "description_en": "A compound that forms when starchy foods are fried, roasted or baked at high heat. IARC rates it Group 2A, probably carcinogenic, and EFSA confirmed it raises cancer risk across all age groups.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "aflatoxine",
+      "description_en": "A natural mold toxin that forms on poorly stored grains, nuts and spices. Classified IARC Group 1 human carcinogen — the confirmed level. Chronic exposure damages the liver and is a leading cause of liver cancer.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "agar agar",
+      "description_en": "A gelling agent (E406) from red seaweed and a plant-based alternative to gelatine. It is not absorbed and behaves as soluble fibre in the gut.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "alcool ethylique",
+      "description_en": "Ethanol in alcoholic beverages is an IARC Group 1 human carcinogen. It is linked to cancers of the mouth, throat, oesophagus, liver, colon and breast, and no safe intake level has been established.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "Alkylphénols éthoxylés (APEO)",
+      "description_en": "Surfactants used in detergents and textile processing. They break down into alkylphenols, recognised endocrine disruptors that are highly toxic to aquatic life, and their use is restricted under EU REACH rules.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "allulose",
+      "description_en": "A rare sugar found naturally in figs and raisins that is barely metabolised, so it sweetens with almost no calories or glucose response. Large amounts can cause digestive upset.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "Aluminium (casseroles, papier)",
+      "description_en": "Aluminium cookware and foil release small amounts of metal into food, especially with acidic or salty dishes at high heat. EFSA set a weekly tolerable intake that many diets already approach.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "Aluminium chlorohydrate (déodorants)",
+      "description_en": "The active salt in antiperspirants, which works by physically plugging sweat ducts. Health agencies have not established a link to breast cancer, but it is absorbed in small amounts and adds to total aluminium exposure.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "aluminum chlorohydrate",
+      "description_en": "The active salt in antiperspirants, which plugs sweat ducts to block perspiration. No link to breast cancer has been established, but it is absorbed in small amounts and adds to total aluminium exposure.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "amande",
+      "description_en": "Almonds, rich in vitamin E, magnesium, fibre and monounsaturated fat. Regular nut consumption is consistently associated with better cardiovascular outcomes.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "amidon",
+      "description_en": "Starch extracted from grains or tubers, used to thicken and bulk out food. It is a refined carbohydrate with a high glycemic response and none of the fibre or nutrients of the original grain.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "amidon de ble",
+      "description_en": "Wheat starch separated from the protein and bran of the grain. It behaves like a fast sugar in the body, with little nutritional value — the whole grain is always the better option.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "amidon hydroxypropyl",
+      "description_en": "A chemically modified starch (E1450) used as a thickener and emulsifier. Regulators class it as safe, but it is a heavily processed ingredient that a whole food never requires.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "amidon modifie",
+      "description_en": "Starch chemically or physically altered (E1404) to thicken and stabilise industrial food. Considered safe by EFSA, but it is a refined carbohydrate with no nutrients and a clear marker of ultra-processing.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "Ammoniac",
+      "description_en": "Ammonia and its compounds, used as acidity regulators and processing aids. They are neutralised in the finished food, but ammonia processing can generate unwanted by-products in some applications.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "annatto",
+      "description_en": "A yellow-orange colouring (E160b) extracted from achiote seeds, one of the few plant-based dyes still widely used in industry. Generally well tolerated, though it can trigger allergic reactions in a small number of people.",
+      "badge": "Occasional",
+      "lot": "4-reclassified"
+    },
+    {
+      "name": "anthocyanes",
+      "description_en": "Purple-red pigments (E163) extracted from grape skins, berries or red cabbage. They are plant-derived and carry antioxidant activity, but the food-grade version is a concentrated industrial extract.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "Antimoine",
+      "description_en": "A metal used as a catalyst in PET bottle manufacture, which can leach in trace amounts when bottles are heated or stored a long time. IARC classifies antimony trioxide Group 2B.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "argent",
+      "description_en": "Silver (E174) used as a decorative coating on confectionery. EFSA could not complete its safety re-evaluation because of insufficient data on absorption and nanoparticle content.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "arome artificiel",
+      "description_en": "Entirely synthetic molecules, usually petrochemical-derived, built to imitate natural tastes. Their exact composition is not disclosed on the label, and they are one of the clearest markers of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "arome bio",
+      "description_en": "Flavouring made from certified organic raw materials, which limits solvents and synthetic inputs. Still a concentrated industrial extract, but a step above conventional natural flavouring.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "arome naturel",
+      "description_en": "Despite the name, these are extracted and concentrated in industrial processes, often using solvents. The precise composition is a trade secret, and their presence signals a product engineered for taste rather than made from whole ingredients.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "arsenic",
+      "description_en": "A heavy metal contaminant found in water, rice and some seafood. Arsenic and inorganic arsenic compounds are IARC Group 1 human carcinogens, linked to skin, lung and bladder cancer.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "aspartame",
+      "description_en": "An artificial sweetener (E951) in diet drinks and sugar-free products. IARC classified it Group 2B, possibly carcinogenic, in 2023, while WHO's JECFA kept the daily limit at 40 mg/kg. Best not consumed daily.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "avocat",
+      "description_en": "Avocado and olives, both rich in monounsaturated fat, fibre and vitamin E. Their fat profile supports heart health and helps the body absorb fat-soluble vitamins from other foods.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "avoine",
+      "description_en": "Oats, one of the best sources of beta-glucan, a soluble fibre with a proven effect on cholesterol. They release energy slowly and keep you full far longer than refined cereals.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "azodicarbonamide",
+      "description_en": "A flour treatment agent (E927) used to bleach dough and speed up baking. Banned in the EU and Australia, still permitted in the US. During baking it breaks down into semicarbazide and urethane, both flagged for cancer concerns.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "azorubine",
+      "description_en": "Carmoisine (E122), a synthetic red azo dye. EU law requires a label warning that it may affect activity and attention in children, and it is not authorised in the United States.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "bœuf",
+      "description_en": "Unprocessed red meat and poultry — beef, pork, lamb, game and more. A complete source of protein, heme iron, zinc and vitamin B12, best eaten fresh rather than cured.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "bacon",
+      "description_en": "Salted, cured and smoked pork. It falls under processed meat, classified IARC Group 1 human carcinogen in 2015: regular intake raises colorectal cancer risk through nitroso-compounds formed during curing.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "benzene",
+      "description_en": "An industrial solvent and petroleum by-product. IARC Group 1 human carcinogen with an established causal link to leukaemia. It has no legitimate use in food or cosmetics and appears only as a contaminant.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "benzoate de potassium",
+      "description_en": "A preservative (E212) closely related to sodium benzoate. It can form traces of benzene when a product also contains vitamin C, and may trigger hives or asthma in sensitive people.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "beurre",
+      "description_en": "Butter, made by churning cream with nothing added. High in saturated fat, so moderation applies, but it is a natural fat that needs no industrial processing.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "beurre de cacao",
+      "description_en": "The natural fat pressed from cocoa beans. It is stable, does not require hydrogenation, and is what distinguishes real chocolate from products made with vegetable fat.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "bha",
+      "description_en": "Butylated hydroxyanisole (E320), a synthetic antioxidant in fats, snacks and cosmetics. Classified IARC Group 2B, possibly carcinogenic to humans, and flagged by EFSA as a suspected endocrine disruptor.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "bht",
+      "description_en": "Butylated hydroxytoluene (E321), a synthetic antioxidant in fats, cereals and cosmetics. EFSA re-evaluated it as safe within a low daily limit; IARC does not classify it as carcinogenic.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "bicarbonate",
+      "description_en": "Baking soda, a single-ingredient raising agent that has been used for generations. It is simple, effective and free of the aluminium found in some baking powders.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "bisulfite de calcium",
+      "description_en": "A sulfite preservative and firming agent (E227). It carries the same allergen labelling requirement as other sulfites and can provoke asthma symptoms in sensitive individuals.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "bisulfite de potassium",
+      "description_en": "A sulfite preservative (E228) used in wine and processed fruit. Like the whole sulfite family, it must be declared above 10 mg/kg and can trigger reactions in sulfite-sensitive people.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "bisulfite de sodium",
+      "description_en": "A sulfite preservative (E222) used to prevent browning and microbial growth. Like all sulfites it must be labelled above 10 mg/kg and can trigger reactions in sulfite-sensitive individuals.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "ble",
+      "description_en": "Whole wheat and wholemeal flour, keeping the bran and germ that refining removes. It supplies fibre, B vitamins, magnesium and plant protein, unlike white flour.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "bleu 1",
+      "description_en": "Brilliant Blue FCF (E133), a petroleum-derived synthetic dye. It is authorised in the EU and US, but the FDA is working to phase it out of the American food supply by the end of 2027.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "bleu 2",
+      "description_en": "Indigotine (E132), a synthetic blue dye made from petroleum. Authorised in the EU and US, it is among the six certified dyes the FDA is pushing manufacturers to remove.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "bouillon",
+      "description_en": "Stock used as a flavour base. Homemade versions are nutritious, but industrial bouillon is usually dominated by salt, flavour enhancers and fat, with very little real meat or vegetable.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "BPA (Bisphénol A)",
+      "description_en": "A plastic and epoxy resin building block that leaches into food from can linings and containers. EFSA cut its tolerable daily intake 20,000-fold in 2023, and the EU banned it in food contact materials in 2025.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "bromate de potassium",
+      "description_en": "A flour improver (E924) classified IARC Group 2B, possibly carcinogenic. Banned in the EU, UK, Canada, Brazil and China, but still permitted in US bread. Residues can remain in the finished loaf.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "bronopol",
+      "description_en": "A preservative (2-bromo-2-nitropropane-1,3-diol) that slowly releases formaldehyde, an IARC Group 1 carcinogen. It is also a frequent cause of contact allergy, and its use in EU cosmetics is restricted.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "butane",
+      "description_en": "Butane, isobutane and propane (E943/E944) used as propellants in aerosol food products such as cooking sprays and whipped cream. They are technical gases with no nutritional purpose.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "cabillaud",
+      "description_en": "White fish such as cod, hake, sea bass and trout. Lean, high in complete protein, iodine and selenium, and low in mercury compared with large predatory fish.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "cacao",
+      "description_en": "Pure cocoa and cocoa powder, among the most flavanol-rich foods known. Unsweetened cocoa supports vascular health and delivers magnesium and iron.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "cadmium",
+      "description_en": "A heavy metal that accumulates in the kidneys and bones over a lifetime. Cadmium and its compounds are IARC Group 1 human carcinogens, linked to lung cancer. It reaches food through polluted soil.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "cafe",
+      "description_en": "Coffee, one of the largest sources of antioxidants in the Western diet. Moderate consumption is associated with lower risk of type 2 diabetes and liver disease.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "cafeine",
+      "description_en": "A natural stimulant that improves alertness and physical performance. EFSA considers up to 400 mg a day safe for adults, but it disturbs sleep and should be limited in pregnancy.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "cannelle",
+      "description_en": "Cinnamon, a spice with genuine research behind its effect on blood sugar regulation. Ceylon cinnamon is preferable to cassia for regular use, which contains more coumarin.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "caramel ammoniacal sulfite",
+      "description_en": "Caramel colour made with ammonia and sulfites (E150c/E150d). The process forms 4-methylimidazole, classified IARC Group 2B, possibly carcinogenic. EU rules cap its use, and California requires warning labelling above set levels.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "carbonate de calcium",
+      "description_en": "Calcium carbonate (E170), a mineral used as a white colour, anti-caking agent and calcium fortifier. It is simply chalk, and a genuine source of dietary calcium.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "Carbonate de magnésium",
+      "description_en": "Magnesium carbonate (E504), an anti-caking agent and acidity regulator that also contributes magnesium. It is a simple mineral salt, well tolerated at food levels.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "carbonate de sodium",
+      "description_en": "Sodium carbonate (E500), an acidity regulator and raising agent used in noodles, baked goods and cocoa. It is neutralised in the finished food but contributes sodium and marks industrial processing.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "carotte",
+      "description_en": "Carrots, one of the richest sources of beta-carotene, which the body converts to vitamin A. Fibre-rich and nutritious raw or cooked, with a little fat improving absorption.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "carraghenane",
+      "description_en": "A seaweed-derived thickener (E407) used in dairy, plant milks and processed meat. Food-grade carrageenan is authorised, but studies link it to gut inflammation and it is banned in EU infant formula.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "carraghenane degrade",
+      "description_en": "Degraded carrageenan, also called poligeenan, is the low-molecular-weight form and is classified IARC Group 2B, possibly carcinogenic. It has no authorised use as a food additive.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "caseinate",
+      "description_en": "Milk protein extracted with alkali and isolated from the rest of the dairy matrix. It is a purely technical ingredient used to bind and emulsify, and marks an industrially assembled recipe.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "caviar",
+      "description_en": "Fish roe, dense in omega-3, vitamin B12 and vitamin D. Genuinely nutritious, though naturally salty, so portions stay small.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "champignon",
+      "description_en": "Mushrooms of all kinds, from button to shiitake and porcini. They provide B vitamins, selenium and beta-glucans, and are one of the few plant sources of vitamin D when sun-exposed.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "charbon vegetal",
+      "description_en": "Vegetable carbon (E153), a black colourant made by carbonising plant material. It is authorised in the EU but adds no nutritional value and can bind medicines and nutrients in the gut.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "cheddar deshydrate",
+      "description_en": "Cheese powder used to coat crisps and season mixes. It is very high in sodium and often blended with flavour enhancers and anti-caking agents rather than being simply dried cheese.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "chlorophylle",
+      "description_en": "Green plant pigments (E140/E141) used as colouring. The natural form is benign; the copper-stabilised version used for brighter colour adds a small amount of copper to the diet.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "chocolat noir",
+      "description_en": "Dark chocolate at 70% cocoa and above. The higher the cocoa content, the more flavanols and minerals and the less sugar — genuinely beneficial in reasonable portions.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "chocolat non sucre",
+      "description_en": "Unsweetened 100% chocolate, pure cocoa mass with no added sugar. It is the most nutrient-dense form of chocolate, rich in flavanols, magnesium and fibre.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "chorizo",
+      "description_en": "A cured, paprika-spiced sausage. As a processed meat it falls under the IARC Group 1 classification: the curing and smoking process generates compounds tied to colorectal cancer.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "chou-fleur",
+      "description_en": "Cauliflower, Brussels sprouts, kale and fermented cabbage such as sauerkraut and kimchi. Cruciferous vegetables rich in fibre, vitamin C and glucosinolates; the fermented forms add live cultures.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "Chrome hexavalent (Cr VI)",
+      "description_en": "Chromium(VI) compounds are IARC Group 1 human carcinogens, causally linked to lung and nasal cancer. An industrial contaminant, notably from tanning and plating, with no legitimate use in consumer products.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "cire de carnauba",
+      "description_en": "A glazing wax (E903) from Brazilian palm leaves, used to shine sweets, chewing gum and coated tablets. It is not absorbed by the body, but it is a purely cosmetic industrial coating.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "cmc",
+      "description_en": "Carboxymethylcellulose (E466), a synthetic thickener made from cellulose. A controlled human trial found it altered the gut microbiome and intestinal lining, and it is a strong marker of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "coal tar",
+      "description_en": "A by-product of coal processing, historically used in anti-dandruff and psoriasis treatments and in dyes. Coal tars are IARC Group 1 human carcinogens; untreated preparations are restricted in EU cosmetics.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "cochenille",
+      "description_en": "Carmine (E120), a red colour made from crushed cochineal insects. It is natural rather than synthetic, but it is a recognised allergen that has caused severe reactions, and it is not vegetarian.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "Colorants azoïques textiles",
+      "description_en": "Textile azo dyes that can break down on the skin into benzidine and related aromatic amines, IARC Group 1 human carcinogens. Banned in the EU in textiles designed for prolonged skin contact.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "concentre de fruits",
+      "description_en": "Fruit or vegetable juice boiled down to concentrate its sugars. Manufacturers use it to sweeten products while keeping a natural-sounding label; the fibre is gone and the sugar behaves like added sugar.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "coriandre",
+      "description_en": "Fresh herbs including coriander, parsley, dill, mint, sage and bay. They add flavour without salt or sugar and carry concentrated antioxidants and essential oils.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "cornichon naturel",
+      "description_en": "Naturally lacto-fermented vegetables, kombucha and kvass. Fermentation creates live bacteria and organic acids that support gut health, with no additives needed.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "couscous complet",
+      "description_en": "Whole couscous, freekeh, farro and pearled barley. Minimally refined grains that keep their fibre and minerals, giving slow-release energy rather than a sugar spike.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "creme",
+      "description_en": "Cream and crème fraîche, a simple dairy fat with no additives. Rich in saturated fat and calories, so a genuine ingredient best used in modest amounts.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "crevette",
+      "description_en": "Shellfish, molluscs and seaweed. Rich in protein, zinc, selenium and iodine, and low in fat; seaweed adds minerals but can be very high in iodine.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "curcuma",
+      "description_en": "Turmeric, whose curcumin has well-documented anti-inflammatory activity. Absorption is poor on its own, which is why traditional recipes pair it with black pepper and fat.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "cyanocobalamine",
+      "description_en": "A stable added form of vitamin B12, widely used in fortified foods and supplements and important for anyone eating little animal produce. Safe at normal intake; it marks a fortified rather than naturally rich product.",
+      "badge": "Occasional",
+      "lot": "4-reclassified"
+    },
+    {
+      "name": "cyclamate",
+      "description_en": "An artificial sweetener (E952) still permitted in the EU but banned in the US since 1969 after bladder tumours appeared in rats. It has one of the lowest acceptable daily intakes of any sweetener.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "Cyclopentasiloxane D5",
+      "description_en": "A silicone that gives cosmetics a smooth, fast-drying feel. It is classified as very persistent and very bioaccumulative under EU chemical law, and its use in cosmetics is restricted in Europe.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "cyclosiloxane",
+      "description_en": "Cyclic silicones (cyclomethicone, D4, D5, D6) used for silky texture in hair and skin products. They are persistent in the environment and are progressively being restricted in EU cosmetics.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "Cyclotétrasiloxane D4",
+      "description_en": "A cyclic silicone classified in the EU as toxic to reproduction and as persistent and bioaccumulative. Its use in cosmetics is restricted in Europe, starting with rinse-off products.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "d-alpha tocopherol",
+      "description_en": "Vitamin E used as a natural antioxidant (E306–E309) to stop fats going rancid. It is beneficial and among the most benign additives, though the added form is an isolated industrial extract.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "DEA (Diéthanolamine)",
+      "description_en": "A foaming and pH-adjusting agent that can react with nitrites to form nitrosamines. Diethanolamine is prohibited in cosmetics in the European Union.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "defatted soy flour",
+      "description_en": "Soy flour with the oil removed by industrial solvent extraction, then used as a cheap protein filler. It is a highly processed commodity ingredient with little resemblance to whole soy.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "delta-tocopherol",
+      "description_en": "A natural vitamin E form (E309) and one of the most effective tocopherols at stopping oils going rancid. Plant-derived and nutritionally useful.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "dextrine",
+      "description_en": "A partially broken-down starch used as a thickener, binder and bulking agent. It is a refined carbohydrate with a high glycemic response and no nutrients.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "dextrose",
+      "description_en": "Industrially refined pure glucose, usually from corn starch. Absorbed very rapidly, it causes sharp blood-sugar and insulin spikes with no nutritional benefit.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "diazolidinyl urea",
+      "description_en": "A cosmetic preservative that works by slowly releasing formaldehyde, an IARC Group 1 human carcinogen. It is a known contact allergen and its use is capped under EU cosmetics rules.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "Diméthylformamide (DMF)",
+      "description_en": "An industrial solvent used in synthetic leather and coatings. It is classified as toxic to reproduction in the EU and is restricted under REACH, with strict limits on residues in consumer articles.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "dioxyde de soufre",
+      "description_en": "A preservative and antioxidant (E220) common in wine, dried fruit and processed potato. It must be declared as an allergen in the EU above 10 mg/kg because it can trigger asthma attacks in sensitive people.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "dioxyde de titane",
+      "description_en": "A white colouring (E171) used in sweets, sauces and supplements. Banned as a food additive across the EU since August 2022 after EFSA could not rule out DNA damage. Still allowed in the US and in cosmetics.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "diphosphate",
+      "description_en": "Diphosphates (E450) used as raising agents and to retain water in meat and seafood. They add to total phosphate intake, which EFSA capped in 2019 over cardiovascular and kidney concerns.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "dmdm hydantoin",
+      "description_en": "One of the most common formaldehyde-releasing preservatives in shampoos and lotions. The formaldehyde it emits is an IARC Group 1 human carcinogen; EU rules restrict its level and require warning labelling.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "eau",
+      "description_en": "Water, plain or sparkling — the only drink the body genuinely needs. It carries no calories, sugar or additives, and adequate intake supports every function in the body.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "Eau de Javel (hypochlorite)",
+      "description_en": "Sodium hypochlorite bleach, an effective disinfectant that is corrosive to skin, eyes and airways. Mixed with ammonia or acidic cleaners it releases toxic gases, and it should never be combined with other products.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "edta",
+      "description_en": "A synthetic chelator (E385) that traps metal ions to stop fats going rancid and colours fading. Authorised at limited levels, it can also bind minerals the body needs and does not occur in nature.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "epeautre",
+      "description_en": "Spelt, an ancient wheat variety richer in protein and minerals than modern wheat. It still contains gluten, but many find it easier to digest.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "epinard",
+      "description_en": "Spinach, broccoli and cabbage — dark leafy and cruciferous vegetables packed with folate, vitamin K, iron and sulphur compounds linked to protective effects.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "erythorbate de sodium",
+      "description_en": "An antioxidant (E316) that is a mirror-image form of vitamin C, used to keep cured meat pink and fats fresh. It is safe, but it has no vitamin activity and appears mostly in processed meat.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "erythritol",
+      "description_en": "A sugar alcohol produced by fermentation, with almost no calories and no blood sugar effect. Well tolerated digestively, though a 2023 study raised questions about cardiovascular effects at high blood levels.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "Extrait de romarin",
+      "description_en": "Rosemary extract (E392), a plant-based antioxidant increasingly used to replace synthetic preservatives such as BHA and BHT. It is rich in natural polyphenols.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "fécule de maïs",
+      "description_en": "Cornstarch extracted industrially, often from GM corn outside the EU. A refined carbohydrate with a high glycemic index and no fibre, vitamins or minerals.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "fécule de tapioca",
+      "description_en": "Starch from the cassava root, used as a gluten-free thickener. It is a refined starch with little nutrition of its own, but a clean, single-ingredient alternative to modified starches.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "farine de ble enrichie",
+      "description_en": "White flour with a few vitamins and iron added back after refining stripped them out. The fortification helps, but the fibre and most micronutrients of the whole grain are gone for good.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "ferments lactiques",
+      "description_en": "Live bacterial cultures such as lactobacillus and bifidobacterium. They ferment the food, make it more digestible, and contribute to a healthy gut microbiome.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "ferrocyanure de sodium",
+      "description_en": "An anti-caking agent (E535) added to table salt to keep it free-flowing. Despite the alarming name, the cyanide is locked in a stable complex and EFSA considers it safe at permitted levels.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "feta",
+      "description_en": "Traditional brined and firm cheeses such as feta, halloumi, manchego and paneer. Simple, minimally processed cheeses rich in protein and calcium, though high in salt.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "feuille de kaffir",
+      "description_en": "Aromatic ingredients such as kaffir lime leaf, lemongrass, galangal, fresh ginger, wasabi and horseradish. Whole aromatics with antibacterial and antioxidant compounds, used in small amounts.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "fibre de racine de manioc",
+      "description_en": "Cassava root fibre, a whole-plant source of resistant starch that feeds beneficial gut bacteria. It acts as prebiotic fibre rather than a refined additive.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "figue",
+      "description_en": "Figs, dates and raisins — dried fruits concentrated in sugar but also in fibre, potassium and minerals. Genuinely nutritious, though the sugar density means smaller portions.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "foie",
+      "description_en": "Liver and other organ meats, the most nutrient-dense animal foods there are. Liver is exceptionally rich in vitamin A, B12 and iron — so rich that weekly rather than daily intake is advised.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "formaldehyde",
+      "description_en": "A preservative and disinfectant classified IARC Group 1 human carcinogen, causally linked to nasopharyngeal cancer and leukaemia. Banned as a direct food additive and prohibited in EU cosmetics.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "fragrance",
+      "description_en": "A single word hiding a mixture that can contain dozens of undisclosed compounds. EU law requires 26 known fragrance allergens to be named separately, which is why perfumed products are a leading cause of contact allergy.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "fraise",
+      "description_en": "Strawberries, blueberries and raspberries — among the most antioxidant-dense fruits, high in vitamin C and polyphenols while being low in sugar. Excellent eaten regularly.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "fromage",
+      "description_en": "Real cheese, made by curdling milk with rennet or cultures. It concentrates protein and calcium, but also salt and saturated fat, so portion size matters.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "fromage allege",
+      "description_en": "Reduced-fat cheese. Lower in calories, but manufacturers often compensate with added salt, starch or stabilisers, and the texture depends on more processing than full-fat cheese.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "fromage fondu",
+      "description_en": "Processed cheese made by melting cheese scraps with emulsifying salts, usually phosphates. It is high in sodium and phosphate additives and bears little resemblance to traditionally made cheese.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "fructose",
+      "description_en": "Isolated fructose, very different from the fructose inside whole fruit, which comes with fibre and nutrients. It is metabolised by the liver and, in isolated form, promotes fat accumulation there.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Fructose ajouté",
+      "description_en": "Fructose added in isolated form, without the fibre and nutrients of whole fruit. It is processed almost entirely by the liver, and regular intake is linked to fat accumulation there.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "fruit",
+      "description_en": "Whole fruits and vegetables, the foundation of a healthy diet. They deliver fibre, vitamins, minerals and antioxidants in their natural matrix, with no processing needed to be good for you.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "Fruit du moine / Monk fruit",
+      "description_en": "A plant-derived sweetener from monk fruit, free of calories and with no effect on blood sugar. One of the better options for replacing sugar, though it is a concentrated extract.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "fumee naturelle",
+      "description_en": "Smoke flavouring produced by condensing wood smoke. It can carry polycyclic aromatic hydrocarbons, which is why EFSA has re-evaluated smoke flavourings and the EU has restricted several of them.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "gamma-tocopherol",
+      "description_en": "A natural form of vitamin E (E308) used to prevent fats oxidising. It is a plant-derived antioxidant with genuine nutritional value.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "gelée royale",
+      "description_en": "Bee products including royal jelly, propolis and pollen. They contain a range of natural compounds, though evidence for their claimed benefits is limited and they can trigger allergies.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "gelatine",
+      "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment. It is a safe, protein-based gelling agent, though of animal origin and low in nutritional value.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "ghee",
+      "description_en": "Clarified butter with the milk solids removed, leaving almost pure fat. It is very stable for high-heat cooking and virtually lactose-free, though still rich in saturated fat.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "gingembre",
+      "description_en": "Ginger, valued for its gingerols, which have anti-inflammatory properties and a well-evidenced effect on nausea. A whole root used fresh, dried or infused.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "ginseng",
+      "description_en": "Ginseng root, traditionally used to support energy and resistance to fatigue. Research on ginsenosides is promising though still limited; it can interact with some medications.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "glucose",
+      "description_en": "Added glucose in isolated form, absorbed almost instantly. It raises blood sugar faster than table sugar and carries no nutritional value beyond calories.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "glycine",
+      "description_en": "An amino acid (E640) used as a mild sweetener and flavour modifier. The body makes its own supply, and it is safe at the small amounts used in food.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "glyphosate",
+      "description_en": "The world's most used herbicide, found as a residue in cereals and legumes. IARC classified it Group 2A, probably carcinogenic to humans, in 2015, though EFSA reached a different conclusion.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "gomme arabique",
+      "description_en": "Acacia gum (E414), a tree sap used as a stabiliser. It is a prebiotic soluble fibre that feeds gut bacteria, and one of the oldest and gentlest additives in use.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "Goudron de houille (coal tar)",
+      "description_en": "A thick residue from coal distillation used in some medicated shampoos and dyes. Coal tars are IARC Group 1 human carcinogens; untreated forms are restricted in EU cosmetic products.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "graines",
+      "description_en": "Mixed seeds, a concentrated source of plant protein, fibre, minerals and healthy fats. They add real nutritional density to bread, salads and yoghurt.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "graines de chia",
+      "description_en": "Chia seeds, exceptionally high in soluble fibre and omega-3 ALA. They absorb many times their weight in liquid, which helps satiety and digestive regularity.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "graines de courge",
+      "description_en": "Pumpkin, poppy, fennel, coriander, mustard, nigella and hemp seeds. All are dense in minerals — pumpkin seeds especially in magnesium and zinc — along with protein and healthy fats.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "graines de lin",
+      "description_en": "Flax seeds, one of the richest plant sources of omega-3 ALA and lignans. They need to be ground to be absorbed — whole seeds pass through largely intact.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "graines de sesame",
+      "description_en": "Sesame seeds, remarkably high in calcium, magnesium and lignans. They are more nutritious hulled or ground, as in tahini, than left whole.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "graines de tournesol",
+      "description_en": "Sunflower seeds, an excellent source of vitamin E, magnesium and selenium. Nutritious as a whole food, though high in omega-6, so best balanced with omega-3 sources.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "graisse interesterifiee",
+      "description_en": "Fat rearranged chemically or enzymatically to replace trans fats and mimic their texture. It avoids trans fats but remains a laboratory-restructured fat, and its long-term metabolic effects are still debated.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "gras trans",
+      "description_en": "Trans fatty acids raise bad cholesterol while lowering the good kind, directly increasing cardiovascular risk. The WHO has called for their global elimination and there is no safe level of intake.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "grenade",
+      "description_en": "Pomegranate, kiwi and melons. Pomegranate is exceptionally rich in punicalagins and antioxidants, while kiwi delivers more vitamin C per gram than most citrus.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "guarana",
+      "description_en": "A South American seed with a high natural caffeine content, released more slowly than coffee. The plant is natural, but the energy drinks it appears in usually are not.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "haricots",
+      "description_en": "Beans of all kinds, a staple source of plant protein, resistant starch and fibre. Their slow-release carbohydrate makes them one of the best foods for stable blood sugar.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "hijiki",
+      "description_en": "A brown seaweed that accumulates unusually high levels of inorganic arsenic, a known human carcinogen. Food agencies in the UK, Canada and Ireland advise avoiding it and choosing other seaweeds instead.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Huile de canola / colza raffinée",
+      "description_en": "Refined rapeseed oil with a favourable fatty acid profile on paper. High-heat refining degrades its omega-3 content and generates process contaminants; cold-pressed versions are better.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "huile de coco",
+      "description_en": "Virgin coconut oil, cold-pressed and unrefined. It is stable for cooking and rich in medium-chain fats, but also very high in saturated fat, so it deserves moderation.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "huile de coco modifiee",
+      "description_en": "Coconut oil that has been hydrogenated, fractionated or interesterified to change its melting point. These industrial treatments alter the fat structure and mark a heavily engineered product.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile de colza",
+      "description_en": "Rapeseed (canola) oil, favourable in fatty acid profile but industrially refined at high heat, which degrades its omega-3 content and forms process contaminants. Cold-pressed versions are a better choice.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile de coton",
+      "description_en": "Cottonseed oil, extracted from a non-food crop that is heavily treated with pesticides. It is very high in omega-6 fats and requires intensive refining to remove natural toxins such as gossypol.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile de lin",
+      "description_en": "Flaxseed oil, the richest plant source of omega-3 ALA. It oxidises very easily, so it must be kept cold, used raw, and never heated.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "huile de mais",
+      "description_en": "Corn oil, an industrially refined oil very high in omega-6 fatty acids. An unbalanced omega-6 to omega-3 ratio is associated with chronic inflammation when consumed regularly.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile de noix",
+      "description_en": "Walnut oil, rich in omega-3 ALA and polyphenols. Best used cold on salads, as heat destroys its delicate fatty acids.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "huile de palme",
+      "description_en": "A cheap refined fat used across industrial food. High-temperature refining forms 3-MCPD and glycidyl esters — glycidol is rated IARC Group 2A, probably carcinogenic — and EFSA set very low tolerable intakes. Also a major driver of deforestation.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile de pepin de raisin",
+      "description_en": "Grapeseed oil, extracted from winemaking residue and usually solvent-refined. It is very high in omega-6 fats, which tilts the diet away from omega-3 balance when used regularly.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "huile de sesame",
+      "description_en": "Sesame oil, rich in antioxidants such as sesamol which make it unusually stable. Toasted versions are for flavour; both are traditional whole-seed oils.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "huile de soja",
+      "description_en": "The most widely used oil in industrial food, refined at high heat and dominated by omega-6 fats. It is often derived from GM crops outside the EU and contributes to an inflammatory fatty acid balance.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile de tournesol",
+      "description_en": "Sunflower oil, usually refined and very high in omega-6 fats. It oxidises readily when heated, generating harmful compounds, and its regular use tilts the diet away from omega-3 balance.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Huile hydrogénée / Gras trans",
+      "description_en": "Partially hydrogenated oil, the main industrial source of trans fats. Trans fats raise LDL cholesterol and lower HDL; the WHO calls for their elimination and the EU caps them at 2% of total fat.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Huile minérale (paraffinum, petrolatum)",
+      "description_en": "Petroleum-derived oils used in creams, balms and lubricants. Untreated and mildly treated mineral oils are IARC Group 1 human carcinogens; refined cosmetic grades are safer but can still carry aromatic hydrocarbon (MOAH) residues.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "Huile végétale (non spécifiée)",
+      "description_en": "An undisclosed blend of refined oils, most often palm or rapeseed. The label hides which fat is actually used, which alone makes it worth limiting.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "huile vegetale",
+      "description_en": "An unspecified blend, most often refined palm or rapeseed. The label hides which fat is actually used, and heavy industrial refining is typical of ultra-processed food that whole ingredients never require.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "huile vegetale bromee",
+      "description_en": "Brominated vegetable oil, used to keep citrus flavours suspended in soft drinks. The FDA revoked its authorisation in 2024 after evidence of thyroid harm and bromine build-up in body fat. Long banned in the EU, UK and Japan.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "hydrogenated",
+      "description_en": "Oil hardened by adding hydrogen to extend shelf life. Partial hydrogenation creates trans fats, which are strongly linked to heart disease and are now restricted in the EU and banned in the US.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "hydroquinone",
+      "description_en": "A powerful skin-lightening agent. Banned in EU cosmetics except for limited professional nail products, because it causes irreversible skin discolouration (ochronosis) and carries genotoxicity concerns.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "hydroxyde de calcium",
+      "description_en": "Calcium hydroxide (E526), or slaked lime, used to treat corn (nixtamalisation) and adjust acidity. Harmless in the finished food, but corrosive in raw form and a sign of industrial processing.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "hydroxyde de potassium",
+      "description_en": "Potassium hydroxide (E525), a strongly alkaline processing aid used to adjust acidity and treat cocoa. It is neutralised in the final product but marks a chemically processed recipe.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "hydroxyde de sodium",
+      "description_en": "Sodium hydroxide (E524), caustic soda, used to adjust pH and to peel or treat foods such as pretzels and olives. Corrosive in concentrated form; its presence indicates industrial processing.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "imidazolidinyl urea",
+      "description_en": "A widely used cosmetic preservative that releases formaldehyde, an IARC Group 1 human carcinogen. It is a recognised contact allergen and is restricted under EU cosmetics regulation.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "imitation mozzarella",
+      "description_en": "A cheese substitute built from vegetable oil, starch and milk proteins rather than curdled milk. It is engineered for melt and cost, and delivers none of the qualities of real cheese.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "inositol",
+      "description_en": "A sugar-like compound found naturally in fruits, beans and grains, and also produced by the body. Added to energy drinks and supplements, it is well tolerated, but the added form is more marketing than nutritional need.",
+      "badge": "Occasional",
+      "lot": "4-reclassified"
+    },
+    {
+      "name": "inuline",
+      "description_en": "A prebiotic fibre from chicory root that feeds beneficial gut bacteria. Genuinely useful for digestive health, though large amounts can cause bloating in sensitive people.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "Isolat de protéines (whey, soja, lait)",
+      "description_en": "Protein separated from its original food by industrial processing, leaving no fibre, fat or micronutrients. Effective for raising protein figures, but a marker of a reconstructed product.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "isolat de proteines",
+      "description_en": "Protein stripped from its original food by industrial extraction, leaving no fibre, fat or micronutrients. Useful for boosting protein figures on a label, but a marker of a reconstructed product.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Isothiazolinones (MIT, CMIT)",
+      "description_en": "Preservatives in cosmetics, paints and household products, and among the strongest contact allergens known. Methylisothiazolinone has been banned from leave-on cosmetics in the EU since 2017 after a wave of skin reactions.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "jambon",
+      "description_en": "Cured or cooked pork leg. As a processed meat it falls under the IARC Group 1 classification (2015): salting and nitrite curing generate compounds that raise colorectal cancer risk with regular intake.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "jaune 6",
+      "description_en": "Sunset Yellow (E110), a synthetic azo dye. EU law requires a warning that it may affect children's activity and attention, and the FDA is phasing it out of US foods.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "jaune de quinoléine",
+      "description_en": "Quinoline Yellow (E104), a synthetic dye carrying the mandatory EU warning about effects on children's activity and attention. It is not authorised as a food colour in the United States.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "jerky",
+      "description_en": "Salted and dried strips of beef. It counts as processed meat, an IARC Group 1 human carcinogen, and is also very high in sodium. Best kept as an occasional snack.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "jus concentre",
+      "description_en": "Juice boiled down to concentrate its sugars, then used to sweeten products while keeping a natural-sounding label. The fibre is gone and the sugar behaves like added sugar.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "jus de fruits frais",
+      "description_en": "Freshly pressed fruit and vegetable juice. It keeps the vitamins and antioxidants but loses most of the fibre, so whole fruit remains preferable for blood sugar.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "jus de pommes concentre",
+      "description_en": "Concentrated apple juice, one of the most common \"natural\" sweeteners in industrial food. Nutritionally it is close to added sugar, with the fibre and most vitamins removed.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "jus de raisin concentre",
+      "description_en": "Concentrated grape juice used to sweeten products without declaring added sugar. It is rich in fructose and behaves metabolically much like a syrup.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "kefir",
+      "description_en": "Kefir, skyr, lassi and Greek yoghurt. Fermented dairy with live cultures and a high protein content; kefir carries a broader range of bacteria and yeasts than yoghurt.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "l-theanine",
+      "description_en": "An amino acid found almost exclusively in tea. It promotes calm alertness and offsets the jitteriness of caffeine, which is why tea feels different from coffee.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "lait",
+      "description_en": "Whole milk, a natural source of complete protein, calcium, iodine and B12. Well tolerated by most, apart from those with lactose intolerance or milk allergy.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "lait de chevre",
+      "description_en": "Goat, sheep and buffalo milk, plus raw milk and buttermilk. Their fat globules are smaller than cow's milk, which many people find easier to digest.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "lait ecreme",
+      "description_en": "Skimmed milk, keeping the protein, calcium and B vitamins while removing the fat. It also loses the fat-soluble vitamins A and D unless they are added back.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "lait en poudre",
+      "description_en": "Milk dried at high temperature for shelf life. It keeps most nutrients, though heat processing can oxidise some cholesterol and degrade certain vitamins compared with fresh milk.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "lentilles",
+      "description_en": "Lentils, rich in plant protein, iron, folate and fibre. They have a low glycemic index, and pairing them with vitamin C improves absorption of their iron.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "levain",
+      "description_en": "Natural sourdough starter and traditional flatbreads. Long fermentation breaks down part of the gluten and phytates, making bread more digestible and its minerals more available.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "levure",
+      "description_en": "Baker's yeast, a living micro-organism that raises dough naturally. It also brings B vitamins and protein, and requires no chemical raising agents.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "Mélamine",
+      "description_en": "An industrial resin chemical with no place in food. It was illegally added to milk products to fake protein readings, causing kidney failure in infants in 2008. IARC classifies it Group 2B, possibly carcinogenic.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "Mélamine (vaisselle)",
+      "description_en": "A resin used in unbreakable tableware. It is stable at normal temperatures but can migrate into food when heated, which is why melamine dishes should never go in a microwave or hold very hot food.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "mais déshydraté",
+      "description_en": "Dried or whole corn, a whole grain when the kernel is intact. It supplies fibre, B vitamins and carotenoids — quite different from the refined corn starch used in industrial food.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "maltodextrine",
+      "description_en": "An ultra-processed carbohydrate made by industrial hydrolysis of starch, often from corn. Its glycemic index reaches around 110, higher than table sugar, and studies link it to disrupted gut bacteria.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "mangue",
+      "description_en": "Tropical fruits such as mango, pineapple, papaya and passion fruit. They are dense in vitamins A and C and digestive enzymes, and their fibre balances their natural sugar.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "mercure",
+      "description_en": "A heavy metal that is strongly neurotoxic, especially for the developing brain. Banned in EU cosmetics and tightly capped in fish and seafood. It accumulates in the body and is never safe at any deliberate dose.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "Mercure / Thimérosal",
+      "description_en": "Mercury and its preservative form thimerosal. Mercury is a potent neurotoxin that accumulates in the nervous system and kidneys; it is banned in EU cosmetics and strictly limited in food.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "metabisulfite de potassium",
+      "description_en": "A sulfite preservative (E224) common in winemaking and dried fruit. It must be declared as an allergen above 10 mg/kg and can cause asthma symptoms in sensitive people.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "metabisulfite de sodium",
+      "description_en": "One of the most widely used sulfites (E223), found in wine, dried fruit and seafood. It destroys some thiamine (vitamin B1) and is a declarable allergen above 10 mg/kg in the EU.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "Mica contaminé",
+      "description_en": "A mineral that gives cosmetics their shimmer. Natural mica can carry heavy metal impurities, and much of the global supply is linked to child labour in unregulated mines.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "Microplastiques / Microbilles",
+      "description_en": "Tiny plastic particles added to scrubs, toothpaste and cosmetics. The EU began banning intentionally added microplastics in 2023 because they pass through water treatment and accumulate in the environment.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "miel",
+      "description_en": "Honey, an unrefined sweetener carrying enzymes, antioxidants and antibacterial compounds. It is still mostly sugar, so it is a better sweetener rather than a free one — and never for infants under one.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "modified whey",
+      "description_en": "Whey that has been chemically or enzymatically altered for texture and shelf life. It is far removed from the original dairy ingredient and is characteristic of ultra-processed formulation.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "monk fruit",
+      "description_en": "Monk fruit (luo han guo) extract, a calorie-free sweetener from a Chinese fruit, sweetened by mogrosides rather than sugar. It does not raise blood glucose.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "mortadelle",
+      "description_en": "An emulsified, cured pork sausage. As a processed meat it falls under the IARC Group 1 classification, with regular consumption linked to a higher colorectal cancer risk.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "msg",
+      "description_en": "Monosodium glutamate (E621), a flavour enhancer that makes processed food taste richer. Regulators consider it safe at normal intake, but it is a reliable marker of ultra-processed food and can encourage overeating.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "mure",
+      "description_en": "Dark berries including blackberries, blackcurrants, cranberries and goji. Their deep colour comes from anthocyanins, plant compounds linked to cardiovascular and cognitive benefits.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "niacinamide",
+      "description_en": "Vitamin B3 in its added form, used to fortify flours, cereals and drinks. The vitamin itself is beneficial and well tolerated; its presence mainly signals a refined product whose nutrients were added back after processing.",
+      "badge": "Occasional",
+      "lot": "4-reclassified"
+    },
+    {
+      "name": "nitrate de potassium",
+      "description_en": "A curing salt (E252) used in charcuterie and cheese. In the body it converts to nitrite and forms nitrosamines: IARC classifies ingested nitrate under conditions leading to nitrosation as Group 2A, probably carcinogenic.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "nitrite de potassium",
+      "description_en": "A curing agent (E249) that fixes the pink colour of cured meats and blocks botulism. It forms nitrosamines during curing and cooking; IARC rates ingested nitrite leading to nitrosation as Group 2A, probably carcinogenic.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "nitrite de sodium",
+      "description_en": "A curing agent (E250) that fixes the pink colour of cured meat and blocks botulism. During curing and cooking it forms nitrosamines; IARC rates ingested nitrite leading to nitrosation as Group 2A, probably carcinogenic.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "nitrosamine",
+      "description_en": "Compounds formed when nitrites react with proteins in cured meat or under high-heat cooking. Several nitrosamines, including NDMA, are rated IARC Group 2A and are a main reason processed meat is classified Group 1.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "Noir de carbone",
+      "description_en": "Carbon black, a pigment used in cosmetics, inks and tyres. IARC classifies it Group 2B, possibly carcinogenic, based on inhalation exposure; the risk in finished cosmetics is far lower.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "noisette",
+      "description_en": "Hazelnuts, high in vitamin E, monounsaturated fat and manganese. Pure hazelnut paste is a genuinely nutritious ingredient, unlike the sweetened spreads it usually ends up in.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "noix",
+      "description_en": "Walnuts, cashews and pistachios. Walnuts stand out as one of the few plant sources of omega-3 ALA, and all provide protein, fibre and minerals in a whole-food form.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "noix de coco",
+      "description_en": "Coconut in its whole forms — flesh, milk, cream and water. It is high in saturated fat, mostly medium-chain, so it is nutritious but best used with a degree of moderation.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "Nonylphénols éthoxylés (NPE)",
+      "description_en": "Detergent surfactants that degrade into nonylphenol, an endocrine disruptor and a priority hazardous substance in EU water law. Their use in consumer products is heavily restricted in Europe.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "octinoxate",
+      "description_en": "A chemical UV filter (with homosalate and octisalate) that penetrates the skin and is detectable in blood. EU scientific committees have cut the permitted levels over endocrine-disruption concerns, and some regions restrict it to protect coral reefs.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "oeuf",
+      "description_en": "Eggs, one of the most complete foods available: high-quality protein, choline, vitamin D, B12 and lutein. Dietary cholesterol has been cleared of the concerns once attached to it.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "okra",
+      "description_en": "Okra, bamboo shoots, bean sprouts and lotus root. Okra's soluble fibre helps regulate blood sugar and cholesterol, and all are low-calorie whole vegetables.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "or",
+      "description_en": "Gold leaf (E175) used to decorate confectionery and drinks. It passes through the body unabsorbed, but EFSA could not complete its safety re-evaluation for lack of data on nanoparticle content.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "orange",
+      "description_en": "Citrus fruits rich in vitamin C, fibre and flavonoids. Eaten whole rather than juiced, they support immunity and iron absorption without the sugar spike of juice.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "orange b",
+      "description_en": "A synthetic dye whose only remaining approved use in the US is colouring hot dog and sausage casings. It has never been authorised in the European Union.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "orge",
+      "description_en": "Barley, exceptionally high in beta-glucan fibre. It has one of the lowest glycemic responses of any grain and supports both cholesterol control and gut health.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "oxybenzone",
+      "description_en": "A chemical UV filter absorbed through the skin and repeatedly flagged for hormonal activity. Its permitted concentration has been reduced in the EU, and it is banned in Hawaii and Palau for coral reef damage.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "pain blanc",
+      "description_en": "Bread made from refined flour, with the bran and germ removed. It raises blood sugar quickly and delivers little fibre; wholemeal or sourdough versions are substantially better.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "pain complet",
+      "description_en": "Wholemeal, rye and multigrain breads made with the whole grain. They deliver several times the fibre of white bread, with a gentler effect on blood sugar.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "pantothenate de calcium",
+      "description_en": "Vitamin B5 in its added form, used to enrich foods, drinks and supplements. Harmless and genuinely useful, but it usually appears in products that lost their natural nutrients during refining.",
+      "badge": "Occasional",
+      "lot": "4-reclassified"
+    },
+    {
+      "name": "Parabènes (méthyl, éthyl, propyl, butyl)",
+      "description_en": "A family of preservatives with weak oestrogen-like activity. Methyl and ethyl parabens remain permitted at low levels in the EU, while propyl and butyl are capped and isopropyl and isobutyl forms are banned.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "paraffinum liquidum",
+      "description_en": "Liquid petroleum oil used as an emollient in cosmetics. Untreated and mildly treated mineral oils are IARC Group 1 human carcinogens; pharmaceutical-grade refining lowers the risk but MOAH residues remain a concern.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "pastrami",
+      "description_en": "Brined, smoked and spiced beef. It falls under processed meat, an IARC Group 1 human carcinogen, and carries a heavy salt load. Regular intake is linked to colorectal cancer.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "pate de cacao",
+      "description_en": "Cocoa mass, the ground whole cocoa bean before sugar is added. It keeps all the flavanols, fibre and minerals of the bean and is the base of real dark chocolate.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "pates completes",
+      "description_en": "Whole wheat pasta, soba, udon and rice noodles. Whole grain versions keep their fibre and minerals, and pasta cooked al dente has a lower glycemic response.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "peche",
+      "description_en": "Stone fruits such as peaches, apricots, plums and cherries. They provide fibre, potassium and carotenoids, and cherries in particular carry anti-inflammatory compounds.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "pectine",
+      "description_en": "A soluble fibre (E440) extracted from apples and citrus peel, used to set jams. It is a natural fruit fibre that also helps lower cholesterol.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "peg-",
+      "description_en": "PEG compounds and sodium laureth sulfate, made by ethoxylation. The process can leave traces of 1,4-dioxane, a possible carcinogen, and PEGs increase how much the skin absorbs other ingredients.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "pepperoni",
+      "description_en": "A cured, fermented pork and beef sausage preserved with nitrites. It is a processed meat, high in sodium and saturated fat, and regular intake is linked to colorectal cancer risk.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Perchloréthylène",
+      "description_en": "The classic dry-cleaning solvent. IARC classifies it Group 2A, probably carcinogenic to humans, and it is being phased out or tightly controlled in many countries because it lingers on treated fabrics.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "petits pois",
+      "description_en": "Peas, beans and lentils in all their varieties. Pulses combine plant protein, fibre and slow carbohydrates, and regular intake is associated with better blood sugar and cholesterol.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "PFAS / PFC dans textiles",
+      "description_en": "Water- and stain-repellent \"forever chemicals\" applied to textiles and packaging. PFOA was classified IARC Group 1 human carcinogen in 2023; PFAS accumulate in the body and do not break down in the environment.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "PFOA / PTFE (Teflon)",
+      "description_en": "Non-stick coating and the chemicals used to make it. PTFE itself is inert, but PFOA — historically used in its manufacture — was classified an IARC Group 1 carcinogen in 2023. Scratched or overheated pans are the real concern.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "pgpr",
+      "description_en": "Polyglycerol polyricinoleate (E476), a synthetic emulsifier from castor oil used to cut cocoa butter costs in chocolate. Authorised in the EU, it signals a cheaper, more industrial formulation.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "phenoxyethanol",
+      "description_en": "A widely used preservative, permitted in the EU up to 1% in cosmetics. It is generally well tolerated, though France's health agency advised against using it on the nappy area of children under three.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "phosphate de calcium",
+      "description_en": "A phosphate salt (E341) used as an anti-caking agent and firming agent, and to fortify foods with calcium. It falls under EFSA's combined phosphate limit, which many diets already approach.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "phosphate de diamidon",
+      "description_en": "Distarch phosphate (E1412), a cross-linked modified starch used to hold texture through heating and freezing. Safe by EFSA standards, but purely technical and typical of ultra-processed products.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "phosphate de diamidon acetyle",
+      "description_en": "Acetylated distarch phosphate (E1422), a doubly modified starch used in sauces, ready meals and desserts. It adds texture and shelf life but no nutritional value, and marks a highly industrial recipe.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "phosphate de potassium",
+      "description_en": "A phosphate salt (E340) used as a buffer and stabiliser. EFSA set a combined limit for all phosphate additives; people with reduced kidney function should keep added phosphates low.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "phosphate de sodium",
+      "description_en": "An added phosphate (E339) used to bind water and hold texture. Added phosphates are absorbed far more readily than natural ones, and EFSA has flagged high total intake as a concern for kidney and heart health.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "Phosphates (détergents)",
+      "description_en": "Phosphates in detergents soften water and boost cleaning, but they drive algal blooms that suffocate rivers and lakes. The EU has restricted them in household laundry and dishwasher products.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "phtalate",
+      "description_en": "Plasticisers that soften plastics and fix fragrances. Several are classified as toxic to reproduction and act as endocrine disruptors; the most harmful are banned or authorisation-restricted in the EU.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "Phtalate DBP",
+      "description_en": "Dibutyl phthalate, once common in nail polish. It is classified as toxic to reproduction in the EU, banned from cosmetics, and on the REACH authorisation list because of its endocrine effects.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "Phtalate DEHP",
+      "description_en": "The most widely used plasticiser in soft PVC. It is classified as toxic to reproduction in the EU, banned in cosmetics and in toys, and restricted in food-contact and medical plastics.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "Phtalate DEP",
+      "description_en": "Diethyl phthalate, the phthalate most used to fix fragrances. It is considered less toxic than DEHP or DBP and is still permitted in the EU, but it is absorbed through skin and detected in most people.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "Phtalates (parfums)",
+      "description_en": "Phthalates hidden inside the generic word \"fragrance\", where they make scent last longer. Because the label discloses nothing, the consumer cannot tell which phthalate is present or at what level.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "plantain",
+      "description_en": "Plantain, tamarind and physalis. Plantain is a starchy staple rich in resistant starch and potassium, best cooked, and a whole food in every sense.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "plomb",
+      "description_en": "A heavy metal with no safe level of exposure according to the WHO. It is strongly neurotoxic — particularly damaging to children's brain development — and banned in EU cosmetics. Inorganic lead compounds are rated IARC Group 2A.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "Plomb (acétate de plomb)",
+      "description_en": "Lead acetate, once used in hair dyes and cosmetics. Lead is neurotoxic with no safe exposure level per the WHO, damaging brain development in children. It is banned in cosmetics in the EU and the US.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "poireau",
+      "description_en": "Leeks, spring onions, chives and wild garlic. They provide prebiotic fibre that feeds beneficial gut bacteria, along with sulphur compounds with antibacterial activity.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "pois chiches",
+      "description_en": "Chickpeas, a pulse combining protein, fibre and slow carbohydrates. They are filling, support stable blood sugar, and form the base of traditional dishes like hummus.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "poivre",
+      "description_en": "Pepper, paprika, cumin, oregano, basil, thyme and rosemary. Culinary spices and herbs are among the most antioxidant-dense foods by weight, and they replace salt as a flavour source.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "Polycarbonate (plastique #7)",
+      "description_en": "A hard, clear plastic made from bisphenol A. BPA leaches out with heat, scratches and age — a real concern now that the EU has banned BPA in food contact materials.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "polyphosphate",
+      "description_en": "Polyphosphates (E452) used to bind water, emulsify and stabilise processed meat and cheese. They count toward EFSA's combined phosphate limit and are a clear marker of industrial processing.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "polysorbate 20",
+      "description_en": "A synthetic emulsifier (E432) derived from sorbitol and ethylene oxide. Authorised at limited levels, but emulsifiers of this family have been linked in studies to disruption of the gut barrier.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "polysorbate 40",
+      "description_en": "A synthetic emulsifier (E434) used to blend fats and water in industrial food. Permitted at capped levels; animal studies on polysorbates suggest effects on gut bacteria and inflammation.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "polysorbate 60",
+      "description_en": "A synthetic emulsifier (E435) common in whipped toppings and baked goods. It is authorised but purely technical, and its family has been tied to gut microbiome changes in research.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "polysorbate 65",
+      "description_en": "A synthetic emulsifier (E436) used in ice cream and frozen desserts to control texture. Regulated at low levels, it is a clear marker of an industrially engineered product.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "polysorbate 80",
+      "description_en": "A synthetic emulsifier (E433) widely used in ice cream, sauces and dressings. Animal and cell studies link polysorbate 80 to thinning of the protective gut mucus layer and low-grade inflammation.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "Polystyrène (plastique #6)",
+      "description_en": "The plastic of foam trays and disposable cups. Its building block styrene is classified IARC Group 2A, probably carcinogenic, and migration increases with hot or fatty foods.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "pomme",
+      "description_en": "Apples, pears, bananas and lemons — whole fruit eaten as it grows. Their fibre slows sugar absorption, and their vitamins and polyphenols come packaged exactly as the body handles best.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "pomme de terre",
+      "description_en": "Potatoes, sweet potatoes and root vegetables. Nutritious whole foods rich in potassium and fibre — how they are cooked matters far more than the vegetable itself.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "ponceau 4r",
+      "description_en": "Cochineal Red A (E124), a synthetic azo dye subject to the EU warning label on children's activity and attention. It is banned from food in the United States, Norway and Finland.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "poudre a lever",
+      "description_en": "Baking powder, a blend of a carbonate and an acid salt that makes dough rise. It is harmless in itself, though some formulations use aluminium-based acids that add to total aluminium intake.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "poudre de céleri",
+      "description_en": "Celery, celeriac, fennel, asparagus and artichoke. Low in calories and high in fibre and potassium, with artichoke and asparagus also acting as prebiotics.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "poulet",
+      "description_en": "Chicken, turkey and other poultry. Lean, high in complete protein and B vitamins, and among the lightest animal proteins when the skin is removed.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "ppd",
+      "description_en": "Para-phenylenediamine, the base of most permanent dark hair dyes. A strong skin sensitiser that can trigger severe allergic reactions; it is capped in the EU and illegal in \"black henna\" temporary tattoos.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "propionate de calcium",
+      "description_en": "A mould inhibitor (E282) used mainly in industrial bread. It is considered safe by EFSA and occurs naturally in some cheeses, though its presence signals bread built for long shelf life.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "Propylène glycol",
+      "description_en": "A humectant and solvent (E1520) that keeps products moist and carries flavours. Considered safe at food levels by EFSA, but it is a synthetic ingredient with strict use limits.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "propylparaben",
+      "description_en": "A preservative removed from the EU list of permitted food additives over endocrine-disruption concerns, and restricted in cosmetics. It mimics oestrogen in laboratory studies and is banned from food in California from 2027.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "proteine de feve",
+      "description_en": "Protein extracted from fava beans, used to boost protein content in plant-based products. Nutritionally useful, though an isolate rather than a whole food.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "proteine de pois",
+      "description_en": "Protein isolated from yellow peas by industrial extraction. It is a useful plant protein, but stripped of the fibre and micronutrients of the whole pulse.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "proteine de soja",
+      "description_en": "Soy protein isolated through industrial processing, often with hexane solvent. It is frequently GM-derived outside the EU and is used to bulk up protein content in reconstituted foods.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "proteines hydrolysees",
+      "description_en": "Proteins broken down with acid or enzymes, which releases free glutamate and acts as a hidden flavour enhancer. The process can also generate unwanted by-products such as chloropropanols.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "ptfe",
+      "description_en": "The non-stick coating on cookware. PTFE itself is not classified as carcinogenic, but PFOA — long used to manufacture it — is an IARC Group 1 human carcinogen. Overheated pans also release toxic fumes.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "PVC (plastique #3)",
+      "description_en": "A rigid plastic softened with phthalate plasticisers that migrate into fatty foods. Vinyl chloride, its building block, is a confirmed carcinogen, though it is largely bound in the finished material.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "pyridoxine chlorhydrate",
+      "description_en": "Vitamin B6 in its added form, common in fortified foods and supplements. It is effective and safe at normal levels; very high long-term supplement doses are the only real concern.",
+      "badge": "Occasional",
+      "lot": "4-reclassified"
+    },
+    {
+      "name": "quaternium-15",
+      "description_en": "A formaldehyde-releasing preservative and one of the strongest emitters of the group. Formaldehyde is an IARC Group 1 human carcinogen; quaternium-15 is now prohibited in EU cosmetics.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "quinoa",
+      "description_en": "Quinoa, a seed rather than a true cereal, and one of the rare plant foods providing all nine essential amino acids. It is naturally gluten-free and rich in magnesium and iron.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "Résorcinol",
+      "description_en": "A compound used in permanent hair dyes. It is a skin sensitiser and is flagged as a suspected endocrine disruptor affecting thyroid function; its level in cosmetics is capped in the EU.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "raisin",
+      "description_en": "Grapes, rich in polyphenols including resveratrol in the skin. Naturally higher in sugar than most fruit, but eaten whole the fibre keeps the response moderate.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "rebaudioside m",
+      "description_en": "A steviol glycoside with a cleaner taste than earlier stevia extracts, now often produced by fermentation rather than leaf extraction. It is approved and calorie-free, but industrially manufactured.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "rhubarbe",
+      "description_en": "Rhubarb, quince and mirabelle plums — tart fruits low in sugar and high in fibre. Rhubarb leaves are toxic, but the stalks are perfectly safe and rich in vitamin K.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "ricotta",
+      "description_en": "Italian cheeses from ricotta and mozzarella to parmesan and gorgonzola. Traditionally made with few ingredients; ricotta is notably lower in fat and salt than aged varieties.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "riz",
+      "description_en": "Rice, a staple grain. Brown rice keeps the bran and its fibre, B vitamins and minerals; white rice loses most of them. Rice can carry inorganic arsenic, so varying grains is wise.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "riz basmati",
+      "description_en": "Basmati, jasmine, black, red and wild rice. Basmati has a notably lower glycemic index than most rice, and the pigmented varieties add antioxidants along with their fibre.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "riz précuit",
+      "description_en": "Rice pre-cooked and dried for speed. The processing costs some vitamins and raises the glycemic response compared with regular rice, though parboiled versions retain more nutrients.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "rouge 3",
+      "description_en": "Erythrosine (E127), a petroleum-based cherry-red dye. The FDA revoked its authorisation in food and ingested drugs in January 2025 after it caused cancer in male rats, with reformulation required by 2027.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "rouge 40",
+      "description_en": "Allura Red (E129), a petroleum-derived synthetic dye. EU law requires a warning label stating it may affect children's activity and attention, and the FDA is phasing it out of the US food supply.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "saccharine",
+      "description_en": "One of the oldest artificial sweeteners (E954). Once suspected of causing bladder cancer in rats, it was later cleared for humans and delisted as a carcinogen, but remains a purely synthetic additive.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "salami",
+      "description_en": "A dry fermented and cured sausage. As a processed meat it falls under the IARC Group 1 classification: nitrite curing and fermentation generate compounds tied to colorectal cancer.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "sarrasin",
+      "description_en": "Buckwheat, a gluten-free seed rich in rutin, magnesium and complete plant protein. Its low glycemic index makes it a good choice for stable blood sugar.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "saucisse",
+      "description_en": "Sausages, including hot dogs and merguez, are processed meats classified IARC Group 1 human carcinogens (2015). Regular intake raises colorectal cancer risk; they are also high in salt and saturated fat.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "saucisson",
+      "description_en": "A dry-cured sausage preserved with salt and nitrites. It falls under processed meat, an IARC Group 1 human carcinogen, with regular consumption linked to colorectal cancer.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "saumon sauvage",
+      "description_en": "Wild salmon, sardines, mackerel and anchovies. Small oily fish are the best dietary source of long-chain omega-3 EPA and DHA, with low mercury and high vitamin D.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "silicate alumino-calcique",
+      "description_en": "Calcium aluminosilicate (E556), an anti-caking agent that contributes to overall aluminium intake. EFSA has flagged dietary aluminium as a concern for accumulation in the body over time.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "silicate alumino-potassique",
+      "description_en": "Potassium aluminosilicate (E555), an anti-caking and glazing agent. Like other aluminium-based additives, it adds to total aluminium exposure, which EFSA considers should be kept low.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "silicate alumino-sodique",
+      "description_en": "Sodium aluminosilicate (E554), used to stop powders clumping. It contributes to dietary aluminium, which accumulates in the body and is why EFSA set a weekly tolerable intake.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "silicate de sodium",
+      "description_en": "Sodium silicate (E550), a technical anti-caking and preservation aid. It is strongly alkaline in concentrated form and serves purely industrial purposes, with no nutritional role.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "silice",
+      "description_en": "Silicon dioxide (E551), an anti-caking agent in powders and dried mixes. EFSA could not confirm the safety of its nanoparticle fraction in its re-evaluation and called for stricter specifications.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "sirop de ble",
+      "description_en": "A syrup made by breaking down wheat starch into sugars. It is marketed as a natural sweetener but behaves like any glucose syrup, with a high glycemic impact and no nutrients.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "sirop de glucose",
+      "description_en": "A syrup produced by industrial hydrolysis of corn or wheat starch. It has a very high glycemic index, causes sharp blood-sugar spikes and brings no nutrients — a hallmark of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "sirop de glucose-fructose",
+      "description_en": "High-fructose corn syrup, a cheap industrial sweetener. Its fructose load is processed almost entirely by the liver and is linked to non-alcoholic fatty liver disease and metabolic syndrome.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "sirop de riz",
+      "description_en": "Rice syrup, often sold as a healthier sweetener. It is almost pure glucose with a very high glycemic index, and rice-based products can carry inorganic arsenic residues.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "sirop de yacon",
+      "description_en": "Yacon and date syrups. Yacon is unusual in being rich in prebiotic fructo-oligosaccharides that are poorly absorbed, giving sweetness with a lower sugar impact.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "SLS (Sodium Lauryl Sulfate)",
+      "description_en": "A powerful foaming detergent used in shampoos, toothpaste and cleaners. It is not carcinogenic, but it is a well-documented irritant that strips skin and scalp with frequent use.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "sodium benzoate",
+      "description_en": "A preservative (E211) used in acidic drinks and sauces. Combined with vitamin C, and helped by heat or light, it can form traces of benzene — a reason to avoid drinks that list both.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "soja",
+      "description_en": "Soy in unspecified form, from whole beans to industrial isolates. Whole soy is nutritious, but most soy in processed food is heavily refined and frequently GM outside the EU.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "sorbate de potassium",
+      "description_en": "One of the most common mould inhibitors (E202), well tolerated and among the gentler preservatives. Some laboratory work suggests it may react with vitamin C, though food-level effects are not established.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "spiruline",
+      "description_en": "A blue-green algae dense in plant protein, iron and B vitamins. Genuinely nutritious, though quality varies and it should be sourced from tested, contamination-free suppliers.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "stevia",
+      "description_en": "Steviol glycosides (E960) extracted from stevia leaves — plant-derived but heavily refined. Approved with a daily limit of 4 mg/kg, they add no calories, though the aftertaste means they are often blended with other sweeteners.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "stevia leaf",
+      "description_en": "Whole stevia leaf, dried or powdered, rather than the purified glycoside extract. It is the least processed form of stevia, with no calories and no blood sugar impact.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "substances laitieres modifiees",
+      "description_en": "A vague label covering dairy fractions altered or recombined industrially. It tells the consumer nothing about what is actually inside and signals a reconstituted rather than a real dairy product.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "sucralose",
+      "description_en": "A chlorinated artificial sweetener (E955) about 600 times sweeter than sugar. Approved by EFSA and the FDA, but studies suggest it may disturb gut bacteria, and it can form harmful compounds when heated in baking.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "sucre",
+      "description_en": "Refined sucrose, stripped of every nutrient. It is absorbed rapidly, driving blood-sugar spikes and insulin resistance, and regular intake contributes to obesity, type 2 diabetes and chronic inflammation.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "Sucre blanc raffiné",
+      "description_en": "Fully refined sucrose, stripped of all minerals. It is absorbed rapidly, spikes blood sugar and contributes to weight gain and metabolic disease when consumed regularly.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "sucre de canne",
+      "description_en": "Cane sugar, including raw, brown and demerara forms. It keeps a trace of molasses and minerals, but it is still around 95% sucrose and affects blood sugar much like white sugar.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "sucre de canne complet",
+      "description_en": "Unrefined whole cane sugar — rapadura, panela, muscovado, jaggery — and molasses. They keep the minerals refining strips out, but remain sugar and should be used sparingly.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "sucre de coco",
+      "description_en": "Coconut palm sugar, minimally refined and containing some minerals and inulin. Its glycemic index is slightly lower than white sugar, but it is still sugar.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "sucre de datte",
+      "description_en": "Whole dates ground into a powder, so the fibre and minerals stay in. It is the closest thing to sweetening with actual fruit, though still concentrated in sugar.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "sucre inverti",
+      "description_en": "Sugar split into glucose and fructose to boost sweetness and keep products moist. Metabolically it behaves like table sugar, with the same effect on blood sugar and weight.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "sucres",
+      "description_en": "A catch-all label covering the added refined sugars in a product. They deliver energy with no vitamins, minerals or fibre, and regular consumption is tied to metabolic disease.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "sulfate de cuivre",
+      "description_en": "Copper sulfate (E519), used as a processing aid and firming agent. Copper is essential in trace amounts but toxic in excess, causing liver and kidney damage, so food use is tightly capped.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "sulfite de calcium",
+      "description_en": "A sulfite preservative (E226) used mainly in processed vegetables and drinks. It is a declarable allergen above 10 mg/kg and best limited by anyone sensitive to sulfites.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "sulfite de potassium",
+      "description_en": "A sulfite preservative (E225) used to stop oxidation and spoilage. Safe for most people, but an EU-declarable allergen that can trigger breathing difficulties in asthmatics.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "sulfite de sodium",
+      "description_en": "A sulfite preservative (E221) that keeps foods pale and stops spoilage. It is an EU-declarable allergen above 10 mg/kg and can provoke breathing problems in people with asthma.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "tahini",
+      "description_en": "Sesame paste and the traditional dips built on whole ingredients — hummus, baba ganoush, guacamole, tzatziki. Nutrient-dense and made from real foods.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "tanin ferrique",
+      "description_en": "Iron tannate (E181), a colouring used on olives and some coatings. It is permitted at low levels but has little modern use and adds no nutritional value.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "tapioca dextrin",
+      "description_en": "A modified starch derived from cassava, used to coat, bulk and thicken. Like other dextrins, it is a refined carbohydrate that raises blood sugar quickly and adds no nutrients.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "tarama",
+      "description_en": "A spread made from salted fish roe. Traditional versions are simple, but industrial tarama is dominated by oil, salt and colouring, with a modest proportion of actual roe.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "tartrazine",
+      "description_en": "Yellow 5 (E102), a synthetic azo dye. EU law requires a warning that it may affect children's activity and attention; it can also trigger reactions in people sensitive to aspirin.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "taurine",
+      "description_en": "An amino acid the body produces naturally, added in large amounts to energy drinks. EFSA found no safety concern for taurine itself; the real issue is the caffeine and sugar it is usually paired with.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "tbhq",
+      "description_en": "Tert-butylhydroquinone (E319), a petroleum-derived antioxidant preservative. Not classified as a carcinogen by IARC, but high-dose animal studies show immune effects, and EFSA advises against use for infants.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "tetraborate de sodium",
+      "description_en": "Borax (E285), permitted in the EU for caviar only. It is classified as toxic to reproduction under EU chemical law and banned from general food use in most countries, including the US.",
+      "badge": "Ultra toxic",
+      "lot": "2"
+    },
+    {
+      "name": "the noir",
+      "description_en": "Black tea and rooibos. Black tea supplies theaflavins and moderate caffeine; rooibos is naturally caffeine-free and rich in antioxidants.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "the vert",
+      "description_en": "Green tea, rich in catechins including EGCG, with well-documented antioxidant activity. It provides gentle caffeine alongside L-theanine, which softens the stimulant effect.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "theine",
+      "description_en": "Theine is simply caffeine as found in tea, alongside theobromine from cocoa. Both are natural stimulants, gentler and longer-acting than coffee thanks to the tannins in tea.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "thon",
+      "description_en": "A nutritious source of protein and omega-3, but a large predator that accumulates methylmercury. Health agencies advise limiting intake, particularly for pregnant women and young children.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "tilapia",
+      "description_en": "A widely farmed white fish, affordable and lean but low in omega-3 and relatively high in omega-6. Farming conditions vary considerably, so sourcing matters.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "tobiko",
+      "description_en": "Flying fish roe used in sushi. It provides protein and omega-3, but it is very high in sodium and commercial versions are usually dyed and preserved.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "tofu",
+      "description_en": "Tofu, edamame and whole soybeans. Whole soy provides complete plant protein, calcium and isoflavones, and is far less processed than soy protein isolate.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "Toluène",
+      "description_en": "A solvent used in nail polish and adhesives. It is classified as toxic to reproduction in the EU, and its vapours affect the nervous system — good ventilation matters when using it.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "tomate",
+      "description_en": "Tomatoes in all forms, including paste and purée. Cooking actually increases the availability of lycopene, their signature antioxidant, making tomato paste a genuinely nutritious ingredient.",
+      "badge": "Approved",
+      "lot": "5A"
+    },
+    {
+      "name": "triclosan",
+      "description_en": "An antibacterial agent in some toothpastes, soaps and deodorants. The FDA banned it from consumer hand soaps in 2016; it is capped in the EU over hormonal effects and its contribution to antibiotic resistance.",
+      "badge": "Processed",
+      "lot": "3C"
+    },
+    {
+      "name": "tripolyphosphate",
+      "description_en": "A phosphate (E451) used to make meat and seafood hold water, increasing their weight. It is permitted but contributes to a phosphate load that EFSA considers already high in European diets.",
+      "badge": "Occasional",
+      "lot": "4B"
+    },
+    {
+      "name": "vermicelles de blé",
+      "description_en": "Thin noodles made from refined wheat flour. Convenient and quick to cook, but a refined carbohydrate with little fibre unless made from whole grain.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "vert 3",
+      "description_en": "Fast Green FCF (E143), a synthetic dye that is not authorised as a food colour in the European Union. It remains permitted in the US, where the FDA is working to phase it out.",
+      "badge": "Processed",
+      "lot": "3A"
+    },
+    {
+      "name": "viande rouge",
+      "description_en": "Plain red meat, rich in bioavailable iron, zinc and B12. Health bodies suggest capping intake at around 500 g cooked per week, and it is far preferable to processed meat.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "viande transformee",
+      "description_en": "Meat preserved by salting, curing, smoking or nitrites (bacon, ham, sausages, deli meats). Classified IARC Group 1 human carcinogen in 2015: regular intake raises colorectal cancer risk. Best kept occasional.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "vinaigre",
+      "description_en": "Vinegar, made by fermenting alcohol into acetic acid. Taken with a meal it modestly lowers the blood sugar response, and it flavours food without salt or sugar.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "vinaigre de riz",
+      "description_en": "Rice, sherry, malt and other traditional vinegars. All are simple fermented products used to add acidity and flavour without additives.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "vinaigre en poudre",
+      "description_en": "Vinegar dried onto a starch carrier, typically maltodextrin, to flavour crisps and seasoning mixes. It is a technical powder built for industrial dosing, not a natural vinegar.",
+      "badge": "Processed",
+      "lot": "3B"
+    },
+    {
+      "name": "vitamine c",
+      "description_en": "Ascorbic acid (E300), used both as a nutrient and as a natural antioxidant to stop foods browning. It is essential for immunity, collagen and iron absorption.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "Vitamine E naturelle (tocophérol)",
+      "description_en": "Natural vitamin E (E306), used as an antioxidant to keep fats from going rancid. It protects both the food and the body's own cells.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "whey",
+      "description_en": "Whey, the liquid fraction of milk, rich in complete protein and branched-chain amino acids. A natural dairy component, though isolated protein powders are far more processed.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "xylitol",
+      "description_en": "A sugar alcohol with a low glycemic index, well known for protecting against tooth decay. Large amounts have a laxative effect, and it is highly toxic to dogs.",
+      "badge": "Approved",
+      "lot": "5B"
+    },
+    {
+      "name": "yaourt",
+      "description_en": "Plain yoghurt, milk fermented with live cultures. Fermentation makes it more digestible and adds beneficial bacteria — as long as no sugar has been added.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "간장",
+      "description_en": "Traditionally brewed Korean soy sauce, made by fermenting soybeans over months. Naturally rich in umami and beneficial compounds, unlike chemically hydrolysed soy sauce — though high in salt.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "고춧가루",
+      "description_en": "Gochugaru, Korean chilli powder made from sun-dried peppers with nothing added. Rich in capsaicin and vitamin C, and the backbone of kimchi.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "국간장",
+      "description_en": "Korean soup soy sauce, saltier and lighter in colour than regular soy sauce, made by traditional fermentation. A whole fermented seasoning, used sparingly for its salt content.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "된장",
+      "description_en": "Doenjang, Korean fermented soybean paste aged for months. Fermentation produces beneficial bacteria and peptides; it is deeply nutritious but high in salt.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "들기름",
+      "description_en": "Korean perilla oil, one of the richest plant sources of omega-3 ALA. It oxidises quickly, so it should be kept cold and used raw rather than heated.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "메주",
+      "description_en": "Meju, blocks of fermented soybeans that form the base of doenjang and traditional soy sauce. A pure whole-soy ferment at the root of Korean cuisine.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "미숫가루",
+      "description_en": "Misugaru, a powder of roasted whole grains and beans drunk with milk or water. It is a genuine whole-food blend providing fibre, plant protein and slow carbohydrates.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "쌈장",
+      "description_en": "Ssamjang, a blend of doenjang and chilli paste used as a wrap sauce. Built on fermented soybean, it carries the benefits of its base while being salty and often sweetened.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "액젓",
+      "description_en": "Korean fish sauce made by fermenting anchovies or sand lance with salt. A traditional ferment rich in amino acids and umami, though very high in sodium.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "젓갈",
+      "description_en": "Jeotgal, salted fermented seafood such as saeujeot used to season kimchi. Traditional and rich in umami and enzymes, but among the saltiest foods in the cuisine.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
+      "name": "청국장",
+      "description_en": "Cheonggukjang, a fast-fermented soybean paste rich in Bacillus subtilis and nattokinase. One of the most probiotic-dense traditional Korean foods.",
+      "badge": "Approved",
+      "lot": "5C"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { AdditiveInfo, RiskGroup, ProductCategory, AdditiveCategory } from '@/types';
 import { t, isEnglish, getDeviceLanguage, pick } from '@/utils/i18n';
+import { getOfficialEn, localizeOfficialText } from '@/utils/officialDescriptions';
 
 export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // ═══════════════════════════════════════════════════════════════
@@ -417,7 +418,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
     descriptionEn: 'Solvent used in nail polish. Neurotoxic via inhalation, possible carcinogen. Ventilate well during use, avoid prolonged inhalation.',
   },
   {
-    code: 'acetaldehyde', name: 'Acétaldéhyde', group: 'group2b', category: 'cosmetic',
+    code: 'acetaldehyde', name: 'Acétaldéhyde', group: 'group2a', category: 'cosmetic',
     description: 'Présent dans lissages brésiliens. Cancérigène possible (CIRC Groupe 2B) par inhalation. Irritant respiratoire. Éviter exposition prolongée.',
     descriptionEn: 'Found in Brazilian hair-straightening treatments. Possible carcinogen (IARC Group 2B) via inhalation. Respiratory irritant. Avoid prolonged exposure.',
   },
@@ -576,8 +577,12 @@ export function findAdditiveByName(
 
 /**
  * Returns the description in the active language, falling back to FR if no EN.
+ * An OFFICIAL (validated) description always wins over the legacy texts below —
+ * English reference, auto-translated for FR/KO display when the cache has it.
  */
 export function getAdditiveDescription(a: AdditiveInfo): string {
+  const officialEn = getOfficialEn(a.name, a.code);
+  if (officialEn) return localizeOfficialText(officialEn);
   const lang = getDeviceLanguage();
   if (lang === 'ko' && a.descriptionKo && a.descriptionKo.trim().length > 0) {
     return a.descriptionKo;

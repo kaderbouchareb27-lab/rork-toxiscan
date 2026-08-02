@@ -6,6 +6,7 @@ import { getAnalysisRegionPrompt } from '@/utils/regionDetection';
 import { getHealthProfileAnalysisPrompt } from '@/utils/healthProfile';
 import { t, isEnglish, isKorean, getDeviceLanguage, pick } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote, localizedCirc } from '@/constants/ingredientsDatabase';
+import { getOfficialEn, localizeOfficialText, ensureOfficialTranslations, hydrateOfficialTranslations, isOfficialEnText, isOfficialDescriptionText } from '@/utils/officialDescriptions';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 import {
   classifyCosmeticIngredient,
@@ -173,6 +174,19 @@ function lookupIngredient(ingredientName: string): IngredientEntry | null {
   return entry;
 }
 
+/**
+ * OFFICIAL description lookup for a scanned ingredient: tries the scanned name/code
+ * first, then the canonical keyword of the matched database entry (covers partial
+ * keyword matches). Returns the ENGLISH reference text or undefined. When a text
+ * exists, it is served AS-IS — the AI never generates a description for it.
+ */
+function officialDescriptionEnFor(name: string, entry: IngredientEntry | null): string | undefined {
+  return (
+    getOfficialEn(name, entry?.code ?? null) ??
+    (entry ? getOfficialEn(entry.keywords[0] ?? null, entry.code) : undefined)
+  );
+}
+
 // Allergen declarations ("Contains: …", "May contain: …", "Peut contenir : …") are regulatory
 // statements, NOT ingredients. They must never be parsed or badged.
 const ALLERGEN_LINE_REGEX = /^(contains|contient|may contain|peut contenir)\s*:/i;
@@ -291,13 +305,15 @@ function cosmeticCircLabel(tier: CosmeticTier): string {
 /** Build a SubstanceDetected for one cosmetic INCI ingredient (deterministic, no AI). */
 function buildCosmeticSubstance(name: string): SubstanceDetected {
   const entry = classifyCosmeticIngredient(name);
+  // Official (validated) description wins over the cosmetic database note.
+  const officialEn = getOfficialEn(name) ?? (entry ? getOfficialEn(entry.keywords[0] ?? null) : undefined);
   if (entry) {
     return {
       nom: name,
       code: null,
       classification_circ: cosmeticCircLabel(entry.tier),
       niveau_risque: cosmeticTierToRisk(entry.tier),
-      explication: getCosmeticNote(entry),
+      explication: officialEn ? localizeOfficialText(officialEn) : getCosmeticNote(entry),
       source_exposition: null,
       descriptionPending: false,
     };
@@ -308,7 +324,7 @@ function buildCosmeticSubstance(name: string): SubstanceDetected {
     code: null,
     classification_circ: pick({ en: 'No known risk', fr: 'Sans risque connu', ko: '알려진 위험 없음' }),
     niveau_risque: 'aucun',
-    explication: pick({
+    explication: officialEn ? localizeOfficialText(officialEn) : pick({
       en: `${name} is a functional cosmetic ingredient with no known risk in our database.`,
       fr: `${name} est un ingrédient cosmétique fonctionnel, sans risque connu dans notre base.`,
       ko: `${name}은(는) 데이터베이스에서 알려진 위험이 없는 기능성 화장품 성분입니다.`,
@@ -1650,6 +1666,8 @@ export function buildApprovedDescription(name: string): string {
 /** Post-processing step: every classified substance gets a full, well-formed description. */
 function withFullDescription(sub: SubstanceDetected): SubstanceDetected {
   if (sub.descriptionPending === true) return sub;
+  // OFFICIAL descriptions are final and validated — never rewritten, padded or "fixed".
+  if (isOfficialDescriptionText(sub.explication)) return sub;
   const current = sub.explication?.trim() ?? '';
   if (!current) return sub;
   return { ...sub, explication: ensureFullDescription(sub.nom, sub.niveau_risque, current) };
@@ -1816,12 +1834,13 @@ function enforcePalmOilFloor(sub: SubstanceDetected): SubstanceDetected {
   if (sub.niveau_risque === 'danger' || sub.niveau_risque === 'probable') return sub;
   if (!isPalmFatName(sub.nom)) return sub;
   const entry = lookupIngredient('huile de palme');
+  const officialEn = officialDescriptionEnFor(sub.nom, entry ?? null);
   console.log('[Classify] PALM OIL floor — "' + sub.nom + '" was ' + sub.niveau_risque + ' → forced probable (Groupe 2A).');
   return {
     ...sub,
     niveau_risque: 'probable',
     classification_circ: entry?.circ ?? 'Groupe 2A (3-MCPD/glycidol)',
-    explication: buildNegativeDescription(sub.nom, 'probable', entry ?? null),
+    explication: officialEn ? localizeOfficialText(officialEn) : buildNegativeDescription(sub.nom, 'probable', entry ?? null),
     descriptionPending: false,
   };
 }
@@ -1842,11 +1861,12 @@ function enforceUltraToxicFloor(sub: SubstanceDetected): SubstanceDetected {
     return sub;
   }
   console.log('[Classify] ULTRA TOXIC — "' + sub.nom + '" → forced ultra_toxic (' + entry.id + ')');
+  const officialEn = getOfficialEn(sub.nom, sub.code) ?? getOfficialEn(entry.keywords[0] ?? null, entry.code);
   return {
     ...sub,
     niveau_risque: 'danger',
     classification_circ: ULTRA_TOXIC_CIRC,
-    explication: getUltraToxicDescription(entry, getDeviceLanguage()),
+    explication: officialEn ? localizeOfficialText(officialEn) : getUltraToxicDescription(entry, getDeviceLanguage()),
     descriptionPending: false,
   };
 }
@@ -1862,15 +1882,22 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
       if (compoundSugar && (!entry || RISK_SEVERITY[compoundSugar.risk] < RISK_SEVERITY[entry.risk])) {
         entry = compoundSugar;
       }
+      // OFFICIAL description first — validated text, no AI generation, no tone rewriting.
+      const officialEn = officialDescriptionEnFor(name, entry);
       if (entry) {
-        let explication = getLocalizedNote(entry) ?? '';
-        if (entry.risk === 'aucun') {
-          if (!explication || hasNegativeTone(explication)) {
-            explication = buildPositiveFallback(name, getLocalizedNote(entry));
-          }
-        } else if (entry.risk === 'danger' || entry.risk === 'probable') {
-          if (!explication || hasPositiveSpin(explication) || !hasNegativeTone(explication)) {
-            explication = buildNegativeDescription(name, entry.risk, entry);
+        let explication: string;
+        if (officialEn) {
+          explication = localizeOfficialText(officialEn);
+        } else {
+          explication = getLocalizedNote(entry) ?? '';
+          if (entry.risk === 'aucun') {
+            if (!explication || hasNegativeTone(explication)) {
+              explication = buildPositiveFallback(name, getLocalizedNote(entry));
+            }
+          } else if (entry.risk === 'danger' || entry.risk === 'probable') {
+            if (!explication || hasPositiveSpin(explication) || !hasNegativeTone(explication)) {
+              explication = buildNegativeDescription(name, entry.risk, entry);
+            }
           }
         }
         return {
@@ -1883,16 +1910,17 @@ function classifyLocal(names: string[]): SubstanceDetected[] {
           descriptionPending: false,
         };
       }
-      // Unknown ingredient → deterministic risk now, description filled later by the AI.
+      // Unknown ingredient → deterministic risk now. An official description (if any)
+      // is served immediately; otherwise the AI fills it in the background.
       const fallbackRisk = classifyUnknownRisk(name, '');
       return {
         nom: name,
         code: null,
         classification_circ: pick({ en: 'Not classified by IARC', fr: 'Non classé par le CIRC', ko: 'IARC 미분류' }),
         niveau_risque: fallbackRisk,
-        explication: '',
+        explication: officialEn ? localizeOfficialText(officialEn) : '',
         source_exposition: null,
-        descriptionPending: true,
+        descriptionPending: !officialEn,
       };
     })
     .map(enforcePalmOilFloor)
@@ -1921,13 +1949,19 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       entry = compoundSugar;
     }
 
+    // OFFICIAL description first — validated text, replaces ANY AI-written description.
+    const officialEn = officialDescriptionEnFor(ing.nom, entry);
+
     if (entry) {
       console.log('[Classify] "' + ing.nom + '" → ' + entry.risk + ' (' + entry.circ + ')');
 
-      let explication = ing.explication || (getLocalizedNote(entry) ?? '');
+      let explication = officialEn
+        ? localizeOfficialText(officialEn)
+        : (ing.explication || (getLocalizedNote(entry) ?? ''));
 
       // 🟢 Anti-contradiction : si l'ingredient est VERT mais l'IA a ecrit du negatif.
-      if (entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
+      // (jamais appliqué à une description officielle — elle est définitive)
+      if (!officialEn && entry.risk === 'aucun' && explication && hasNegativeTone(explication)) {
         explication = buildPositiveFallback(ing.nom, getLocalizedNote(entry));
         console.log('[Classify] GREEN override — "' + ing.nom + '" : AI tone was negative, replaced.');
       }
@@ -1937,6 +1971,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
       // when it is missing, carries any positive spin, OR is merely neutral (no danger/disease tone) —
       // this is what catches cases like HFCS "low glycemic index" or a flavor described too softly.
       if (
+        !officialEn &&
         (entry.risk === 'danger' || entry.risk === 'probable') &&
         (!explication || hasPositiveSpin(explication) || !hasNegativeTone(explication))
       ) {
@@ -1955,7 +1990,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     }
 
     // BUG 1 FIX — No more generic fallback for unknown ingredients.
-    const explication = ing.explication || pick({
+    const explication = (officialEn ? localizeOfficialText(officialEn) : ing.explication) || pick({
       en: `${ing.nom} is not listed in the ToxiScan database. Its health impact cannot be determined from available data.`,
       fr: `${ing.nom} n'est pas répertorié dans la base de données ToxiScan. Son impact sur la santé ne peut être déterminé à partir des données disponibles.`,
       ko: `${ing.nom}은(는) ToxiScan 데이터베이스에 등록되어 있지 않습니다. 현재 데이터로는 건강 영향을 판단할 수 없습니다.`,
@@ -1969,7 +2004,7 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
     // Even for unknown ingredients, an ULTRA-PROCESSED classification must carry a specific,
     // negative description — never a positive/neutral or generic "not listed" fallback.
     const finalExplication =
-      fallbackRisk === 'probable' && (hasPositiveSpin(explication) || !hasNegativeTone(explication))
+      !officialEn && fallbackRisk === 'probable' && (hasPositiveSpin(explication) || !hasNegativeTone(explication))
         ? buildNegativeDescription(ing.nom, 'probable', null)
         : explication;
     return {
@@ -2339,6 +2374,24 @@ function guessProductName(fullText: string): string | null {
   return null;
 }
 
+/**
+ * OFFICIAL DESCRIPTIONS — display step. English is the validated reference; for FR/KO
+ * we swap in the automatic translation (translated once via a pure TRANSLATION call,
+ * then cached forever in memory + AsyncStorage). Any failure keeps the English
+ * reference text — an AI-generated description is never substituted.
+ */
+async function localizeOfficialSubstances(substances: SubstanceDetected[]): Promise<SubstanceDetected[]> {
+  if (getDeviceLanguage() === 'en') return substances;
+  const enTexts = substances.map((s) => s.explication ?? '').filter((text) => isOfficialEnText(text));
+  if (enTexts.length === 0) return substances;
+  await ensureOfficialTranslations(enTexts);
+  return substances.map((s) => {
+    const text = s.explication ?? '';
+    if (!isOfficialEnText(text)) return s;
+    return { ...s, explication: localizeOfficialText(text) };
+  });
+}
+
 /** Fill any still-pending descriptions (used when the AI enrichment fails, to stop loading spinners). */
 function finalizeInstant(result: UniversalAnalysisResult): UniversalAnalysisResult {
   const substances = result.substances_detectees.map((s) => {
@@ -2386,11 +2439,16 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
     return { result: ANALYSIS_CACHE.get(cacheKey)!, ocrData, cacheKey, cached: true, instant: true, complete: true };
   }
 
+  // Load the persisted FR/KO translation cache so official descriptions localize synchronously.
+  await hydrateOfficialTranslations();
+
   const source = ocrData.ingredientsBlock || ocrData.fullText;
   const names = splitOcrIngredients(source);
   // Detect a cosmetic INCI list and route it to the SEPARATE cosmetic engine.
   const isCosmetic = looksLikeCosmetic(names);
-  const substances = isCosmetic ? classifyCosmeticNames(names) : classifyLocal(names);
+  const classified = isCosmetic ? classifyCosmeticNames(names) : classifyLocal(names);
+  // Official descriptions: swap English reference texts for their FR/KO translations.
+  const substances = await localizeOfficialSubstances(classified);
   console.log('[API] Instant local classification —', substances.length, 'ingredients parsed from OCR', isCosmetic ? '(cosmetic)' : '(food)');
 
   // A clean OCR guess shows instantly; assembleResult sanitizes empty/placeholder
@@ -2477,9 +2535,11 @@ export async function scanAiEnrich(
 
       // Cosmetic if the AI says so OR the INCI list clearly looks cosmetic.
       const isCosmetic = extracted.categorie_produit === 'cosmetic' || looksLikeCosmetic(uniqueNames);
-      const substances = isCosmetic
+      const classified = isCosmetic
         ? classifyCosmeticNames(uniqueNames)
         : classifyIngredients(aiIngredients);
+      // Official descriptions: swap English reference texts for their FR/KO translations.
+      const substances = await localizeOfficialSubstances(classified);
 
       // Safety net: if the AI returned a product name that is actually one of the
       // extracted ingredients, it picked an ingredient fragment instead of the real name.
