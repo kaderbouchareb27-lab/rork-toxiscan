@@ -4,7 +4,7 @@
 //
 // Traductions FR/KO des textes anglais de référence, alignées par INDEX sur
 // OFFICIAL_DESCRIPTION_TEXTS (constants/officialDescriptions.ts).
-// FR : 575/575 — KO : 575/575.
+// FR : 587/587 — KO : 587/587.
 // Une chaîne vide signifie « pas de traduction figée » → repli anglais.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -185,7 +185,7 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Eau de Javel à l'hypochlorite de sodium, un désinfectant efficace mais corrosif pour la peau, les yeux et les voies respiratoires. Mélangée à de l'ammoniaque ou des nettoyants acides, elle libère des gaz toxiques et ne doit jamais être combinée avec d'autres produits.",
   "Un chélateur synthétique (E385) qui piège les ions métalliques pour empêcher le rancissement des graisses et la décoloration. Autorisé à des niveaux limités, il peut aussi se lier aux minéraux nécessaires à l'organisme et n'existe pas à l'état naturel.",
   "Épeautre, une variété ancienne de blé plus riche en protéines et minéraux que le blé moderne. Il contient toujours du gluten, mais beaucoup le trouvent plus facile à digérer.",
-  "Épinards, brocoli et chou — légumes à feuilles foncées et crucifères riches en folate, vitamine K, fer et composés soufrés associés à des effets protecteurs.",
+  "L'épinard, feuille verte exceptionnellement dense en folates, vitamine K, magnésium, fer végétal et lutéine. Ses oxalates limitent un peu l'absorption du calcium et du fer, ce que la cuisson et un apport de vitamine C compensent largement.",
   "Un antioxydant (E316) qui est une forme image miroir de la vitamine C, utilisé pour maintenir la couleur rose de la viande salée et la fraîcheur des graisses. Il est sûr, mais n'a aucune activité vitaminique et apparaît principalement dans la viande transformée.",
   "Un alcool de sucre fermenté et purifié utilisé comme édulcorant hypocalorique. De fortes doses uniques peuvent provoquer diarrhée, nausées, ballonnements ou inconfort abdominal. Santé : L'EFSA a confirmé un seuil laxatif. Des études ont rapporté des associations cardiovasculaires, mais aucun risque sanitaire causal lié à une consommation alimentaire normale n'a été établi.",
   "Esters acétiques de mono- et diglycérides (E472a), un émulsifiant utilisé pour stabiliser les graisses dans la boulangerie industrielle et les desserts. L'EFSA n'a soulevé aucune préoccupation de sécurité, mais c'est un ingrédient purement technique.",
@@ -585,6 +585,18 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Yaourt nature, lait fermenté avec des cultures vivantes. La fermentation le rend plus digestible et ajoute des bactéries bénéfiques — à condition qu'aucun sucre n'ait été ajouté.",
   "Un antifongique autrefois courant dans les shampooings antipelliculaires, interdit dans les cosmétiques de l'UE depuis mars 2022 après avoir été classé toxique pour la reproduction. Il reste autorisé sur certains autres marchés.",
   "Cheonggukjang, une pâte de soja fermentée rapidement riche en Bacillus subtilis et nattokinase. L'un des aliments traditionnels coréens les plus denses en probiotiques.",
+  "Fécule extraite de la pomme de terre par lavage et séchage industriels. Sans gluten et très épaississante, mais c'est un glucide raffiné à index glycémique très élevé, sans les fibres, le potassium ni la vitamine C du tubercule.",
+  "Riz blanc simplement moulu, naturellement sans gluten et très digeste. Privé de son et de germe, il se comporte comme un sucre rapide dans l'organisme : la farine de riz complet reste préférable.",
+  "Gluten de blé isolé en lavant l'amidon de la farine, puis séché. Riche en protéines mais pauvre en lysine, il sert surtout à donner leur élasticité aux pains industriels et aux substituts de viande. À éviter en cas de maladie cœliaque ou de sensibilité au gluten.",
+  "Protéine obtenue par mouture puis séparation à l'eau du pois chiche. Elle apporte protéines végétales, fibres et fer, avec un goût plus doux que le pois jaune, mais reste un ingrédient fractionné et non la légumineuse entière.",
+  "Pois jaunes séchés puis simplement moulus, sans extraction chimique. Contrairement à un isolat de protéines, la farine garde les fibres et l'amidon du pois entier : c'est l'un des ingrédients protéiques végétaux les moins transformés.",
+  "Petit-lait (lactosérum) déshydraté par atomisation à haute température, utilisé comme source bon marché de protéines, de lactose et de texture. Il conserve l'essentiel des nutriments du lactosérum, mais c'est un ingrédient laitier fractionné et séché, riche en lactose.",
+  "Le brocoli, crucifère riche en vitamine C, en vitamine K et en fibres, surtout connu pour ses glucosinolates qui libèrent du sulforaphane, étudié pour son rôle protecteur. Une cuisson vapeur courte préserve bien mieux ces composés que l'eau bouillante.",
+  "Le chou, légume crucifère très peu calorique, riche en vitamine C, en vitamine K et en fibres. Cru, il conserve le maximum de vitamine C ; fermenté (choucroute, kimchi), il apporte en plus des bactéries lactiques utiles à la flore intestinale.",
+  "Maïs moulu en farine ou en semoule. Contrairement à la fécule, elle garde une partie des protéines et des fibres du grain, mais son index glycémique reste élevé une fois cuite. Naturellement sans gluten.",
+  "L'oignon, frais ou déshydraté, source de quercétine, de composés soufrés et de fructanes prébiotiques qui nourrissent la flore intestinale. Déshydraté, il conserve une partie de ces antioxydants et relève un plat sans ajouter de sel.",
+  "Algue marine comestible, l'une des rares sources végétales d'iode, avec des fibres solubles, du fer et du magnésium. Très intéressante sur le plan nutritionnel, mais sa richesse en iode et en sodium déconseille les grandes quantités quotidiennes.",
+  "Édulcorant tiré du luo han guo, un petit melon asiatique dont les mogrosides sucrent 150 à 200 fois plus que le sucre, sans calorie ni effet sur la glycémie. Bien toléré, mais il s'agit d'un extrait concentré, souvent coupé avec de l'érythritol.",
 ];
 
 /** KO translations, index-aligned with OFFICIAL_DESCRIPTION_TEXTS. */
@@ -764,7 +776,7 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "피부, 눈, 기도에 부식성이 있는 효과적인 소독제인 차아염소산나트륨 표백제입니다. 암모니아나 산성 세제와 혼합 시 독성 가스를 방출하므로 다른 제품과 절대 혼합해서는 안 됩니다.",
   "지방 산패 및 색상 변색을 방지하기 위해 금속 이온을 포획하는 합성 킬레이터(E385)입니다. 제한된 수준에서 허용되며, 체내에 필요한 미네랄도 결합할 수 있고 자연에서는 존재하지 않습니다.",
   "스펠트는 고대 밀 품종으로 현대 밀보다 단백질과 미네랄 함량이 더 높습니다. 글루텐을 포함하고 있지만 소화가 더 쉽다고 느끼는 분들이 많습니다.",
-  "시금치, 브로콜리, 양배추는 엽산, 비타민 K, 철분, 그리고 보호 효과와 관련된 황 화합물이 풍부한 짙은 잎채소 및 십자화과 채소입니다.",
+  "엽산, 비타민 K, 마그네슘, 식물성 철분, 루테인이 매우 풍부한 잎채소입니다. 옥살산이 칼슘과 철분 흡수를 다소 제한하지만, 익히고 비타민 C를 함께 섭취하면 대부분 상쇄됩니다.",
   "항산화제(E316)로, 비타민 C의 거울상 형태이며, 가공육의 분홍색을 유지하고 지방을 신선하게 보존하는 데 사용됩니다. 안전하지만 비타민 활성은 없으며 주로 가공육에 나타납니다.",
   "저칼로리 감미료로 사용되는 발효 및 정제된 당알코올입니다. 대량 단회 복용 시 설사, 메스꺼움, 복부 팽만감 또는 복통을 유발할 수 있습니다. 건강: EFSA는 완하제 역치를 확인했습니다. 심혈관계 연관성 연구가 있으나 정상 식품 섭취에서 인과적 건강 위험은 확립되지 않았습니다.",
   "아세트산 에스터 단일 및 이글리세라이드(E472a)는 산업용 제빵 및 디저트에서 지방을 안정화하는 유화제입니다. EFSA는 안전성에 문제가 없다고 밝혔으나, 순수하게 기술적인 성분입니다.",
@@ -1164,4 +1176,16 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "플레인 요거트로, 살아있는 배양균으로 발효한 우유입니다. 발효는 소화를 돕고 유익한 박테리아를 추가하지만 설탕이 첨가되지 않은 경우에 한합니다.",
   "한때 비듬 방지 샴푸에 흔히 사용되던 항진균제로, 2022년 3월부터 EU 화장품에서 생식 독성으로 분류되어 금지되었습니다. 일부 다른 시장에서는 여전히 허용됩니다.",
   "청국장은 바실러스 서브틸리스와 낫토키나제가 풍부한 빠른 발효된 된장입니다. 가장 프로바이오틱스가 풍부한 전통 한국 음식 중 하나입니다.",
+  "감자를 산업적으로 세척·건조해 추출한 전분입니다. 글루텐이 없고 점도가 좋지만, 혈당지수가 매우 높고 감자의 식이섬유·칼륨·비타민 C가 없는 정제 탄수화물입니다.",
+  "도정한 백미를 빻은 가루로, 자연적으로 글루텐이 없고 소화가 잘 됩니다. 겨와 배아가 없어 체내에서 빠른 당처럼 작용하므로 현미 쌀가루가 더 낫습니다.",
+  "밀가루에서 전분을 씻어내 분리한 뒤 건조한 밀 글루텐입니다. 단백질은 풍부하지만 라이신이 적으며, 주로 공산품 빵과 대체육에 탄력을 주기 위해 사용됩니다. 셀리악병이나 글루텐 민감성이 있으면 피해야 합니다.",
+  "병아리콩을 빻은 뒤 물로 분리해 얻은 단백질입니다. 식물성 단백질·식이섬유·철분을 공급하고 노란완두보다 맛이 부드럽지만, 통곡물 콩이 아닌 분획 원료입니다.",
+  "말린 노란완두를 화학 추출 없이 단순히 빻은 가루입니다. 단백질 분리물과 달리 완두 전체의 식이섬유와 전분을 유지해, 가공도가 가장 낮은 식물성 단백질 원료 중 하나입니다.",
+  "고온 분무 건조로 탈수한 유청으로, 단백질·유당·식감을 값싸게 더하기 위해 사용됩니다. 유청의 영양은 대부분 남지만 건조·분획된 유제품 원료이며 유당 함량이 높습니다.",
+  "비타민 C·K와 식이섬유가 풍부한 십자화과 채소로, 보호 작용이 연구된 설포라판을 내는 글루코시놀레이트로 잘 알려져 있습니다. 삶기보다 짧게 찌면 이 성분이 훨씬 잘 보존됩니다.",
+  "열량이 매우 낮고 비타민 C·K와 식이섬유가 풍부한 십자화과 채소입니다. 생으로 먹으면 비타민 C가 가장 잘 보존되고, 사워크라우트·김치로 발효하면 장내 세균에 이로운 유산균까지 얻습니다.",
+  "옥수수를 빻은 가루 또는 굵은 가루입니다. 전분과 달리 곡물의 단백질과 식이섬유 일부를 유지하지만, 조리 후 혈당지수는 여전히 높습니다. 자연적으로 글루텐이 없습니다.",
+  "생양파든 건조 양파든 케르세틴, 황화합물, 장내 세균의 먹이가 되는 프리바이오틱 프럭탄의 공급원입니다. 건조 양파도 이 항산화 성분 일부를 유지하며 소금 없이 풍미를 더합니다.",
+  "식용 해조류로, 요오드를 공급하는 드문 식물성 급원이며 수용성 식이섬유·철분·마그네슘도 함유합니다. 영양가는 높지만 요오드와 나트륨이 많아 매일 과량 섭취는 권하지 않습니다.",
+  "작은 아시아 멜론인 나한과에서 얻은 감미료로, 모그로사이드가 설탕보다 150~200배 달지만 열량과 혈당 영향이 없습니다. 내약성은 좋으나 농축 추출물이며 흔히 에리스리톨과 섞여 판매됩니다.",
 ];

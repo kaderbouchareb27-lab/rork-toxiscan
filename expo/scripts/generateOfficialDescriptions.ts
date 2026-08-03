@@ -47,6 +47,14 @@ function parseQuotedList(raw: string): string[] {
 interface MatchableEntry {
   source: string;
   keys: string[];
+  /**
+   * CANONICAL names of the entry (first keyword, additive name, E-code, cosmetic display
+   * name). A description may only spread to the other keys of an entry when it was written
+   * for one of these heads — mirroring the runtime fallback in utils/api.ts, which resolves
+   * an unknown alias through `entry.keywords[0]`. This prevents a description written for
+   * one ingredient from being served for a DIFFERENT ingredient grouped in the same entry.
+   */
+  heads: string[];
 }
 
 const entries: MatchableEntry[] = [];
@@ -61,7 +69,8 @@ const entries: MatchableEntry[] = [];
     const code = m[2] ?? m[3] ?? null;
     const keys = keywords.map(normalize);
     if (code) keys.push(normalize(code));
-    entries.push({ source: 'ingredients', keys: keys.filter(Boolean) });
+    const heads = [normalize(keywords[0] ?? ''), code ? normalize(code) : ''].filter(Boolean);
+    entries.push({ source: 'ingredients', keys: keys.filter(Boolean), heads });
   }
 }
 
@@ -73,7 +82,8 @@ const entries: MatchableEntry[] = [];
   while ((m = re.exec(src)) !== null) {
     const code = m[1].replace(/\\(['"\\])/g, '$1').replace(/^en:/i, '');
     const name = m[2].replace(/\\(['"\\])/g, '$1');
-    entries.push({ source: 'additives', keys: [normalize(name), normalize(code)].filter(Boolean) });
+    const keys = [normalize(name), normalize(code)].filter(Boolean);
+    entries.push({ source: 'additives', keys, heads: keys });
   }
 }
 
@@ -84,9 +94,11 @@ const entries: MatchableEntry[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(src)) !== null) {
     const code = m[1] ?? null;
-    const keys = parseQuotedList(m[2]).map(normalize);
+    const keywords = parseQuotedList(m[2]);
+    const keys = keywords.map(normalize);
     if (code) keys.push(normalize(code));
-    entries.push({ source: 'ultratoxic', keys: keys.filter(Boolean) });
+    const heads = [normalize(keywords[0] ?? ''), code ? normalize(code) : ''].filter(Boolean);
+    entries.push({ source: 'ultratoxic', keys: keys.filter(Boolean), heads });
   }
 }
 
@@ -96,10 +108,13 @@ const entries: MatchableEntry[] = [];
   const re = /\{\s*keywords:\s*\[([^\]]*)\]\s*,\s*displayName:\s*'((?:[^'\\]|\\.)*)'\s*,\s*displayNameEn:\s*'((?:[^'\\]|\\.)*)'/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(src)) !== null) {
-    const keys = parseQuotedList(m[1]).map(normalize);
-    keys.push(normalize(m[2].replace(/\\(['"\\])/g, '$1')));
-    keys.push(normalize(m[3].replace(/\\(['"\\])/g, '$1')));
-    entries.push({ source: 'cosmetics', keys: keys.filter(Boolean) });
+    const keywords = parseQuotedList(m[1]);
+    const keys = keywords.map(normalize);
+    const displayName = normalize(m[2].replace(/\\(['"\\])/g, '$1'));
+    const displayNameEn = normalize(m[3].replace(/\\(['"\\])/g, '$1'));
+    keys.push(displayName, displayNameEn);
+    const heads = [normalize(keywords[0] ?? ''), displayName, displayNameEn].filter(Boolean);
+    entries.push({ source: 'cosmetics', keys: keys.filter(Boolean), heads });
   }
 }
 
@@ -139,19 +154,51 @@ for (const d of descriptions) {
   exactKeys.add(key);
 }
 
-// Pass 2 — spread every matched entry's keywords/aliases/codes onto the same text.
+// ── Anti-confusion guard ───────────────────────────────────────
+// A description written for « amidon de blé » must NEVER be served for « amidon de pomme
+// de terre », nor « protéine de pois » for « farine de pois ». Two names describing a
+// DIFFERENT physical form of an ingredient (protein / starch / flour / powder / oil / milk
+// / extract / juice / syrup…) are different ingredients and never share a description.
+const FORM_WORDS: Readonly<Record<string, string>> = {
+  proteine: 'protein', proteines: 'protein', protein: 'protein', proteins: 'protein',
+  isolat: 'isolate', isolate: 'isolate', concentre: 'concentrate', concentrate: 'concentrate',
+  amidon: 'starch', amidons: 'starch', starch: 'starch', fecule: 'starch',
+  farine: 'flour', flour: 'flour', semoule: 'flour',
+  poudre: 'powder', powder: 'powder', powdered: 'powder',
+  huile: 'oil', oil: 'oil', beurre: 'butter', butter: 'butter',
+  lait: 'milk', milk: 'milk', creme: 'cream', cream: 'cream',
+  sirop: 'syrup', syrup: 'syrup', jus: 'juice', juice: 'juice',
+  extrait: 'extract', extract: 'extract', fibre: 'fibre', fibres: 'fibre', fiber: 'fibre',
+  hydrolysat: 'hydrolysate', hydrolyzed: 'hydrolysate',
+  graisse: 'fat', graisses: 'fat', fat: 'fat',
+  nutriments: 'nutrients', nutrients: 'nutrients',
+};
+
+function formSignature(key: string): string {
+  const forms = new Set<string>();
+  for (const word of key.split(' ')) {
+    const form = FORM_WORDS[word];
+    if (form) forms.add(form);
+  }
+  return [...forms].sort().join('+');
+}
+
+// Pass 2 — spread the aliases/codes of an entry ONLY when the description was written for
+// that entry's canonical head, and only onto keys describing the SAME physical form.
 for (const d of descriptions) {
   const nameKey = normalize(d.name);
   if (!nameKey) continue;
   const idx = keyToIndex.get(nameKey);
   if (idx === undefined) continue;
+  const nameForm = formSignature(nameKey);
   let found = false;
   for (const entry of entries) {
-    if (!entry.keys.includes(nameKey)) continue;
+    if (!entry.heads.includes(nameKey)) continue;
     found = true;
     sourcesHit[entry.source] = (sourcesHit[entry.source] ?? 0) + 1;
     for (const k of entry.keys) {
       if (!k || exactKeys.has(k)) continue;
+      if (formSignature(k) !== nameForm) continue;
       if (!keyToIndex.has(k)) keyToIndex.set(k, idx);
     }
   }

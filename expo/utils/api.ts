@@ -100,6 +100,42 @@ const SORTED_KEYWORDS: readonly IndexedKeyword[] = (() => {
   return list;
 })();
 
+// Category labels naming a FUNCTION, not a substance. They are longer than many substance
+// names (« colorant » = 8 chars vs « annatto » = 7), so the longest-keyword rule alone would
+// classify « colorant annatto » as the generic « Colorants » entry (orange, Transformé)
+// instead of annatto itself (E160b, jaune). A named substance always wins over its family.
+const GENERIC_CATEGORY_KEYWORDS: ReadonlySet<string> = new Set([
+  'colorant', 'colorants', 'colorant alimentaire', 'colorants alimentaires', 'colouring', 'colourings',
+  'coloring', 'colorings', 'food colouring', 'food coloring', 'artificial colour', 'artificial color',
+  'artificial colours', 'artificial colors', 'added colour', 'added color', 'colour added', 'color added',
+  'conservateur', 'conservateurs', 'preservative', 'preservatives',
+  'emulsifiant', 'emulsifiants', 'emulsifier', 'emulsifiers',
+  'epaississant', 'epaississants', 'thickener', 'thickeners',
+  'stabilisant', 'stabilisants', 'stabilizer', 'stabiliser', 'stabilizers',
+  'antioxydant', 'antioxydants', 'antioxidant', 'antioxidants',
+  'acidifiant', 'acidifiants', 'correcteur d acidite', 'acidity regulator', 'acidity regulators',
+  'edulcorant', 'edulcorants', 'sweetener', 'sweeteners',
+  'exhausteur de gout', 'flavour enhancer', 'flavor enhancer',
+  'anti agglomerant', 'antiagglomerant', 'anticaking agent', 'anti caking agent',
+  'gelifiant', 'gelifiants', 'gelling agent', 'humectant', 'agent de charge', 'agent d enrobage',
+  'affermissant', 'additif', 'additifs', 'additive', 'additives',
+]);
+
+/**
+ * Longest IDENTIFIED substance (an entry carrying an E-code) whose keyword appears in the
+ * name, ignoring generic category labels. Used to rescue « colorant annatto », « conservateur
+ * benzoate de sodium »… from their family entry. Requiring an E-code keeps this narrow: a
+ * flavouring like « arôme naturel de citron » is never downgraded to the fruit « citron ».
+ */
+function findIdentifiedSubstance(normalized: string, genericKey: string): IngredientEntry | null {
+  for (const { key, entry } of SORTED_KEYWORDS) {
+    if (entry.code === null) continue;
+    if (key === genericKey || GENERIC_CATEGORY_KEYWORDS.has(key)) continue;
+    if (normalized.includes(key)) return entry; // sorted by length desc → first hit is the longest
+  }
+  return null;
+}
+
 function findBestMatch(normalized: string): IngredientEntry | null {
   // 1) Match exact — O(1) via Map
   const exact = EXACT_KEYWORD_INDEX.get(normalized);
@@ -114,6 +150,7 @@ function findBestMatch(normalized: string): IngredientEntry | null {
   let bestMatch: IngredientEntry | null = null;
   let bestMatchLength = 0;
   let bestRiskPriority = 999;
+  let bestKey = '';
   for (const { key, entry } of SORTED_KEYWORDS) {
     // Comme la liste est triée par longueur décroissante, dès qu'on a un match
     // et que les keywords suivants sont plus courts, ils ne peuvent plus battre.
@@ -127,7 +164,17 @@ function findBestMatch(normalized: string): IngredientEntry | null {
         bestMatch = entry;
         bestMatchLength = key.length;
         bestRiskPriority = entryPriority;
+        bestKey = key;
       }
+    }
+  }
+
+  // 3) A generic family label only wins when no named substance is present in the name.
+  if (bestMatch && GENERIC_CATEGORY_KEYWORDS.has(bestKey)) {
+    const specific = findIdentifiedSubstance(normalized, bestKey);
+    if (specific) {
+      console.log('[Lookup] Specific substance wins over "' + bestKey + '" — "' + normalized + '" → "' + (specific.keywords[0] ?? '?') + '"');
+      return specific;
     }
   }
   return bestMatch;
