@@ -24,6 +24,7 @@ export type MealCategory =
   | 'refined_oil'
   | 'refined_flour'
   | 'excess_salt'
+  | 'saturated_fat'
   | 'additive'
   | 'healthy'
   | 'neutral';
@@ -52,7 +53,9 @@ export interface MealAlternatives {
 }
 
 const CARCINOGEN_CATEGORIES: readonly MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b'];
-const JUNK_FAMILY_CATEGORIES: readonly MealCategory[] = ['processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'additive'];
+const JUNK_FAMILY_CATEGORIES: readonly MealCategory[] = ['processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'saturated_fat', 'additive'];
+// Categories rendered as a YELLOW dot: present and worth watching, but not ultra-processed.
+const YELLOW_TIER_CATEGORIES: readonly MealCategory[] = ['excess_salt', 'additive', 'saturated_fat'];
 // Categories rendered as an ORANGE dot in the UI (see MEAL_CATEGORY_COLORS). The coherence
 // floor keys off this exact set so the final tier can never contradict the number of orange
 // dots the user sees in the ingredient list (spec).
@@ -80,7 +83,7 @@ function normalize(s: string): string {
 // Sweet / added-sugar signals. Includes chocolate (sweetened chocolate powder, spreads,
 // candy) so a clearly sweet topping is NEVER mislabeled "neutral" (spec fix §2). Pure
 // unsweetened cocoa/cacao is deliberately EXCLUDED so the database can keep it green.
-const SUGAR_TOKENS = ['sugar', 'sucre', 'sirop', 'syrup', 'dextrose', 'glucose', 'fructose', 'saccharose', 'sucrose', 'maltodextrin', 'chocolat', 'chocolate', 'choco', 'caramel', 'nutella', 'praline', 'candy', 'bonbon', 'frosting', 'icing', 'glaze', 'confiture', 'marmalade', 'jam', '설탕', '시럽', '당', '초콜릿', '사탕', '잼', '카라멜'];
+const SUGAR_TOKENS = ['sweeten', 'ice cream', 'creme glacee', 'gelato', 'frozen yogurt', 'sugar', 'sucre', 'sirop', 'syrup', 'dextrose', 'glucose', 'fructose', 'saccharose', 'sucrose', 'maltodextrin', 'chocolat', 'chocolate', 'choco', 'caramel', 'nutella', 'praline', 'candy', 'bonbon', 'frosting', 'icing', 'glaze', 'confiture', 'marmalade', 'jam', '설탕', '시럽', '당', '초콜릿', '사탕', '잼', '카라멜'];
 const OIL_TOKENS = ['oil', 'huile', 'graisse', 'margarine', 'shortening', '기름', '유'];
 const SALT_TOKENS = ['salt', 'sel', 'sodium', 'soy sauce', 'sauce soja', 'gochujang', 'doenjang', 'ganjang', '간장', '소금', '된장', '고추장'];
 const ADDITIVE_TOKENS = ['colorant', 'colour', 'color', 'dye', 'additive', 'additif', 'e1', 'e2', 'e4', 'e5', 'msg', 'glutamate', 'nitrite', 'benzoate', 'sulfite', '색소', '첨가물'];
@@ -89,6 +92,16 @@ const ADDITIVE_TOKENS = ['colorant', 'colour', 'color', 'dye', 'additive', 'addi
 // white bread. Whole-grain variants are excluded — they stay healthy.
 const REFINED_FLOUR_TOKENS = ['flour', 'farine', 'viennoiserie', 'pastry', 'patisserie', 'croissant', 'brioche', 'baguette', 'pain', 'bun', 'dough', 'biscuit', 'cookie', 'cake', 'gateau', 'donut', 'doughnut', 'muffin', 'cupcake', 'bagel', 'pancake', 'waffle', 'gaufre', 'crepe', 'toast', 'scone', 'danish', 'pretzel', 'pita', '밀가루', '빵', '크루아상', '페이스트리', '베이글', '케이크', '쿠키', '도넛'];
 const WHOLE_GRAIN_TOKENS = ['complet', 'complete', 'whole', 'wholemeal', 'wholegrain', 'integral', 'multigrain', 'multicereal', 'multicereales', 'seigle', 'rye', 'sarrasin', 'buckwheat', 'bran', 'levain', 'sourdough', 'epeautre', 'spelt', 'pumpernickel', '통밀', '현미', '잡곡', '호밀', '사워도우'];
+
+// BADGE HONESTY (spec): energy-dense fats are NOT green "Healthy" whole foods. Butter, cream,
+// ghee, lard and cheese carry a heavy saturated-fat load, so they get the honest yellow
+// `saturated_fat` badge instead of a green one that contradicts their own description.
+const SATURATED_FAT_TOKENS = ['beurre', 'butter', 'ghee', 'creme', 'cream', 'chantilly', 'whipped', 'mascarpone', 'saindoux', 'lard', 'tallow', 'suif', 'clotted', 'creamer', 'half-and-half', 'graisse animale', 'animal fat', 'duck fat', 'graisse de canard', 'coconut cream', 'creme de coco', '버터', '크림', '생크림', '휘핑'];
+// Names that merely CONTAIN a fat token but are not a saturated fat (or belong elsewhere).
+const FAT_TOKEN_EXCEPTIONS = ['peanut butter', 'beurre de cacahuete', 'almond butter', "beurre d'amande", 'beurre d amande', 'nut butter', 'beurre de noix', 'cashew butter', 'butternut', 'buttermilk', 'babeurre', 'butter lettuce', 'butter bean', 'ice cream', 'creme glacee'];
+// Deep-fried / battered preparation: the food itself soaked up refined frying oil, so it can
+// never keep a green badge (fried chicken is not "healthy poultry").
+const FRIED_TOKENS = ['frit', 'fried', 'friture', 'deep fry', 'deep-fried', 'tempura', 'beignet', 'croustillant', 'crispy', '튀김', '후라이드'];
 
 // Genuinely-healthy items that are only INCIDENTAL to a drink/dish (the milk in a coffee,
 // a splash of cream) must NOT earn the health bonus (spec fix §4).
@@ -124,6 +137,19 @@ function junkFamilyFromName(name: string): MealCategory | null {
   return null;
 }
 
+/** True when the name is a rich saturated fat (butter, cream, ghee, lard…). */
+function isSaturatedFatName(name: string): boolean {
+  const n = normalize(name);
+  if (FAT_TOKEN_EXCEPTIONS.some((tk) => n.includes(normalize(tk)))) return false;
+  return SATURATED_FAT_TOKENS.some((tk) => n.includes(normalize(tk)));
+}
+
+/** True when the name describes a deep-fried / battered preparation. */
+function isFriedName(name: string): boolean {
+  const n = normalize(name);
+  return FRIED_TOKENS.some((tk) => n.includes(normalize(tk)));
+}
+
 /**
  * NARROW rescue used ONLY on items the database/AI marked benign (healthy/neutral). Limited
  * to SWEET and REFINED-FLOUR signals so genuinely healthy foods (virgin olive oil, salt as a
@@ -133,6 +159,9 @@ function benignOverrideFromName(name: string): MealCategory | null {
   const n = normalize(name);
   if (SUGAR_TOKENS.some((t) => n.includes(t))) return 'added_sugar';
   if (isRefinedFlourName(n)) return 'refined_flour';
+  // BADGE HONESTY: a rich fat (butter, cream, ghee) or a cheese is never a green "Healthy"
+  // whole food — give it the honest saturated-fat badge instead.
+  if (isSaturatedFatName(name) || isCheeseName(name)) return 'saturated_fat';
   return null;
 }
 
@@ -181,9 +210,14 @@ const RED_MEAT_TOKENS = ['viande hachee', 'steak hache', 'boeuf hache', 'ground 
  * processed/cured meat (which must fall through to the database → carcinogen_g1) or not meat
  * at all. Poultry & fish → healthy; fresh red meat / ground beef → neutral. NEVER grave.
  */
+function isProcessedMeatName(name: string): boolean {
+  const n = normalize(name);
+  return PROCESSED_MEAT_TOKENS.some((tk) => n.includes(normalize(tk)));
+}
+
 function plainMeatCategory(name: string): MealCategory | null {
   const n = normalize(name);
-  if (PROCESSED_MEAT_TOKENS.some((tk) => n.includes(normalize(tk)))) return null;
+  if (isProcessedMeatName(name)) return null;
   if (POULTRY_FISH_TOKENS.some((tk) => n.includes(normalize(tk)))) return 'healthy';
   if (RED_MEAT_TOKENS.some((tk) => n.includes(normalize(tk)))) return 'neutral';
   return null;
@@ -341,13 +375,14 @@ function familyFromName(name: string, fallback: MealCategory): MealCategory {
 
 function normalizeAiCategory(raw: string): MealCategory {
   const k = normalize(raw).replace(/[\s-]+/g, '_');
-  const all: MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b', 'processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'additive', 'healthy', 'neutral'];
+  const all: MealCategory[] = ['carcinogen_g1', 'carcinogen_2a', 'carcinogen_2b', 'processed', 'added_sugar', 'refined_oil', 'refined_flour', 'excess_salt', 'saturated_fat', 'additive', 'healthy', 'neutral'];
   if ((all as string[]).includes(k)) return k as MealCategory;
   if (k.includes('carcinogen') || k.includes('cancer')) return 'carcinogen_2b';
   if (k.includes('sugar') || k.includes('sucre')) return 'added_sugar';
   if (k.includes('flour') || k.includes('farine') || k.includes('refined_carb') || k.includes('refined_flour') || k.includes('refined_grain')) return 'refined_flour';
   if (k.includes('oil') || k.includes('huile')) return 'refined_oil';
   if (k.includes('salt') || k.includes('sel') || k.includes('sodium')) return 'excess_salt';
+  if (k.includes('saturated') || k.includes('saturee') || k.includes('animal_fat')) return 'saturated_fat';
   if (k.includes('additive') || k.includes('color') || k.includes('additif')) return 'additive';
   if (k.includes('process')) return 'processed';
   if (k.includes('health') || k.includes('sain') || k.includes('veg') || k.includes('fruit')) return 'healthy';
@@ -365,6 +400,13 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
   // Resolve it here, before the database or the AI hint, so it can never get the red
   // "carcinogenic / GRAVE" badge. Processed meat names (ham, bacon, sausage…) return null and
   // fall through to the database, which correctly classifies them as Group 1.
+  // BADGE HONESTY (spec): a deep-fried / battered item soaked up refined frying oil, so it can
+  // never keep a green badge — not even fried chicken or fried fish. Processed / cured meat is
+  // excluded so nuggets and breaded charcuterie keep their stricter database classification.
+  if (!isProcessedMeatName(name) && isFriedName(name)) {
+    return { category: 'refined_oil', isGrave: false };
+  }
+
   const plainMeat = plainMeatCategory(name);
   if (plainMeat) return { category: plainMeat, isGrave: false };
 
@@ -433,6 +475,7 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
       case 'refined_oil': rawJunk += 1.5; break;
       case 'additive': rawJunk += 1.5; break;
       case 'excess_salt': rawJunk += 1; break;
+      case 'saturated_fat': rawJunk += 1; break;
       default: break;
     }
   }
@@ -515,7 +558,7 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   //  • Two+ yellow items, or ANY orange (processed / added sugar / refined oil or flour),
   //    fall through to the weighted engine above and genuinely lower the score.
   if (!hasCarcinogen && effectiveHealthy >= 1 && orangeCount === 0) {
-    const yellowCount = ingredients.filter((i) => i.category === 'excess_salt' || i.category === 'additive').length;
+    const yellowCount = ingredients.filter((i) => YELLOW_TIER_CATEGORIES.includes(i.category)).length;
     if (yellowCount === 0) score = 0; // all green → 10/10
     else if (yellowCount === 1) score = Math.min(score, 1); // + one yellow → 9/10
   }
@@ -570,7 +613,7 @@ const detectSchema = z.object({
 const MEAL_INGREDIENT_RULES = `2. ALWAYS identify the MAIN / BASE food of the dish FIRST — the pastry, bread, dough, batter, noodles, rice or protein the dish is built on — not only the toppings or fillings. A "chocolate croissant" MUST list the viennoiserie pastry itself (refined flour + butter), not just the chocolate. A "pizza" must list the dough; a "burger" the bun and the patty. THEN add toppings, sauces and the usual hidden ingredients a real recipe contains (oils, sugar, sauces, condiments). Stay realistic — do not invent rare additives.
 3. For EACH ingredient set:
    - name: the ingredient name in the user's language.
-   - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | refined_flour | excess_salt | additive | healthy | neutral
+   - category: EXACTLY one of: carcinogen_g1 | carcinogen_2a | carcinogen_2b | processed | added_sugar | refined_oil | refined_flour | excess_salt | saturated_fat | additive | healthy | neutral
    - is_grave: true ONLY if dangerous / IARC-classified (carcinogen). NEVER true for merely processed/sugary/fatty food.
    - intensity: "high" ONLY for added_sugar when the sugar is MASSIVE / DOMINANT (desserts, pastries, candy, sodas, sweet drinks, syrupy dishes); otherwise "normal". Always "normal" for non-sugar ingredients.
    - note: ONE VERY SHORT educational note (maximum 10 words), frank, in the user's language. Never longer.
@@ -582,7 +625,10 @@ CLASSIFICATION GUIDANCE:
 - Refined-flour / refined-carb base (white flour, viennoiserie & pastry dough, white bread, croissant, brioche, cake, cookies, donuts, white bun) → refined_flour. Whole-grain / wholemeal bread → healthy.
 - Other visibly industrial components (processed cheese, industrial sauces, nuggets) → processed.
 - "neutral" is RESERVED for ingredients with truly no nutritional impact: water, plain spices, herbs, black coffee, tea, vinegar. A clearly SWEET or PROCESSED item (chocolate powder, syrups, sweet sauces, frosting, sweet toppings) is NEVER "neutral" — classify it as added_sugar (or processed).
-- Milk and cream are "healthy" at most; as an incidental drink component they do NOT make a sugary/pastry meal healthy.
+- Rich saturated fats — butter, ghee, cream, whipped cream, crème fraîche, mascarpone, lard, tallow, cheese, coconut cream — are NEVER "healthy". Classify them as saturated_fat. If the fat is also SWEETENED (sweetened cream, chantilly, sweet condensed milk, ice cream), classify it as added_sugar instead.
+- Deep-fried / battered items (fried chicken, tempura, fritters, fries) are NEVER "healthy" either: classify the fried element as refined_oil.
+- BADGE HONESTY (critical): the category MUST agree with your own note. If your note points out a downside ("high in saturated fat", "calorie bomb", "very sweet", "fried"), the category can NEVER be "healthy". "healthy" is reserved for genuine whole foods eaten as-is: vegetables, fruit, legumes, whole grains, plain fish/poultry, nuts, seeds, plain yoghurt, eggs, herbs.
+- Milk is "healthy" at most; as an incidental drink component it does NOT make a sugary/pastry meal healthy.
 
 FAST-FOOD / INDUSTRIAL CONTEXT (spec — critical, do NOT skip):
 - Judge whether the dish comes from a FAST-FOOD / quick-service / industrial / mass-produced setting. Photo signals: branded wrappers, cardboard boxes, fast-food trays, paper bags, uniform machine-made shapes, glossy melted processed cheese, deep-fried glaze, a chain's signature plating. Text signals: the user names a chain (McDonald's, Burger King, KFC, Domino's, Pizza Hut, Subway, Quick…) or says "fast food", "takeaway", "junk food".
@@ -730,8 +776,23 @@ export async function detectMealFromText(dishName: string): Promise<DetectedMeal
 // (possibly hand-edited) ingredient list, in tone matching the computed tier.
 // ═══════════════════════════════════════════════════════════════════════
 
+const safeNumber = z.preprocess((v) => {
+  const n = typeof v === 'number' ? v : typeof v === 'string' ? parseFloat(v.replace(',', '.')) : NaN;
+  return Number.isFinite(n) && n >= 0 ? Math.round(n) : 0;
+}, z.number());
+
 const verdictSchema = z.object({
   verdict_text: safeString(''),
+  /** 3-4 ultra-short bullets — the mobile-first summary shown by default. */
+  verdict_bullets: z.preprocess(
+    (v) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []),
+    z.array(z.string()),
+  ),
+  /** Rough per-serving nutrition ESTIMATE, inferred from the detected ingredients. */
+  calories: safeNumber,
+  protein_g: safeNumber,
+  carbs_g: safeNumber,
+  fat_g: safeNumber,
   alternative_home: safeString(''),
   alternative_restaurant: safeString(''),
 });
@@ -743,8 +804,22 @@ const TONE_BY_TIER: Record<MealTier, string> = {
   red: 'firm but NEVER guilt-tripping — you are an ally, not a scolding teacher',
 };
 
+/**
+ * Rough per-serving macro ESTIMATE for a scanned dish, inferred from the detected
+ * ingredients. Never a measurement — always surfaced with an "estimate" disclaimer.
+ */
+export interface MealNutrition {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
 export interface MealVerdict {
   verdictText: string;
+  /** 3-4 short bullets shown by default (the full text sits behind "See more"). */
+  verdictBullets: string[];
+  nutrition: MealNutrition | null;
   alternatives: MealAlternatives | null;
 }
 
@@ -772,17 +847,25 @@ INGREDIENTS (category in brackets, GRAVE = dangerous/IARC):
 ${ingredientLines}
 
 WRITE:
-1. verdict_text: a broken-down, ingredient-by-ingredient verdict (e.g. "The ham contains sodium nitrites (carcinogenic). The oil is refined. The cheese is fine. The tomato is healthy."). Pedagogical, clear, 3-6 sentences. Tone: ${TONE_BY_TIER[tier]}.
+0. verdict_bullets: an array of EXACTLY 3 or 4 bullets — this is the DEFAULT screen the user reads, so it must be scannable in seconds.
+   - Each bullet: ONE single idea, MAXIMUM 12 words, no leading dash or bullet character, no ingredient list, no repetition of the score.
+   - Bullet 1: the MAIN problem of this dish (for a green meal: its main strength instead).
+   - Bullet 2: one genuine POSITIVE point if there is one (a real whole food, protein, fibre…). Skip only if there is truly nothing positive.
+   - Bullet 3: the concrete impact on the body of eating this kind of meal.
+   - Bullet 4 (optional): a practical, actionable takeaway for next time.
+   Tone: ${TONE_BY_TIER[tier]}. In French, always tutoiement ("tu").
+1. calories, protein_g, carbs_g, fat_g: a realistic per-serving nutrition ESTIMATE for this dish, inferred from the detected ingredients and a normal portion size. Integers only, grams for macros, kcal for calories. Be plausible, never zero for a real dish.
+2. verdict_text: a broken-down, ingredient-by-ingredient verdict (e.g. "The ham contains sodium nitrites (carcinogenic). The oil is refined. The cheese is fine. The tomato is healthy."). Pedagogical, clear, 3-6 sentences. Tone: ${TONE_BY_TIER[tier]}.
    GOLDEN RULE: NEVER call sugar/fat/refined flour/processed food "carcinogenic". Distinguish SERIOUS (dangerous/IARC) from NOT HEALTHY (processed/sugary/fatty/refined).
    HEALTH IMPACT (MANDATORY — every verdict, no exception): after the breakdown, ALWAYS finish by explaining the CONCRETE health impact of eating this kind of meal on the body.
      - Healthy meal (high score / green): explain the real BENEFITS these foods bring — sustained energy, vitamins & minerals, fiber, quality protein, antioxidants, protection for the heart, gut and immune system — in a motivating, encouraging tone.
      - Unhealthy meal (lower score / orange-red): honestly explain the real HEALTH RISKS of eating this kind of meal regularly — weight gain, blood-sugar spikes, higher type-2 diabetes risk, chronic inflammation, cardiovascular strain — truthful but WITHOUT scaremongering and never guilt-tripping.
      In French, always use tutoiement ("tu").
 ${needsAlternatives
-      ? `2. alternative_home: a HEALTHY and SIMILAR homemade version of the SAME dish (stay close to the craving — a pizza lover wants a better pizza, not a salad). One or two sentences.
-3. alternative_restaurant: what TYPE of dish to pick instead next time at a restaurant. One sentence.`
-      : `2. alternative_home: "" (empty — health score is high enough, no alternatives needed)
-3. alternative_restaurant: "" (empty)`}
+      ? `3. alternative_home: a HEALTHY and SIMILAR homemade version of the SAME dish (stay close to the craving — a pizza lover wants a better pizza, not a salad). One or two sentences.
+4. alternative_restaurant: what TYPE of dish to pick instead next time at a restaurant. One sentence.`
+      : `3. alternative_home: "" (empty — health score is high enough, no alternatives needed)
+4. alternative_restaurant: "" (empty)`}
 
 Respond in the user's app language. Output JSON only.`;
 
@@ -790,7 +873,7 @@ Respond in the user's app language. Output JSON only.`;
   const raw = await aiGenerateObject({
     system: mealLanguageLock() + '\n\n' + system + getAnalysisRegionPrompt() + getHealthProfileAnalysisPrompt(),
     schema: verdictSchema,
-    maxTokens: 900,
+    maxTokens: 1100,
     messages: [
       { role: 'user', content: pick({ en: 'Write the verdict for this meal.', fr: 'Rédige le verdict pour ce repas.', ko: '이 식사에 대한 판정을 작성해 주세요.' }) },
     ],
@@ -799,8 +882,18 @@ Respond in the user's app language. Output JSON only.`;
 
   const home = raw.alternative_home.trim();
   const restaurant = raw.alternative_restaurant.trim();
+  // Keep at most 4 bullets, stripped of any leading bullet glyph the model may have added.
+  const bullets = raw.verdict_bullets
+    .map((b) => b.replace(/^[\s\-\u2022*\d.)]+/, '').trim())
+    .filter((b) => b.length > 0)
+    .slice(0, 4);
+  const nutrition: MealNutrition | null = raw.calories > 0
+    ? { calories: raw.calories, protein: raw.protein_g, carbs: raw.carbs_g, fat: raw.fat_g }
+    : null;
   return {
     verdictText: raw.verdict_text.trim(),
+    verdictBullets: bullets,
+    nutrition,
     alternatives: needsAlternatives && (home || restaurant) ? { home, restaurant } : null,
   };
 }

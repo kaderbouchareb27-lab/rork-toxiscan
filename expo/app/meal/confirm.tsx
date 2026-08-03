@@ -264,6 +264,8 @@ export default function MealConfirmScreen() {
           tier: finalTier,
           ingredients: finalIngredients,
           verdictText: verdict.verdictText,
+          verdictBullets: verdict.verdictBullets,
+          nutrition: verdict.nutrition,
           alternatives: verdict.alternatives,
         }),
       );

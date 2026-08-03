@@ -7,6 +7,7 @@ import {
   MealTier,
   MealAlternatives,
   MealCategory,
+  MealNutrition,
   scoreToTier,
 } from '@/utils/mealAnalysis';
 import { getDeviceLanguage } from '@/utils/i18n';
@@ -26,6 +27,10 @@ export interface MealRecord {
   tier: MealTier;
   ingredients: MealIngredient[];
   verdictText: string;
+  /** Short scannable verdict bullets. Absent on records saved before the bullets update. */
+  verdictBullets?: string[];
+  /** Estimated macros. Absent on records saved before the nutrition update. */
+  nutrition?: MealNutrition | null;
   alternatives: MealAlternatives | null;
   scannedAt: string;
   lang: string;
@@ -239,6 +244,8 @@ export function buildMealRecord(params: {
   tier: MealTier;
   ingredients: MealIngredient[];
   verdictText: string;
+  verdictBullets?: string[];
+  nutrition?: MealNutrition | null;
   alternatives: MealAlternatives | null;
 }): MealRecord {
   return {

@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { ChevronLeft, MessageCircle, Share2, ChefHat, AlertTriangle, UserCheck, Megaphone, Leaf, ArrowRight } from 'lucide-react-native';
+import { ChevronLeft, MessageCircle, Share2, ChefHat, AlertTriangle, UserCheck, Megaphone, Leaf, ArrowRight, ChevronDown, ChevronUp, Flame, Beef, Wheat, Droplet } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { t, pick } from '@/utils/i18n';
@@ -48,6 +48,14 @@ export default function MealResultScreen() {
   const { isPro } = useSubscription();
   const meal = useMemo(() => (typeof id === 'string' ? getMeal(id) : undefined), [id, getMeal]);
   const hasRequestedReview = useRef<boolean>(false);
+
+  // The verdict shows 3-4 short bullets by default (readable in seconds); the full
+  // ingredient-by-ingredient paragraph stays one tap away behind "See more".
+  const [isVerdictExpanded, setIsVerdictExpanded] = useState<boolean>(false);
+  const toggleVerdict = useCallback(() => {
+    if (Platform.OS !== 'web') void Haptics.selectionAsync();
+    setIsVerdictExpanded((p) => !p);
+  }, []);
 
   // Confetti celebration — fires ONCE when a perfect 10/10 meal result appears.
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
@@ -157,6 +165,8 @@ export default function MealResultScreen() {
 
   const tierColor = MEAL_TIER_COLORS[meal.tier];
   const avatar = MEAL_TIER_AVATARS[meal.tier];
+  const bullets = meal.verdictBullets ?? [];
+  const nutrition = meal.nutrition ?? null;
   // Meals that aren't great (health score ≤ 6) get a healthier-recipe alternative;
   // a good meal (7+) needs none, so the whole section is hidden.
   const showAlternatives = meal.score <= 6;
@@ -187,8 +197,8 @@ export default function MealResultScreen() {
           <Text style={styles.heroSub}>{mealTierSubtitle(meal.tier)}</Text>
         </View>
 
-        {/* 3. Decorticated Dr. Toxi verdict */}
-        {meal.verdictText ? (
+        {/* 3. Dr. Toxi verdict — short bullets first, full breakdown behind "See more" */}
+        {bullets.length > 0 || meal.verdictText ? (
           <View style={styles.verdictCard}>
             <View style={styles.verdictHeader}>
               <View style={[styles.verdictAvatarBubble, { backgroundColor: `${tierColor}1A` }]}>
@@ -196,8 +206,75 @@ export default function MealResultScreen() {
               </View>
               <Text style={[styles.verdictEyebrow, { color: tierColor }]}>{t('meal_verdict_eyebrow')}</Text>
             </View>
-            <Text style={styles.verdictText}>{meal.verdictText}</Text>
+
+            {bullets.length > 0 ? (
+              <View style={styles.bulletList}>
+                {bullets.map((b, i) => (
+                  <View key={`vb-${i}`} style={styles.bulletRow} testID={`meal-verdict-bullet-${i}`}>
+                    <View style={[styles.bulletDot, { backgroundColor: tierColor }]} />
+                    <Text style={styles.bulletText}>{b}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.verdictText}>{meal.verdictText}</Text>
+            )}
+
+            {bullets.length > 0 && meal.verdictText ? (
+              <>
+                {isVerdictExpanded ? <Text style={styles.verdictTextExpanded}>{meal.verdictText}</Text> : null}
+                <TouchableOpacity
+                  style={styles.seeMoreBtn}
+                  onPress={toggleVerdict}
+                  activeOpacity={0.7}
+                  testID="meal-verdict-toggle"
+                >
+                  <Text style={[styles.seeMoreText, { color: tierColor }]}>
+                    {isVerdictExpanded ? t('meal_verdict_see_less') : t('meal_verdict_see_more')}
+                  </Text>
+                  {isVerdictExpanded
+                    ? <ChevronUp color={tierColor} size={15} strokeWidth={2.6} />
+                    : <ChevronDown color={tierColor} size={15} strokeWidth={2.6} />}
+                </TouchableOpacity>
+              </>
+            ) : null}
           </View>
+        ) : null}
+
+        {/* Estimated nutrition — inferred from the detected ingredients, never measured */}
+        {nutrition ? (
+          <>
+            <Text style={styles.sectionTitle}>{t('meal_nutrition_title')}</Text>
+            <View style={styles.nutritionCard}>
+              <View style={styles.nutritionGrid}>
+                <View style={styles.nutritionCell} testID="meal-nutrition-calories">
+                  <Flame color="#E8730A" size={17} strokeWidth={2.2} />
+                  <Text style={styles.nutritionValue}>{nutrition.calories}</Text>
+                  <Text style={styles.nutritionUnit}>kcal</Text>
+                  <Text style={styles.nutritionLabel}>{t('nutri_calories')}</Text>
+                </View>
+                <View style={styles.nutritionCell} testID="meal-nutrition-protein">
+                  <Beef color="#C2410C" size={17} strokeWidth={2.2} />
+                  <Text style={styles.nutritionValue}>{nutrition.protein}</Text>
+                  <Text style={styles.nutritionUnit}>g</Text>
+                  <Text style={styles.nutritionLabel}>{t('nutri_protein')}</Text>
+                </View>
+                <View style={styles.nutritionCell} testID="meal-nutrition-carbs">
+                  <Wheat color="#B45309" size={17} strokeWidth={2.2} />
+                  <Text style={styles.nutritionValue}>{nutrition.carbs}</Text>
+                  <Text style={styles.nutritionUnit}>g</Text>
+                  <Text style={styles.nutritionLabel}>{t('nutri_carbs')}</Text>
+                </View>
+                <View style={styles.nutritionCell} testID="meal-nutrition-fat">
+                  <Droplet color="#0E7490" size={17} strokeWidth={2.2} />
+                  <Text style={styles.nutritionValue}>{nutrition.fat}</Text>
+                  <Text style={styles.nutritionUnit}>g</Text>
+                  <Text style={styles.nutritionLabel}>{t('nutri_fat')}</Text>
+                </View>
+              </View>
+              <Text style={styles.nutritionDisclaimer}>{t('meal_nutrition_disclaimer')}</Text>
+            </View>
+          </>
         ) : null}
 
         {/* Personalized alerts based on the user's health profile */}
@@ -389,6 +466,24 @@ const styles = StyleSheet.create({
   verdictAvatar: { width: 32, height: 32 },
   verdictEyebrow: { fontSize: 12, fontWeight: '900' as const, letterSpacing: 1 },
   verdictText: { fontSize: 15.5, lineHeight: 23, color: Colors.text },
+  bulletList: { gap: 11 },
+  bulletRow: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, gap: 10 },
+  bulletDot: { width: 7, height: 7, borderRadius: 4, marginTop: 7.5 },
+  bulletText: { flex: 1, fontSize: 15.5, lineHeight: 21, color: Colors.text, fontWeight: '600' as const, letterSpacing: -0.2 },
+  verdictTextExpanded: { fontSize: 14.5, lineHeight: 22, color: Colors.textSecondary, marginTop: 14, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.borderLight },
+  seeMoreBtn: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, marginTop: 12, alignSelf: 'flex-start' as const, paddingVertical: 6, paddingRight: 6 },
+  seeMoreText: { fontSize: 13.5, fontWeight: '800' as const, letterSpacing: -0.2 },
+  nutritionCard: {
+    backgroundColor: Colors.surface, borderRadius: 22, padding: 16,
+    borderWidth: 1, borderColor: Colors.border,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 10, elevation: 2,
+  },
+  nutritionGrid: { flexDirection: 'row' as const, alignItems: 'flex-start' as const },
+  nutritionCell: { flex: 1, alignItems: 'center' as const, gap: 2 },
+  nutritionValue: { fontSize: 21, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.6, marginTop: 4 },
+  nutritionUnit: { fontSize: 11, fontWeight: '700' as const, color: Colors.textTertiary, letterSpacing: 0.2 },
+  nutritionLabel: { fontSize: 12.5, fontWeight: '600' as const, color: Colors.textSecondary, marginTop: 2, textAlign: 'center' as const },
+  nutritionDisclaimer: { fontSize: 11.5, lineHeight: 16, color: Colors.textTertiary, marginTop: 14, textAlign: 'center' as const },
   sectionTitle: { fontSize: 17, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.3, marginTop: 24, marginBottom: 12 },
   ingredientsCard: {
     backgroundColor: Colors.surface, borderRadius: 22, paddingHorizontal: 16, paddingVertical: 4,

@@ -658,6 +658,7 @@ const translations = {
   mcat_refined_oil: { fr: 'Huile raffinée', en: 'Refined oil', ko: '정제유' },
   mcat_refined_flour: { fr: 'Farine raffinée', en: 'Refined flour', ko: '정제 밀가루' },
   mcat_excess_salt: { fr: 'Excès de sel', en: 'Excess salt', ko: '나트륨 과다' },
+  mcat_saturated_fat: { fr: 'Graisse saturée', en: 'Saturated fat', ko: '포화지방' },
   mcat_additive: { fr: 'Additif', en: 'Additive', ko: '첨가물' },
   mcat_healthy: { fr: 'Sain', en: 'Healthy', ko: '건강함' },
   mcat_neutral: { fr: 'Neutre', en: 'Neutral', ko: '중립' },
@@ -672,6 +673,14 @@ const translations = {
   meal_share_result: { fr: 'Partager ce repas', en: 'Share this meal', ko: '이 식사 공유하기' },
   meal_scanned_at: { fr: 'Repas analysé', en: 'Meal analyzed', ko: '분석한 식사' },
   meal_not_found: { fr: 'Repas introuvable', en: 'Meal not found', ko: '식사를 찾을 수 없음' },
+  meal_verdict_see_more: { fr: 'Voir le détail complet', en: 'See the full breakdown', ko: '전체 분석 보기' },
+  meal_verdict_see_less: { fr: 'Réduire', en: 'Show less', ko: '접기' },
+  meal_nutrition_title: { fr: 'Nutrition estimée', en: 'Estimated nutrition', ko: '예상 영양 정보' },
+  meal_nutrition_disclaimer: { fr: 'Estimation calculée à partir des ingrédients détectés et d’une portion standard — ce n’est pas une mesure exacte.', en: 'Estimated from the detected ingredients and a standard portion — not an exact measurement.', ko: '감지된 재료와 1인분 기준으로 추정한 값이며 정확한 측정치가 아닙니다.' },
+  nutri_calories: { fr: 'Calories', en: 'Calories', ko: '칼로리' },
+  nutri_protein: { fr: 'Protéines', en: 'Protein', ko: '단백질' },
+  nutri_carbs: { fr: 'Glucides', en: 'Carbs', ko: '탄수화물' },
+  nutri_fat: { fr: 'Lipides', en: 'Fat', ko: '지방' },
 
   // ===== MEAL SCAN — DASHBOARD / WEEKLY REPORT =====
   meal_dashboard_title: { fr: 'Mon assiette cette semaine', en: 'My plate this week', ko: '이번 주 내 식사' },
