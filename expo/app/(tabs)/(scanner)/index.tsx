@@ -43,7 +43,7 @@ const MEAL_SCAN_IMAGE_URI = 'https://r2-pub.rork.com/projects/7x6ujs5cfo0x23gzhb
 export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
-  const { hasSeenOnboarding, hasSeenMealOnboarding } = useOnboarding();
+  const { hasSeenOnboarding } = useOnboarding();
   const { isPro, consumeScan, canScan, scanRemaining, canMealScan, mealScanRemaining } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -55,10 +55,7 @@ export default function ScannerScreen() {
     if (hasSeenOnboarding === false) {
       console.log('[Scanner] User has not seen onboarding, redirecting...');
       router.replace('/onboarding');
-    } else if (hasSeenMealOnboarding === false) {
-      console.log('[Scanner] User has not seen meal reminders onboarding, redirecting...');
-      router.replace('/meal-onboarding');
-    } else if (hasSeenOnboarding === true && hasSeenMealOnboarding === true) {
+    } else if (hasSeenOnboarding === true) {
       console.log('[Scanner] User ready to scan');
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -73,7 +70,7 @@ export default function ScannerScreen() {
         ])
       ).start();
     }
-  }, [hasSeenOnboarding, hasSeenMealOnboarding, fadeAnim, pulseAnim]);
+  }, [hasSeenOnboarding, fadeAnim, pulseAnim]);
 
   const photoMutation = useMutation({
     mutationFn: async (imageUri: string) => {
@@ -476,7 +473,7 @@ export default function ScannerScreen() {
     outputRange: [-LOADER_BAR_SEGMENT, LOADER_BAR_WIDTH],
   });
 
-  if (hasSeenOnboarding === null || hasSeenMealOnboarding === null) {
+  if (hasSeenOnboarding === null) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#2E9E34" />

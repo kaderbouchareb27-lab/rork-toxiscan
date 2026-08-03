@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText, Bell, HeartPulse } from 'lucide-react-native';
+import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText, HeartPulse } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
 import * as StoreReview from 'expo-store-review';
@@ -225,12 +225,6 @@ export default function ProfileScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t('info_title')}</Text>
 
-          <MenuItem
-            icon={<Bell color={Colors.textSecondary} size={18} />}
-            label={t('profile_reminders_label')}
-            onPress={() => handleMenuPress('/meal-reminders')}
-            testID="reminders-link"
-          />
           <MenuItem
             icon={<FileText color={Colors.textSecondary} size={18} />}
             label={t('privacy_policy')}

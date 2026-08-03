@@ -5,13 +5,10 @@ import createContextHook from '@nkzw/create-context-hook';
 
 const ONBOARDING_KEY = 'toxiscan_onboarding_complete';
 const AI_CONSENT_KEY = 'toxiscan_ai_consent';
-/** First-launch onboarding for the meal-scan mode (presentation + notifications). */
-const MEAL_ONBOARDING_KEY = 'toxiscan_meal_onboarding_complete';
 
 export const [OnboardingProvider, useOnboarding] = createContextHook(() => {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(null);
   const [hasAcceptedAIConsent, setHasAcceptedAIConsent] = useState<boolean | null>(null);
-  const [hasSeenMealOnboarding, setHasSeenMealOnboarding] = useState<boolean | null>(null);
 
   const onboardingQuery = useQuery({
     queryKey: ['onboarding'],
@@ -29,14 +26,6 @@ export const [OnboardingProvider, useOnboarding] = createContextHook(() => {
     },
   });
 
-  const mealOnboardingQuery = useQuery({
-    queryKey: ['mealOnboarding'],
-    queryFn: async () => {
-      const value = await AsyncStorage.getItem(MEAL_ONBOARDING_KEY);
-      return value === 'true';
-    },
-  });
-
   useEffect(() => {
     if (onboardingQuery.data !== undefined) {
       setHasSeenOnboarding(onboardingQuery.data);
@@ -48,12 +37,6 @@ export const [OnboardingProvider, useOnboarding] = createContextHook(() => {
       setHasAcceptedAIConsent(consentQuery.data);
     }
   }, [consentQuery.data]);
-
-  useEffect(() => {
-    if (mealOnboardingQuery.data !== undefined) {
-      setHasSeenMealOnboarding(mealOnboardingQuery.data);
-    }
-  }, [mealOnboardingQuery.data]);
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -67,12 +50,6 @@ export const [OnboardingProvider, useOnboarding] = createContextHook(() => {
     },
   });
 
-  const mealOnboardingMutation = useMutation({
-    mutationFn: async () => {
-      await AsyncStorage.setItem(MEAL_ONBOARDING_KEY, 'true');
-    },
-  });
-
   const completeOnboarding = useCallback(() => {
     setHasSeenOnboarding(true);
     completeMutation.mutate();
@@ -83,18 +60,11 @@ export const [OnboardingProvider, useOnboarding] = createContextHook(() => {
     consentMutation.mutate();
   }, [consentMutation]);
 
-  const completeMealOnboarding = useCallback(() => {
-    setHasSeenMealOnboarding(true);
-    mealOnboardingMutation.mutate();
-  }, [mealOnboardingMutation]);
-
   return useMemo(() => ({
     hasSeenOnboarding,
     hasAcceptedAIConsent,
-    hasSeenMealOnboarding,
     completeOnboarding,
     acceptAIConsent,
-    completeMealOnboarding,
-    isLoading: onboardingQuery.isLoading || consentQuery.isLoading || mealOnboardingQuery.isLoading,
-  }), [hasSeenOnboarding, hasAcceptedAIConsent, hasSeenMealOnboarding, completeOnboarding, acceptAIConsent, completeMealOnboarding, onboardingQuery.isLoading, consentQuery.isLoading, mealOnboardingQuery.isLoading]);
+    isLoading: onboardingQuery.isLoading || consentQuery.isLoading,
+  }), [hasSeenOnboarding, hasAcceptedAIConsent, completeOnboarding, acceptAIConsent, onboardingQuery.isLoading, consentQuery.isLoading]);
 });

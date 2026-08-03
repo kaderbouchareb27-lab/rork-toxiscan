@@ -31,7 +31,7 @@ const VERDICT_SCALE = [
 ] as const;
 
 export default function OnboardingScreen() {
-  const { completeOnboarding, hasSeenMealOnboarding } = useOnboarding();
+  const { completeOnboarding } = useOnboarding();
   const buttonScale = useRef(new Animated.Value(1)).current;
   const fade = useRef(new Animated.Value(0)).current;
   const slide = useRef(new Animated.Value(16)).current;
@@ -56,12 +56,8 @@ export default function OnboardingScreen() {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     completeOnboarding();
-    if (hasSeenMealOnboarding === false) {
-      router.replace('/meal-onboarding');
-      return;
-    }
     router.replace('/');
-  }, [completeOnboarding, hasSeenMealOnboarding]);
+  }, [completeOnboarding]);
 
   const handleStart = useCallback(() => {
     Animated.sequence([

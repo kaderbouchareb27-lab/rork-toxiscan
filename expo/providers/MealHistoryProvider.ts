@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
@@ -10,7 +10,6 @@ import {
   scoreToTier,
 } from '@/utils/mealAnalysis';
 import { getDeviceLanguage } from '@/utils/i18n';
-import { syncMealReminders } from '@/utils/notifications';
 
 const STORAGE_KEY = 'toxiscan_meals';
 // One-time flag: marks that stored meals use the v2 HEALTH scale (higher = better).
@@ -67,7 +66,6 @@ function isFlagged(c: MealCategory): boolean {
 export const [MealHistoryProvider, useMeals] = createContextHook(() => {
   const [meals, setMeals] = useState<MealRecord[]>([]);
   const queryClient = useQueryClient();
-  const didSyncReminders = useRef<boolean>(false);
 
   const mealsQuery = useQuery({
     queryKey: ['meals'],
@@ -97,10 +95,6 @@ export const [MealHistoryProvider, useMeals] = createContextHook(() => {
   useEffect(() => {
     if (mealsQuery.data) {
       setMeals(mealsQuery.data);
-      if (!didSyncReminders.current) {
-        didSyncReminders.current = true;
-        void syncMealReminders(mealsQuery.data);
-      }
     }
   }, [mealsQuery.data]);
 
@@ -118,10 +112,6 @@ export const [MealHistoryProvider, useMeals] = createContextHook(() => {
     setMeals((prev) => {
       const updated = [meal, ...prev].slice(0, MAX_MEALS);
       saveMutation.mutate(updated);
-      // Permission is handled by the meal onboarding / settings. Here we just keep the
-      // rolling schedule fresh (respecting the user's saved prefs); since a meal was just
-      // logged, today's reminders are skipped (anti-spam).
-      void syncMealReminders(updated);
       return updated;
     });
   }, [saveMutation]);

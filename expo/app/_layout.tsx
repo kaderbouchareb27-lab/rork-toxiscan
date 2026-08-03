@@ -154,8 +154,6 @@ function RootLayoutNav() {
       <Stack.Screen name="health-profile" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      <Stack.Screen name="meal-onboarding" options={{ headerShown: false, gestureEnabled: false }} />
-      <Stack.Screen name="meal-reminders" options={{ headerShown: false }} />
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="privacy" options={{ title: t('nav_privacy') }} />
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />

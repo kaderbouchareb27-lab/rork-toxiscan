@@ -415,7 +415,6 @@ const translations = {
   benefit_unlimited_drtoxi: { fr: 'Dr. Toxi illimité', en: 'Unlimited Dr. Toxi', ko: 'Dr. Toxi 무제한' },
   benefit_unlimited_history: { fr: 'Historique illimité', en: 'Unlimited history', ko: '무제한 기록' },
   benefit_favorites: { fr: 'Favoris produits', en: 'Product favorites', ko: '제품 즐겨찾기' },
-  benefit_notifications: { fr: 'Notifications rappel produits', en: 'Product reminder notifications', ko: '제품 알림' },
   save_percent: { fr: (percent: number) => `Économisez ${percent}%`, en: (percent: number) => `Save ${percent}%`, ko: (percent: number) => `${percent}% 절약` },
   annual_plan: { fr: (price: string) => `Annuel — ${price}/an`, en: (price: string) => `Annual — ${price}/year`, ko: (price: string) => `연간 — ${price}/년` },
   monthly_equivalent: { fr: (price: string) => `soit ${price}/mois`, en: (price: string) => `i.e. ${price}/month`, ko: (price: string) => `월 ${price} 상당` },
@@ -746,36 +745,6 @@ const translations = {
   mob_3_title: { fr: 'Ton bilan de la semaine', en: 'Your weekly report', ko: '주간 리포트' },
   mob_3_body: { fr: 'Retrouve la synthèse de tes repas dans ton profil — elle se construit en direct à chaque scan.', en: 'Find your meal summary in your profile — it builds live with every scan.', ko: '프로필에서 식사 요약을 확인하세요. 스캔할 때마다 실시간으로 채워집니다.' },
   mob_3_dashboard_label: { fr: 'Cette semaine', en: 'This week', ko: '이번 주' },
-
-  // ===== MEAL ONBOARDING — NOTIFICATIONS =====
-  mob_notif_title: { fr: 'Reste sur la bonne voie', en: 'Stay on track', ko: '꾸준함을 이어가세요' },
-  mob_notif_body: { fr: "Active des rappels pour penser à scanner tes repas, et reçois ton bilan santé chaque vendredi. Tu choisis les moments — rien n'est imposé.", en: 'Turn on reminders so you remember to scan your meals, and get your health report every Friday. You pick the moments — nothing is forced.', ko: '식사 스캔을 잊지 않도록 알림을 켜고, 매주 금요일 건강 리포트를 받아보세요. 시간은 직접 정하며 강제되는 것은 없습니다.' },
-  mob_notif_reminders_label: { fr: 'RAPPELS DE REPAS', en: 'MEAL REMINDERS', ko: '식사 알림' },
-  mob_notif_friday_note: { fr: 'Ton bilan hebdo arrive chaque vendredi à 21h, tant que les notifications sont activées.', en: 'Your weekly report arrives every Friday at 9 PM, as long as notifications are on.', ko: '알림이 켜져 있는 동안 매주 금요일 오후 9시에 주간 리포트가 도착합니다.' },
-  mob_notif_enable: { fr: 'Activer les rappels', en: 'Turn on reminders', ko: '알림 켜기' },
-  mob_notif_later: { fr: 'Plus tard', en: 'Maybe later', ko: '나중에 하기' },
-  mob_notif_settings_hint: { fr: 'Tu pourras tout modifier plus tard dans ton profil.', en: 'You can change all of this later in your profile.', ko: '이 설정은 나중에 프로필에서 언제든 변경할 수 있어요.' },
-  mob_notif_denied_title: { fr: 'Notifications désactivées', en: 'Notifications off', ko: '알림이 꺼져 있어요' },
-  mob_notif_denied_msg: { fr: "Tu peux les activer quand tu veux depuis les réglages de ton appareil, puis dans ton profil.", en: 'You can enable them anytime from your device settings, then in your profile.', ko: '기기 설정에서 언제든 켤 수 있으며, 이후 프로필에서 조정할 수 있어요.' },
-
-  // ===== MEAL REMINDERS — SLOTS & TIME PICKER =====
-  reminder_morning: { fr: 'Repas du matin', en: 'Morning meal', ko: '아침 식사' },
-  reminder_noon: { fr: 'Repas du midi', en: 'Midday meal', ko: '점심 식사' },
-  reminder_evening: { fr: 'Repas du soir', en: 'Evening meal', ko: '저녁 식사' },
-  time_picker_title: { fr: "Choisis l'heure", en: 'Choose the time', ko: '시간 선택' },
-  time_hours: { fr: 'Heure', en: 'Hour', ko: '시' },
-  time_minutes: { fr: 'Minute', en: 'Minute', ko: '분' },
-  confirm: { fr: 'Confirmer', en: 'Confirm', ko: '확인' },
-
-  // ===== MEAL REMINDERS — SETTINGS SCREEN =====
-  meal_reminders_title: { fr: 'Rappels de repas', en: 'Meal reminders', ko: '식사 알림' },
-  meal_reminders_intro: { fr: 'Choisis quand Dr. Toxi te rappelle de scanner tes repas. Tu peux tout désactiver à tout moment.', en: 'Choose when Dr. Toxi reminds you to scan your meals. You can turn everything off anytime.', ko: 'Dr. Toxi가 식사 스캔을 언제 알려줄지 정하세요. 언제든 모두 끌 수 있어요.' },
-  meal_reminders_master: { fr: 'Notifications', en: 'Notifications', ko: '알림' },
-  meal_reminders_master_desc: { fr: 'Rappels de repas et bilan du vendredi', en: 'Meal reminders and Friday report', ko: '식사 알림 및 금요일 리포트' },
-  meal_reminders_friday_title: { fr: 'Rapport du vendredi', en: 'Friday report', ko: '금요일 리포트' },
-  meal_reminders_friday_desc: { fr: 'Ton bilan santé hebdo, chaque vendredi à 21h', en: 'Your weekly health report, every Friday at 9 PM', ko: '매주 금요일 오후 9시, 주간 건강 리포트' },
-  meal_reminders_off_note: { fr: 'Active les notifications pour choisir tes rappels de repas.', en: 'Turn on notifications to choose your meal reminders.', ko: '알림을 켜면 식사 알림을 설정할 수 있어요.' },
-  profile_reminders_label: { fr: 'Rappels de repas', en: 'Meal reminders', ko: '식사 알림' },
 } as const;
 
 type TranslationKey = keyof typeof translations;
