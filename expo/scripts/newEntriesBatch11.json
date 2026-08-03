@@ -1,0 +1,1158 @@
+{
+ "note": "Lot 11 — document Word « ToxiScan Food Additive Descriptions » (81 additifs E). Badge du document = source de vérité. INDUSTRIAL -> Occasional (jaune), PROCESSED -> Processed (orange), ULTRA TOXIC -> Ultra toxic.",
+ "entries": [
+  {
+   "name": "patent blue v",
+   "code": "E131",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Color",
+   "description_en": "A synthetic blue dye used only to change appearance and provide no nutritional value. Current authorized uses have not been shown to create a general safety concern, but rare hypersensitivity reactions are possible. Health: People with a history of reactions to synthetic dyes should be cautious. The additive mainly signals a highly formulated product.",
+   "keywords": [
+    "patent blue v",
+    "bleu patenté V",
+    "bleu patente v",
+    "bleu patenté v",
+    "patent blue",
+    "e131"
+   ]
+  },
+  {
+   "name": "green s",
+   "code": "E142",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Color",
+   "description_en": "A synthetic green food dye used to create or intensify color. It has an acceptable daily intake, and high consumption of several colored products can increase total exposure. Health: The concern is unnecessary cumulative exposure and possible intolerance in sensitive individuals, not proven carcinogenicity.",
+   "keywords": [
+    "green s",
+    "vert S",
+    "vert s",
+    "acid brilliant green",
+    "e142"
+   ]
+  },
+  {
+   "name": "brilliant black bn",
+   "code": "E151",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Color",
+   "description_en": "A synthetic black dye used in confectionery, sauces, decorations, and other processed foods. Some high-consuming children may approach or exceed the acceptable daily intake. Health: Frequent consumption of several products containing this dye can increase exposure beyond the level intended for daily use.",
+   "keywords": [
+    "brilliant black bn",
+    "noir brillant BN",
+    "noir brillant bn",
+    "black pn",
+    "noir pn",
+    "e151"
+   ]
+  },
+  {
+   "name": "brown ht",
+   "code": "E155",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Color",
+   "description_en": "A synthetic brown dye used in bakery, dessert, and confectionery products. Exposure estimates have indicated that some high consumers, particularly children, may exceed the acceptable daily intake. Health: The main concern is repeated high intake from multiple colored products.",
+   "keywords": [
+    "brown ht",
+    "brun HT",
+    "brun ht",
+    "e155"
+   ]
+  },
+  {
+   "name": "paprika extract, capsanthin and capsorubin",
+   "code": "E160c",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Color",
+   "description_en": "A concentrated red-orange color extracted from paprika and processed to standardize pigment strength. It is not considered a high-risk additive at permitted levels. Health: Quality control is important for solvent residues and purity. Rare paprika-related allergic reactions may occur in sensitive people.",
+   "keywords": [
+    "paprika extract, capsanthin and capsorubin",
+    "extrait de paprika",
+    "extrait de paprika standardise",
+    "paprika extract",
+    "capsanthine",
+    "capsorubine",
+    "capsanthin",
+    "capsorubin",
+    "oleoresine de paprika",
+    "oléorésine de paprika",
+    "e160c"
+   ]
+  },
+  {
+   "name": "canthaxanthin",
+   "code": "E161g",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Color",
+   "description_en": "An orange-red carotenoid color with a low acceptable daily intake. Excessive exposure can cause canthaxanthin crystals to accumulate in the retina. Health: High intake may produce retinal deposits and visual changes. This is a genuine dose-related health concern and is why use is tightly restricted.",
+   "keywords": [
+    "canthaxanthin",
+    "canthaxanthine",
+    "e161g"
+   ]
+  },
+  {
+   "name": "calcium sorbate",
+   "code": "E203",
+   "badge": "Ultra toxic",
+   "circ": "Ultra toxique",
+   "category": "Preservative",
+   "description_en": "A former preservative used to slow mold and yeast growth. It was withdrawn from the European Union food-additive list because the available data were insufficient to rule out a genotoxic concern. Health: Avoid products that list it as a food additive in markets where it is not authorized. Withdrawal reflects unresolved safety data, not proof that it causes cancer.",
+   "keywords": [
+    "calcium sorbate",
+    "sorbate de calcium",
+    "e203"
+   ]
+  },
+  {
+   "name": "calcium benzoate",
+   "code": "E213",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Preservative",
+   "description_en": "A synthetic preservative that releases benzoate to slow microbial growth in acidic foods and drinks. It adds to total exposure from benzoic acid and other benzoates. Health: Sensitive individuals may experience hives or asthma-like reactions. High combined exposure should remain below the acceptable daily intake.",
+   "keywords": [
+    "calcium benzoate",
+    "benzoate de calcium",
+    "e213"
+   ]
+  },
+  {
+   "name": "ethyl paraben",
+   "code": "E214",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Preservative",
+   "description_en": "A synthetic paraben preservative used to prevent mold and bacterial growth. Experimental research has examined weak hormone-like activity, so exposure is controlled through a combined acceptable daily intake. Health: No cancer claim is justified at authorized food levels. The relevant concern is repeated combined exposure to several parabens.",
+   "keywords": [
+    "ethyl paraben",
+    "éthylparabène",
+    "ethylparabene",
+    "ethylparaben",
+    "p hydroxybenzoate d ethyle",
+    "e214"
+   ]
+  },
+  {
+   "name": "sodium ethyl paraben",
+   "code": "E215",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Preservative",
+   "description_en": "The water-soluble sodium form of ethyl paraben. It is an industrial antimicrobial preservative and contributes to the same combined paraben exposure limit as ethyl paraben. Health: The main concern is cumulative exposure to parabens rather than an immediate toxic effect at permitted levels.",
+   "keywords": [
+    "sodium ethyl paraben",
+    "éthylparabène sodique",
+    "ethylparabene sodique",
+    "sodium ethylparaben",
+    "e215"
+   ]
+  },
+  {
+   "name": "propyl paraben",
+   "code": "E216",
+   "badge": "Ultra toxic",
+   "circ": "Ultra toxique",
+   "category": "Preservative",
+   "description_en": "A paraben preservative that is no longer authorized as a food additive in the European Union. Regulators could not establish an acceptable daily intake from the available reproductive-toxicity data. Health: The unresolved concern involves possible reproductive effects at sufficient exposure. Non-authorization does not prove that ordinary trace exposure causes cancer.",
+   "keywords": [
+    "propyl paraben",
+    "propylparabène",
+    "e216"
+   ]
+  },
+  {
+   "name": "sodium propyl paraben",
+   "code": "E217",
+   "badge": "Ultra toxic",
+   "circ": "Ultra toxique",
+   "category": "Preservative",
+   "description_en": "The sodium form of propyl paraben, also no longer authorized as a food additive in the European Union. Its safety could not be adequately confirmed from the available reproductive-toxicity evidence. Health: Avoid as a declared food additive where it is not authorized. The concern is insufficient safety assurance, especially for repeated exposure.",
+   "keywords": [
+    "sodium propyl paraben",
+    "propylparabène sodique",
+    "propylparabene sodique",
+    "sodium propylparaben",
+    "e217"
+   ]
+  },
+  {
+   "name": "methyl paraben",
+   "code": "E218",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Preservative",
+   "description_en": "A synthetic preservative used against molds and bacteria. It has weak biological activity in laboratory testing, but food use is regulated under a combined acceptable daily intake with ethyl paraben. Health: The practical concern is cumulative exposure from food, medicines, and personal-care products, not proven cancer from permitted food levels.",
+   "keywords": [
+    "methyl paraben",
+    "méthylparabène",
+    "methylparabene",
+    "p hydroxybenzoate de methyle",
+    "e218"
+   ]
+  },
+  {
+   "name": "sodium methyl paraben",
+   "code": "E219",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Preservative",
+   "description_en": "The sodium salt of methyl paraben, designed to dissolve more easily in water. It is a synthetic preservative counted within the same combined exposure limit as methyl and ethyl parabens. Health: Repeated exposure from several sources is more relevant than a single food serving.",
+   "keywords": [
+    "sodium methyl paraben",
+    "méthylparabène sodique",
+    "methylparabene sodique",
+    "sodium methylparaben",
+    "e219"
+   ]
+  },
+  {
+   "name": "soybean hemicellulose",
+   "code": "E426",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Stabilizer",
+   "description_en": "A processed fiber fraction extracted from soybeans and used to thicken, stabilize, or keep particles suspended. It is mainly an industrial texture ingredient. Health: Residual soy proteins may matter for people with a severe soy allergy, even though the additive itself is not considered highly toxic.",
+   "keywords": [
+    "soybean hemicellulose",
+    "hémicellulose de soja",
+    "hemicellulose de soja",
+    "soy hemicellulose",
+    "e426"
+   ]
+  },
+  {
+   "name": "beta-cyclodextrin",
+   "code": "E459",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Carrier / encapsulating agent",
+   "description_en": "A ring-shaped carbohydrate manufactured from starch and used to trap, protect, or carry flavors and other compounds. It has a relatively low acceptable daily intake. Health: High exposure can exceed the recommended daily limit. The restriction is based on systemic effects observed at higher doses, not on a cancer classification.",
+   "keywords": [
+    "beta-cyclodextrin",
+    "bêta-cyclodextrine",
+    "beta cyclodextrine",
+    "beta cyclodextrin",
+    "cyclodextrine",
+    "e459"
+   ]
+  },
+  {
+   "name": "tartaric acid esters of mono- and diglycerides of fatty acids",
+   "code": "E472d",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Emulsifier",
+   "description_en": "Chemically modified fats used to strengthen dough, stabilize mixtures, and control texture. They are characteristic of industrial bakery and processed-food formulations. Health: No major specific disease risk is established at authorized levels. The relevant concern is cumulative intake and manufacturing impurities.",
+   "keywords": [
+    "tartaric acid esters of mono- and diglycerides of fatty acids",
+    "esters tartriques de mono- et diglycérides",
+    "esters tartriques de mono et diglycerides",
+    "tartaric acid esters of mono and diglycerides",
+    "esters tartriques",
+    "e472d"
+   ]
+  },
+  {
+   "name": "mixed acetic and tartaric acid esters of mono- and diglycerides of fatty acids",
+   "code": "E472f",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Emulsifier",
+   "description_en": "A complex emulsifier made by chemically esterifying mono- and diglycerides. It improves dough performance, volume, and shelf stability in industrial foods. Health: No carcinogenic classification applies. Purity, total tartaric-acid exposure, and frequent consumption of heavily formulated foods are the main considerations.",
+   "keywords": [
+    "mixed acetic and tartaric acid esters of mono- and diglycerides of fatty acids",
+    "esters acétiques et tartriques de mono- et diglycérides",
+    "esters acetiques et tartriques de mono et diglycerides",
+    "mixed acetic and tartaric acid esters of mono and diglycerides",
+    "e472f"
+   ]
+  },
+  {
+   "name": "sucroglycerides",
+   "code": "E474",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Emulsifier",
+   "description_en": "Industrial emulsifiers produced by reacting sucrose with food fats. They help oil and water remain mixed and create a stable, smooth texture in highly formulated foods. Health: Some exposure scenarios may approach or exceed the group acceptable daily intake. Large amounts may also contribute to digestive discomfort.",
+   "keywords": [
+    "sucroglycerides",
+    "sucroglycérides",
+    "sucroglyceride",
+    "e474"
+   ]
+  },
+  {
+   "name": "potassium carbonates",
+   "code": "E501",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "Refined mineral salts used to control acidity, improve dough, or support manufacturing. They are not considered harmful at normal food levels. Health: Very high potassium intake can be dangerous for people with kidney disease or those taking medicines that raise blood potassium.",
+   "keywords": [
+    "potassium carbonates",
+    "carbonates de potassium",
+    "carbonate de potassium",
+    "potassium carbonate",
+    "e501"
+   ]
+  },
+  {
+   "name": "ammonium carbonates",
+   "code": "E503",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Raising agent",
+   "description_en": "Industrial raising agents that release carbon dioxide and ammonia during baking. They are commonly used in dry biscuits and crackers. Health: Poorly baked or heavily dosed products may retain an unpleasant ammonia odor and cause irritation, but normal baked use is not considered a major health risk.",
+   "keywords": [
+    "ammonium carbonates",
+    "carbonates d'ammonium",
+    "carbonate d ammonium",
+    "carbonates d ammonium",
+    "ammonium carbonate",
+    "e503"
+   ]
+  },
+  {
+   "name": "magnesium carbonates",
+   "code": "E504",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-caking agent",
+   "description_en": "Refined magnesium salts used to prevent clumping, regulate acidity, or improve powder flow. Health: Large magnesium doses can cause diarrhea and abdominal cramping; food-additive quantities are usually much lower.",
+   "keywords": [
+    "magnesium carbonates",
+    "carbonates de magnésium",
+    "carbonate de magnesium",
+    "magnesium carbonate",
+    "e504"
+   ]
+  },
+  {
+   "name": "hydrochloric acid",
+   "code": "E507",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "A strong processing acid used in controlled amounts to adjust pH or manufacture ingredients. It is neutralized or highly diluted in the finished food. Health: The concentrated industrial chemical is corrosive, but that hazard should not be confused with properly controlled residues in food.",
+   "keywords": [
+    "hydrochloric acid",
+    "acide chlorhydrique",
+    "e507"
+   ]
+  },
+  {
+   "name": "potassium chloride",
+   "code": "E508",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Salt substitute / stabilizer",
+   "description_en": "A refined mineral salt used to replace sodium, control flavor, or support texture. Health: Excess potassium can cause dangerous heart-rhythm problems in people with kidney disease or certain medications. Normal consumers usually tolerate food amounts.",
+   "keywords": [
+    "potassium chloride",
+    "chlorure de potassium",
+    "e508"
+   ]
+  },
+  {
+   "name": "calcium chloride",
+   "code": "E509",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Firming agent",
+   "description_en": "A refined calcium salt used to firm vegetables, set cheese, and stabilize texture. Health: High concentrations can irritate the digestive tract and taste bitter, but normal authorized use is not considered a major health concern.",
+   "keywords": [
+    "calcium chloride",
+    "chlorure de calcium",
+    "e509"
+   ]
+  },
+  {
+   "name": "magnesium chloride",
+   "code": "E511",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Firming agent",
+   "description_en": "A refined magnesium salt used in tofu, mineral fortification, and texture control. Health: Large amounts may cause diarrhea, nausea, or abdominal cramping, especially in people with reduced kidney function.",
+   "keywords": [
+    "magnesium chloride",
+    "chlorure de magnésium",
+    "chlorure de magnesium",
+    "nigari",
+    "e511"
+   ]
+  },
+  {
+   "name": "stannous chloride",
+   "code": "E512",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Color stabilizer",
+   "description_en": "A tin compound used mainly to preserve color in a limited number of canned foods. It requires strict concentration limits. Health: Excess inorganic tin can cause acute nausea, vomiting, abdominal pain, and diarrhea. This is the principal established health concern.",
+   "keywords": [
+    "stannous chloride",
+    "chlorure stanneux",
+    "chlorure d etain",
+    "e512"
+   ]
+  },
+  {
+   "name": "sulfuric acid",
+   "code": "E513",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "A strong industrial acid used in controlled food processing and pH adjustment. It is neutralized or diluted before the food is consumed. Health: Concentrated sulfuric acid is severely corrosive, but properly manufactured food should not retain that corrosive hazard.",
+   "keywords": [
+    "sulfuric acid",
+    "acide sulfurique",
+    "e513"
+   ]
+  },
+  {
+   "name": "sodium sulfates",
+   "code": "E514",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "Refined sulfate salts used in processing and acidity control. Health: Large sulfate doses can draw water into the intestine and cause diarrhea. Sodium-containing forms also add to total sodium intake.",
+   "keywords": [
+    "sodium sulfates",
+    "sulfates de sodium",
+    "sulfate de sodium",
+    "sodium sulfate",
+    "e514"
+   ]
+  },
+  {
+   "name": "potassium sulfates",
+   "code": "E515",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "Refined potassium salts used to regulate acidity or support processing. Health: People with kidney disease must avoid excessive potassium because it can disturb heart rhythm.",
+   "keywords": [
+    "potassium sulfates",
+    "sulfates de potassium",
+    "sulfate de potassium",
+    "potassium sulfate",
+    "e515"
+   ]
+  },
+  {
+   "name": "calcium sulfate",
+   "code": "E516",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Firming agent",
+   "description_en": "A mineral ingredient also known as food-grade gypsum, used for firming, flour treatment, and tofu production. Health: Very high intake can cause digestive discomfort or unnecessarily increase calcium exposure; normal food use is generally low risk.",
+   "keywords": [
+    "calcium sulfate",
+    "sulfate de calcium",
+    "gypse alimentaire",
+    "e516"
+   ]
+  },
+  {
+   "name": "ammonium sulfate",
+   "code": "E517",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "An industrial salt used in flour treatment, fermentation, and acidity control. Health: No major specific harm is established at permitted levels. Excessive quantities may irritate the digestive system.",
+   "keywords": [
+    "ammonium sulfate",
+    "sulfate d'ammonium",
+    "e517"
+   ]
+  },
+  {
+   "name": "aluminum sulfate",
+   "code": "E520",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Firming agent",
+   "description_en": "An aluminum-containing processing salt used in limited applications. It contributes to total dietary aluminum exposure. Health: Because aluminum can accumulate, repeated exposure from many sources may push intake above the tolerable weekly level, especially in people with reduced kidney function.",
+   "keywords": [
+    "aluminum sulfate",
+    "sulfate d'aluminium",
+    "sulfate d aluminium",
+    "aluminium sulfate",
+    "e520"
+   ]
+  },
+  {
+   "name": "sodium aluminum sulfate",
+   "code": "E521",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Raising / firming agent",
+   "description_en": "An aluminum- and sodium-containing industrial salt used in some baking powders and processing applications. Health: It increases cumulative aluminum and sodium exposure. Frequent consumption of several aluminum-containing products is the main concern.",
+   "keywords": [
+    "sodium aluminum sulfate",
+    "sulfate d'aluminium et de sodium",
+    "sulfate d aluminium et de sodium",
+    "sodium aluminium sulfate",
+    "e521"
+   ]
+  },
+  {
+   "name": "potassium aluminum sulfate",
+   "code": "E522",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Firming agent",
+   "description_en": "Also called potassium alum, this compound is used as a firming or processing agent and adds aluminum to the diet. Health: Long-term concern relates to cumulative aluminum exposure, not an immediate poisoning effect from a single serving.",
+   "keywords": [
+    "potassium aluminum sulfate",
+    "sulfate d'aluminium et de potassium",
+    "sulfate d aluminium et de potassium",
+    "alun de potassium",
+    "potassium alum",
+    "potassium aluminium sulfate",
+    "e522"
+   ]
+  },
+  {
+   "name": "ammonium aluminum sulfate",
+   "code": "E523",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Firming agent",
+   "description_en": "An aluminum-containing industrial salt used for firming or processing in limited foods. Health: Repeated intake contributes to total aluminum exposure, which is limited because the metal can accumulate in the body.",
+   "keywords": [
+    "ammonium aluminum sulfate",
+    "sulfate d'aluminium et d'ammonium",
+    "sulfate d aluminium et d ammonium",
+    "ammonium aluminium sulfate",
+    "alun d ammonium",
+    "e523"
+   ]
+  },
+  {
+   "name": "sodium hydroxide",
+   "code": "E524",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator / processing aid",
+   "description_en": "A powerful alkaline processing agent used for pretzels, olives, cocoa, and pH control. It is consumed only after reaction, neutralization, washing, or dilution. Health: The concentrated chemical is corrosive. Correct processing must prevent caustic residues in the final food.",
+   "keywords": [
+    "sodium hydroxide",
+    "hydroxyde de sodium",
+    "e524"
+   ]
+  },
+  {
+   "name": "potassium hydroxide",
+   "code": "E525",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator / processing aid",
+   "description_en": "A strong alkali used to adjust pH or manufacture other ingredients. It is neutralized or highly diluted during food processing. Health: The raw chemical can cause severe burns, but properly controlled food use should not retain this corrosive effect.",
+   "keywords": [
+    "potassium hydroxide",
+    "hydroxyde de potassium",
+    "e525"
+   ]
+  },
+  {
+   "name": "calcium hydroxide",
+   "code": "E526",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Firming agent / acidity regulator",
+   "description_en": "Also known as slaked lime, it is used to firm foods, process corn, and regulate acidity. Health: Concentrated material is irritating and alkaline. Excess residues could irritate the mouth or digestive tract, so processing controls are essential.",
+   "keywords": [
+    "calcium hydroxide",
+    "hydroxyde de calcium",
+    "e526"
+   ]
+  },
+  {
+   "name": "ammonium hydroxide",
+   "code": "E527",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "An ammonia solution used in controlled processing and pH adjustment. Most ammonia is removed, reacted, or present at very low residual levels. Health: High residual concentrations would irritate the eyes, airways, and digestive tract and produce a strong odor.",
+   "keywords": [
+    "ammonium hydroxide",
+    "hydroxyde d'ammonium",
+    "hydroxyde d ammonium",
+    "ammoniaque alimentaire",
+    "e527"
+   ]
+  },
+  {
+   "name": "magnesium hydroxide",
+   "code": "E528",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "A refined magnesium compound used to regulate acidity. At larger medicinal doses it also acts as a laxative. Health: Too much can cause diarrhea, cramping, and magnesium accumulation in people with kidney impairment.",
+   "keywords": [
+    "magnesium hydroxide",
+    "hydroxyde de magnésium",
+    "hydroxyde de magnesium",
+    "e528"
+   ]
+  },
+  {
+   "name": "calcium oxide",
+   "code": "E529",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Processing aid / acidity regulator",
+   "description_en": "Also called quicklime, it is a highly reactive industrial material used in controlled processing. It reacts to form less aggressive calcium compounds. Health: The raw powder is corrosive and can burn tissue. Finished food must not contain unsafe unreacted residues.",
+   "keywords": [
+    "calcium oxide",
+    "oxyde de calcium",
+    "chaux vive",
+    "e529"
+   ]
+  },
+  {
+   "name": "magnesium oxide",
+   "code": "E530",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-caking agent / acidity regulator",
+   "description_en": "A refined magnesium compound used to prevent clumping or regulate acidity. Health: Large doses may cause diarrhea or magnesium accumulation, particularly in people with impaired kidney function.",
+   "keywords": [
+    "magnesium oxide",
+    "oxyde de magnésium",
+    "oxyde de magnesium",
+    "e530"
+   ]
+  },
+  {
+   "name": "sodium ferrocyanide",
+   "code": "E535",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-caking agent",
+   "description_en": "A stable iron-cyanide complex used in salt to prevent clumping. It is not the same as free cyanide under normal food conditions. Health: Current authorized uses are low. Purity and compliance with exposure limits are more relevant than the alarming chemical name.",
+   "keywords": [
+    "sodium ferrocyanide",
+    "ferrocyanure de sodium",
+    "e535"
+   ]
+  },
+  {
+   "name": "potassium ferrocyanide",
+   "code": "E536",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-caking agent",
+   "description_en": "A stable anti-caking complex used mainly in salt. It does not normally release dangerous free cyanide during ordinary food use. Health: The additive should still remain within regulatory limits and purity specifications.",
+   "keywords": [
+    "potassium ferrocyanide",
+    "ferrocyanure de potassium",
+    "e536"
+   ]
+  },
+  {
+   "name": "calcium ferrocyanide",
+   "code": "E538",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-caking agent",
+   "description_en": "A stable mineral complex used to keep salt and powders free-flowing. Health: No major safety concern is established at authorized use levels. The principal controls are dose and chemical purity.",
+   "keywords": [
+    "calcium ferrocyanide",
+    "ferrocyanure de calcium",
+    "e538"
+   ]
+  },
+  {
+   "name": "sodium aluminum phosphate, acidic",
+   "code": "E541",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Raising agent",
+   "description_en": "An acidic aluminum salt used in some baking powders and bakery products to control gas release. Health: It adds both aluminum and sodium. Heavy reliance on products containing aluminum additives can increase total exposure above recommended limits.",
+   "keywords": [
+    "sodium aluminum phosphate, acidic",
+    "phosphate d'aluminium et de sodium acide",
+    "sodium aluminum phosphate",
+    "e541"
+   ]
+  },
+  {
+   "name": "silicon dioxide",
+   "code": "E551",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-caking agent",
+   "description_en": "A finely divided mineral powder used to prevent clumping and improve flow in seasonings, powders, and supplements. Health: Current authorized food uses are not considered a general safety concern, but particle characterization and metal impurities require strict specifications.",
+   "keywords": [
+    "silicon dioxide",
+    "dioxyde de silicium",
+    "e551"
+   ]
+  },
+  {
+   "name": "calcium silicate",
+   "code": "E552",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Anti-caking agent",
+   "description_en": "A mineral anti-caking agent used in dry powders. Modern long-term toxicology data have been insufficient for a fully updated safety conclusion. Health: The concern is incomplete evidence on repeated exposure, not a proven disease effect at ordinary food levels.",
+   "keywords": [
+    "calcium silicate",
+    "silicate de calcium",
+    "e552"
+   ]
+  },
+  {
+   "name": "magnesium silicate",
+   "code": "E553a(i)",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Anti-caking agent",
+   "description_en": "A processed mineral used to keep powders dry and free-flowing. The available modern data are limited for a complete long-term assessment. Health: Use should remain controlled because chronic exposure has not been characterized as thoroughly as for better-studied additives.",
+   "keywords": [
+    "magnesium silicate",
+    "silicate de magnésium",
+    "silicate de magnesium",
+    "e553a i",
+    "e553a",
+    "e553a(i)"
+   ]
+  },
+  {
+   "name": "magnesium trisilicate",
+   "code": "E553a(ii)",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Anti-caking agent",
+   "description_en": "A mineral anti-caking compound used in powdered foods. Its long-term safety database is incomplete. Health: The concern is uncertainty from limited chronic and reproductive data, rather than confirmed toxicity from normal food use.",
+   "keywords": [
+    "magnesium trisilicate",
+    "trisilicate de magnésium",
+    "trisilicate de magnesium",
+    "e553a ii",
+    "e553a(ii)"
+   ]
+  },
+  {
+   "name": "talc",
+   "code": "E553b",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Anti-caking agent",
+   "description_en": "Food-grade talc is used to prevent sticking or clumping. Safety depends strongly on mineral purity, particle properties, and the absence of asbestos contamination. Health: Contaminated talc would be unacceptable and potentially harmful. Only material meeting strict food-grade purity standards should be used.",
+   "keywords": [
+    "talc",
+    "talc alimentaire",
+    "e553b"
+   ]
+  },
+  {
+   "name": "sodium aluminum silicate",
+   "code": "E554",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Anti-caking agent",
+   "description_en": "An industrial anti-caking mineral that also contributes aluminum. The toxicology database has not supported a fully conclusive modern assessment. Health: Cumulative aluminum exposure and incomplete long-term data are the main reasons for concern.",
+   "keywords": [
+    "sodium aluminum silicate",
+    "silicate d'aluminium et de sodium",
+    "sodium aluminosilicate",
+    "sodium aluminium silicate",
+    "e554"
+   ]
+  },
+  {
+   "name": "potassium aluminum silicate",
+   "code": "E555",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Anti-caking agent",
+   "description_en": "An aluminum-containing mineral used to improve powder flow. It adds to aluminum exposure and has limited modern toxicology data. Health: Frequent intake from several aluminum-containing foods may increase total exposure, especially for vulnerable consumers.",
+   "keywords": [
+    "potassium aluminum silicate",
+    "silicate d'aluminium et de potassium",
+    "potassium aluminosilicate",
+    "potassium aluminium silicate",
+    "e555"
+   ]
+  },
+  {
+   "name": "fatty acids",
+   "code": "E570",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Glazing / anti-caking agent",
+   "description_en": "Refined fatty acids used as processing aids, glazing agents, or anti-caking agents. The E-number does not identify a single harmful fat. Health: Health impact depends more on the source and overall fat profile of the food than on this additive function.",
+   "keywords": [
+    "fatty acids",
+    "acides gras",
+    "e570"
+   ]
+  },
+  {
+   "name": "gluconic acid",
+   "code": "E574",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "An organic acid produced from glucose and used to regulate acidity or bind minerals. Health: It has low toxicity, although concentrated or high amounts may irritate the digestive system.",
+   "keywords": [
+    "gluconic acid",
+    "acide gluconique",
+    "e574"
+   ]
+  },
+  {
+   "name": "glucono-delta-lactone",
+   "code": "E575",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Acidity regulator",
+   "description_en": "A glucose-derived compound that slowly releases gluconic acid, helping set tofu, cure foods, and control acidity. Health: Large amounts may cause bloating, gas, or digestive discomfort.",
+   "keywords": [
+    "glucono-delta-lactone",
+    "glucono delta lactone",
+    "e575"
+   ]
+  },
+  {
+   "name": "sodium gluconate",
+   "code": "E576",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Sequestrant",
+   "description_en": "A refined sodium salt used to bind metals, stabilize products, and control acidity. Health: Its main nutritional concern is added sodium rather than specific toxicity.",
+   "keywords": [
+    "sodium gluconate",
+    "gluconate de sodium",
+    "e576"
+   ]
+  },
+  {
+   "name": "potassium gluconate",
+   "code": "E577",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Sequestrant",
+   "description_en": "A potassium salt used for mineral fortification and product stability. Health: Excess potassium can be dangerous for people with kidney disease or medicines that impair potassium removal.",
+   "keywords": [
+    "potassium gluconate",
+    "gluconate de potassium",
+    "e577"
+   ]
+  },
+  {
+   "name": "calcium gluconate",
+   "code": "E578",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Firming agent",
+   "description_en": "A calcium salt used for firming, fortification, and stabilization. Health: Very high calcium intake can cause constipation and may be unsuitable for people with certain kidney or calcium-balance disorders.",
+   "keywords": [
+    "calcium gluconate",
+    "gluconate de calcium",
+    "e578"
+   ]
+  },
+  {
+   "name": "ferrous gluconate",
+   "code": "E579",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Color stabilizer / iron source",
+   "description_en": "An iron salt used to darken olives and provide iron. It can significantly increase iron exposure in concentrated products. Health: Excess iron can cause nausea, constipation, abdominal pain, and oxidative injury. It is especially dangerous in large accidental doses to children.",
+   "keywords": [
+    "ferrous gluconate",
+    "gluconate ferreux",
+    "gluconate de fer",
+    "e579"
+   ]
+  },
+  {
+   "name": "ferrous lactate",
+   "code": "E585",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Color stabilizer",
+   "description_en": "An iron salt used mainly to stabilize the dark color of olives and other foods. Health: Too much iron may cause digestive symptoms and is unsuitable for people with iron-overload disorders.",
+   "keywords": [
+    "ferrous lactate",
+    "lactate ferreux",
+    "lactate de fer",
+    "e585"
+   ]
+  },
+  {
+   "name": "4-hexylresorcinol",
+   "code": "E586",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Anti-browning agent",
+   "description_en": "A synthetic anti-browning agent used mainly on crustaceans to slow discoloration. Current use is narrow and residue-controlled. Health: No major concern is established at authorized residues. Broader or higher exposure would require additional safety evidence.",
+   "keywords": [
+    "4-hexylresorcinol",
+    "4-hexylrésorcinol",
+    "4 hexylresorcinol",
+    "hexylresorcinol",
+    "4 hexylrésorcinol",
+    "e586"
+   ]
+  },
+  {
+   "name": "argon",
+   "code": "E938",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Packaging gas",
+   "description_en": "An inert gas used to displace oxygen and slow oxidation in packaged food and beverages. Health: It does not react significantly with food and is not considered a safety concern in authorized packaging use.",
+   "keywords": [
+    "argon",
+    "e938"
+   ]
+  },
+  {
+   "name": "helium",
+   "code": "E939",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Packaging gas",
+   "description_en": "An inert gas used in specialized packaging or processing. It leaves no meaningful chemical residue in food. Health: Food use is not considered a safety concern. Inhalation of pressurized helium is a separate non-food hazard.",
+   "keywords": [
+    "helium",
+    "hélium",
+    "e939"
+   ]
+  },
+  {
+   "name": "oxygen",
+   "code": "E948",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Packaging gas",
+   "description_en": "A natural gas used in controlled-atmosphere packaging and processing. Health: It is not toxic at food-packaging exposure. It can accelerate oxidation, rancidity, and vitamin loss in some foods.",
+   "keywords": [
+    "oxygen",
+    "oxygène",
+    "oxygene",
+    "e948"
+   ]
+  },
+  {
+   "name": "hydrogen",
+   "code": "E949",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Packaging / processing gas",
+   "description_en": "A gas used in limited food-processing applications. It is highly flammable during industrial handling but does not remain as a toxic food residue. Health: The main hazard is fire or explosion during manufacturing, not consumption of properly processed food.",
+   "keywords": [
+    "hydrogen",
+    "e949",
+    "gaz hydrogene",
+    "hydrogene e949"
+   ]
+  },
+  {
+   "name": "xylitol",
+   "code": "E967",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Sweetener",
+   "description_en": "A sugar alcohol used to replace sugar in chewing gum, candy, drinks, and low-sugar products. It is highly refined and can cause gas, abdominal cramps, bloating, or diarrhea when a large amount is consumed. Health: The main established concern is a dose-related laxative effect. People with irritable bowel syndrome or sensitivity to polyols may react at lower amounts.",
+   "keywords": [
+    "xylitol",
+    "e967"
+   ]
+  },
+  {
+   "name": "erythritol",
+   "code": "E968",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Sweetener",
+   "description_en": "A fermented and purified sugar alcohol used as a low-calorie sweetener. Large single doses can cause diarrhea, nausea, bloating, or abdominal discomfort. Health: EFSA confirmed a laxative threshold. Studies have reported cardiovascular associations, but a causal health risk from normal food consumption has not been established.",
+   "keywords": [
+    "erythritol",
+    "érythritol",
+    "e968"
+   ]
+  },
+  {
+   "name": "polyvinylpolypyrrolidone (pvpp)",
+   "code": "E1202",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Clarifying / stabilizing polymer",
+   "description_en": "A synthetic, insoluble polymer used to clarify beverages or stabilize supplements. It is poorly absorbed from the digestive tract. Health: Safety depends on strict limits for residual monomers and manufacturing impurities.",
+   "keywords": [
+    "polyvinylpolypyrrolidone (pvpp)",
+    "polyvinylpolypyrrolidone",
+    "pvpp",
+    "crospovidone",
+    "e1202"
+   ]
+  },
+  {
+   "name": "polyvinyl alcohol (pva)",
+   "code": "E1203",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Coating polymer",
+   "description_en": "A synthetic polymer used in edible films, coatings, and supplement capsules. It is only partly absorbed and is used for a technological purpose. Health: The principal concern is product purity and residual manufacturing chemicals rather than a proven toxic effect at permitted levels.",
+   "keywords": [
+    "polyvinyl alcohol (pva)",
+    "alcool polyvinylique",
+    "polyvinyl alcohol",
+    "pva",
+    "e1203"
+   ]
+  },
+  {
+   "name": "pullulan",
+   "code": "E1204",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Film-forming agent",
+   "description_en": "A fermentation-produced carbohydrate polymer used to make edible films, capsules, and coatings. Health: Several grams at once may cause abdominal fullness, gas, bloating, or cramps in some people.",
+   "keywords": [
+    "pullulan",
+    "pullulane",
+    "e1204"
+   ]
+  },
+  {
+   "name": "basic methacrylate copolymer",
+   "code": "E1205",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Coating polymer",
+   "description_en": "A synthetic polymer used mainly to coat food supplements and control how tablets dissolve. Health: It is poorly absorbed. Safety relies on low residual monomers, controlled purity, and restricted use.",
+   "keywords": [
+    "basic methacrylate copolymer",
+    "copolymère méthacrylate basique",
+    "copolymere methacrylate basique",
+    "e1205"
+   ]
+  },
+  {
+   "name": "oxidized starch",
+   "code": "E1404",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Modified starch",
+   "description_en": "Starch chemically modified to improve thickening, stability, and processing performance. It is used to engineer consistent texture in sauces, fillings, and processed foods. Health: No specific major toxicity is established at authorized levels. It is primarily a marker of industrial formulation.",
+   "keywords": [
+    "oxidized starch",
+    "amidon oxydé",
+    "amidon oxyde",
+    "e1404"
+   ]
+  },
+  {
+   "name": "phosphated distarch phosphate",
+   "code": "E1413",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Modified starch",
+   "description_en": "A cross-linked and phosphorylated starch designed to resist heat, acid, and mechanical processing. Health: It has no established carcinogenic classification. Its role is technological rather than nutritional.",
+   "keywords": [
+    "phosphated distarch phosphate",
+    "phosphate de diamidon phosphaté",
+    "phosphate de diamidon phosphate",
+    "e1413"
+   ]
+  },
+  {
+   "name": "hydroxypropyl starch",
+   "code": "E1440",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Modified starch",
+   "description_en": "A chemically modified starch that remains stable during freezing, heating, and storage. Health: No major specific harm is established at permitted use. Frequent presence indicates a highly engineered texture.",
+   "keywords": [
+    "hydroxypropyl starch",
+    "amidon hydroxypropylé",
+    "amidon hydroxypropyle",
+    "e1440"
+   ]
+  },
+  {
+   "name": "acetylated oxidized starch",
+   "code": "E1451",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Modified starch",
+   "description_en": "A starch subjected to oxidation and acetylation to improve stability, clarity, and texture. Health: It is not classified as carcinogenic. The main issue is its use as a structural ingredient in heavily processed products.",
+   "keywords": [
+    "acetylated oxidized starch",
+    "amidon oxydé acétylé",
+    "amidon oxyde acetyle",
+    "e1451"
+   ]
+  },
+  {
+   "name": "triethyl citrate",
+   "code": "E1505",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Carrier / solvent",
+   "description_en": "A manufactured citrate ester used as a carrier, solvent, or plasticizer for flavors and coatings. Health: No major specific harm is established at authorized levels. Total exposure should remain within the acceptable daily intake.",
+   "keywords": [
+    "triethyl citrate",
+    "citrate de triéthyle",
+    "citrate de triethyle",
+    "e1505"
+   ]
+  },
+  {
+   "name": "glyceryl diacetate (diacetin)",
+   "code": "E1517",
+   "badge": "Occasional",
+   "circ": "Industriel",
+   "category": "Carrier / humectant",
+   "description_en": "A manufactured glycerol ester used to carry flavors, retain moisture, and improve processing. Health: It is broken down into glycerol and acetic acid. Modern long-term data are less extensive than for some common additives, but no major risk is established at permitted use.",
+   "keywords": [
+    "glyceryl diacetate (diacetin)",
+    "diacétate de glycéryle",
+    "diacetate de glyceryle",
+    "glyceryl diacetate",
+    "diacetin",
+    "diacétine",
+    "e1517"
+   ]
+  },
+  {
+   "name": "benzyl alcohol",
+   "code": "E1519",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Flavor carrier / solvent",
+   "description_en": "An aromatic alcohol used mainly as a solvent or carrier in flavorings. Food exposure is limited, but it is biologically active at high doses. Health: Large systemic doses can depress the nervous system and disturb metabolism. Newborns are particularly vulnerable to high medicinal exposure, although food amounts are far lower.",
+   "keywords": [
+    "benzyl alcohol",
+    "alcool benzylique",
+    "e1519"
+   ]
+  },
+  {
+   "name": "propylene glycol",
+   "code": "E1520",
+   "badge": "Processed",
+   "circ": "Transformé",
+   "category": "Carrier / humectant",
+   "description_en": "A synthetic solvent and moisture-retaining agent used in flavors, colors, enzymes, and processed foods. It is not the same substance as toxic ethylene glycol. Health: Very high exposure can cause hyperosmolality, lactic acidosis, nervous-system depression, and kidney stress, especially in infants or people with impaired liver or kidney function.",
+   "keywords": [
+    "propylene glycol",
+    "propylène glycol",
+    "propane 1 2 diol",
+    "e1520"
+   ]
+  }
+ ]
+}

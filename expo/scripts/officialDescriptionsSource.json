@@ -13,10 +13,58 @@
       "lot": "3C"
     },
     {
+      "name": "2-chloroethanol",
+      "description_en": "The reaction product of ethylene oxide with chloride, measured together with it under the same EU residue limit. Its own genotoxicity is debated, but its presence indicates treatment with a banned carcinogenic fumigant.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "4-hexylresorcinol",
+      "description_en": "A synthetic anti-browning agent used mainly on crustaceans to slow discoloration. Current use is narrow and residue-controlled. Health: No major concern is established at authorized residues. Broader or higher exposure would require additional safety evidence.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "acesulfame",
       "description_en": "An artificial sweetener (E950) roughly 200 times sweeter than sugar, often blended with aspartame. Approved in the EU and US with an acceptable daily intake of 9–15 mg/kg, but it is a marker of ultra-processed formulation.",
       "badge": "Processed",
       "lot": "3A"
+    },
+    {
+      "name": "acetate de sodium",
+      "description_en": "The sodium salt of acetic acid (E262), used as a preservative and to give salt-and-vinegar flavour. It is well tolerated but contributes sodium to the diet.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acetylated oxidized starch",
+      "description_en": "A starch subjected to oxidation and acetylation to improve stability, clarity, and texture. Health: It is not classified as carcinogenic. The main issue is its use as a structural ingredient in heavily processed products.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "acide acetique",
+      "description_en": "The acid of vinegar (E260), used to adjust acidity and preserve food. It is one of the oldest and most benign preservatives, and taken with a meal it slightly lowers the blood sugar response.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide adipique",
+      "description_en": "An acidity regulator (E355) used in powdered desserts and drink mixes. It is produced industrially and considered safe at the low levels permitted.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide alginique",
+      "description_en": "A gelling fibre (E400) extracted from brown seaweed. It is not absorbed and behaves as soluble fibre, though large amounts can reduce mineral absorption.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide azelaique",
+      "description_en": "A naturally occurring acid from grains, used for acne and rosacea. It is one of the best tolerated actives available, gentle enough for sensitive skin and considered safe during pregnancy.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
     },
     {
       "name": "acide borique",
@@ -31,10 +79,52 @@
       "lot": "5C"
     },
     {
+      "name": "acide fumarique",
+      "description_en": "An acidity regulator (E297) that occurs naturally in plants and in human metabolism. It is considered safe at food levels, though the food-grade version is synthesised industrially.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "acide glutamique",
       "description_en": "Glutamic acid (E620), the free amino acid behind the savoury \"umami\" taste. It is used to intensify flavour in industrial foods and signals a product built on additives rather than real ingredients.",
       "badge": "Processed",
       "lot": "3A"
+    },
+    {
+      "name": "acide glycolique",
+      "description_en": "An alpha-hydroxy acid that exfoliates the skin surface and improves texture. EU rules cap consumer concentrations, and it increases sun sensitivity, so daily sunscreen is necessary while using it.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide kojique",
+      "description_en": "A skin-lightening agent produced by fermentation, used to fade dark spots. The SCCS caps it at 1% in cosmetics because of concerns about skin sensitisation and thyroid effects at higher levels.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide phosphorique",
+      "description_en": "An acidity regulator (E338) that gives colas their sharp bite. EFSA set a combined phosphate limit of 40 mg/kg in 2019 and warned that some groups already exceed it; high phosphate intake concerns kidney and bone health.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "acide propionique",
+      "description_en": "A mould inhibitor (E280) used mainly in industrial bread. It occurs naturally in some cheeses and is considered safe by EFSA, but its presence signals bread built for long shelf life.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "acide salicylique",
+      "description_en": "A beta-hydroxy acid that exfoliates and unclogs pores, effective against acne. Its concentration is capped in EU cosmetics, and it should not be used on children under three or during pregnancy without medical advice.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide sorbique",
+      "description_en": "A mould inhibitor (E200) and one of the gentler preservatives, occurring naturally in rowan berries. It is well tolerated, though it can cause mild skin or digestive reactions in sensitive people.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "Acide tartrique",
@@ -55,6 +145,18 @@
       "lot": "3A"
     },
     {
+      "name": "acrylates",
+      "description_en": "Synthetic polymers that form films in nail products, hair styling and long-wear make-up. Cured polymers are stable, but uncured acrylate monomers in nail products are strong skin sensitisers.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "advantame",
+      "description_en": "An artificial sweetener (E969) derived from aspartame and roughly 37,000 times sweeter than sugar, so it is used in minute amounts. Authorised in the EU and US, but a purely synthetic high-intensity sweetener.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "aflatoxine",
       "description_en": "A natural mold toxin that forms on poorly stored grains, nuts and spices. Classified IARC Group 1 human carcinogen — the confirmed level. Chronic exposure damages the liver and is a leading cause of liver cancer.",
       "badge": "Carcinogenic",
@@ -71,6 +173,18 @@
       "description_en": "Ethanol in alcoholic beverages is an IARC Group 1 human carcinogen. It is linked to cancers of the mouth, throat, oesophagus, liver, colon and breast, and no safe intake level has been established.",
       "badge": "Carcinogenic",
       "lot": "1"
+    },
+    {
+      "name": "alginate d ammonium",
+      "description_en": "A seaweed-derived thickener (E403) used to stabilise texture. It passes through the gut undigested and is considered safe at food levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "alginate de propylene glycol",
+      "description_en": "A chemically modified alginate (E405) used to stabilise beer foam and dressings. Unlike plain alginates it is reacted with propylene glycol, making it a synthetic derivative rather than a simple seaweed extract.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
     },
     {
       "name": "Alkylphénols éthoxylés (APEO)",
@@ -103,6 +217,12 @@
       "lot": "4C"
     },
     {
+      "name": "aluminum sulfate",
+      "description_en": "An aluminum-containing processing salt used in limited applications. It contributes to total dietary aluminum exposure. Health: Because aluminum can accumulate, repeated exposure from many sources may push intake above the tolerable weekly level, especially in people with reduced kidney function.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "amande",
       "description_en": "Almonds, rich in vitamin E, magnesium, fibre and monounsaturated fat. Regular nut consumption is consistently associated with better cardiovascular outcomes.",
       "badge": "Approved",
@@ -115,16 +235,16 @@
       "lot": "4C"
     },
     {
+      "name": "amidon acetyle",
+      "description_en": "Acetylated starch (E1420), chemically treated to stay stable through processing. It is a refined carbohydrate with no fibre or micronutrients, used purely for texture.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "amidon de ble",
       "description_en": "Wheat starch separated from the protein and bran of the grain. It behaves like a fast sugar in the body, with little nutritional value — the whole grain is always the better option.",
       "badge": "Occasional",
       "lot": "4C"
-    },
-    {
-      "name": "amidon hydroxypropyl",
-      "description_en": "A chemically modified starch (E1450) used as a thickener and emulsifier. Regulators class it as safe, but it is a heavily processed ingredient that a whole food never requires.",
-      "badge": "Processed",
-      "lot": "3A"
     },
     {
       "name": "amidon modifie",
@@ -137,6 +257,30 @@
       "description_en": "Ammonia and its compounds, used as acidity regulators and processing aids. They are neutralised in the finished food, but ammonia processing can generate unwanted by-products in some applications.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "ammonium aluminum sulfate",
+      "description_en": "An aluminum-containing industrial salt used for firming or processing in limited foods. Health: Repeated intake contributes to total aluminum exposure, which is limited because the metal can accumulate in the body.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "ammonium carbonates",
+      "description_en": "Industrial raising agents that release carbon dioxide and ammonia during baking. They are commonly used in dry biscuits and crackers. Health: Poorly baked or heavily dosed products may retain an unpleasant ammonia odor and cause irritation, but normal baked use is not considered a major health risk.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "ammonium hydroxide",
+      "description_en": "An ammonia solution used in controlled processing and pH adjustment. Most ammonia is removed, reacted, or present at very low residual levels. Health: High residual concentrations would irritate the eyes, airways, and digestive tract and produce a strong odor.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "ammonium sulfate",
+      "description_en": "An industrial salt used in flour treatment, fermentation, and acidity control. Health: No major specific harm is established at permitted levels. Excessive quantities may irritate the digestive system.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "annatto",
@@ -163,6 +307,12 @@
       "lot": "3A"
     },
     {
+      "name": "argon",
+      "description_en": "An inert gas used to displace oxygen and slow oxidation in packaged food and beverages. Health: It does not react significantly with food and is not considered a safety concern in authorized packaging use.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "arome artificiel",
       "description_en": "Entirely synthetic molecules, usually petrochemical-derived, built to imitate natural tastes. Their exact composition is not disclosed on the label, and they are one of the clearest markers of ultra-processed food.",
       "badge": "Processed",
@@ -187,10 +337,28 @@
       "lot": "1"
     },
     {
+      "name": "ascorbate de calcium",
+      "description_en": "A vitamin C salt (E302) used to protect food from oxidation. It provides genuine vitamin C activity along with a small amount of calcium.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "ascorbate de sodium",
+      "description_en": "The sodium salt of vitamin C (E301), used as an antioxidant to stop food browning and fats oxidising. It retains vitamin C activity and is among the most benign additives.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "aspartame",
       "description_en": "An artificial sweetener (E951) in diet drinks and sugar-free products. IARC classified it Group 2B, possibly carcinogenic, in 2023, while WHO's JECFA kept the daily limit at 40 mg/kg. Best not consumed daily.",
       "badge": "Processed",
       "lot": "3A"
+    },
+    {
+      "name": "atrazine",
+      "description_en": "A herbicide banned in the EU since 2004 but still detected in groundwater decades later. It is widely regarded as an endocrine disruptor affecting hormonal and reproductive function, and remains in use in North America.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
     },
     {
       "name": "avocat",
@@ -217,16 +385,28 @@
       "lot": "3A"
     },
     {
-      "name": "bœuf",
-      "description_en": "Unprocessed red meat and poultry — beef, pork, lamb, game and more. A complete source of protein, heme iron, zinc and vitamin B12, best eaten fresh rather than cured.",
+      "name": "azote",
+      "description_en": "Nitrogen gas (E941) used to displace oxygen in packaging and keep food fresh without preservatives. It is inert, makes up most of the air we breathe, and leaves no residue.",
       "badge": "Approved",
-      "lot": "5C"
+      "lot": "10-orphans-additives"
     },
     {
       "name": "bacon",
       "description_en": "Salted, cured and smoked pork. It falls under processed meat, classified IARC Group 1 human carcinogen in 2015: regular intake raises colorectal cancer risk through nitroso-compounds formed during curing.",
       "badge": "Carcinogenic",
       "lot": "1"
+    },
+    {
+      "name": "bakuchiol",
+      "description_en": "A plant compound from babchi seeds, studied as a gentler alternative to retinol. Early trials suggest comparable effects on fine lines with far less irritation, and it is considered suitable during pregnancy.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "basic methacrylate copolymer",
+      "description_en": "A synthetic polymer used mainly to coat food supplements and control how tablets dissolve. Health: It is poorly absorbed. Safety relies on low residual monomers, controlled purity, and restricted use.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "benzene",
@@ -239,6 +419,18 @@
       "description_en": "A preservative (E212) closely related to sodium benzoate. It can form traces of benzene when a product also contains vitamin C, and may trigger hives or asthma in sensitive people.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "benzyl alcohol",
+      "description_en": "An aromatic alcohol used mainly as a solvent or carrier in flavorings. Food exposure is limited, but it is biologically active at high doses. Health: Large systemic doses can depress the nervous system and disturb metabolism. Newborns are particularly vulnerable to high medicinal exposure, although food amounts are far lower.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "beta-cyclodextrin",
+      "description_en": "A ring-shaped carbohydrate manufactured from starch and used to trap, protect, or carry flavors and other compounds. It has a relatively low acceptable daily intake. Health: High exposure can exceed the recommended daily limit. The restriction is based on systemic effects observed at higher doses, not on a cancer classification.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "beurre",
@@ -307,6 +499,12 @@
       "lot": "3A"
     },
     {
+      "name": "bœuf",
+      "description_en": "Unprocessed red meat and poultry — beef, pork, lamb, game and more. A complete source of protein, heme iron, zinc and vitamin B12, best eaten fresh rather than cured.",
+      "badge": "Approved",
+      "lot": "5C"
+    },
+    {
       "name": "bouillon",
       "description_en": "Stock used as a flavour base. Homemade versions are nutritious, but industrial bouillon is usually dominated by salt, flavour enhancers and fat, with very little real meat or vegetable.",
       "badge": "Occasional",
@@ -319,6 +517,12 @@
       "lot": "3C"
     },
     {
+      "name": "brilliant black bn",
+      "description_en": "A synthetic black dye used in confectionery, sauces, decorations, and other processed foods. Some high-consuming children may approach or exceed the acceptable daily intake. Health: Frequent consumption of several products containing this dye can increase exposure beyond the level intended for daily use.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "bromate de potassium",
       "description_en": "A flour improver (E924) classified IARC Group 2B, possibly carcinogenic. Banned in the EU, UK, Canada, Brazil and China, but still permitted in US bread. Residues can remain in the finished loaf.",
       "badge": "Ultra toxic",
@@ -329,6 +533,12 @@
       "description_en": "A preservative (2-bromo-2-nitropropane-1,3-diol) that slowly releases formaldehyde, an IARC Group 1 carcinogen. It is also a frequent cause of contact allergy, and its use in EU cosmetics is restricted.",
       "badge": "Carcinogenic",
       "lot": "1"
+    },
+    {
+      "name": "brown ht",
+      "description_en": "A synthetic brown dye used in bakery, dessert, and confectionery products. Exposure estimates have indicated that some high consumers, particularly children, may exceed the acceptable daily intake. Health: The main concern is repeated high intake from multiple colored products.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "butane",
@@ -367,10 +577,76 @@
       "lot": "5B"
     },
     {
+      "name": "calcium benzoate",
+      "description_en": "A synthetic preservative that releases benzoate to slow microbial growth in acidic foods and drinks. It adds to total exposure from benzoic acid and other benzoates. Health: Sensitive individuals may experience hives or asthma-like reactions. High combined exposure should remain below the acceptable daily intake.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "calcium chloride",
+      "description_en": "A refined calcium salt used to firm vegetables, set cheese, and stabilize texture. Health: High concentrations can irritate the digestive tract and taste bitter, but normal authorized use is not considered a major health concern.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "calcium ferrocyanide",
+      "description_en": "A stable mineral complex used to keep salt and powders free-flowing. Health: No major safety concern is established at authorized use levels. The principal controls are dose and chemical purity.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "calcium gluconate",
+      "description_en": "A calcium salt used for firming, fortification, and stabilization. Health: Very high calcium intake can cause constipation and may be unsuitable for people with certain kidney or calcium-balance disorders.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "calcium hydroxide",
+      "description_en": "Also known as slaked lime, it is used to firm foods, process corn, and regulate acidity. Health: Concentrated material is irritating and alkaline. Excess residues could irritate the mouth or digestive tract, so processing controls are essential.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "calcium oxide",
+      "description_en": "Also called quicklime, it is a highly reactive industrial material used in controlled processing. It reacts to form less aggressive calcium compounds. Health: The raw powder is corrosive and can burn tissue. Finished food must not contain unsafe unreacted residues.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "calcium silicate",
+      "description_en": "A mineral anti-caking agent used in dry powders. Modern long-term toxicology data have been insufficient for a fully updated safety conclusion. Health: The concern is incomplete evidence on repeated exposure, not a proven disease effect at ordinary food levels.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "calcium sorbate",
+      "description_en": "A former preservative used to slow mold and yeast growth. It was withdrawn from the European Union food-additive list because the available data were insufficient to rule out a genotoxic concern. Health: Avoid products that list it as a food additive in markets where it is not authorized. Withdrawal reflects unresolved safety data, not proof that it causes cancer.",
+      "badge": "Ultra toxic",
+      "lot": "11"
+    },
+    {
+      "name": "calcium sulfate",
+      "description_en": "A mineral ingredient also known as food-grade gypsum, used for firming, flour treatment, and tofu production. Health: Very high intake can cause digestive discomfort or unnecessarily increase calcium exposure; normal food use is generally low risk.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "camphre",
+      "description_en": "An aromatic compound used in balms and decongestant rubs. It is effective in small amounts, but it is neurotoxic if swallowed and should never be applied to the face of infants or young children.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
       "name": "cannelle",
       "description_en": "Cinnamon, a spice with genuine research behind its effect on blood sugar regulation. Ceylon cinnamon is preferable to cassia for regular use, which contains more coumarin.",
       "badge": "Approved",
       "lot": "5A"
+    },
+    {
+      "name": "canthaxanthin",
+      "description_en": "An orange-red carotenoid color with a low acceptable daily intake. Excessive exposure can cause canthaxanthin crystals to accumulate in the retina. Health: High intake may produce retinal deposits and visual changes. This is a genuine dose-related health concern and is why use is tightly restricted.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "caramel ammoniacal sulfite",
@@ -395,6 +671,12 @@
       "description_en": "Sodium carbonate (E500), an acidity regulator and raising agent used in noodles, baked goods and cocoa. It is neutralised in the finished food but contributes sodium and marks industrial processing.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "carotenes",
+      "description_en": "Orange plant pigments (E160a) that the body converts to vitamin A. They are naturally present in carrots and other vegetables, and act as antioxidants as well as colours.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "carotte",
@@ -427,6 +709,24 @@
       "lot": "5C"
     },
     {
+      "name": "cellulose",
+      "description_en": "Plant cellulose (E460), used as an anti-caking agent and bulking fibre. It is not digested and behaves as insoluble fibre, but in processed food it usually replaces real ingredients.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "ceramides",
+      "description_en": "Lipids that naturally make up the skin's protective barrier. Applied topically they help restore that barrier and reduce water loss, with strong evidence behind them and virtually no irritation risk.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "ceteareth",
+      "description_en": "An ethoxylated emulsifier used to blend oil and water. The ethoxylation process can leave traces of 1,4-dioxane, a possible carcinogen, so manufacturers are expected to purify it out.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
       "name": "champignon",
       "description_en": "Mushrooms of all kinds, from button to shiitake and porcini. They provide B vitamins, selenium and beta-glucans, and are one of the few plant sources of vitamin D when sun-exposed.",
       "badge": "Approved",
@@ -449,6 +749,12 @@
       "description_en": "Green plant pigments (E140/E141) used as colouring. The natural form is benign; the copper-stabilised version used for brighter colour adds a small amount of copper to the diet.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "chlorpyrifos",
+      "description_en": "An organophosphate insecticide banned across the EU since 2020. EFSA could not establish a safe exposure level, citing genotoxicity concerns and evidence of harm to brain development in children.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
     },
     {
       "name": "chocolat noir",
@@ -481,10 +787,28 @@
       "lot": "1"
     },
     {
+      "name": "cire d abeille",
+      "description_en": "Beeswax (E901), a natural glazing agent used to coat sweets and fruit. It is not absorbed by the body and is one of the simplest coatings available.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "cire de candelilla",
+      "description_en": "A plant wax (E902) from a Mexican shrub, used to glaze sweets and coatings. It is not absorbed, and it is a vegan alternative to beeswax and shellac.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "cire de carnauba",
       "description_en": "A glazing wax (E903) from Brazilian palm leaves, used to shine sweets, chewing gum and coated tablets. It is not absorbed by the body, but it is a purely cosmetic industrial coating.",
       "badge": "Processed",
       "lot": "3A"
+    },
+    {
+      "name": "cire microcristalline",
+      "description_en": "A petroleum-derived wax (E905) used as a glazing and release agent. It is not absorbed by the body, but it originates from mineral oil refining rather than from a plant or animal source.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
     },
     {
       "name": "cmc",
@@ -503,6 +827,12 @@
       "description_en": "Carmine (E120), a red colour made from crushed cochineal insects. It is natural rather than synthetic, but it is a recognised allergen that has caused severe reactions, and it is not vegetarian.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "collagene",
+      "description_en": "A protein used in skincare as a surface moisturiser. Its molecules are too large to penetrate the skin, so it hydrates and softens rather than rebuilding collagen — but it is harmless and well tolerated.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
     },
     {
       "name": "Colorants azoïques textiles",
@@ -553,6 +883,12 @@
       "lot": "5A"
     },
     {
+      "name": "curcumine",
+      "description_en": "The yellow pigment of turmeric (E100), used as a natural colour. It carries genuine anti-inflammatory activity, though the amounts used for colouring are far below any therapeutic dose.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "cyanocobalamine",
       "description_en": "A stable added form of vitamin B12, widely used in fortified foods and supplements and important for anyone eating little animal produce. Safe at normal intake; it marks a fortified rather than naturally rich product.",
       "badge": "Occasional",
@@ -587,6 +923,12 @@
       "description_en": "Vitamin E used as a natural antioxidant (E306–E309) to stop fats going rancid. It is beneficial and among the most benign additives, though the added form is an isolated industrial extract.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "datem",
+      "description_en": "DATEM (E472e), a dough strengthener in industrial bread. EFSA found no safety concern in 2020, but laboratory work links it to gut microbiome disruption and a large French cohort tied higher intake to slightly raised type 2 diabetes risk.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "DEA (Diéthanolamine)",
@@ -625,10 +967,40 @@
       "lot": "1"
     },
     {
+      "name": "diglutamate de calcium",
+      "description_en": "A flavour enhancer (E623) used as a lower-sodium alternative to MSG. Considered safe at food levels, but it signals a product engineered on additives rather than ingredients.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "diglutamate de magnesium",
+      "description_en": "A flavour enhancer (E625) from the glutamate family, used to boost savoury taste in processed foods. Safe at normal intake, but characteristic of heavily seasoned industrial products.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "Diméthylformamide (DMF)",
       "description_en": "An industrial solvent used in synthetic leather and coatings. It is classified as toxic to reproduction in the EU and is restricted under REACH, with strict limits on residues in consumer articles.",
       "badge": "Processed",
       "lot": "3C"
+    },
+    {
+      "name": "dimethylpolysiloxane",
+      "description_en": "A silicone anti-foaming agent (E900) used mainly in frying oils and industrial cooking. It is inert and poorly absorbed, but it is a synthetic silicone typical of large-scale food production.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "dioxines",
+      "description_en": "Persistent industrial by-products that accumulate in animal fat and reach us mainly through meat, dairy and fish. TCDD is an IARC Group 1 human carcinogen, and EFSA cut the tolerable weekly intake sevenfold in 2018.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "dioxyde de carbone",
+      "description_en": "Carbon dioxide (E290), used to carbonate drinks and to protect packaged food from oxidation. It is inert at food levels and leaves nothing behind.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "dioxyde de soufre",
@@ -692,15 +1064,93 @@
     },
     {
       "name": "erythritol",
-      "description_en": "A sugar alcohol produced by fermentation, with almost no calories and no blood sugar effect. Well tolerated digestively, though a 2023 study raised questions about cardiovascular effects at high blood levels.",
+      "description_en": "A fermented and purified sugar alcohol used as a low-calorie sweetener. Large single doses can cause diarrhea, nausea, bloating, or abdominal discomfort. Health: EFSA confirmed a laxative threshold. Studies have reported cardiovascular associations, but a causal health risk from normal food consumption has not been established.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "esters acetiques",
+      "description_en": "Acetic acid esters of mono- and diglycerides (E472a), an emulsifier used to stabilise fats in industrial baking and desserts. EFSA raised no safety concern, but it is a purely technical ingredient.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters citriques",
+      "description_en": "Citric acid esters of mono- and diglycerides (E472c), used to emulsify and prevent oxidation. EFSA found no safety concern, though it marks an industrially assembled recipe.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters de propylene glycol",
+      "description_en": "Propylene glycol esters of fatty acids (E477), used to aerate whipped toppings and cake mixes. Permitted at capped levels, and characteristic of ultra-processed desserts.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "esters de sucrose",
+      "description_en": "Sucrose esters of fatty acids (E473), synthetic emulsifiers built from sugar and fat. They are authorised at limited levels but belong to the emulsifier family under study for effects on the gut lining.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters lactiques",
+      "description_en": "Lactic acid esters of mono- and diglycerides (E472b), used to aerate whipped and baked products. Considered safe by EFSA, it is a chemically modified fat with no nutritional role.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters polyglyceriques",
+      "description_en": "Polyglycerol esters of fatty acids (E475), used to emulsify cakes, ice cream and spreads. Permitted at capped levels, and a clear marker of ultra-processed formulation.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "ethyl paraben",
+      "description_en": "A synthetic paraben preservative used to prevent mold and bacterial growth. Experimental research has examined weak hormone-like activity, so exposure is controlled through a combined acceptable daily intake. Health: No cancer claim is justified at authorized food levels. The relevant concern is repeated combined exposure to several parabens.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "ethylcellulose",
+      "description_en": "A modified cellulose (E462) used as a binder and film former. It is indigestible and considered safe, serving a purely technical role in manufacturing.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "ethylparaben",
+      "description_en": "A preservative (E214/E215) permitted in a narrow range of EU foods. Parabens have weak oestrogen-like activity in laboratory studies; the ethyl form is among the least potent of the family.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "eucheuma transforme",
+      "description_en": "Processed eucheuma seaweed (E407a), a cheaper, less purified relative of carrageenan. It shares carrageenan's concerns about gut inflammation and is banned in EU infant formula.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "extrait de paprika",
+      "description_en": "A red-orange colouring (E160c) extracted from peppers, carrying capsanthin and carotenoids. It is a plant-derived colour with antioxidant activity.",
       "badge": "Approved",
-      "lot": "5B"
+      "lot": "10-orphans-additives"
     },
     {
       "name": "Extrait de romarin",
       "description_en": "Rosemary extract (E392), a plant-based antioxidant increasingly used to replace synthetic preservatives such as BHA and BHT. It is rich in natural polyphenols.",
       "badge": "Approved",
       "lot": "5C"
+    },
+    {
+      "name": "farine de ble enrichie",
+      "description_en": "White flour with a few vitamins and iron added back after refining stripped them out. The fortification helps, but the fibre and most micronutrients of the whole grain are gone for good.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "fatty acids",
+      "description_en": "Refined fatty acids used as processing aids, glazing agents, or anti-caking agents. The E-number does not identify a single harmful fat. Health: Health impact depends more on the source and overall fat profile of the food than on this additive function.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "fécule de maïs",
@@ -715,22 +1165,34 @@
       "lot": "5B"
     },
     {
-      "name": "farine de ble enrichie",
-      "description_en": "White flour with a few vitamins and iron added back after refining stripped them out. The fortification helps, but the fibre and most micronutrients of the whole grain are gone for good.",
-      "badge": "Occasional",
-      "lot": "4C"
-    },
-    {
       "name": "ferments lactiques",
       "description_en": "Live bacterial cultures such as lactobacillus and bifidobacterium. They ferment the food, make it more digestible, and contribute to a healthy gut microbiome.",
       "badge": "Approved",
       "lot": "5C"
     },
     {
+      "name": "ferrocyanure de potassium",
+      "description_en": "An anti-caking agent (E536) added to salt to keep it free-flowing. Despite the name, the cyanide is locked in a stable complex and EFSA considers it safe at permitted levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "ferrocyanure de sodium",
       "description_en": "An anti-caking agent (E535) added to table salt to keep it free-flowing. Despite the alarming name, the cyanide is locked in a stable complex and EFSA considers it safe at permitted levels.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "ferrous gluconate",
+      "description_en": "An iron salt used to darken olives and provide iron. It can significantly increase iron exposure in concentrated products. Health: Excess iron can cause nausea, constipation, abdominal pain, and oxidative injury. It is especially dangerous in large accidental doses to children.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "ferrous lactate",
+      "description_en": "An iron salt used mainly to stabilize the dark color of olives and other foods. Health: Too much iron may cause digestive symptoms and is unsuitable for people with iron-overload disorders.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "feta",
@@ -829,22 +1291,40 @@
       "lot": "3B"
     },
     {
+      "name": "gallates",
+      "description_en": "Propyl, octyl and dodecyl gallate (E310–E312), synthetic antioxidants that stop fats going rancid. They are permitted at low levels but can trigger contact allergy and are restricted in foods for infants.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "gamma-tocopherol",
       "description_en": "A natural form of vitamin E (E308) used to prevent fats oxidising. It is a plant-derived antioxidant with genuine nutritional value.",
       "badge": "Approved",
       "lot": "5C"
     },
     {
-      "name": "gelée royale",
-      "description_en": "Bee products including royal jelly, propolis and pollen. They contain a range of natural compounds, though evidence for their claimed benefits is limited and they can trigger allergies.",
+      "name": "garlic",
+      "description_en": "A whole food valued for allicin, its sulphur compound with antibacterial and cardiovascular activity. Crushing it and letting it rest a few minutes before cooking preserves more of that compound.",
       "badge": "Approved",
-      "lot": "5C"
+      "lot": "10-orphans-additives"
     },
     {
       "name": "gelatine",
       "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment. It is a safe, protein-based gelling agent, though of animal origin and low in nutritional value.",
       "badge": "Occasional",
       "lot": "4C"
+    },
+    {
+      "name": "gelatine e441",
+      "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment (E441). It is a safe, protein-based gelling agent, though of animal origin with little nutritional value.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "gelée royale",
+      "description_en": "Bee products including royal jelly, propolis and pollen. They contain a range of natural compounds, though evidence for their claimed benefits is limited and they can trigger allergies.",
+      "badge": "Approved",
+      "lot": "5C"
     },
     {
       "name": "ghee",
@@ -865,10 +1345,40 @@
       "lot": "5B"
     },
     {
+      "name": "gluconic acid",
+      "description_en": "An organic acid produced from glucose and used to regulate acidity or bind minerals. Health: It has low toxicity, although concentrated or high amounts may irritate the digestive system.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "glucono-delta-lactone",
+      "description_en": "A glucose-derived compound that slowly releases gluconic acid, helping set tofu, cure foods, and control acidity. Health: Large amounts may cause bloating, gas, or digestive discomfort.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "glucose",
       "description_en": "Added glucose in isolated form, absorbed almost instantly. It raises blood sugar faster than table sugar and carries no nutritional value beyond calories.",
       "badge": "Processed",
       "lot": "3B"
+    },
+    {
+      "name": "glutamate monoammonique",
+      "description_en": "A glutamate flavour enhancer (E624) that intensifies umami in industrial seasonings. It performs the same role as MSG under a different name.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "glutamate monopotassique",
+      "description_en": "A flavour enhancer (E622) from the glutamate family, used like MSG to build savoury taste with less real ingredient. It is a reliable marker of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "glyceryl diacetate (diacetin)",
+      "description_en": "A manufactured glycerol ester used to carry flavors, retain moisture, and improve processing. Health: It is broken down into glycerol and acetic acid. Modern long-term data are less extensive than for some common additives, but no major risk is established at permitted use.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "glycine",
@@ -883,10 +1393,22 @@
       "lot": "3B"
     },
     {
+      "name": "gomme adragante",
+      "description_en": "A plant gum (E413) from the astragalus shrub, used as a thickener and stabiliser. It behaves as soluble fibre and is well tolerated, though it can cause bloating in quantity.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "gomme arabique",
       "description_en": "Acacia gum (E414), a tree sap used as a stabiliser. It is a prebiotic soluble fibre that feeds gut bacteria, and one of the oldest and gentlest additives in use.",
       "badge": "Approved",
       "lot": "5C"
+    },
+    {
+      "name": "gomme cassia",
+      "description_en": "A thickener (E427) from cassia tree seeds, authorised in the EU with strict purity limits because the raw seed contains natural anthraquinones. Purified food grade is considered safe.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
     },
     {
       "name": "Goudron de houille (coal tar)",
@@ -943,6 +1465,12 @@
       "lot": "3B"
     },
     {
+      "name": "green s",
+      "description_en": "A synthetic green food dye used to create or intensify color. It has an acceptable daily intake, and high consumption of several colored products can increase total exposure. Health: The concern is unnecessary cumulative exposure and possible intolerance in sensitive individuals, not proven carcinogenicity.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "grenade",
       "description_en": "Pomegranate, kiwi and melons. Pomegranate is exceptionally rich in punicalagins and antioxidants, while kiwi delivers more vitamin C per gram than most citrus.",
       "badge": "Approved",
@@ -959,6 +1487,12 @@
       "description_en": "Beans of all kinds, a staple source of plant protein, resistant starch and fibre. Their slow-release carbohydrate makes them one of the best foods for stable blood sugar.",
       "badge": "Approved",
       "lot": "5A"
+    },
+    {
+      "name": "helium",
+      "description_en": "An inert gas used in specialized packaging or processing. It leaves no meaningful chemical residue in food. Health: Food use is not considered a safety concern. Inhalation of pressurized helium is a separate non-food hazard.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "hijiki",
@@ -1057,22 +1591,34 @@
       "lot": "1"
     },
     {
-      "name": "Huile végétale (non spécifiée)",
-      "description_en": "An undisclosed blend of refined oils, most often palm or rapeseed. The label hides which fat is actually used, which alone makes it worth limiting.",
-      "badge": "Occasional",
-      "lot": "4C"
-    },
-    {
       "name": "huile vegetale",
       "description_en": "An unspecified blend, most often refined palm or rapeseed. The label hides which fat is actually used, and heavy industrial refining is typical of ultra-processed food that whole ingredients never require.",
       "badge": "Processed",
       "lot": "3B"
     },
     {
+      "name": "Huile végétale (non spécifiée)",
+      "description_en": "An undisclosed blend of refined oils, most often palm or rapeseed. The label hides which fat is actually used, which alone makes it worth limiting.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
       "name": "huile vegetale bromee",
       "description_en": "Brominated vegetable oil, used to keep citrus flavours suspended in soft drinks. The FDA revoked its authorisation in 2024 after evidence of thyroid harm and bromine build-up in body fat. Long banned in the EU, UK and Japan.",
       "badge": "Ultra toxic",
       "lot": "2"
+    },
+    {
+      "name": "hydrochloric acid",
+      "description_en": "A strong processing acid used in controlled amounts to adjust pH or manufacture ingredients. It is neutralized or highly diluted in the finished food. Health: The concentrated industrial chemical is corrosive, but that hazard should not be confused with properly controlled residues in food.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "hydrogen",
+      "description_en": "A gas used in limited food-processing applications. It is highly flammable during industrial handling but does not remain as a toxic food residue. Health: The main hazard is fire or explosion during manufacturing, not consumption of properly processed food.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "hydrogenated",
@@ -1105,6 +1651,12 @@
       "lot": "3A"
     },
     {
+      "name": "hydroxypropyl starch",
+      "description_en": "A chemically modified starch that remains stable during freezing, heating, and storage. Health: No major specific harm is established at permitted use. Frequent presence indicates a highly engineered texture.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "imidazolidinyl urea",
       "description_en": "A widely used cosmetic preservative that releases formaldehyde, an IARC Group 1 human carcinogen. It is a recognised contact allergen and is restricted under EU cosmetics regulation.",
       "badge": "Carcinogenic",
@@ -1129,16 +1681,34 @@
       "lot": "5B"
     },
     {
-      "name": "Isolat de protéines (whey, soja, lait)",
-      "description_en": "Protein separated from its original food by industrial processing, leaving no fibre, fat or micronutrients. Effective for raising protein figures, but a marker of a reconstructed product.",
+      "name": "irradiation",
+      "description_en": "Treatment with ionising radiation to kill microbes and extend shelf life. It leaves no radioactivity and is authorised in the EU for a narrow list of foods, which must carry an \"irradiated\" label; it does degrade some vitamins.",
       "badge": "Occasional",
-      "lot": "4C"
+      "lot": "10-contaminants"
     },
     {
       "name": "isolat de proteines",
       "description_en": "Protein stripped from its original food by industrial extraction, leaving no fibre, fat or micronutrients. Useful for boosting protein figures on a label, but a marker of a reconstructed product.",
       "badge": "Processed",
       "lot": "3B"
+    },
+    {
+      "name": "Isolat de protéines (whey, soja, lait)",
+      "description_en": "Protein separated from its original food by industrial processing, leaving no fibre, fat or micronutrients. Effective for raising protein figures, but a marker of a reconstructed product.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "isomalt",
+      "description_en": "A polyol (E953) made from sucrose, common in sugar-free sweets. It does not feed tooth decay and has a low glycemic impact, but it causes digestive upset in larger amounts.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "isopropyl myristate",
+      "description_en": "A synthetic emollient that gives creams a light, fast-absorbing feel. It is not toxic, but it is highly comedogenic and a common trigger of clogged pores in acne-prone skin.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
     },
     {
       "name": "Isothiazolinones (MIT, CMIT)",
@@ -1201,10 +1771,46 @@
       "lot": "5C"
     },
     {
+      "name": "keratine",
+      "description_en": "The structural protein of hair, added to products to smooth and coat the strand. The protein itself is harmless, but some professional keratin straightening treatments release formaldehyde when heated.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "l-cysteine",
+      "description_en": "An amino acid (E920) used as a dough conditioner to speed up industrial bread making. Modern production is by bacterial fermentation, though it was historically extracted from feathers and hair.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "l-theanine",
       "description_en": "An amino acid found almost exclusively in tea. It promotes calm alertness and offsets the jitteriness of caffeine, which is why tea feels different from coffee.",
       "badge": "Approved",
       "lot": "5B"
+    },
+    {
+      "name": "lactate de calcium",
+      "description_en": "A firming agent and acidity regulator (E327) that also supplies calcium. It is well tolerated and one of the more benign mineral salts used in food.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lactate de potassium",
+      "description_en": "A preservative and acidity regulator (E326) often used to reduce sodium in processed meat. It is considered safe, though people with kidney disease should limit added potassium salts.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lactate de sodium",
+      "description_en": "The sodium salt of lactic acid (E325), used to preserve and retain moisture in meat and baked goods. It is well tolerated but adds sodium to an already salty product category.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lactitol",
+      "description_en": "A polyol (E966) derived from lactose, poorly absorbed and used in sugar-free products. It reaches the colon largely intact, which is why it carries a laxative warning above 10%.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "lait",
@@ -1231,6 +1837,12 @@
       "lot": "4C"
     },
     {
+      "name": "lanoline",
+      "description_en": "A wax from sheep's wool that is highly effective at sealing moisture into dry skin and lips. Purified grades are safe, but it is a known contact allergen and lower grades can carry pesticide residues.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
       "name": "lentilles",
       "description_en": "Lentils, rich in plant protein, iron, folate and fibre. They have a low glycemic index, and pairing them with vitamin C improves absorption of their iron.",
       "badge": "Approved",
@@ -1249,22 +1861,70 @@
       "lot": "5C"
     },
     {
-      "name": "Mélamine",
-      "description_en": "An industrial resin chemical with no place in food. It was illegally added to milk products to fake protein readings, causing kidney failure in infants in 2008. IARC classifies it Group 2B, possibly carcinogenic.",
-      "badge": "Carcinogenic",
-      "lot": "1"
+      "name": "lilial",
+      "description_en": "A synthetic floral fragrance (butylphenyl methylpropional) banned in EU cosmetics since March 2022. It was classified toxic to reproduction (CMR 1B) after animal studies showed effects on fertility and foetal development, and it is also a contact allergen.",
+      "badge": "Ultra toxic",
+      "lot": "10-cosmetics"
     },
     {
-      "name": "Mélamine (vaisselle)",
-      "description_en": "A resin used in unbreakable tableware. It is stable at normal temperatures but can migrate into food when heated, which is why melamine dishes should never go in a microwave or hold very hot food.",
+      "name": "luteine",
+      "description_en": "A yellow carotenoid (E161b) from marigold and leafy greens. It concentrates in the retina and is associated with eye health, making it a colouring with real nutritional value.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "lycopene",
+      "description_en": "The red pigment of tomatoes (E160d), one of the most studied dietary antioxidants. Used as a colouring, it retains its antioxidant properties.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "magnesium carbonates",
+      "description_en": "Refined magnesium salts used to prevent clumping, regulate acidity, or improve powder flow. Health: Large magnesium doses can cause diarrhea and abdominal cramping; food-additive quantities are usually much lower.",
       "badge": "Occasional",
-      "lot": "4C"
+      "lot": "11"
+    },
+    {
+      "name": "magnesium chloride",
+      "description_en": "A refined magnesium salt used in tofu, mineral fortification, and texture control. Health: Large amounts may cause diarrhea, nausea, or abdominal cramping, especially in people with reduced kidney function.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "magnesium hydroxide",
+      "description_en": "A refined magnesium compound used to regulate acidity. At larger medicinal doses it also acts as a laxative. Health: Too much can cause diarrhea, cramping, and magnesium accumulation in people with kidney impairment.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "magnesium oxide",
+      "description_en": "A refined magnesium compound used to prevent clumping or regulate acidity. Health: Large doses may cause diarrhea or magnesium accumulation, particularly in people with impaired kidney function.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "magnesium silicate",
+      "description_en": "A processed mineral used to keep powders dry and free-flowing. The available modern data are limited for a complete long-term assessment. Health: Use should remain controlled because chronic exposure has not been characterized as thoroughly as for better-studied additives.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "magnesium trisilicate",
+      "description_en": "A mineral anti-caking compound used in powdered foods. Its long-term safety database is incomplete. Health: The concern is uncertainty from limited chronic and reproductive data, rather than confirmed toxicity from normal food use.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "mais déshydraté",
       "description_en": "Dried or whole corn, a whole grain when the kernel is intact. It supplies fibre, B vitamins and carotenoids — quite different from the refined corn starch used in industrial food.",
       "badge": "Approved",
       "lot": "5A"
+    },
+    {
+      "name": "maltitol",
+      "description_en": "A polyol (E965) widely used in sugar-free chocolate. It still raises blood sugar noticeably — more than other polyols — and is one of the most likely to cause bloating and laxative effects.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "maltodextrine",
@@ -1277,6 +1937,30 @@
       "description_en": "Tropical fruits such as mango, pineapple, papaya and passion fruit. They are dense in vitamins A and C and digestive enzymes, and their fibre balances their natural sugar.",
       "badge": "Approved",
       "lot": "5A"
+    },
+    {
+      "name": "mannitol",
+      "description_en": "A polyol sweetener and anti-caking agent (E421) with roughly half the calories of sugar. Like all polyols it is poorly absorbed and carries a mandatory laxative warning above 10%.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "Mélamine",
+      "description_en": "An industrial resin chemical with no place in food. It was illegally added to milk products to fake protein readings, causing kidney failure in infants in 2008. IARC classifies it Group 2B, possibly carcinogenic.",
+      "badge": "Carcinogenic",
+      "lot": "1"
+    },
+    {
+      "name": "Mélamine (vaisselle)",
+      "description_en": "A resin used in unbreakable tableware. It is stable at normal temperatures but can migrate into food when heated, which is why melamine dishes should never go in a microwave or hold very hot food.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
+      "name": "menthol",
+      "description_en": "A cooling compound from mint, used in balms, toothpaste and scalp products. The cooling sensation is not an active benefit, and at higher concentrations it irritates skin and mucous membranes.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
     },
     {
       "name": "mercure",
@@ -1303,6 +1987,24 @@
       "lot": "4B"
     },
     {
+      "name": "methyl paraben",
+      "description_en": "A synthetic preservative used against molds and bacteria. It has weak biological activity in laboratory testing, but food use is regulated under a combined acceptable daily intake with ethyl paraben. Health: The practical concern is cumulative exposure from food, medicines, and personal-care products, not proven cancer from permitted food levels.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "methylcellulose",
+      "description_en": "A chemically modified cellulose (E461) used to thicken and bind, notably in plant-based meat substitutes. It is not absorbed and passes through as fibre, but it is a laboratory-modified ingredient.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "methylparaben",
+      "description_en": "A preservative (E218/E219) still permitted in limited EU food uses and widely used in cosmetics. It is the least potent paraben, though the family as a whole is under scrutiny for endocrine activity.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "Mica contaminé",
       "description_en": "A mineral that gives cosmetics their shimmer. Natural mica can carry heavy metal impurities, and much of the global supply is linked to child labour in unregulated mines.",
       "badge": "Occasional",
@@ -1319,6 +2021,18 @@
       "description_en": "Honey, an unrefined sweetener carrying enzymes, antioxidants and antibacterial compounds. It is still mostly sugar, so it is a better sweetener rather than a free one — and never for infants under one.",
       "badge": "Approved",
       "lot": "5B"
+    },
+    {
+      "name": "mixed acetic and tartaric acid esters of mono- and diglycerides of fatty acids",
+      "description_en": "A complex emulsifier made by chemically esterifying mono- and diglycerides. It improves dough performance, volume, and shelf stability in industrial foods. Health: No carcinogenic classification applies. Purity, total tartaric-acid exposure, and frequent consumption of heavily formulated foods are the main considerations.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "moah",
+      "description_en": "Mineral oil aromatic hydrocarbons, contaminants from packaging inks, machine lubricants and processing aids. EFSA considers those with three or more aromatic rings genotoxic and carcinogenic, and found their presence in infant formula to be of health concern.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
     },
     {
       "name": "modified whey",
@@ -1339,6 +2053,12 @@
       "lot": "1"
     },
     {
+      "name": "mosh",
+      "description_en": "Mineral oil saturated hydrocarbons, which migrate into food from packaging and machinery. EFSA concluded in 2023 that current dietary exposure raises no health concern, though they accumulate in the liver and lymphatic tissue and long-term effects remain uncertain.",
+      "badge": "Occasional",
+      "lot": "10-contaminants"
+    },
+    {
       "name": "msg",
       "description_en": "Monosodium glutamate (E621), a flavour enhancer that makes processed food taste richer. Regulators consider it safe at normal intake, but it is a reliable marker of ultra-processed food and can encourage overeating.",
       "badge": "Processed",
@@ -1351,10 +2071,34 @@
       "lot": "5A"
     },
     {
+      "name": "natamycine",
+      "description_en": "An antifungal (E235) applied to the surface of cheese and cured sausage. It is not absorbed through the gut wall, but it is an antibiotic-class compound, raising questions about resistance.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "neohesperidine dc",
+      "description_en": "A synthetic sweetener (E959) derived from bitter orange peel, several hundred times sweeter than sugar. It is authorised in the EU but not in the United States, and is used mainly to mask bitterness in industrial products.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "neotame",
+      "description_en": "An artificial sweetener (E961) built from aspartame, up to 13,000 times sweeter than sugar. EFSA re-evaluated it in 2025 and found no safety concern at permitted levels, though the WHO advises against sweeteners for weight control.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "niacinamide",
       "description_en": "Vitamin B3 in its added form, used to fortify flours, cereals and drinks. The vitamin itself is beneficial and well tolerated; its presence mainly signals a refined product whose nutrients were added back after processing.",
       "badge": "Occasional",
       "lot": "4-reclassified"
+    },
+    {
+      "name": "nisine",
+      "description_en": "A natural antibacterial peptide (E234) produced by lactic bacteria, used in cheese and canned foods. It is digested like any protein and is one of the most benign preservatives available.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "nitrate de potassium",
@@ -1429,6 +2173,12 @@
       "lot": "5A"
     },
     {
+      "name": "onion",
+      "description_en": "A whole vegetable rich in quercetin and prebiotic fibre that feeds beneficial gut bacteria. It adds depth of flavour without salt or sugar, whether fresh or dehydrated.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "or",
       "description_en": "Gold leaf (E175) used to decorate confectionery and drinks. It passes through the body unabsorbed, but EFSA could not complete its safety re-evaluation for lack of data on nanoparticle content.",
       "badge": "Occasional",
@@ -1453,10 +2203,34 @@
       "lot": "5B"
     },
     {
+      "name": "oxidized starch",
+      "description_en": "Starch chemically modified to improve thickening, stability, and processing performance. It is used to engineer consistent texture in sauces, fillings, and processed foods. Health: No specific major toxicity is established at authorized levels. It is primarily a marker of industrial formulation.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "oxybenzone",
       "description_en": "A chemical UV filter absorbed through the skin and repeatedly flagged for hormonal activity. Its permitted concentration has been reduced in the EU, and it is banned in Hawaii and Palau for coral reef damage.",
       "badge": "Processed",
       "lot": "3C"
+    },
+    {
+      "name": "oxyde d ethylene",
+      "description_en": "A fumigant banned in EU food production and classified as mutagenic, carcinogenic and reprotoxic, with no safe level established. Its detection in imported sesame and locust bean gum triggered the largest food recall operation in EU history from 2020.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "oxydes de fer",
+      "description_en": "Mineral pigments (E172) used to colour coatings, sweets and cosmetics. They pass through the body largely unabsorbed and EFSA considers them safe, but they add no nutritional value.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "oxygen",
+      "description_en": "A natural gas used in controlled-atmosphere packaging and processing. Health: It is not toxic at food-packaging exposure. It can accelerate oxidation, rancidity, and vitamin loss in some foods.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "pain blanc",
@@ -1471,10 +2245,22 @@
       "lot": "5B"
     },
     {
+      "name": "palmitate d ascorbyle",
+      "description_en": "A fat-soluble form of vitamin C (E304) used to keep oils from going rancid. It is broken down into vitamin C and palmitic acid in the body, and is considered safe at permitted levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "pantothenate de calcium",
       "description_en": "Vitamin B5 in its added form, used to enrich foods, drinks and supplements. Harmless and genuinely useful, but it usually appears in products that lost their natural nutrients during refining.",
       "badge": "Occasional",
       "lot": "4-reclassified"
+    },
+    {
+      "name": "paprika extract, capsanthin and capsorubin",
+      "description_en": "A concentrated red-orange color extracted from paprika and processed to standardize pigment strength. It is not considered a high-risk additive at permitted levels. Health: Quality control is important for solvent residues and purity. Rare paprika-related allergic reactions may occur in sensitive people.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "Parabènes (méthyl, éthyl, propyl, butyl)",
@@ -1489,6 +2275,12 @@
       "lot": "1"
     },
     {
+      "name": "paraquat",
+      "description_en": "A herbicide banned in the EU since 2007 because of its extreme acute toxicity — a small ingested dose can be fatal with no antidote. Epidemiological studies also associate exposure with a raised risk of Parkinson's disease.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
+    },
+    {
       "name": "pastrami",
       "description_en": "Brined, smoked and spiced beef. It falls under processed meat, an IARC Group 1 human carcinogen, and carries a heavy salt load. Regular intake is linked to colorectal cancer.",
       "badge": "Carcinogenic",
@@ -1501,10 +2293,22 @@
       "lot": "5B"
     },
     {
+      "name": "patent blue v",
+      "description_en": "A synthetic blue dye used only to change appearance and provide no nutritional value. Current authorized uses have not been shown to create a general safety concern, but rare hypersensitivity reactions are possible. Health: People with a history of reactions to synthetic dyes should be cautious. The additive mainly signals a highly formulated product.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "pates completes",
       "description_en": "Whole wheat pasta, soba, udon and rice noodles. Whole grain versions keep their fibre and minerals, and pasta cooked al dente has a lower glycemic response.",
       "badge": "Approved",
       "lot": "5B"
+    },
+    {
+      "name": "pcb",
+      "description_en": "Polychlorinated biphenyls, banned industrial oils that persist for decades in the environment and concentrate in fatty fish. IARC classifies them Group 1 human carcinogens, and they are also linked to hormonal and developmental effects.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
     },
     {
       "name": "peche",
@@ -1531,10 +2335,22 @@
       "lot": "3B"
     },
     {
+      "name": "peptides",
+      "description_en": "Short chains of amino acids used to signal repair processes in the skin. They are well tolerated and non-irritating, though results vary widely depending on the specific peptide and formulation.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
       "name": "Perchloréthylène",
       "description_en": "The classic dry-cleaning solvent. IARC classifies it Group 2A, probably carcinogenic to humans, and it is being phased out or tightly controlled in many countries because it lingers on treated fabrics.",
       "badge": "Processed",
       "lot": "3C"
+    },
+    {
+      "name": "peroxyde de benzoyle",
+      "description_en": "An effective antibacterial acne treatment that kills the bacteria driving breakouts. It is drying and irritating at higher strengths, and it permanently bleaches fabric and hair on contact.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
     },
     {
       "name": "petits pois",
@@ -1585,6 +2401,24 @@
       "lot": "3A"
     },
     {
+      "name": "phosphate de diamidon acetyle e1414",
+      "description_en": "A doubly modified starch (E1414) built to survive heating, freezing and acidity. It adds texture and shelf life without nutrition, and signals an industrially engineered recipe.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "phosphate de diamidon hydroxypropyle",
+      "description_en": "One of the most common modified starches (E1442), used in sauces, desserts and ready meals. Regarded as safe by EFSA, but a clear technical marker of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "phosphate de monoamidon",
+      "description_en": "A modified starch (E1410) used to thicken and stabilise processed food. EFSA considers modified starches safe, but they are refined carbohydrates and a marker of ultra-processing.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "phosphate de potassium",
       "description_en": "A phosphate salt (E340) used as a buffer and stabiliser. EFSA set a combined limit for all phosphate additives; people with reduced kidney function should keep added phosphates low.",
       "badge": "Occasional",
@@ -1597,10 +2431,22 @@
       "lot": "4B"
     },
     {
+      "name": "phosphated distarch phosphate",
+      "description_en": "A cross-linked and phosphorylated starch designed to resist heat, acid, and mechanical processing. Health: It has no established carcinogenic classification. Its role is technological rather than nutritional.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "Phosphates (détergents)",
       "description_en": "Phosphates in detergents soften water and boost cleaning, but they drive algal blooms that suffocate rivers and lakes. The EU has restricted them in household laundry and dishwasher products.",
       "badge": "Occasional",
       "lot": "4C"
+    },
+    {
+      "name": "phosphatides d ammonium",
+      "description_en": "An emulsifier (E442) used almost exclusively in chocolate to control flow during moulding. It is authorised at low levels but is a synthetic phosphate derivative with no place in traditional chocolate.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
     },
     {
       "name": "phtalate",
@@ -1675,6 +2521,12 @@
       "lot": "4C"
     },
     {
+      "name": "polydextrose",
+      "description_en": "A synthetic soluble fibre (E1200) made from glucose, used to add bulk and fibre while cutting sugar. It is largely unabsorbed and acts as a prebiotic, but large amounts cause bloating.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "polyphosphate",
       "description_en": "Polyphosphates (E452) used to bind water, emulsify and stabilise processed meat and cheese. They count toward EFSA's combined phosphate limit and are a clear marker of industrial processing.",
       "badge": "Occasional",
@@ -1717,6 +2569,18 @@
       "lot": "4C"
     },
     {
+      "name": "polyvinyl alcohol (pva)",
+      "description_en": "A synthetic polymer used in edible films, coatings, and supplement capsules. It is only partly absorbed and is used for a technological purpose. Health: The principal concern is product purity and residual manufacturing chemicals rather than a proven toxic effect at permitted levels.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "polyvinylpolypyrrolidone (pvpp)",
+      "description_en": "A synthetic, insoluble polymer used to clarify beverages or stabilize supplements. It is poorly absorbed from the digestive tract. Health: Safety depends on strict limits for residual monomers and manufacturing impurities.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "pomme",
       "description_en": "Apples, pears, bananas and lemons — whole fruit eaten as it grows. Their fibre slows sugar absorption, and their vitamins and polyphenols come packaged exactly as the body handles best.",
       "badge": "Approved",
@@ -1733,6 +2597,54 @@
       "description_en": "Cochineal Red A (E124), a synthetic azo dye subject to the EU warning label on children's activity and attention. It is banned from food in the United States, Norway and Finland.",
       "badge": "Processed",
       "lot": "3A"
+    },
+    {
+      "name": "potassium aluminum silicate",
+      "description_en": "An aluminum-containing mineral used to improve powder flow. It adds to aluminum exposure and has limited modern toxicology data. Health: Frequent intake from several aluminum-containing foods may increase total exposure, especially for vulnerable consumers.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "potassium aluminum sulfate",
+      "description_en": "Also called potassium alum, this compound is used as a firming or processing agent and adds aluminum to the diet. Health: Long-term concern relates to cumulative aluminum exposure, not an immediate poisoning effect from a single serving.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "potassium carbonates",
+      "description_en": "Refined mineral salts used to control acidity, improve dough, or support manufacturing. They are not considered harmful at normal food levels. Health: Very high potassium intake can be dangerous for people with kidney disease or those taking medicines that raise blood potassium.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "potassium chloride",
+      "description_en": "A refined mineral salt used to replace sodium, control flavor, or support texture. Health: Excess potassium can cause dangerous heart-rhythm problems in people with kidney disease or certain medications. Normal consumers usually tolerate food amounts.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "potassium ferrocyanide",
+      "description_en": "A stable anti-caking complex used mainly in salt. It does not normally release dangerous free cyanide during ordinary food use. Health: The additive should still remain within regulatory limits and purity specifications.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "potassium gluconate",
+      "description_en": "A potassium salt used for mineral fortification and product stability. Health: Excess potassium can be dangerous for people with kidney disease or medicines that impair potassium removal.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "potassium hydroxide",
+      "description_en": "A strong alkali used to adjust pH or manufacture other ingredients. It is neutralized or highly diluted during food processing. Health: The raw chemical can cause severe burns, but properly controlled food use should not retain this corrosive effect.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "potassium sulfates",
+      "description_en": "Refined potassium salts used to regulate acidity or support processing. Health: People with kidney disease must avoid excessive potassium because it can disturb heart rhythm.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "poudre a lever",
@@ -1765,10 +2677,28 @@
       "lot": "4B"
     },
     {
-      "name": "Propylène glycol",
-      "description_en": "A humectant and solvent (E1520) that keeps products moist and carries flavours. Considered safe at food levels by EFSA, but it is a synthetic ingredient with strict use limits.",
+      "name": "propionate de potassium",
+      "description_en": "A mould inhibitor (E283) used in packaged bread and baked goods. Considered safe by EFSA, though it is only needed when bread must last far beyond its natural life.",
       "badge": "Occasional",
-      "lot": "4B"
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "propionate de sodium",
+      "description_en": "A bread preservative (E281) that blocks mould and rope spoilage. EFSA considers it safe at permitted levels; it marks industrial rather than fresh-baked bread.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "propyl paraben",
+      "description_en": "A paraben preservative that is no longer authorized as a food additive in the European Union. Regulators could not establish an acceptable daily intake from the available reproductive-toxicity data. Health: The unresolved concern involves possible reproductive effects at sufficient exposure. Non-authorization does not prove that ordinary trace exposure causes cancer.",
+      "badge": "Ultra toxic",
+      "lot": "11"
+    },
+    {
+      "name": "Propylène glycol",
+      "description_en": "A synthetic solvent and moisture-retaining agent used in flavors, colors, enzymes, and processed foods. It is not the same substance as toxic ethylene glycol. Health: Very high exposure can cause hyperosmolality, lactic acidosis, nervous-system depression, and kidney stress, especially in infants or people with impaired liver or kidney function.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "propylparaben",
@@ -1801,16 +2731,34 @@
       "lot": "3B"
     },
     {
+      "name": "protoxyde d azote",
+      "description_en": "Nitrous oxide (E942), the propellant in aerosol whipped cream. It is inert in food use and leaves no residue, though inhaling it recreationally causes serious neurological harm.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "ptfe",
       "description_en": "The non-stick coating on cookware. PTFE itself is not classified as carcinogenic, but PFOA — long used to manufacture it — is an IARC Group 1 human carcinogen. Overheated pans also release toxic fumes.",
       "badge": "Carcinogenic",
       "lot": "1"
     },
     {
+      "name": "pullulan",
+      "description_en": "A fermentation-produced carbohydrate polymer used to make edible films, capsules, and coatings. Health: Several grams at once may cause abdominal fullness, gas, bloating, or cramps in some people.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "PVC (plastique #3)",
       "description_en": "A rigid plastic softened with phthalate plasticisers that migrate into fatty foods. Vinyl chloride, its building block, is a confirmed carcinogen, though it is largely bound in the finished material.",
       "badge": "Occasional",
       "lot": "4C"
+    },
+    {
+      "name": "pvp",
+      "description_en": "Polyvinylpyrrolidone (E1201), a synthetic polymer used to clarify drinks and coat tablets. It is not absorbed by the gut and is considered safe, serving a purely technical purpose.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
     },
     {
       "name": "pyridoxine chlorhydrate",
@@ -1831,12 +2779,6 @@
       "lot": "5B"
     },
     {
-      "name": "Résorcinol",
-      "description_en": "A compound used in permanent hair dyes. It is a skin sensitiser and is flagged as a suspected endocrine disruptor affecting thyroid function; its level in cosmetics is capped in the EU.",
-      "badge": "Occasional",
-      "lot": "4C"
-    },
-    {
       "name": "raisin",
       "description_en": "Grapes, rich in polyphenols including resveratrol in the skin. Naturally higher in sugar than most fruit, but eaten whole the fibre keeps the response moderate.",
       "badge": "Approved",
@@ -1849,10 +2791,22 @@
       "lot": "4B"
     },
     {
+      "name": "Résorcinol",
+      "description_en": "A compound used in permanent hair dyes. It is a skin sensitiser and is flagged as a suspected endocrine disruptor affecting thyroid function; its level in cosmetics is capped in the EU.",
+      "badge": "Occasional",
+      "lot": "4C"
+    },
+    {
       "name": "rhubarbe",
       "description_en": "Rhubarb, quince and mirabelle plums — tart fruits low in sugar and high in fibre. Rhubarb leaves are toxic, but the stalks are perfectly safe and rich in vitamin K.",
       "badge": "Approved",
       "lot": "5A"
+    },
+    {
+      "name": "riboflavine",
+      "description_en": "Vitamin B2 (E101), used as a yellow colouring. It is an essential nutrient with a genuine nutritional role, and one of the most benign colourings in use.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "ricotta",
@@ -1891,6 +2845,12 @@
       "lot": "2"
     },
     {
+      "name": "rouge de betterave",
+      "description_en": "Betanin (E162), the natural red pigment of beetroot. It is a plant extract with antioxidant activity, though it fades with heat and light, which limits its industrial use.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "saccharine",
       "description_en": "One of the oldest artificial sweeteners (E954). Once suspected of causing bladder cancer in rats, it was later cleared for humans and delisted as a carcinogen, but remains a purely synthetic additive.",
       "badge": "Processed",
@@ -1901,6 +2861,12 @@
       "description_en": "A dry fermented and cured sausage. As a processed meat it falls under the IARC Group 1 classification: nitrite curing and fermentation generate compounds tied to colorectal cancer.",
       "badge": "Carcinogenic",
       "lot": "1"
+    },
+    {
+      "name": "salt",
+      "description_en": "Sodium chloride, essential for fluid balance and nerve function but present in excess in most processed food. High sodium intake raises blood pressure, and the WHO recommends staying under 5 g of salt a day.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "sarrasin",
@@ -1925,6 +2891,24 @@
       "description_en": "Wild salmon, sardines, mackerel and anchovies. Small oily fish are the best dietary source of long-chain omega-3 EPA and DHA, with low mercury and high vitamin D.",
       "badge": "Approved",
       "lot": "5C"
+    },
+    {
+      "name": "sel d aspartame-acesulfame",
+      "description_en": "A combined salt of aspartame and acesulfame K (E962), used to balance the aftertaste of each. It carries the concerns of both parent sweeteners, including aspartame's IARC Group 2B classification.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "sels d acides gras",
+      "description_en": "Fatty acid salts (E470), used as anti-caking and glazing agents rather than as a food fat. They are refined industrial derivatives typical of processed formulations.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "shellac",
+      "description_en": "A resin (E904) secreted by the lac insect, used to glaze sweets, coffee beans and tablets. It is not absorbed, but it is of insect origin and therefore not vegetarian.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "silicate alumino-calcique",
@@ -1957,6 +2941,12 @@
       "lot": "3A"
     },
     {
+      "name": "silicon dioxide",
+      "description_en": "A finely divided mineral powder used to prevent clumping and improve flow in seasonings, powders, and supplements. Health: Current authorized food uses are not considered a general safety concern, but particle characterization and metal impurities require strict specifications.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "sirop de ble",
       "description_en": "A syrup made by breaking down wheat starch into sugars. It is marketed as a natural sweetener but behaves like any glucose syrup, with a high glycemic impact and no nutrients.",
       "badge": "Occasional",
@@ -1973,6 +2963,12 @@
       "description_en": "High-fructose corn syrup, a cheap industrial sweetener. Its fructose load is processed almost entirely by the liver and is linked to non-alcoholic fatty liver disease and metabolic syndrome.",
       "badge": "Processed",
       "lot": "3B"
+    },
+    {
+      "name": "sirop de polyglycitol",
+      "description_en": "A polyol syrup (E964) made by hydrogenating starch, used as a bulk sweetener in sugar-free products. Like all polyols it is poorly absorbed and carries a mandatory laxative warning above 10%.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
     },
     {
       "name": "sirop de riz",
@@ -1993,10 +2989,70 @@
       "lot": "4C"
     },
     {
+      "name": "sodium aluminum phosphate, acidic",
+      "description_en": "An acidic aluminum salt used in some baking powders and bakery products to control gas release. Health: It adds both aluminum and sodium. Heavy reliance on products containing aluminum additives can increase total exposure above recommended limits.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "sodium aluminum silicate",
+      "description_en": "An industrial anti-caking mineral that also contributes aluminum. The toxicology database has not supported a fully conclusive modern assessment. Health: Cumulative aluminum exposure and incomplete long-term data are the main reasons for concern.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "sodium aluminum sulfate",
+      "description_en": "An aluminum- and sodium-containing industrial salt used in some baking powders and processing applications. Health: It increases cumulative aluminum and sodium exposure. Frequent consumption of several aluminum-containing products is the main concern.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "sodium benzoate",
       "description_en": "A preservative (E211) used in acidic drinks and sauces. Combined with vitamin C, and helped by heat or light, it can form traces of benzene — a reason to avoid drinks that list both.",
       "badge": "Occasional",
       "lot": "4B"
+    },
+    {
+      "name": "sodium ethyl paraben",
+      "description_en": "The water-soluble sodium form of ethyl paraben. It is an industrial antimicrobial preservative and contributes to the same combined paraben exposure limit as ethyl paraben. Health: The main concern is cumulative exposure to parabens rather than an immediate toxic effect at permitted levels.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "sodium ferrocyanide",
+      "description_en": "A stable iron-cyanide complex used in salt to prevent clumping. It is not the same as free cyanide under normal food conditions. Health: Current authorized uses are low. Purity and compliance with exposure limits are more relevant than the alarming chemical name.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "sodium gluconate",
+      "description_en": "A refined sodium salt used to bind metals, stabilize products, and control acidity. Health: Its main nutritional concern is added sodium rather than specific toxicity.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "sodium hydroxide",
+      "description_en": "A powerful alkaline processing agent used for pretzels, olives, cocoa, and pH control. It is consumed only after reaction, neutralization, washing, or dilution. Health: The concentrated chemical is corrosive. Correct processing must prevent caustic residues in the final food.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "sodium methyl paraben",
+      "description_en": "The sodium salt of methyl paraben, designed to dissolve more easily in water. It is a synthetic preservative counted within the same combined exposure limit as methyl and ethyl parabens. Health: Repeated exposure from several sources is more relevant than a single food serving.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "sodium propyl paraben",
+      "description_en": "The sodium form of propyl paraben, also no longer authorized as a food additive in the European Union. Its safety could not be adequately confirmed from the available reproductive-toxicity evidence. Health: Avoid as a declared food additive where it is not authorized. The concern is insufficient safety assurance, especially for repeated exposure.",
+      "badge": "Ultra toxic",
+      "lot": "11"
+    },
+    {
+      "name": "sodium sulfates",
+      "description_en": "Refined sulfate salts used in processing and acidity control. Health: Large sulfate doses can draw water into the intestine and cause diarrhea. Sodium-containing forms also add to total sodium intake.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "soja",
@@ -2011,10 +3067,46 @@
       "lot": "4B"
     },
     {
+      "name": "sorbitanes",
+      "description_en": "Sorbitan emulsifiers (E491–E495) used to stabilise fats in baked goods and confectionery. They belong to the synthetic emulsifier family under study for effects on the gut lining.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "sorbitol",
+      "description_en": "A polyol sweetener (E420) that is only partly absorbed, so it raises blood sugar less than sugar. EU law requires a laxative warning above 10%, as it commonly causes bloating and diarrhoea.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "soybean hemicellulose",
+      "description_en": "A processed fiber fraction extracted from soybeans and used to thicken, stabilize, or keep particles suspended. It is mainly an industrial texture ingredient. Health: Residual soy proteins may matter for people with a severe soy allergy, even though the additive itself is not considered highly toxic.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
+      "name": "spices",
+      "description_en": "Culinary herbs and spices such as basil, oregano and thyme. They are among the most antioxidant-dense foods by weight and replace salt as a source of flavour.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
       "name": "spiruline",
       "description_en": "A blue-green algae dense in plant protein, iron and B vitamins. Genuinely nutritious, though quality varies and it should be sourced from tested, contamination-free suppliers.",
       "badge": "Approved",
       "lot": "5B"
+    },
+    {
+      "name": "stannous chloride",
+      "description_en": "A tin compound used mainly to preserve color in a limited number of canned foods. It requires strict concentration limits. Health: Excess inorganic tin can cause acute nausea, vomiting, abdominal pain, and diarrhea. This is the principal established health concern.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
+      "name": "stearoyl lactylate de sodium",
+      "description_en": "Sodium stearoyl lactylate (E481), a dough conditioner that improves volume and shelf life in industrial bread. It is authorised at limited levels but never needed in traditionally made bread.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
     },
     {
       "name": "stevia",
@@ -2089,6 +3181,12 @@
       "lot": "3B"
     },
     {
+      "name": "sucroglycerides",
+      "description_en": "Industrial emulsifiers produced by reacting sucrose with food fats. They help oil and water remain mixed and create a stable, smooth texture in highly formulated foods. Health: Some exposure scenarios may approach or exceed the group acceptable daily intake. Large amounts may also contribute to digestive discomfort.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "sulfate de cuivre",
       "description_en": "Copper sulfate (E519), used as a processing aid and firming agent. Copper is essential in trace amounts but toxic in excess, causing liver and kidney damage, so food use is tightly capped.",
       "badge": "Ultra toxic",
@@ -2113,10 +3211,22 @@
       "lot": "4B"
     },
     {
+      "name": "sulfuric acid",
+      "description_en": "A strong industrial acid used in controlled food processing and pH adjustment. It is neutralized or diluted before the food is consumed. Health: Concentrated sulfuric acid is severely corrosive, but properly manufactured food should not retain that corrosive hazard.",
+      "badge": "Occasional",
+      "lot": "11"
+    },
+    {
       "name": "tahini",
       "description_en": "Sesame paste and the traditional dips built on whole ingredients — hummus, baba ganoush, guacamole, tzatziki. Nutrient-dense and made from real foods.",
       "badge": "Approved",
       "lot": "5C"
+    },
+    {
+      "name": "talc",
+      "description_en": "Food-grade talc is used to prevent sticking or clumping. Safety depends strongly on mineral purity, particle properties, and the absence of asbestos contamination. Health: Contaminated talc would be unacceptable and potentially harmful. Only material meeting strict food-grade purity standards should be used.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "tanin ferrique",
@@ -2137,6 +3247,12 @@
       "lot": "4C"
     },
     {
+      "name": "tartaric acid esters of mono- and diglycerides of fatty acids",
+      "description_en": "Chemically modified fats used to strengthen dough, stabilize mixtures, and control texture. They are characteristic of industrial bakery and processed-food formulations. Health: No major specific disease risk is established at authorized levels. The relevant concern is cumulative intake and manufacturing impurities.",
+      "badge": "Processed",
+      "lot": "11"
+    },
+    {
       "name": "tartrazine",
       "description_en": "Yellow 5 (E102), a synthetic azo dye. EU law requires a warning that it may affect children's activity and attention; it can also trigger reactions in people sensitive to aspirin.",
       "badge": "Processed",
@@ -2155,10 +3271,22 @@
       "lot": "3A"
     },
     {
+      "name": "tea tree",
+      "description_en": "An essential oil with genuine antibacterial activity, used against acne. It must be diluted, as undiluted use causes irritation, and it is a recognised contact allergen that oxidises with age.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
       "name": "tetraborate de sodium",
       "description_en": "Borax (E285), permitted in the EU for caviar only. It is classified as toxic to reproduction under EU chemical law and banned from general food use in most countries, including the US.",
       "badge": "Ultra toxic",
       "lot": "2"
+    },
+    {
+      "name": "thaumatine",
+      "description_en": "A sweet protein (E957) extracted from the West African katemfe fruit, around 2,000 times sweeter than sugar. It is plant-derived and digested like any protein, but it is a concentrated industrial extract with a lingering liquorice aftertaste.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
     },
     {
       "name": "the noir",
@@ -2215,10 +3343,22 @@
       "lot": "5A"
     },
     {
+      "name": "triacetine",
+      "description_en": "A humectant and solvent (E1518) used to carry flavours and keep products moist. It breaks down into glycerol and acetic acid in the body and is considered safe at food levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
       "name": "triclosan",
       "description_en": "An antibacterial agent in some toothpastes, soaps and deodorants. The FDA banned it from consumer hand soaps in 2016; it is capped in the EU over hormonal effects and its contribution to antibiotic resistance.",
       "badge": "Processed",
       "lot": "3C"
+    },
+    {
+      "name": "triethyl citrate",
+      "description_en": "A manufactured citrate ester used as a carrier, solvent, or plasticizer for flavors and coatings. Health: No major specific harm is established at authorized levels. Total exposure should remain within the acceptable daily intake.",
+      "badge": "Occasional",
+      "lot": "11"
     },
     {
       "name": "tripolyphosphate",
@@ -2288,9 +3428,9 @@
     },
     {
       "name": "xylitol",
-      "description_en": "A sugar alcohol with a low glycemic index, well known for protecting against tooth decay. Large amounts have a laxative effect, and it is highly toxic to dogs.",
-      "badge": "Approved",
-      "lot": "5B"
+      "description_en": "A sugar alcohol used to replace sugar in chewing gum, candy, drinks, and low-sugar products. It is highly refined and can cause gas, abdominal cramps, bloating, or diarrhea when a large amount is consumed. Health: The main established concern is a dose-related laxative effect. People with irritable bowel syndrome or sensitivity to polyols may react at lower amounts.",
+      "badge": "Processed",
+      "lot": "11"
     },
     {
       "name": "yaourt",
@@ -2299,700 +3439,16 @@
       "lot": "5C"
     },
     {
-      "name": "청국장",
-      "description_en": "Cheonggukjang, a fast-fermented soybean paste rich in Bacillus subtilis and nattokinase. One of the most probiotic-dense traditional Korean foods.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "thaumatine",
-      "description_en": "A sweet protein (E957) extracted from the West African katemfe fruit, around 2,000 times sweeter than sugar. It is plant-derived and digested like any protein, but it is a concentrated industrial extract with a lingering liquorice aftertaste.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "neohesperidine dc",
-      "description_en": "A synthetic sweetener (E959) derived from bitter orange peel, several hundred times sweeter than sugar. It is authorised in the EU but not in the United States, and is used mainly to mask bitterness in industrial products.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "neotame",
-      "description_en": "An artificial sweetener (E961) built from aspartame, up to 13,000 times sweeter than sugar. EFSA re-evaluated it in 2025 and found no safety concern at permitted levels, though the WHO advises against sweeteners for weight control.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "sel d aspartame-acesulfame",
-      "description_en": "A combined salt of aspartame and acesulfame K (E962), used to balance the aftertaste of each. It carries the concerns of both parent sweeteners, including aspartame's IARC Group 2B classification.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "advantame",
-      "description_en": "An artificial sweetener (E969) derived from aspartame and roughly 37,000 times sweeter than sugar, so it is used in minute amounts. Authorised in the EU and US, but a purely synthetic high-intensity sweetener.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "sirop de polyglycitol",
-      "description_en": "A polyol syrup (E964) made by hydrogenating starch, used as a bulk sweetener in sugar-free products. Like all polyols it is poorly absorbed and carries a mandatory laxative warning above 10%.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "methylcellulose",
-      "description_en": "A chemically modified cellulose (E461) used to thicken and bind, notably in plant-based meat substitutes. It is not absorbed and passes through as fibre, but it is a laboratory-modified ingredient.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "ethylcellulose",
-      "description_en": "A modified cellulose (E462) used as a binder and film former. It is indigestible and considered safe, serving a purely technical role in manufacturing.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "phosphate de monoamidon",
-      "description_en": "A modified starch (E1410) used to thicken and stabilise processed food. EFSA considers modified starches safe, but they are refined carbohydrates and a marker of ultra-processing.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "phosphate de diamidon acetyle e1414",
-      "description_en": "A doubly modified starch (E1414) built to survive heating, freezing and acidity. It adds texture and shelf life without nutrition, and signals an industrially engineered recipe.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "amidon acetyle",
-      "description_en": "Acetylated starch (E1420), chemically treated to stay stable through processing. It is a refined carbohydrate with no fibre or micronutrients, used purely for texture.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "phosphate de diamidon hydroxypropyle",
-      "description_en": "One of the most common modified starches (E1442), used in sauces, desserts and ready meals. Regarded as safe by EFSA, but a clear technical marker of ultra-processed food.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "acide acetique",
-      "description_en": "The acid of vinegar (E260), used to adjust acidity and preserve food. It is one of the oldest and most benign preservatives, and taken with a meal it slightly lowers the blood sugar response.",
-      "badge": "Approved",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "acetate de sodium",
-      "description_en": "The sodium salt of acetic acid (E262), used as a preservative and to give salt-and-vinegar flavour. It is well tolerated but contributes sodium to the diet.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "acide fumarique",
-      "description_en": "An acidity regulator (E297) that occurs naturally in plants and in human metabolism. It is considered safe at food levels, though the food-grade version is synthesised industrially.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "ascorbate de sodium",
-      "description_en": "The sodium salt of vitamin C (E301), used as an antioxidant to stop food browning and fats oxidising. It retains vitamin C activity and is among the most benign additives.",
-      "badge": "Approved",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "ascorbate de calcium",
-      "description_en": "A vitamin C salt (E302) used to protect food from oxidation. It provides genuine vitamin C activity along with a small amount of calcium.",
-      "badge": "Approved",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "palmitate d ascorbyle",
-      "description_en": "A fat-soluble form of vitamin C (E304) used to keep oils from going rancid. It is broken down into vitamin C and palmitic acid in the body, and is considered safe at permitted levels.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "lactate de sodium",
-      "description_en": "The sodium salt of lactic acid (E325), used to preserve and retain moisture in meat and baked goods. It is well tolerated but adds sodium to an already salty product category.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "lactate de potassium",
-      "description_en": "A preservative and acidity regulator (E326) often used to reduce sodium in processed meat. It is considered safe, though people with kidney disease should limit added potassium salts.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "lactate de calcium",
-      "description_en": "A firming agent and acidity regulator (E327) that also supplies calcium. It is well tolerated and one of the more benign mineral salts used in food.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "acide adipique",
-      "description_en": "An acidity regulator (E355) used in powdered desserts and drink mixes. It is produced industrially and considered safe at the low levels permitted.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "acide alginique",
-      "description_en": "A gelling fibre (E400) extracted from brown seaweed. It is not absorbed and behaves as soluble fibre, though large amounts can reduce mineral absorption.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "alginate d ammonium",
-      "description_en": "A seaweed-derived thickener (E403) used to stabilise texture. It passes through the gut undigested and is considered safe at food levels.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "alginate de propylene glycol",
-      "description_en": "A chemically modified alginate (E405) used to stabilise beer foam and dressings. Unlike plain alginates it is reacted with propylene glycol, making it a synthetic derivative rather than a simple seaweed extract.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "eucheuma transforme",
-      "description_en": "Processed eucheuma seaweed (E407a), a cheaper, less purified relative of carrageenan. It shares carrageenan's concerns about gut inflammation and is banned in EU infant formula.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "gomme adragante",
-      "description_en": "A plant gum (E413) from the astragalus shrub, used as a thickener and stabiliser. It behaves as soluble fibre and is well tolerated, though it can cause bloating in quantity.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "gomme cassia",
-      "description_en": "A thickener (E427) from cassia tree seeds, authorised in the EU with strict purity limits because the raw seed contains natural anthraquinones. Purified food grade is considered safe.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "gelatine e441",
-      "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment (E441). It is a safe, protein-based gelling agent, though of animal origin with little nutritional value.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "phosphatides d ammonium",
-      "description_en": "An emulsifier (E442) used almost exclusively in chocolate to control flow during moulding. It is authorised at low levels but is a synthetic phosphate derivative with no place in traditional chocolate.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "esters de propylene glycol",
-      "description_en": "Propylene glycol esters of fatty acids (E477), used to aerate whipped toppings and cake mixes. Permitted at capped levels, and characteristic of ultra-processed desserts.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "sorbitanes",
-      "description_en": "Sorbitan emulsifiers (E491–E495) used to stabilise fats in baked goods and confectionery. They belong to the synthetic emulsifier family under study for effects on the gut lining.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "dimethylpolysiloxane",
-      "description_en": "A silicone anti-foaming agent (E900) used mainly in frying oils and industrial cooking. It is inert and poorly absorbed, but it is a synthetic silicone typical of large-scale food production.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "cire de candelilla",
-      "description_en": "A plant wax (E902) from a Mexican shrub, used to glaze sweets and coatings. It is not absorbed, and it is a vegan alternative to beeswax and shellac.",
-      "badge": "Approved",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "cire microcristalline",
-      "description_en": "A petroleum-derived wax (E905) used as a glazing and release agent. It is not absorbed by the body, but it originates from mineral oil refining rather than from a plant or animal source.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "protoxyde d azote",
-      "description_en": "Nitrous oxide (E942), the propellant in aerosol whipped cream. It is inert in food use and leaves no residue, though inhaling it recreationally causes serious neurological harm.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "polydextrose",
-      "description_en": "A synthetic soluble fibre (E1200) made from glucose, used to add bulk and fibre while cutting sugar. It is largely unabsorbed and acts as a prebiotic, but large amounts cause bloating.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "pvp",
-      "description_en": "Polyvinylpyrrolidone (E1201), a synthetic polymer used to clarify drinks and coat tablets. It is not absorbed by the gut and is considered safe, serving a purely technical purpose.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "triacetine",
-      "description_en": "A humectant and solvent (E1518) used to carry flavours and keep products moist. It breaks down into glycerol and acetic acid in the body and is considered safe at food levels.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "talc",
-      "description_en": "A mineral anti-caking and release agent (E553b). Food-grade talc must be free of asbestos, since asbestos-contaminated talc is a recognised carcinogen; it adds nothing nutritionally.",
-      "badge": "Processed",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "ferrocyanure de potassium",
-      "description_en": "An anti-caking agent (E536) added to salt to keep it free-flowing. Despite the name, the cyanide is locked in a stable complex and EFSA considers it safe at permitted levels.",
-      "badge": "Occasional",
-      "lot": "10-e-additives"
-    },
-    {
-      "name": "lilial",
-      "description_en": "A synthetic floral fragrance (butylphenyl methylpropional) banned in EU cosmetics since March 2022. It was classified toxic to reproduction (CMR 1B) after animal studies showed effects on fertility and foetal development, and it is also a contact allergen.",
-      "badge": "Ultra toxic",
-      "lot": "10-cosmetics"
-    },
-    {
       "name": "zinc pyrithione",
       "description_en": "An antifungal once common in anti-dandruff shampoos, banned in EU cosmetics since March 2022 after being classified toxic to reproduction. It remains permitted in some other markets.",
       "badge": "Ultra toxic",
       "lot": "10-cosmetics"
     },
     {
-      "name": "acide salicylique",
-      "description_en": "A beta-hydroxy acid that exfoliates and unclogs pores, effective against acne. Its concentration is capped in EU cosmetics, and it should not be used on children under three or during pregnancy without medical advice.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "acide glycolique",
-      "description_en": "An alpha-hydroxy acid that exfoliates the skin surface and improves texture. EU rules cap consumer concentrations, and it increases sun sensitivity, so daily sunscreen is necessary while using it.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "peroxyde de benzoyle",
-      "description_en": "An effective antibacterial acne treatment that kills the bacteria driving breakouts. It is drying and irritating at higher strengths, and it permanently bleaches fabric and hair on contact.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "acide kojique",
-      "description_en": "A skin-lightening agent produced by fermentation, used to fade dark spots. The SCCS caps it at 1% in cosmetics because of concerns about skin sensitisation and thyroid effects at higher levels.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "acide azelaique",
-      "description_en": "A naturally occurring acid from grains, used for acne and rosacea. It is one of the best tolerated actives available, gentle enough for sensitive skin and considered safe during pregnancy.",
+      "name": "청국장",
+      "description_en": "Cheonggukjang, a fast-fermented soybean paste rich in Bacillus subtilis and nattokinase. One of the most probiotic-dense traditional Korean foods.",
       "badge": "Approved",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "lanoline",
-      "description_en": "A wax from sheep's wool that is highly effective at sealing moisture into dry skin and lips. Purified grades are safe, but it is a known contact allergen and lower grades can carry pesticide residues.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "keratine",
-      "description_en": "The structural protein of hair, added to products to smooth and coat the strand. The protein itself is harmless, but some professional keratin straightening treatments release formaldehyde when heated.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "collagene",
-      "description_en": "A protein used in skincare as a surface moisturiser. Its molecules are too large to penetrate the skin, so it hydrates and softens rather than rebuilding collagen — but it is harmless and well tolerated.",
-      "badge": "Approved",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "ceramides",
-      "description_en": "Lipids that naturally make up the skin's protective barrier. Applied topically they help restore that barrier and reduce water loss, with strong evidence behind them and virtually no irritation risk.",
-      "badge": "Approved",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "tea tree",
-      "description_en": "An essential oil with genuine antibacterial activity, used against acne. It must be diluted, as undiluted use causes irritation, and it is a recognised contact allergen that oxidises with age.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "bakuchiol",
-      "description_en": "A plant compound from babchi seeds, studied as a gentler alternative to retinol. Early trials suggest comparable effects on fine lines with far less irritation, and it is considered suitable during pregnancy.",
-      "badge": "Approved",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "peptides",
-      "description_en": "Short chains of amino acids used to signal repair processes in the skin. They are well tolerated and non-irritating, though results vary widely depending on the specific peptide and formulation.",
-      "badge": "Approved",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "menthol",
-      "description_en": "A cooling compound from mint, used in balms, toothpaste and scalp products. The cooling sensation is not an active benefit, and at higher concentrations it irritates skin and mucous membranes.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "camphre",
-      "description_en": "An aromatic compound used in balms and decongestant rubs. It is effective in small amounts, but it is neurotoxic if swallowed and should never be applied to the face of infants or young children.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "isopropyl myristate",
-      "description_en": "A synthetic emollient that gives creams a light, fast-absorbing feel. It is not toxic, but it is highly comedogenic and a common trigger of clogged pores in acne-prone skin.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "ceteareth",
-      "description_en": "An ethoxylated emulsifier used to blend oil and water. The ethoxylation process can leave traces of 1,4-dioxane, a possible carcinogen, so manufacturers are expected to purify it out.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "acrylates",
-      "description_en": "Synthetic polymers that form films in nail products, hair styling and long-wear make-up. Cured polymers are stable, but uncured acrylate monomers in nail products are strong skin sensitisers.",
-      "badge": "Occasional",
-      "lot": "10-cosmetics"
-    },
-    {
-      "name": "moah",
-      "description_en": "Mineral oil aromatic hydrocarbons, contaminants from packaging inks, machine lubricants and processing aids. EFSA considers those with three or more aromatic rings genotoxic and carcinogenic, and found their presence in infant formula to be of health concern.",
-      "badge": "Carcinogenic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "mosh",
-      "description_en": "Mineral oil saturated hydrocarbons, which migrate into food from packaging and machinery. EFSA concluded in 2023 that current dietary exposure raises no health concern, though they accumulate in the liver and lymphatic tissue and long-term effects remain uncertain.",
-      "badge": "Occasional",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "oxyde d ethylene",
-      "description_en": "A fumigant banned in EU food production and classified as mutagenic, carcinogenic and reprotoxic, with no safe level established. Its detection in imported sesame and locust bean gum triggered the largest food recall operation in EU history from 2020.",
-      "badge": "Carcinogenic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "2-chloroethanol",
-      "description_en": "The reaction product of ethylene oxide with chloride, measured together with it under the same EU residue limit. Its own genotoxicity is debated, but its presence indicates treatment with a banned carcinogenic fumigant.",
-      "badge": "Ultra toxic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "dioxines",
-      "description_en": "Persistent industrial by-products that accumulate in animal fat and reach us mainly through meat, dairy and fish. TCDD is an IARC Group 1 human carcinogen, and EFSA cut the tolerable weekly intake sevenfold in 2018.",
-      "badge": "Carcinogenic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "pcb",
-      "description_en": "Polychlorinated biphenyls, banned industrial oils that persist for decades in the environment and concentrate in fatty fish. IARC classifies them Group 1 human carcinogens, and they are also linked to hormonal and developmental effects.",
-      "badge": "Carcinogenic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "chlorpyrifos",
-      "description_en": "An organophosphate insecticide banned across the EU since 2020. EFSA could not establish a safe exposure level, citing genotoxicity concerns and evidence of harm to brain development in children.",
-      "badge": "Ultra toxic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "atrazine",
-      "description_en": "A herbicide banned in the EU since 2004 but still detected in groundwater decades later. It is widely regarded as an endocrine disruptor affecting hormonal and reproductive function, and remains in use in North America.",
-      "badge": "Ultra toxic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "paraquat",
-      "description_en": "A herbicide banned in the EU since 2007 because of its extreme acute toxicity — a small ingested dose can be fatal with no antidote. Epidemiological studies also associate exposure with a raised risk of Parkinson's disease.",
-      "badge": "Ultra toxic",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "irradiation",
-      "description_en": "Treatment with ionising radiation to kill microbes and extend shelf life. It leaves no radioactivity and is authorised in the EU for a narrow list of foods, which must carry an \"irradiated\" label; it does degrade some vitamins.",
-      "badge": "Occasional",
-      "lot": "10-contaminants"
-    },
-    {
-      "name": "salt",
-      "description_en": "Sodium chloride, essential for fluid balance and nerve function but present in excess in most processed food. High sodium intake raises blood pressure, and the WHO recommends staying under 5 g of salt a day.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "onion",
-      "description_en": "A whole vegetable rich in quercetin and prebiotic fibre that feeds beneficial gut bacteria. It adds depth of flavour without salt or sugar, whether fresh or dehydrated.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "garlic",
-      "description_en": "A whole food valued for allicin, its sulphur compound with antibacterial and cardiovascular activity. Crushing it and letting it rest a few minutes before cooking preserves more of that compound.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "spices",
-      "description_en": "Culinary herbs and spices such as basil, oregano and thyme. They are among the most antioxidant-dense foods by weight and replace salt as a source of flavour.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "sorbitol",
-      "description_en": "A polyol sweetener (E420) that is only partly absorbed, so it raises blood sugar less than sugar. EU law requires a laxative warning above 10%, as it commonly causes bloating and diarrhoea.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "mannitol",
-      "description_en": "A polyol sweetener and anti-caking agent (E421) with roughly half the calories of sugar. Like all polyols it is poorly absorbed and carries a mandatory laxative warning above 10%.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "isomalt",
-      "description_en": "A polyol (E953) made from sucrose, common in sugar-free sweets. It does not feed tooth decay and has a low glycemic impact, but it causes digestive upset in larger amounts.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "maltitol",
-      "description_en": "A polyol (E965) widely used in sugar-free chocolate. It still raises blood sugar noticeably — more than other polyols — and is one of the most likely to cause bloating and laxative effects.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "lactitol",
-      "description_en": "A polyol (E966) derived from lactose, poorly absorbed and used in sugar-free products. It reaches the colon largely intact, which is why it carries a laxative warning above 10%.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "acide phosphorique",
-      "description_en": "An acidity regulator (E338) that gives colas their sharp bite. EFSA set a combined phosphate limit of 40 mg/kg in 2019 and warned that some groups already exceed it; high phosphate intake concerns kidney and bone health.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "esters acetiques",
-      "description_en": "Acetic acid esters of mono- and diglycerides (E472a), an emulsifier used to stabilise fats in industrial baking and desserts. EFSA raised no safety concern, but it is a purely technical ingredient.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "esters lactiques",
-      "description_en": "Lactic acid esters of mono- and diglycerides (E472b), used to aerate whipped and baked products. Considered safe by EFSA, it is a chemically modified fat with no nutritional role.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "esters citriques",
-      "description_en": "Citric acid esters of mono- and diglycerides (E472c), used to emulsify and prevent oxidation. EFSA found no safety concern, though it marks an industrially assembled recipe.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "datem",
-      "description_en": "DATEM (E472e), a dough strengthener in industrial bread. EFSA found no safety concern in 2020, but laboratory work links it to gut microbiome disruption and a large French cohort tied higher intake to slightly raised type 2 diabetes risk.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "esters de sucrose",
-      "description_en": "Sucrose esters of fatty acids (E473), synthetic emulsifiers built from sugar and fat. They are authorised at limited levels but belong to the emulsifier family under study for effects on the gut lining.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "esters polyglyceriques",
-      "description_en": "Polyglycerol esters of fatty acids (E475), used to emulsify cakes, ice cream and spreads. Permitted at capped levels, and a clear marker of ultra-processed formulation.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "stearoyl lactylate de sodium",
-      "description_en": "Sodium stearoyl lactylate (E481), a dough conditioner that improves volume and shelf life in industrial bread. It is authorised at limited levels but never needed in traditionally made bread.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "sels d acides gras",
-      "description_en": "Fatty acid salts (E470), used as anti-caking and glazing agents rather than as a food fat. They are refined industrial derivatives typical of processed formulations.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "acide sorbique",
-      "description_en": "A mould inhibitor (E200) and one of the gentler preservatives, occurring naturally in rowan berries. It is well tolerated, though it can cause mild skin or digestive reactions in sensitive people.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "acide propionique",
-      "description_en": "A mould inhibitor (E280) used mainly in industrial bread. It occurs naturally in some cheeses and is considered safe by EFSA, but its presence signals bread built for long shelf life.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "propionate de sodium",
-      "description_en": "A bread preservative (E281) that blocks mould and rope spoilage. EFSA considers it safe at permitted levels; it marks industrial rather than fresh-baked bread.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "propionate de potassium",
-      "description_en": "A mould inhibitor (E283) used in packaged bread and baked goods. Considered safe by EFSA, though it is only needed when bread must last far beyond its natural life.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "ethylparaben",
-      "description_en": "A preservative (E214/E215) permitted in a narrow range of EU foods. Parabens have weak oestrogen-like activity in laboratory studies; the ethyl form is among the least potent of the family.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "methylparaben",
-      "description_en": "A preservative (E218/E219) still permitted in limited EU food uses and widely used in cosmetics. It is the least potent paraben, though the family as a whole is under scrutiny for endocrine activity.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "natamycine",
-      "description_en": "An antifungal (E235) applied to the surface of cheese and cured sausage. It is not absorbed through the gut wall, but it is an antibiotic-class compound, raising questions about resistance.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "nisine",
-      "description_en": "A natural antibacterial peptide (E234) produced by lactic bacteria, used in cheese and canned foods. It is digested like any protein and is one of the most benign preservatives available.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "glutamate monopotassique",
-      "description_en": "A flavour enhancer (E622) from the glutamate family, used like MSG to build savoury taste with less real ingredient. It is a reliable marker of ultra-processed food.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "diglutamate de calcium",
-      "description_en": "A flavour enhancer (E623) used as a lower-sodium alternative to MSG. Considered safe at food levels, but it signals a product engineered on additives rather than ingredients.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "glutamate monoammonique",
-      "description_en": "A glutamate flavour enhancer (E624) that intensifies umami in industrial seasonings. It performs the same role as MSG under a different name.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "diglutamate de magnesium",
-      "description_en": "A flavour enhancer (E625) from the glutamate family, used to boost savoury taste in processed foods. Safe at normal intake, but characteristic of heavily seasoned industrial products.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "curcumine",
-      "description_en": "The yellow pigment of turmeric (E100), used as a natural colour. It carries genuine anti-inflammatory activity, though the amounts used for colouring are far below any therapeutic dose.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "riboflavine",
-      "description_en": "Vitamin B2 (E101), used as a yellow colouring. It is an essential nutrient with a genuine nutritional role, and one of the most benign colourings in use.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "carotenes",
-      "description_en": "Orange plant pigments (E160a) that the body converts to vitamin A. They are naturally present in carrots and other vegetables, and act as antioxidants as well as colours.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "extrait de paprika",
-      "description_en": "A red-orange colouring (E160c) extracted from peppers, carrying capsanthin and carotenoids. It is a plant-derived colour with antioxidant activity.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "lycopene",
-      "description_en": "The red pigment of tomatoes (E160d), one of the most studied dietary antioxidants. Used as a colouring, it retains its antioxidant properties.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "luteine",
-      "description_en": "A yellow carotenoid (E161b) from marigold and leafy greens. It concentrates in the retina and is associated with eye health, making it a colouring with real nutritional value.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "rouge de betterave",
-      "description_en": "Betanin (E162), the natural red pigment of beetroot. It is a plant extract with antioxidant activity, though it fades with heat and light, which limits its industrial use.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "oxydes de fer",
-      "description_en": "Mineral pigments (E172) used to colour coatings, sweets and cosmetics. They pass through the body largely unabsorbed and EFSA considers them safe, but they add no nutritional value.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "gallates",
-      "description_en": "Propyl, octyl and dodecyl gallate (E310–E312), synthetic antioxidants that stop fats going rancid. They are permitted at low levels but can trigger contact allergy and are restricted in foods for infants.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "cire d abeille",
-      "description_en": "Beeswax (E901), a natural glazing agent used to coat sweets and fruit. It is not absorbed by the body and is one of the simplest coatings available.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "shellac",
-      "description_en": "A resin (E904) secreted by the lac insect, used to glaze sweets, coffee beans and tablets. It is not absorbed, but it is of insect origin and therefore not vegetarian.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "azote",
-      "description_en": "Nitrogen gas (E941) used to displace oxygen in packaging and keep food fresh without preservatives. It is inert, makes up most of the air we breathe, and leaves no residue.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "dioxyde de carbone",
-      "description_en": "Carbon dioxide (E290), used to carbonate drinks and to protect packaged food from oxidation. It is inert at food levels and leaves nothing behind.",
-      "badge": "Approved",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "cellulose",
-      "description_en": "Plant cellulose (E460), used as an anti-caking agent and bulking fibre. It is not digested and behaves as insoluble fibre, but in processed food it usually replaces real ingredients.",
-      "badge": "Occasional",
-      "lot": "10-orphans-additives"
-    },
-    {
-      "name": "l-cysteine",
-      "description_en": "An amino acid (E920) used as a dough conditioner to speed up industrial bread making. Modern production is by bacterial fermentation, though it was historically extracted from feathers and hair.",
-      "badge": "Processed",
-      "lot": "10-orphans-additives"
+      "lot": "5C"
     }
   ]
 }
