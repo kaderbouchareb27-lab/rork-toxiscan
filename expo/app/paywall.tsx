@@ -64,6 +64,29 @@ function formatAnnualMonthly(price: number | null | undefined, currencyCode: str
   return `${monthlyEquivalent} ${suffix}`;
 }
 
+function getFreeTrialDays(pkg: any): number | null {
+  const introPrice = pkg?.product?.introPrice;
+  const introPriceValue = introPrice?.price ?? introPrice?.priceAmountMicros;
+  if (introPrice && Number(introPriceValue) === 0) {
+    const units = Number(introPrice.periodNumberOfUnits ?? 1);
+    const unit = String(introPrice.periodUnit ?? '').toLowerCase();
+    if (unit.includes('day')) return units;
+    if (unit.includes('week')) return units * 7;
+    if (unit.includes('month')) return units * 30;
+  }
+
+  const freePhase = pkg?.product?.defaultOption?.freePhase;
+  if (freePhase) {
+    const isoPeriod = String(freePhase.billingPeriod?.iso8601 ?? freePhase.billingPeriod ?? '');
+    const dayMatch = isoPeriod.match(/^P(\d+)D$/i);
+    if (dayMatch) return Number(dayMatch[1]);
+    const weekMatch = isoPeriod.match(/^P(\d+)W$/i);
+    if (weekMatch) return Number(weekMatch[1]) * 7;
+  }
+
+  return null;
+}
+
 export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
@@ -256,6 +279,12 @@ export default function PaywallScreen() {
 
   const billedAmount = selectedPlan === 'annual' ? annualPrice : monthlyPrice;
   const billedPeriod = selectedPlan === 'annual' ? t('per_year') : t('per_month');
+  const selectedPackage = selectedPlan === 'annual' ? annualPackage : monthlyPackage;
+  const freeTrialDays = getFreeTrialDays(selectedPackage);
+  const hasFreeTrial = freeTrialDays !== null;
+  const ctaLabel = hasFreeTrial
+    ? tf('start_free_trial_days', freeTrialDays)
+    : tf('subscribe_for_price', billedAmount, billedPeriod);
 
   return (
     <View style={styles.container}>
@@ -356,69 +385,46 @@ export default function PaywallScreen() {
               <Text style={styles.planSectionTitle}>{t('paywall_choose_plan')}</Text>
               <Text style={styles.planSectionSubtitle}>{t('paywall_choose_plan_subtitle')}</Text>
             </View>
-            <TouchableOpacity
-              style={[styles.planCard, selectedPlan === 'annual' && styles.planCardSelected]}
-              onPress={() => handlePlanSelect('annual')}
-              activeOpacity={0.86}
-              testID="plan-annual"
-              disabled={isLoading}
-            >
-              <LinearGradient colors={['#FF8A4C', '#FF6B35']} style={styles.planBadge}>
-                <Text style={styles.planBadgeText}>{tf('save_percent', savingsPercent)}</Text>
-              </LinearGradient>
-              <View style={styles.bestChoicePill}>
-                <Crown color="#2E9E34" size={12} strokeWidth={2.7} />
-                <Text style={styles.bestChoiceText}>{t('paywall_best_choice')}</Text>
-              </View>
-              <View style={styles.planRadio}>
-                <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
-                  {selectedPlan === 'annual' && <View style={styles.radioInner} />}
+            <View style={styles.planCardsRow}>
+              <TouchableOpacity
+                style={[styles.planCard, selectedPlan === 'monthly' && styles.planCardSelected]}
+                onPress={() => handlePlanSelect('monthly')}
+                activeOpacity={0.86}
+                testID="plan-monthly"
+                disabled={isLoading}
+              >
+                <View style={styles.planCardTopRow}>
+                  <Text style={styles.planName}>{t('paywall_monthly_label')}</Text>
+                  <View style={[styles.radioOuter, selectedPlan === 'monthly' && styles.radioOuterSelected]}>
+                    {selectedPlan === 'monthly' && <View style={styles.radioInner} />}
+                  </View>
                 </View>
-              </View>
-              <View style={styles.planInfo}>
-                <View style={styles.planTitleRow}>
-                  <Text style={styles.planTitle}>{tf('annual_plan', annualPrice)}</Text>
-                  {selectedPlan === 'annual' && (
-                    <View style={styles.selectedBadge}>
-                      <Check color={Colors.white} size={12} strokeWidth={3} />
-                      <Text style={styles.selectedBadgeText}>{t('paywall_selected')}</Text>
-                    </View>
-                  )}
-                </View>
-                <Text style={styles.planSubtext}>{tf('monthly_equivalent', annualMonthly)}</Text>
-                <Text style={styles.planMicrocopy}>{t('paywall_annual_microcopy')}</Text>
-                <View style={styles.planPerkRow}>
-                  <Check color={Colors.primary} size={13} strokeWidth={3} />
-                  <Text style={styles.planPerkText}>{t('paywall_annual_perk')}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+                <Text style={styles.planPrice}>{monthlyPrice}</Text>
+                <Text style={styles.planPeriod}>{t('paywall_per_month')}</Text>
+                <Text style={styles.planCompactCopy}>{t('paywall_monthly_compact')}</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.planCard, selectedPlan === 'monthly' && styles.planCardSelected]}
-              onPress={() => handlePlanSelect('monthly')}
-              activeOpacity={0.86}
-              testID="plan-monthly"
-              disabled={isLoading}
-            >
-              <View style={styles.planRadio}>
-                <View style={[styles.radioOuter, selectedPlan === 'monthly' && styles.radioOuterSelected]}>
-                  {selectedPlan === 'monthly' && <View style={styles.radioInner} />}
+              <TouchableOpacity
+                style={[styles.planCard, styles.annualPlanCard, selectedPlan === 'annual' && styles.planCardSelected]}
+                onPress={() => handlePlanSelect('annual')}
+                activeOpacity={0.86}
+                testID="plan-annual"
+                disabled={isLoading}
+              >
+                <LinearGradient colors={['#FF8A4C', '#FF6B35']} style={styles.planBadge}>
+                  <Text style={styles.planBadgeText}>{tf('save_percent', savingsPercent)}</Text>
+                </LinearGradient>
+                <View style={styles.planCardTopRow}>
+                  <Text style={styles.planName}>{t('paywall_annual_label')}</Text>
+                  <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
+                    {selectedPlan === 'annual' && <View style={styles.radioInner} />}
+                  </View>
                 </View>
-              </View>
-              <View style={styles.planInfo}>
-                <View style={styles.planTitleRow}>
-                  <Text style={styles.planTitle}>{tf('monthly_plan', monthlyPrice)}</Text>
-                  {selectedPlan === 'monthly' && (
-                    <View style={styles.selectedBadge}>
-                      <Check color={Colors.white} size={12} strokeWidth={3} />
-                      <Text style={styles.selectedBadgeText}>{t('paywall_selected')}</Text>
-                    </View>
-                  )}
-                </View>
-                <Text style={styles.planMicrocopy}>{t('paywall_monthly_microcopy')}</Text>
-              </View>
-            </TouchableOpacity>
+                <Text style={styles.planPrice}>{annualPrice}</Text>
+                <Text style={styles.planPeriod}>{t('paywall_per_year')}</Text>
+                <Text style={styles.annualEquivalent}>{tf('monthly_equivalent', annualMonthly)}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -449,7 +455,11 @@ export default function PaywallScreen() {
         <View style={styles.priceSummary}>
           <Text style={styles.priceSummaryPrefix}>{t('paywall_billed_prefix')}</Text>
           <Text style={styles.priceSummaryAmount} testID="paywall-billed-amount">{tf('paywall_billed_line', billedAmount, billedPeriod)}</Text>
-          <Text style={styles.priceSummaryTrial}>{tf('paywall_trial_note', billedAmount, billedPeriod)}</Text>
+          <Text style={styles.priceSummaryTrial}>
+            {hasFreeTrial
+              ? tf('paywall_dynamic_trial_note', freeTrialDays, billedAmount, billedPeriod)
+              : tf('paywall_no_trial_note', billedAmount, billedPeriod)}
+          </Text>
         </View>
         <View style={styles.ctaMetaRow}>
           <ShieldCheck color={Colors.primary} size={13} strokeWidth={2.5} />
@@ -468,7 +478,7 @@ export default function PaywallScreen() {
             ) : (
               <>
                 <Crown color={Colors.white} size={20} strokeWidth={2.6} />
-                <Text style={styles.ctaButtonText}>{t('start_free_trial')}</Text>
+                <Text style={styles.ctaButtonText}>{ctaLabel}</Text>
                 <ChevronRight color={Colors.white} size={20} strokeWidth={2.8} />
               </>
             )}
@@ -863,6 +873,12 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 18,
   },
+  planCardsRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 10,
+  },
   planSectionHeader: {
     paddingHorizontal: 4,
     gap: 3,
@@ -881,20 +897,61 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
   },
   planCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: 24,
-    borderRadius: 28,
+    flex: 1,
+    minHeight: 154,
+    paddingHorizontal: 15,
+    paddingVertical: 16,
+    borderRadius: 24,
     borderWidth: 1.5,
     borderColor: 'rgba(40, 36, 28, 0.10)',
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    gap: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
     shadowColor: '#102819',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.07,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
     elevation: 3,
+  },
+  annualPlanCard: {
+    paddingTop: 20,
+  },
+  planCardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 12,
+  },
+  planName: {
+    flex: 1,
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: '900' as const,
+    letterSpacing: -0.25,
+  },
+  planPrice: {
+    color: Colors.text,
+    fontSize: 22,
+    fontWeight: '900' as const,
+    letterSpacing: -0.6,
+  },
+  planPeriod: {
+    color: Colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700' as const,
+    marginTop: 1,
+  },
+  planCompactCopy: {
+    color: Colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '600' as const,
+    lineHeight: 15,
+    marginTop: 12,
+  },
+  annualEquivalent: {
+    color: Colors.primaryDark,
+    fontSize: 11,
+    fontWeight: '800' as const,
+    marginTop: 12,
   },
   planCardSelected: {
     borderColor: '#2E9E34',
@@ -908,10 +965,10 @@ const styles = StyleSheet.create({
   },
   planBadge: {
     position: 'absolute',
-    top: -13,
-    right: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    top: -12,
+    right: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 999,
     shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 7 },
@@ -949,10 +1006,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   radioOuter: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2.5,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2.2,
     borderColor: '#DDD6CB',
     justifyContent: 'center',
     alignItems: 'center',
@@ -961,9 +1018,9 @@ const styles = StyleSheet.create({
     borderColor: '#2E9E34',
   },
   radioInner: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#2E9E34',
   },
   planInfo: {
