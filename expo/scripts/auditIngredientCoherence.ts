@@ -122,6 +122,14 @@ for (const e of entries) {
   if (e.note && !e.noteEn) flag('A', label(e), 'note FR sans traduction EN');
 }
 
+/** Écarts assumés et documentés (le badge est volontairement différent de la lettre du texte). */
+const JUSTIFIED: Record<string, string> = {
+  hijiki: "le Groupe 1 concerne l'arsenic (contaminant), pas l'algue elle-même — badge orange assumé",
+  mate: 'le Groupe 2A vise la boisson très chaude (> 65 °C), pas la plante — badge jaune assumé (moteur R17bis)',
+  'viande rouge':
+    'le Groupe 2A vise une consommation élevée ; la décision produit est « Occasionnel » (modération CIRC), pas un badge orange — lot vérifié',
+};
+
 // ── [B] Badge ↔ circ ───────────────────────────────────────────
 const CIRC_RULES: { match: RegExp; allowed: Entry['risk'][]; why: string }[] = [
   { match: /^Groupe 1( |$|\()/, allowed: ['danger'], why: 'Groupe 1 CIRC = cancérigène avéré' },
@@ -138,7 +146,12 @@ for (const e of entries) {
   for (const rule of CIRC_RULES) {
     if (!rule.match.test(e.circ)) continue;
     if (!rule.allowed.includes(e.risk)) {
-      flag('B', label(e), `circ « ${e.circ} » (${rule.why}) mais badge '${e.risk}' — attendu ${rule.allowed.join('/')}`);
+      const justification = JUSTIFIED[normalize(e.keywords[0])];
+      if (justification) {
+        console.log(`   ℹ️  ${label(e)} — écart assumé : ${justification}`);
+      } else {
+        flag('B', label(e), `circ « ${e.circ} » (${rule.why}) mais badge '${e.risk}' — attendu ${rule.allowed.join('/')}`);
+      }
     }
   }
 }
@@ -178,14 +191,6 @@ function isNegated(haystack: string, index: number): boolean {
   const sentenceStart = Math.max(0, haystack.lastIndexOf('.', index) + 1);
   return NEGATION.test(before) || NEGATION.test(haystack.slice(sentenceStart, index));
 }
-
-/** Écarts assumés et documentés (le badge est volontairement différent de la lettre du texte). */
-const JUSTIFIED: Record<string, string> = {
-  hijiki: "le Groupe 1 concerne l'arsenic (contaminant), pas l'algue elle-même — badge orange assumé",
-  mate: 'le Groupe 2A vise la boisson très chaude (> 65 °C), pas la plante — badge jaune assumé',
-  'viande rouge':
-    'le Groupe 2A vise une consommation élevée ; la décision produit est « Occasionnel » (modération CIRC), pas un badge orange — lot vérifié',
-};
 
 /** [D] Fiches vérifiées qui citent volontairement la FAMILLE d'additifs plutôt que leur code. */
 const JUSTIFIED_CODES: Record<string, string> = {
