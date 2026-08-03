@@ -592,6 +592,8 @@ const translations = {
   health_profile_intro: { fr: "Dis à Dr. Toxi qui tu es. Il s'en souviendra pour personnaliser chaque analyse et te proposer les bonnes alternatives.", en: "Tell Dr. Toxi who you are. He'll remember it to personalize every analysis and suggest the right alternatives.", ko: 'Dr. Toxi에게 당신에 대해 알려주세요. 모든 분석을 맞춤화하고 알맞은 대안을 제안하기 위해 기억합니다.' },
   health_profile_section_life: { fr: 'Ta situation', en: 'Your situation', ko: '당신의 상황' },
   health_profile_section_diet: { fr: 'Tes priorités', en: 'Your priorities', ko: '당신의 우선순위' },
+  health_profile_section_allergens: { fr: 'Tes allergènes', en: 'Your allergens', ko: '알레르기 유발 물질' },
+  health_profile_allergens_hint: { fr: "Sélectionne tes allergènes : ils déclenchent une alerte rouge dès qu'ils sont repérés sur une étiquette. Ils ne changent jamais le ToxiScore.", en: 'Pick your allergens: they trigger a red alert as soon as they are spotted on a label. They never change the ToxiScore.', ko: '알레르기 유발 물질을 선택하세요: 성분표에서 발견되면 즉시 빨간 경고가 표시됩니다. ToxiScore는 변하지 않습니다.' },
   health_profile_note_label: { fr: 'Autre chose à savoir ?', en: 'Anything else?', ko: '더 알려줄 것이 있나요?' },
   health_profile_note_placeholder: { fr: "Ex : je surveille mon cholestérol, j'évite l'huile de palme…", en: 'E.g. I watch my cholesterol, I avoid palm oil…', ko: '예: 콜레스테롤을 관리해요, 팜유를 피해요…' },
   health_profile_privacy: { fr: "Ces informations restent sur ton téléphone et servent uniquement à personnaliser tes analyses.", en: 'This info stays on your phone and is only used to personalize your analysis.', ko: '이 정보는 당신의 휴대폰에만 저장되며 분석을 맞춤화하는 데만 사용됩니다.' },

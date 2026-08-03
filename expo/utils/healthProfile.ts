@@ -26,9 +26,27 @@ export type HealthPrefId =
   | 'vegetarian'
   | 'vegan'
   | 'gluten_free'
-  | 'lactose_free';
+  | 'lactose_free'
+  | AllergenPrefId;
 
-export type HealthPrefGroup = 'life' | 'diet';
+/** The 14 allergens whose declaration is mandatory in the EU (Reg. 1169/2011, Annex II). */
+export type AllergenPrefId =
+  | 'allergen_gluten'
+  | 'allergen_crustaceans'
+  | 'allergen_eggs'
+  | 'allergen_fish'
+  | 'allergen_peanuts'
+  | 'allergen_soy'
+  | 'allergen_milk'
+  | 'allergen_tree_nuts'
+  | 'allergen_celery'
+  | 'allergen_mustard'
+  | 'allergen_sesame'
+  | 'allergen_sulphites'
+  | 'allergen_lupin'
+  | 'allergen_molluscs';
+
+export type HealthPrefGroup = 'life' | 'diet' | 'allergen';
 
 export interface HealthProfile {
   prefs: HealthPrefId[];
@@ -173,7 +191,192 @@ export const HEALTH_PREFS: HealthPrefMeta[] = [
     aiEn: 'they avoid lactose: suggest lactose-free alternatives (without changing the toxicity verdict)',
     aiKo: '유당을 피합니다: 유당 프리 대안을 제안하세요(독성 판정은 바꾸지 않음)',
   },
+
+  // ─── Filtre allergènes — les 14 allergènes à déclaration obligatoire (UE 1169/2011) ───
+  {
+    id: 'allergen_gluten',
+    group: 'allergen',
+    icon: 'Wheat',
+    labelFr: 'Gluten',
+    labelEn: 'Gluten',
+    labelKo: '글루텐',
+    aiFr: "il est allergique au gluten (blé, orge, seigle, avoine) : signale toute trace et ne propose que des alternatives certifiées sans gluten",
+    aiEn: 'they are allergic to gluten (wheat, barley, rye, oats): flag any trace and only suggest certified gluten-free alternatives',
+    aiKo: '글루텐(밀, 보리, 호밀, 귀리) 알레르기가 있습니다: 모든 흔적을 표시하고 인증된 무글루텐 대안만 제안하세요',
+  },
+  {
+    id: 'allergen_crustaceans',
+    group: 'allergen',
+    icon: 'Shell',
+    labelFr: 'Crustacés',
+    labelEn: 'Crustaceans',
+    labelKo: '갑각류',
+    aiFr: "il est allergique aux crustacés (crevette, crabe, homard) : signale toute présence ou trace possible",
+    aiEn: 'they are allergic to crustaceans (shrimp, crab, lobster): flag any presence or possible trace',
+    aiKo: '갑각류(새우, 게, 랍스터) 알레르기가 있습니다: 함유 또는 교차오염 가능성을 표시하세요',
+  },
+  {
+    id: 'allergen_eggs',
+    group: 'allergen',
+    icon: 'Egg',
+    labelFr: 'Œufs',
+    labelEn: 'Eggs',
+    labelKo: '달걀',
+    aiFr: "il est allergique aux œufs : signale œuf, albumine, lysozyme et ovoproduits, et propose des alternatives sans œuf",
+    aiEn: 'they are allergic to eggs: flag egg, albumin, lysozyme and egg products, and suggest egg-free alternatives',
+    aiKo: '달걀 알레르기가 있습니다: 달걀, 알부민, 리소자임, 난가공품을 표시하고 무난 대안을 제안하세요',
+  },
+  {
+    id: 'allergen_fish',
+    group: 'allergen',
+    icon: 'Fish',
+    labelFr: 'Poisson',
+    labelEn: 'Fish',
+    labelKo: '생선',
+    aiFr: "il est allergique au poisson : attention aussi aux sources cachées (surimi, nuoc-mâm, gélatine de poisson, colle de poisson)",
+    aiEn: 'they are allergic to fish: also watch hidden sources (surimi, fish sauce, fish gelatin, isinglass)',
+    aiKo: '생선 알레르기가 있습니다: 숨은 원료(게맛살, 어장, 어류 젤라틴, 부레풀)도 주의하세요',
+  },
+  {
+    id: 'allergen_peanuts',
+    group: 'allergen',
+    icon: 'Nut',
+    labelFr: 'Arachide',
+    labelEn: 'Peanuts',
+    labelKo: '땅콩',
+    aiFr: "il est allergique à l'arachide (allergie potentiellement sévère) : signale toute présence ou mention « peut contenir »",
+    aiEn: 'they are allergic to peanuts (potentially severe): flag any presence or a "may contain" statement',
+    aiKo: '땅콩 알레르기(심각할 수 있음)가 있습니다: 함유 또는 "함유 가능" 문구를 모두 표시하세요',
+  },
+  {
+    id: 'allergen_tree_nuts',
+    group: 'allergen',
+    icon: 'TreePine',
+    labelFr: 'Fruits à coque',
+    labelEn: 'Tree nuts',
+    labelKo: '견과류',
+    aiFr: "il est allergique aux fruits à coque (amande, noisette, noix, cajou, pistache) : signale toute présence ou trace",
+    aiEn: 'they are allergic to tree nuts (almond, hazelnut, walnut, cashew, pistachio): flag any presence or trace',
+    aiKo: '견과류(아몬드, 헤이즐넛, 호두, 캐슈, 피스타치오) 알레르기가 있습니다: 함유나 흔적을 표시하세요',
+  },
+  {
+    id: 'allergen_soy',
+    group: 'allergen',
+    icon: 'Bean',
+    labelFr: 'Soja',
+    labelEn: 'Soy',
+    labelKo: '대두',
+    aiFr: "il est allergique au soja : attention à la lécithine de soja (E322), à la sauce soja et aux protéines de soja texturées",
+    aiEn: 'they are allergic to soy: watch soy lecithin (E322), soy sauce and textured soy protein',
+    aiKo: '대두 알레르기가 있습니다: 대두 레시틴(E322), 간장, 조직대두단백을 주의하세요',
+  },
+  {
+    id: 'allergen_milk',
+    group: 'allergen',
+    icon: 'Milk',
+    labelFr: 'Lait',
+    labelEn: 'Milk',
+    labelKo: '우유',
+    aiFr: "il est allergique aux protéines de lait : signale lait, caséine, lactosérum, beurre, fromage et crème",
+    aiEn: 'they are allergic to milk proteins: flag milk, casein, whey, butter, cheese and cream',
+    aiKo: '우유 단백 알레르기가 있습니다: 우유, 카제인, 유청, 버터, 치즈, 크림을 표시하세요',
+  },
+  {
+    id: 'allergen_celery',
+    group: 'allergen',
+    icon: 'Carrot',
+    labelFr: 'Céleri',
+    labelEn: 'Celery',
+    labelKo: '셀러리',
+    aiFr: "il est allergique au céleri : attention au céleri caché dans les bouillons, sauces et mélanges d'épices",
+    aiEn: 'they are allergic to celery: watch hidden celery in stocks, sauces and spice blends',
+    aiKo: '셀러리 알레르기가 있습니다: 육수, 소스, 향신료 믹스에 숨은 셀러리를 주의하세요',
+  },
+  {
+    id: 'allergen_mustard',
+    group: 'allergen',
+    icon: 'Droplets',
+    labelFr: 'Moutarde',
+    labelEn: 'Mustard',
+    labelKo: '겨자',
+    aiFr: "il est allergique à la moutarde : attention aux sauces, vinaigrettes et marinades industrielles",
+    aiEn: 'they are allergic to mustard: watch industrial sauces, dressings and marinades',
+    aiKo: '겨자 알레르기가 있습니다: 공산품 소스, 드레싱, 마리네이드를 주의하세요',
+  },
+  {
+    id: 'allergen_sesame',
+    group: 'allergen',
+    icon: 'Sprout',
+    labelFr: 'Sésame',
+    labelEn: 'Sesame',
+    labelKo: '참깨',
+    aiFr: "il est allergique au sésame : attention au tahini, au houmous, aux pains et aux huiles de sésame",
+    aiEn: 'they are allergic to sesame: watch tahini, hummus, breads and sesame oils',
+    aiKo: '참깨 알레르기가 있습니다: 타히니, 후무스, 빵, 참기름을 주의하세요',
+  },
+  {
+    id: 'allergen_sulphites',
+    group: 'allergen',
+    icon: 'Wine',
+    labelFr: 'Sulfites',
+    labelEn: 'Sulphites',
+    labelKo: '아황산염',
+    aiFr: "il est sensible aux sulfites (E220-E228, crises d'asthme possibles) : signale vin, fruits secs et pommes de terre transformées",
+    aiEn: 'they are sensitive to sulphites (E220-E228, possible asthma attacks): flag wine, dried fruit and processed potatoes',
+    aiKo: '아황산염(E220-E228, 천식 유발 가능)에 민감합니다: 와인, 건과일, 가공 감자를 표시하세요',
+  },
+  {
+    id: 'allergen_lupin',
+    group: 'allergen',
+    icon: 'Flower2',
+    labelFr: 'Lupin',
+    labelEn: 'Lupin',
+    labelKo: '루핀',
+    aiFr: "il est allergique au lupin : attention à la farine de lupin dans les pains, pâtes et produits sans gluten",
+    aiEn: 'they are allergic to lupin: watch lupin flour in breads, pasta and gluten-free products',
+    aiKo: '루핀 알레르기가 있습니다: 빵, 파스타, 글루텐 프리 제품의 루핀 가루를 주의하세요',
+  },
+  {
+    id: 'allergen_molluscs',
+    group: 'allergen',
+    icon: 'Snail',
+    labelFr: 'Mollusques',
+    labelEn: 'Molluscs',
+    labelKo: '연체동물',
+    aiFr: "il est allergique aux mollusques (moule, huître, calamar, escargot) : signale toute présence ou trace",
+    aiEn: 'they are allergic to molluscs (mussel, oyster, squid, snail): flag any presence or trace',
+    aiKo: '연체동물(홍합, 굴, 오징어, 달팽이) 알레르기가 있습니다: 함유나 흔적을 표시하세요',
+  },
 ];
+
+// ─── Allergènes (14 allergènes à déclaration obligatoire UE) ─────────────────
+//
+// Un allergène N'EST PAS une question de toxicité : il ne change JAMAIS le badge
+// couleur ni le ToxiScore. C'est un filtre personnel qui affiche une alerte rouge
+// dédiée quand l'allergène sélectionné est repéré dans la liste d'ingrédients.
+
+/** Detection keywords for one allergen family (accent-free, lowercase). */
+export const ALLERGEN_KEYWORDS: Readonly<Record<AllergenPrefId, readonly string[]>> = {
+  allergen_gluten: ['gluten', 'ble', 'wheat', 'froment', 'epeautre', 'spelt', 'orge', 'barley', 'seigle', 'rye', 'avoine', 'oat', 'malt', 'kamut', 'semoule', 'semolina', 'couscous', 'boulgour', 'bulgur', 'seitan', 'farine de ble', 'wheat flour', 'amidon de ble', 'wheat starch', 'son de ble', 'wheat bran', 'chapelure', 'breadcrumb'],
+  allergen_crustaceans: ['crustace', 'crustacean', 'crevette', 'shrimp', 'prawn', 'crabe', 'crab', 'homard', 'lobster', 'langoustine', 'ecrevisse', 'crayfish', 'krill'],
+  allergen_eggs: ['oeuf', 'egg', 'albumine', 'albumin', 'ovalbumine', 'blanc d\'oeuf', 'egg white', 'jaune d\'oeuf', 'egg yolk', 'lysozyme', 'ovoproduit', 'poudre d\'oeuf', 'egg powder', 'mayonnaise'],
+  allergen_fish: ['poisson', 'fish', 'thon', 'tuna', 'saumon', 'salmon', 'cabillaud', 'cod', 'morue', 'anchois', 'anchovy', 'sardine', 'maquereau', 'mackerel', 'hareng', 'herring', 'colin', 'lieu', 'merlu', 'hake', 'surimi', 'nuoc mam', 'fish sauce', 'colle de poisson', 'isinglass', 'huile de poisson', 'fish oil', 'gelatine de poisson'],
+  allergen_peanuts: ['arachide', 'peanut', 'cacahuete', 'cacahouete', 'groundnut', 'beurre de cacahuete', 'peanut butter', 'huile d\'arachide', 'peanut oil'],
+  allergen_soy: ['soja', 'soy', 'soya', 'lecithine de soja', 'soy lecithin', 'tofu', 'tempeh', 'edamame', 'sauce soja', 'soy sauce', 'miso', 'proteine de soja', 'soy protein', 'e322 (soja)'],
+  allergen_milk: ['lait', 'milk', 'lactose', 'lactoserum', 'whey', 'petit-lait', 'petit lait', 'caseine', 'casein', 'caseinate', 'beurre', 'butter', 'fromage', 'cheese', 'creme', 'cream', 'yaourt', 'yogurt', 'yoghurt', 'ghee', 'babeurre', 'buttermilk', 'poudre de lait', 'milk powder', 'matiere grasse laitiere', 'milk fat'],
+  allergen_tree_nuts: ['fruit a coque', 'fruits a coque', 'tree nut', 'amande', 'almond', 'noisette', 'hazelnut', 'noix', 'walnut', 'noix de cajou', 'cashew', 'pistache', 'pistachio', 'noix de pecan', 'pecan', 'noix du bresil', 'brazil nut', 'macadamia', 'noix de macadamia', 'praline', 'pate de noisette', 'nut butter', 'massepain', 'marzipan'],
+  allergen_celery: ['celeri', 'celery', 'celeri-rave', 'celeriac', 'graines de celeri', 'celery seed', 'sel de celeri', 'celery salt'],
+  allergen_mustard: ['moutarde', 'mustard', 'graines de moutarde', 'mustard seed', 'farine de moutarde', 'mustard flour', 'dijon'],
+  allergen_sesame: ['sesame', 'sesamum', 'tahini', 'tahin', 'graines de sesame', 'sesame seed', 'huile de sesame', 'sesame oil', 'gomasio', 'houmous'],
+  allergen_sulphites: ['sulfite', 'sulphite', 'sulfites', 'anhydride sulfureux', 'sulfur dioxide', 'sulphur dioxide', 'metabisulfite', 'bisulfite', 'e220', 'e221', 'e222', 'e223', 'e224', 'e226', 'e227', 'e228'],
+  allergen_lupin: ['lupin', 'lupine', 'farine de lupin', 'lupin flour', 'proteine de lupin', 'lupin protein'],
+  allergen_molluscs: ['mollusque', 'mollusc', 'mollusk', 'moule', 'mussel', 'huitre', 'oyster', 'palourde', 'clam', 'coquille saint-jacques', 'scallop', 'calamar', 'calmar', 'squid', 'encornet', 'poulpe', 'octopus', 'seiche', 'cuttlefish', 'escargot', 'snail', 'bulot', 'whelk'],
+};
+
+/** True when the pref is one of the 14 EU allergens. */
+export function isAllergenPref(id: HealthPrefId): id is AllergenPrefId {
+  return id.startsWith('allergen_');
+}
 
 export function getHealthPrefMeta(id: HealthPrefId): HealthPrefMeta | undefined {
   return HEALTH_PREFS.find((p) => p.id === id);
@@ -240,6 +443,8 @@ export interface ProfileScanAlert {
   title: string;
   /** Concrete message naming what was found on THIS product. */
   message: string;
+  /** True for the 14 EU allergens — rendered as a red, higher-priority callout. */
+  isAllergen?: boolean;
 }
 
 function normalizeIng(s: string): string {
@@ -349,6 +554,25 @@ export function getProfileScanAlerts(
   };
 
   for (const pref of profile.prefs) {
+    // Allergen filter — highest personal priority. It never changes the badge or the
+    // ToxiScore, it just names the offending ingredient(s) found on THIS label.
+    if (isAllergenPref(pref)) {
+      const found = matchNames(ingredients, [...ALLERGEN_KEYWORDS[pref]]);
+      if (found.length > 0) {
+        const label = titleFor(pref);
+        alerts.push({
+          prefId: pref,
+          title: label,
+          isAllergen: true,
+          message: pick({
+            en: `Allergen detected: this product contains ${joinIng(found)}. Do not consume it if your allergy is confirmed.`,
+            fr: `Allergène détecté : ce produit contient ${joinIng(found)}. À ne pas consommer si ton allergie est avérée.`,
+            ko: `알레르기 유발 물질 감지: 이 제품에는 ${joinIng(found)}이(가) 들어 있어요. 알레르기가 확인된 경우 섭취하지 마세요.`,
+          }),
+        });
+      }
+      continue;
+    }
     switch (pref) {
       case 'pregnant':
       case 'breastfeeding': {

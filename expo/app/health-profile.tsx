@@ -28,12 +28,28 @@ import {
   Sprout,
   WheatOff,
   MilkOff,
+  ShieldAlert,
+  Wheat,
+  Shell,
+  Egg,
+  Fish,
+  Nut,
+  TreePine,
+  Bean,
+  Milk,
+  Carrot,
+  Droplets,
+  Wine,
+  Flower2,
+  Snail,
   type LucideIcon,
 } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { t, tf } from '@/utils/i18n';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
 import { HEALTH_PREFS, HealthPrefId, HealthPrefGroup, getHealthPrefLabel } from '@/utils/healthProfile';
+
+const ALLERGEN_ACCENT = '#D64545';
 
 const DR_TOXI_AVATAR = 'https://r2-pub.rork.com/generated-images/97a5e938-5054-43f6-b4a0-83e39183f2a6.png';
 
@@ -49,6 +65,19 @@ const ICONS: Record<string, LucideIcon> = {
   Sprout,
   WheatOff,
   MilkOff,
+  Wheat,
+  Shell,
+  Egg,
+  Fish,
+  Nut,
+  TreePine,
+  Bean,
+  Milk,
+  Carrot,
+  Droplets,
+  Wine,
+  Flower2,
+  Snail,
 };
 
 export default function HealthProfileScreen() {
@@ -81,6 +110,8 @@ export default function HealthProfileScreen() {
 
   const lifePrefs = HEALTH_PREFS.filter((p) => p.group === ('life' as HealthPrefGroup));
   const dietPrefs = HEALTH_PREFS.filter((p) => p.group === ('diet' as HealthPrefGroup));
+  const allergenPrefs = HEALTH_PREFS.filter((p) => p.group === ('allergen' as HealthPrefGroup));
+  const activeAllergens = allergenPrefs.filter((p) => profile.prefs.includes(p.id)).length;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -143,6 +174,30 @@ export default function HealthProfileScreen() {
             ))}
           </View>
 
+          <View style={[styles.allergenHeader, styles.sectionTitleSpaced]}>
+            <ShieldAlert color={ALLERGEN_ACCENT} size={16} strokeWidth={2.4} />
+            <Text style={[styles.sectionTitle, styles.allergenTitle]}>{t('health_profile_section_allergens')}</Text>
+            {activeAllergens > 0 && (
+              <View style={styles.allergenCount}>
+                <Text style={styles.allergenCountText}>{activeAllergens}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.allergenHint}>{t('health_profile_allergens_hint')}</Text>
+          <View style={styles.chipsWrap}>
+            {allergenPrefs.map((meta) => (
+              <PrefChip
+                key={meta.id}
+                id={meta.id}
+                label={getHealthPrefLabel(meta)}
+                icon={ICONS[meta.icon] ?? Check}
+                selected={profile.prefs.includes(meta.id)}
+                onToggle={handleToggle}
+                accent={ALLERGEN_ACCENT}
+              />
+            ))}
+          </View>
+
           <Text style={[styles.sectionTitle, styles.sectionTitleSpaced]}>{t('health_profile_note_label')}</Text>
           <TextInput
             style={styles.noteInput}
@@ -177,21 +232,29 @@ function PrefChip({
   icon: Icon,
   selected,
   onToggle,
+  accent,
 }: {
   id: HealthPrefId;
   label: string;
   icon: LucideIcon;
   selected: boolean;
   onToggle: (id: HealthPrefId) => void;
+  /** Optional accent color (allergen chips turn red instead of green). */
+  accent?: string;
 }) {
+  const tint = accent ?? Colors.primary;
   return (
     <TouchableOpacity
-      style={[styles.chip, selected && styles.chipSelected]}
+      style={[
+        styles.chip,
+        selected && styles.chipSelected,
+        selected && { backgroundColor: tint, borderColor: tint, shadowColor: tint },
+      ]}
       onPress={() => onToggle(id)}
       activeOpacity={0.8}
       testID={`hp-pref-${id}`}
     >
-      <Icon color={selected ? Colors.white : Colors.primary} size={17} strokeWidth={2.2} />
+      <Icon color={selected ? Colors.white : tint} size={17} strokeWidth={2.2} />
       <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{label}</Text>
     </TouchableOpacity>
   );
@@ -279,6 +342,36 @@ const styles = StyleSheet.create({
   },
   sectionTitleSpaced: {
     marginTop: 28,
+  },
+  allergenHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginBottom: 6,
+  },
+  allergenTitle: {
+    color: ALLERGEN_ACCENT,
+    marginBottom: 0,
+  },
+  allergenCount: {
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    backgroundColor: ALLERGEN_ACCENT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  allergenCountText: {
+    fontSize: 11.5,
+    fontWeight: '800' as const,
+    color: Colors.white,
+  },
+  allergenHint: {
+    fontSize: 13,
+    lineHeight: 18.5,
+    color: Colors.textTertiary,
+    marginBottom: 14,
   },
   chipsWrap: {
     flexDirection: 'row',

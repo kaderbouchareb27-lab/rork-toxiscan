@@ -210,8 +210,14 @@ export default function MealResultScreen() {
               </Text>
             </View>
             {profileAlerts.map((alert) => (
-              <View key={`profile-alert-${alert.prefId}`} style={styles.profileAlertCard} testID={`meal-profile-alert-${alert.prefId}`}>
-                <Text style={styles.profileAlertTitle}>{alert.title}</Text>
+              <View
+                key={`profile-alert-${alert.prefId}`}
+                style={[styles.profileAlertCard, alert.isAllergen === true && styles.profileAlertCardAllergen]}
+                testID={`meal-profile-alert-${alert.prefId}`}
+              >
+                <Text style={[styles.profileAlertTitle, alert.isAllergen === true && styles.profileAlertTitleAllergen]}>
+                  {alert.title}
+                </Text>
                 <Text style={styles.profileAlertMessage}>{alert.message}</Text>
               </View>
             ))}
@@ -440,6 +446,8 @@ const styles = StyleSheet.create({
   profileAlertsHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, marginBottom: 2 },
   profileAlertsHeaderText: { fontSize: 13, fontWeight: '700' as const, color: Colors.primary, textTransform: 'uppercase' as const, letterSpacing: 0.4 },
   profileAlertCard: { backgroundColor: 'rgba(46, 158, 52, 0.06)', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)', borderLeftWidth: 4, borderLeftColor: Colors.primary },
+  profileAlertCardAllergen: { backgroundColor: 'rgba(214, 69, 69, 0.07)', borderColor: 'rgba(214, 69, 69, 0.22)', borderLeftColor: '#D64545' },
   profileAlertTitle: { fontSize: 13.5, fontWeight: '800' as const, color: Colors.primary, marginBottom: 3 },
+  profileAlertTitleAllergen: { color: '#D64545' },
   profileAlertMessage: { fontSize: 14, lineHeight: 20, color: '#1A1A1A', fontWeight: '500' as const },
 });

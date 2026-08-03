@@ -44,7 +44,7 @@ import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 import { isUltraToxicCirc } from '@/constants/ultraToxicIngredients';
-import { computeToxiScore, computeIngredientToxiScore } from '@/utils/toxiScore';
+import { computeToxiScore } from '@/utils/toxiScore';
 import type { DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
@@ -907,8 +907,14 @@ export default function ProductScreen() {
               </Text>
             </View>
             {profileAlerts.map((alert) => (
-              <View key={`profile-alert-${alert.prefId}`} style={styles.profileAlertCard} testID={`profile-alert-${alert.prefId}`}>
-                <Text style={styles.profileAlertTitle}>{alert.title}</Text>
+              <View
+                key={`profile-alert-${alert.prefId}`}
+                style={[styles.profileAlertCard, alert.isAllergen === true && styles.profileAlertCardAllergen]}
+                testID={`profile-alert-${alert.prefId}`}
+              >
+                <Text style={[styles.profileAlertTitle, alert.isAllergen === true && styles.profileAlertTitleAllergen]}>
+                  {alert.title}
+                </Text>
                 <Text style={styles.profileAlertMessage}>{alert.message}</Text>
               </View>
             ))}
@@ -946,11 +952,6 @@ export default function ProductScreen() {
                     <View style={styles.allIngRow}>
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
-                      <View style={[styles.allIngScore, { borderColor: color + '55' }]}>
-                        <Text style={[styles.allIngScoreText, { color }]} testID={`ingredient-score-${index}`}>
-                          {computeIngredientToxiScore(ing)}<Text style={styles.allIngScoreOutOf}>/10</Text>
-                        </Text>
-                      </View>
                       <View style={[styles.allIngBadge, { backgroundColor: color }]}>
                         <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level, verdictDomain)}</Text>
                       </View>
@@ -1375,7 +1376,9 @@ const styles = StyleSheet.create({
   profileAlertsHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, marginBottom: 2, marginTop: 4 },
   profileAlertsHeaderText: { fontSize: 13, fontWeight: '700' as const, color: Colors.primary, textTransform: 'uppercase' as const, letterSpacing: 0.4 },
   profileAlertCard: { backgroundColor: 'rgba(46, 158, 52, 0.06)', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: 'rgba(46, 158, 52, 0.18)', borderLeftWidth: 4, borderLeftColor: Colors.primary },
+  profileAlertCardAllergen: { backgroundColor: 'rgba(214, 69, 69, 0.07)', borderColor: 'rgba(214, 69, 69, 0.22)', borderLeftColor: '#D64545' },
   profileAlertTitle: { fontSize: 13.5, fontWeight: '800' as const, color: Colors.primary, marginBottom: 3 },
+  profileAlertTitleAllergen: { color: '#D64545' },
   profileAlertMessage: { fontSize: 14, lineHeight: 20, color: '#1A1A1A', fontWeight: '500' as const },
   bigShareButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, paddingVertical: 20, borderRadius: 20, backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 18, elevation: 8 },
   bigShareButtonGreen: { backgroundColor: Colors.primary, shadowColor: '#2E9E34', shadowOpacity: 0.4, shadowRadius: 24, elevation: 10 },
@@ -1395,9 +1398,6 @@ const styles = StyleSheet.create({
   allIngRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 },
   allIngDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   allIngName: { flex: 1, fontSize: 15, lineHeight: 20, color: Colors.text, fontWeight: '800' as const, letterSpacing: -0.15 },
-  allIngScore: { paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999, borderWidth: 1, backgroundColor: '#FFFFFF', flexShrink: 0 },
-  allIngScoreText: { fontSize: 11.5, fontWeight: '900' as const, letterSpacing: -0.2 },
-  allIngScoreOutOf: { fontSize: 9, fontWeight: '800' as const, opacity: 0.65 },
   allIngBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999, flexShrink: 0 },
   allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25 },
   allIngExplanation: { marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8', backgroundColor: '#FFFFFF' },

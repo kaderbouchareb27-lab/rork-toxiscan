@@ -16,6 +16,9 @@
 // (Approuvé + Occasionnel) sur le total donne le chiffre exact : beaucoup de
 // propres → haut de la tranche, beaucoup de problématiques → bas de la tranche.
 //
+// La note /10 existe UNIQUEMENT au niveau du PRODUIT (carte de verdict en haut).
+// Les ingrédients de la liste n'affichent que leur badge de couleur, sans chiffre.
+//
 // Module volontairement pur (aucun import RN/i18n) → testable isolément.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -66,17 +69,6 @@ function isCleanLevel(level: ToxiIngredientLevel): boolean {
   return level === 'aucun' || level === 'possible';
 }
 
-/** Maps an ingredient badge onto the verdict-level scale that owns its band. */
-function ingredientScoreLevel(level: ToxiIngredientLevel): ToxiScoreLevel {
-  switch (level) {
-    case 'danger': return 'danger';
-    case 'ultratoxic': return 'ultratoxic';
-    case 'probable': return 'warning';
-    case 'possible': return 'moderation';
-    default: return 'approuve';
-  }
-}
-
 /** Places a 0→1 clean ratio inside a band (0 = bottom of the band, 1 = top). */
 function scoreInBand(band: ScoreBand, cleanRatio: number): number {
   const clamped = Math.min(1, Math.max(0, cleanRatio));
@@ -95,13 +87,4 @@ export function computeToxiScore(level: ToxiScoreLevel, ingredients: readonly Sc
   if (total === 0) return scoreInBand(band, 0.5);
   const cleanCount = ingredients.filter((ing) => isCleanLevel(ingredientLevel(ing))).length;
   return scoreInBand(band, cleanCount / total);
-}
-
-/**
- * ToxiScore /10 of ONE ingredient, using the exact same rule applied to a
- * single-item list: 🟢 10, 🟡 7, 🟠 4, 🟥 2, 🔴 0.
- */
-export function computeIngredientToxiScore(ing: ScorableIngredient): number {
-  const level = ingredientLevel(ing);
-  return scoreInBand(SCORE_BANDS[ingredientScoreLevel(level)], isCleanLevel(level) ? 1 : 0);
 }
