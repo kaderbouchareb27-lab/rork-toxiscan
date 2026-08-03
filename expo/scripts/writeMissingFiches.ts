@@ -87,6 +87,7 @@ Absolute rules:
 - If the note is empty, describe only what is common knowledge about that ingredient, in the same shape.
 - Never write "rated approved", "not in our database", "it is classified as" boilerplate, and never address the reader.
 - Plain consumer English, factual, no marketing.
+- The ingredient name may be French, Korean or accent-stripped: ALWAYS write about it using its natural ENGLISH name ("cranberries sechees" -> "dried cranberries", "huile de coco hydrogenee" -> "hydrogenated coconut oil"). Never copy the foreign spelling into the sentence.
 Respond ONLY with JSON: {"fiches":[...]} containing exactly ${n} strings, in the same order as the input array.`;
 
 async function writeBatch(items: PendingFiche[], attempt = 1): Promise<string[] | null> {
