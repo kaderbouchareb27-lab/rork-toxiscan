@@ -1,0 +1,32 @@
+{
+  "lot": "14-verified",
+  "created": 0,
+  "updated": 92,
+  "removed": [],
+  "shadowed": [],
+  "notes": [
+    "mot-clé « riz » revendiqué par « riz » → conservé pour « riz blanc » (entrée plus spécifique)",
+    "« amidon modifie » : alias existants conservés → fecula modifiee, corn starch modified",
+    "DELETE « gelatine e441 » : entrée introuvable (déjà supprimée ?)",
+    "« foie » : alias existants conservés → cœur",
+    "« egcg » : alias existants conservés → gallate d'epigallocatechine, organic catechins, catechines organiques, catechines bio",
+    "« curcumine » : alias existants conservés → 커큐민",
+    "« allulose » : alias existants conservés → tagatose",
+    "« fruit du moine » : alias existants conservés → fruit du moine en poudre",
+    "« riz » : tête d'entrée déplacée sur « riz complet » (le nom générique appartient à une entrée dédiée)",
+    "« sucre de canne complet » : alias existants conservés → mélasse noire",
+    "« jus de fruits frais » : alias existants conservés → jus pressé à froid, jus de légumes, vegetable juice",
+    "« saumon sauvage » : alias existants conservés → keta, saumon atlantique sauvage, saumon, salmon",
+    "« moutarde » : alias existants conservés → sauce d'huître",
+    "« pomme de terre » : alias existants conservés → radis noir",
+    "« okra » : alias existants conservés → bamboo, pousses de haricot mungo",
+    "« crevette » : alias existants conservés → araignée de mer, coquille saint-jacques, pieuvre, calmar",
+    "« caviar » : alias existants conservés → œufs de poisson, œufs de saumon",
+    "« kimchi » : alias existants conservés → 김치",
+    "« jeotgal » : alias existants conservés → 젓갈, 새우젓, 명란젓, fruits de mer fermentes coreens, salted fermented seafood",
+    "« gochujang » : alias existants conservés → 고추장",
+    "« levain » : alias existants conservés → nixtamal, tortilla de maïs, pita maison, naan maison",
+    "« plantain » : alias existants conservés → banana plantain",
+    "« lait d'amande » : alias existants conservés → lait de coco, coconut milk"
+  ]
+}

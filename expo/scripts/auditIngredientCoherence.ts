@@ -183,6 +183,15 @@ function isNegated(haystack: string, index: number): boolean {
 const JUSTIFIED: Record<string, string> = {
   hijiki: "le Groupe 1 concerne l'arsenic (contaminant), pas l'algue elle-même — badge orange assumé",
   mate: 'le Groupe 2A vise la boisson très chaude (> 65 °C), pas la plante — badge jaune assumé',
+  'viande rouge':
+    'le Groupe 2A vise une consommation élevée ; la décision produit est « Occasionnel » (modération CIRC), pas un badge orange — lot vérifié',
+};
+
+/** [D] Fiches vérifiées qui citent volontairement la FAMILLE d'additifs plutôt que leur code. */
+const JUSTIFIED_CODES: Record<string, string> = {
+  'cire de carnauba': 'la fiche compare E903 à la cire de candelilla (E902) — conclusion EFSA commune',
+  'd alpha tocopherol': "la fiche cite la réévaluation EFSA de la famille des tocophérols (E306-E309), dont E307a fait partie",
+  'calcium sorbate': "la fiche cite l'ADI de groupe des sorbates (E200/E202), dont E203 a justement été exclu",
 };
 
 for (const e of entries) {
@@ -218,7 +227,12 @@ for (const e of entries) {
   // Une description peut légitimement citer un additif voisin ; on ne signale que
   // le cas où AUCUN code cité n'est celui de l'entrée (texte écrit pour un autre additif).
   if (own && foreign.length === cited.size) {
-    flag('D', label(e), `la description cite ${[...cited].map((c) => c.toUpperCase()).join(', ')} mais jamais ${e.code}`);
+    const justification = JUSTIFIED_CODES[normalize(e.keywords[0])];
+    if (justification) {
+      console.log(`   ℹ️  ${label(e)} — écart assumé : ${justification}`);
+    } else {
+      flag('D', label(e), `la description cite ${[...cited].map((c) => c.toUpperCase()).join(', ')} mais jamais ${e.code}`);
+    }
   }
 }
 

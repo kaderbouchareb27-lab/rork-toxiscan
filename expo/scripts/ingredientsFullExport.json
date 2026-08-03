@@ -21,7 +21,7 @@
   },
   {
     "name": "nitrate de sodium",
-    "description_en": "E251 is a preservative that converts to nitrite and then carcinogenic nitrosamines in the body. Cured meats with it are confirmed carcinogens (IARC Group 1).",
+    "description_en": "A curing salt (E251) that the body converts to nitrite, which can then form nitrosamines. IARC rates ingested nitrate under conditions leading to endogenous nitrosation as Group 2A, probably carcinogenic. The confirmed Group 1 classification applies to processed meat as a food, not to the additive on its own.",
     "badge": "Carcinogenic",
     "risk": "danger",
     "aliases": [
@@ -385,7 +385,7 @@
   },
   {
     "name": "viande rouge",
-    "description_en": "Rich in bioavailable iron, zinc, and B12 to support blood and immune function.",
+    "description_en": "Rich in bioavailable iron, zinc and vitamin B12, which support blood and immune function. IARC classified red meat as Group 2A, probably carcinogenic to humans, in 2015, based mainly on colorectal cancer - which is why it belongs in a balanced diet as a regular but moderate item rather than a daily one.",
     "badge": "Occasional",
     "risk": "possible",
     "aliases": [
@@ -394,10 +394,14 @@
   },
   {
     "name": "hijiki",
-    "description_en": "A brown seaweed that accumulates unusually high levels of inorganic arsenic, a known human carcinogen. Food agencies in the UK, Canada and Ireland advise avoiding it and choosing other seaweeds instead.",
-    "badge": "Processed",
-    "risk": "probable",
-    "aliases": []
+    "description_en": "A brown seaweed that accumulates inorganic arsenic, an IARC Group 1 human carcinogen, at levels far above any other edible seaweed. The food agencies of the UK, Canada and Ireland do not merely advise moderation: they advise not eating it at all, and choosing another seaweed instead.",
+    "badge": "Carcinogenic",
+    "risk": "danger",
+    "aliases": [
+      "hiziki",
+      "hijiki seaweed",
+      "algue hijiki"
+    ]
   },
   {
     "name": "huile de palme",
@@ -561,19 +565,18 @@
   },
   {
     "name": "amidon modifie",
-    "description_en": "Starch chemically or physically altered (E1404) to thicken and stabilise industrial food. Considered safe by EFSA, but it is a refined carbohydrate with no nutrients and a clear marker of ultra-processing.",
+    "description_en": "A generic label covering any starch altered chemically or physically to thicken and stabilise industrial food, without saying which one. EFSA considers modified starches safe with no numerical ADI needed, but they are refined carbohydrates with no nutrients and one of the clearest markers of ultra-processing.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
-      "amidon modifié",
       "modified starch",
-      "fécule modifiée",
-      "fecula modifiee",
+      "fecule modifiee",
       "modified cornstarch",
       "modified corn starch",
       "modified wheat starch",
       "modified rice starch",
       "modified tapioca starch",
+      "fecula modifiee",
       "corn starch modified"
     ]
   },
@@ -600,16 +603,6 @@
       "modified potato starch",
       "fécule modifiée de pomme de terre",
       "e1422"
-    ]
-  },
-  {
-    "name": "phosphate de diamidon hydroxypropyle e1450",
-    "description_en": "Phosphate de diamidon hydroxypropyle E1450 is an industrial starch derivative with a high glycemic index, impacting blood sugar levels.",
-    "badge": "Processed",
-    "risk": "probable",
-    "aliases": [
-      "hydroxypropyl distarch phosphate",
-      "e1450"
     ]
   },
   {
@@ -1145,9 +1138,9 @@
   },
   {
     "name": "cire de carnauba",
-    "description_en": "A glazing wax (E903) from Brazilian palm leaves, used to shine sweets, chewing gum and coated tablets. It is not absorbed by the body, but it is a purely cosmetic industrial coating.",
-    "badge": "Processed",
-    "risk": "probable",
+    "description_en": "A plant wax from the leaves of the Brazilian carnauba palm, used to glaze sweets, chewing gum, coffee beans and coated tablets. EFSA re-evaluated it in 2012 and found no genotoxicity concern and sufficient margins of safety at authorised uses. It is practically not absorbed by the gut - the same conclusion reached for candelilla wax (E902).",
+    "badge": "Approved",
+    "risk": "aucun",
     "aliases": [
       "carnauba wax",
       "e903"
@@ -1206,7 +1199,7 @@
   },
   {
     "name": "argent",
-    "description_en": "Silver (E174) used as a decorative coating on confectionery. EFSA could not complete its safety re-evaluation because of insufficient data on absorption and nanoparticle content.",
+    "description_en": "Silver (E174), used as a decorative coating on confectionery. EFSA could not conclude on its safety in 2016, and its 2025 follow-up confirmed that the data on nanoparticle content, silver-ion release and genotoxicity are still inadequate. Nearly a decade on, its safety as a food additive remains officially unresolved.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
@@ -1325,11 +1318,10 @@
   },
   {
     "name": "phosphate d'os",
-    "description_en": "E542 is extracted from industrial bones and carries a risk of heavy metal contamination, including lead and cadmium.",
+    "description_en": "Bone phosphate (E542), a calcium phosphate obtained by degreasing and calcining animal bones, used in small amounts to keep powders free-flowing. It is of animal origin, so it does not suit vegetarian, vegan, halal or kosher diets unless specifically certified, and it adds to total phosphate intake, which EFSA already considers high in European diets. Its use in food today is marginal.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
-      "phosphate d os",
       "bone phosphate",
       "edible bone phosphate",
       "e542"
@@ -1337,14 +1329,19 @@
   },
   {
     "name": "parabene",
-    "description_en": "Parabene has been detected in breast tumors, raising health concerns.",
+    "description_en": "A family of preservatives with weak hormone-like activity in laboratory tests. The EU banned five of them from cosmetics in 2014 for lack of safety data (isopropyl-, isobutyl-, phenyl-, benzyl- and pentylparaben) and capped propyl- and butylparaben at 0.14%, with an additional ban on the nappy area of children under three. The 2004 study that detected parabens in breast tissue established no causal link; the real issue is cumulative exposure across food, cosmetics and medicines.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
       "paraben",
       "parabens",
       "butylparaben",
-      "butylparabene"
+      "butylparabene",
+      "isobutylparaben",
+      "isopropylparaben",
+      "benzylparaben",
+      "phenylparaben",
+      "pentylparaben"
     ]
   },
   {
@@ -1583,12 +1580,14 @@
   },
   {
     "name": "gelatine",
-    "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment. It is a safe, protein-based gelling agent, though of animal origin and low in nutritional value.",
+    "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment (E441). It is a safe, protein-based gelling agent, though of animal origin and low in nutritional value. Not suitable for vegetarians, or for halal and kosher diets unless certified.",
     "badge": "Occasional",
     "risk": "possible",
     "aliases": [
-      "gélatine",
-      "gelatin"
+      "gelatin",
+      "gelatine alimentaire",
+      "food gelatine",
+      "e441"
     ]
   },
   {
@@ -1926,15 +1925,13 @@
   },
   {
     "name": "acide citrique",
-    "description_en": "Citric acid (E330) naturally occurs in citrus fruits and supports metabolism and energy production.",
+    "description_en": "The acid that gives citrus fruit its sharpness - though the E330 on a label is produced industrially by fermenting sugar with Aspergillus niger, not extracted from lemons. It is one of the most benign additives there is, used to adjust acidity and protect colour. Its only real drawback is that it erodes tooth enamel in acidic drinks.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "citric acid",
       "e330",
-      "acidifiant acide citrique",
-      "acidifiant (acide citrique)",
-      "acidifiant: acide citrique"
+      "acidifiant acide citrique"
     ]
   },
   {
@@ -2026,31 +2023,28 @@
   },
   {
     "name": "egcg",
-    "description_en": "A natural catechin from green tea, rich in antioxidants.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "The main catechin in green tea, a well-studied antioxidant. Drunk as an infusion it raises no concern. As a concentrated extract it is a different matter: EFSA found in 2018 that 800 mg of EGCG per day or more from supplements raises liver enzymes, and the EU now requires warning labelling on green tea extracts. Read it as a good sign in tea, a caution in a supplement.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "catechine",
-      "catéchine",
       "catechines",
-      "catéchines",
       "catechin",
       "catechins",
       "epigallocatechine",
-      "épigallocatéchine",
       "epigallocatechin",
       "epigallocatechin gallate",
+      "green tea extract",
+      "extrait de the vert concentre",
       "gallate d'epigallocatechine",
       "organic catechins",
       "catechines organiques",
-      "catéchines organiques",
-      "catechines bio",
-      "catéchines bio"
+      "catechines bio"
     ]
   },
   {
     "name": "spiruline",
-    "description_en": "Spirulina is a dense source of plant protein, iron, and B vitamins that support energy and immunity.",
+    "description_en": "A cyanobacterium dried into powder, dense in plant protein, iron and antioxidants. One caveat matters: the B12 it contains is pseudo-B12, inactive in humans, so it cannot be counted as a B12 source on a plant-based diet. Sourcing also matters, since poorly controlled production can carry microcystin contamination.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -2384,9 +2378,9 @@
   },
   {
     "name": "dioxyde de titane",
-    "description_en": "A white colouring (E171) used in sweets, sauces and supplements. Banned as a food additive across the EU since August 2022 after EFSA could not rule out DNA damage. Still allowed in the US and in cosmetics.",
-    "badge": "Processed",
-    "risk": "probable",
+    "description_en": "A white colouring (E171) used in sweets, sauces and supplements. The EU banned it as a food additive in August 2022 after EFSA concluded that a concern for genotoxicity could not be ruled out and that no safe daily intake could be set. It remains permitted in the United States and in cosmetics.",
+    "badge": "Ultra toxic",
+    "risk": "danger",
     "aliases": [
       "titanium dioxide",
       "e171"
@@ -2588,28 +2582,18 @@
   },
   {
     "name": "d-alpha tocopherol",
-    "description_en": "Vitamin E that protects cells and dietary fats from oxidation.",
-    "badge": "Occasional",
-    "risk": "possible",
+    "description_en": "The natural RRR form of vitamin E, the one with the highest vitamin activity in the body. It protects cells and dietary fats from oxidation. EFSA re-evaluated the tocopherol family (E306-E309) in 2015 and found no safety concern at the levels used in food.",
+    "badge": "Approved",
+    "risk": "aucun",
     "aliases": [
-      "d-alpha-tocopherol",
-      "d alpha tocopherol",
-      "d-alpha tocophérol",
-      "d-alpha-tocophérol",
-      "d alpha tocophérol",
       "rrr-alpha-tocopherol",
-      "rrr alpha tocopherol",
-      "rrr-alpha tocopherol",
-      "rrr-alpha-tocophérol",
-      "rrr alpha tocophérol",
-      "d-alpha-tocophéryl",
       "d-alpha tocopheryl",
-      "d-alpha-tocopheryl"
+      "e307a"
     ]
   },
   {
     "name": "alpha-tocopherol",
-    "description_en": "Vitamin E that protects cells and dietary fats from oxidation.",
+    "description_en": "Vitamin E, a natural antioxidant found in plants and foods (vegetable oils, nuts, seeds).",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -2681,7 +2665,7 @@
   },
   {
     "name": "or",
-    "description_en": "Gold leaf (E175) used to decorate confectionery and drinks. It passes through the body unabsorbed, but EFSA could not complete its safety re-evaluation for lack of data on nanoparticle content.",
+    "description_en": "Gold leaf (E175) used to decorate confectionery and drinks. EFSA re-evaluated it in 2016 and concluded that, given the very low solubility of elemental gold, systemic absorption and systemic effects are not expected. It passes through the body unchanged and adds nothing nutritionally - purely decorative.",
     "badge": "Occasional",
     "risk": "possible",
     "aliases": [
@@ -2800,9 +2784,9 @@
   },
   {
     "name": "sucre de canne complet",
-    "description_en": "Unrefined cane sugar retains minerals but should be used sparingly due to its sugar content.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Unrefined cane sugar (rapadura, panela, muscovado, jaggery) keeps the molasses and with it iron, potassium and polyphenols that white sugar has lost. It is nonetheless still 85 to 95% sucrose and behaves in the body much like table sugar. Better, not harmless.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "rapadura",
       "panela",
@@ -2812,13 +2796,16 @@
       "gur",
       "sucre de palme",
       "palm sugar",
-      "mélasse",
       "melasse",
       "molasses",
-      "mélasse noire",
       "blackstrap molasses",
       "sirop de sorgho",
-      "sorghum syrup"
+      "sorghum syrup",
+      "sucre de coco",
+      "coconut sugar",
+      "sucre de datte",
+      "date sugar",
+      "mélasse noire"
     ]
   },
   {
@@ -3016,11 +3003,14 @@
   },
   {
     "name": "inuline",
-    "description_en": "Inulin fiber feeds beneficial gut bacteria, promoting digestive health.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "A prebiotic fibre from chicory root or agave that feeds beneficial gut bacteria. It is genuinely useful, but it is also one of the most fermentable fibres there is: added to industrial products to boost the fibre figure on the label, it commonly causes bloating and gas, and it is poorly tolerated in irritable bowel syndrome.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "inuline d'agave"
+      "inulin",
+      "inuline d'agave",
+      "inuline de chicoree",
+      "chicory root fiber"
     ]
   },
   {
@@ -3086,27 +3076,20 @@
   },
   {
     "name": "ble",
-    "description_en": "Whole wheat flour supplies fibre, B vitamins, magnesium, and plant protein for better nutrition.",
+    "description_en": "Whole wheat - the intact grain with its bran and germ - supplies fibre, B vitamins, magnesium and plant protein. Refining strips most of that away, so the wholemeal version is a different food nutritionally from white flour.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "blé",
       "wheat",
-      "grain de blé",
       "grain de ble",
       "wheat grain",
-      "blé entier",
       "ble entier",
       "whole wheat",
-      "farine de ble",
-      "farine de blé",
       "farine complete",
-      "farine complète",
-      "farine de blé complète",
-      "wheat flour",
+      "farine de ble complete",
       "whole wheat flour",
       "whole flour",
-      "farine intégrale"
+      "farine integrale"
     ]
   },
   {
@@ -3120,15 +3103,15 @@
     ]
   },
   {
-    "name": "riz",
-    "description_en": "Brown rice provides fiber, B vitamins, and minerals that support digestion and energy production.",
+    "name": "riz complet",
+    "description_en": "Brown rice keeps its bran and germ, and with them fibre, B vitamins, magnesium and manganese that support digestion and energy production. White rice is the same grain with those layers polished off, which removes most of the nutrients and raises the glycemic response.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "rice",
-      "riz complet",
       "brown rice",
-      "vermicelles de riz"
+      "riz brun",
+      "riz semi-complet",
+      "riz cargo"
     ]
   },
   {
@@ -3223,12 +3206,11 @@
     ]
   },
   {
-    "name": "fécule de tapioca",
-    "description_en": "Tapioca starch offers a gluten-free thickener with minimal nutritional impact.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "name": "fecule de tapioca",
+    "description_en": "Starch extracted from the cassava root. It is naturally gluten-free and useful as a thickener, but like every isolated starch it is a refined carbohydrate with a high glycemic response and none of the fibre or minerals of the root.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "fecule de tapioca",
       "amidon de tapioca",
       "tapioca starch",
       "tapioca flour",
@@ -3994,13 +3976,15 @@
     ]
   },
   {
-    "name": "poudre de céleri",
-    "description_en": "Celery stalk or celeriac, fresh or simply dried into powder.",
+    "name": "poudre de celeri",
+    "description_en": "Celery stalk or celeriac, simply dried and ground - harmless as a seasoning. Worth knowing, though, that the meat industry uses celery powder and celery juice as a natural nitrate source to cure meat labelled \"no nitrites added\": the body converts that nitrate to nitrite and the same nitroso-compounds form. On a charcuterie label it is a curing agent, not a vegetable.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "poudre de celeri",
-      "celery powder"
+      "celery powder",
+      "jus de celeri",
+      "celery juice",
+      "celery juice powder"
     ]
   },
   {
@@ -4130,46 +4114,46 @@
     ]
   },
   {
-    "name": "sucre de coco",
-    "description_en": "Contains minerals and inulin, offering a slightly lower glycemic impact than white sugar.",
+    "name": "sucre de fleur de coco",
+    "description_en": "A natural sugar from coconut flower sap.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "coconut sugar",
-      "sucre de fleur de coco",
       "coconut flower sugar"
     ]
   },
   {
     "name": "miel",
-    "description_en": "Its antioxidants and antibacterial compounds support immunity, in small amounts.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Raw honey brings antioxidants, enzymes and antibacterial compounds that refined sugar does not have. It is still around 80% sugar, and the WHO counts it as a free sugar exactly like table sugar - a better sweetener, not a free one. Never give honey to a baby under one year old, because of the risk of infant botulism.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "honey"
+      "honey",
+      "miel cru",
+      "raw honey",
+      "miel brut"
     ]
   },
   {
     "name": "sirop d'erable",
-    "description_en": "A natural sweetener made by simply concentrating maple sap.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Maple syrup is simply concentrated maple sap, and it carries manganese, zinc and polyphenols that refining would remove. It is nonetheless about two thirds sugar and counts as a free sugar in dietary guidelines - a whole-food sweetener to use sparingly.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "sirop d'érable",
       "maple syrup",
-      "sucre d'érable",
-      "maple sugar"
+      "sucre d'erable",
+      "maple sugar",
+      "dehydrated maple syrup",
+      "maple syrup powder",
+      "granulated maple sugar"
     ]
   },
   {
-    "name": "sucre de datte",
-    "description_en": "Provides fiber and minerals from whole dates, delivering natural fruit sweetness.",
+    "name": "sucre de dattes",
+    "description_en": "Date sugar is a natural sweetener made by grinding dried dates, retaining fiber, potassium, magnesium, and antioxidants.",
     "badge": "Approved",
     "risk": "aucun",
-    "aliases": [
-      "sucre de dattes",
-      "date sugar"
-    ]
+    "aliases": []
   },
   {
     "name": "sirop d'érable déshydraté",
@@ -4180,19 +4164,15 @@
       "sirop d'erable deshydrate",
       "sirop erable deshydrate",
       "sirop érable déshydraté",
-      "dehydrated maple syrup",
-      "maple syrup powder",
-      "sucre d'érable granulé",
-      "granulated maple sugar"
+      "sucre d'érable granulé"
     ]
   },
   {
     "name": "erythritol",
-    "description_en": "A fermented and purified sugar alcohol used as a low-calorie sweetener. Large single doses can cause diarrhea, nausea, bloating, or abdominal discomfort. Health: EFSA confirmed a laxative threshold. Studies have reported cardiovascular associations, but a causal health risk from normal food consumption has not been established.",
+    "description_en": "A polyol sweetener produced by fermentation. EFSA re-evaluated it in 2023 and, for the first time ever, set an ADI based on an immediate effect - diarrhoea - at 0.5 g/kg body weight per day, then concluded that both acute and chronic intake exceed that ADI in every age group. Separate Cleveland Clinic work links circulating erythritol to platelet reactivity and cardiovascular events; that is association plus mechanism rather than proof, but it is enough to set it apart from older polyols.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
-      "érythritol",
       "e968"
     ]
   },
@@ -4212,7 +4192,7 @@
   },
   {
     "name": "xylitol",
-    "description_en": "A sugar alcohol used to replace sugar in chewing gum, candy, drinks, and low-sugar products. It is highly refined and can cause gas, abdominal cramps, bloating, or diarrhea when a large amount is consumed. Health: The main established concern is a dose-related laxative effect. People with irritable bowel syndrome or sensitivity to polyols may react at lower amounts.",
+    "description_en": "A polyol sweetener used in sugar-free gum, sweets and drinks. It is dose-dependently laxative, and a 2024 European Heart Journal study linked circulating xylitol to major cardiovascular events and showed heightened platelet reactivity in every volunteer after ingestion. The evidence is associative plus mechanistic rather than causal, but it places xylitol alongside erythritol rather than with the other polyols.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
@@ -4261,12 +4241,11 @@
   },
   {
     "name": "lecithine de tournesol",
-    "description_en": "A natural emulsifier extracted from soybeans or sunflower seeds, used to blend fat and water. It is well tolerated and one of the most benign emulsifiers, though soy versions are often solvent-extracted and may be GM.",
+    "description_en": "A natural emulsifier pressed from sunflower seeds, used to blend fat and water. Unlike soy lecithin it is obtained mechanically rather than with solvents, involves no GM crop and carries no soy allergen - which makes it the cleanest emulsifier commonly found on a label.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "sunflower lecithin",
-      "lécithine de tournesol"
+      "sunflower lecithin"
     ]
   },
   {
@@ -4374,44 +4353,46 @@
   },
   {
     "name": "ginseng",
-    "description_en": "Ginseng may help boost energy and reduce fatigue through its active compounds.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "An Asian root traditionally used against fatigue, sold today mostly as a concentrated extract. It is not inert: it interacts with anticoagulants and diabetes medication, can disturb sleep at higher doses, and is not recommended during pregnancy or breastfeeding.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "extrait de ginseng",
-      "ginseng extract"
+      "ginseng extract",
+      "panax ginseng",
+      "ginseng rouge"
     ]
   },
   {
     "name": "saumon sauvage",
-    "description_en": "Small oily fish like wild salmon provide omega-3 EPA and DHA for brain and heart function.",
+    "description_en": "Wild salmon provides omega-3 EPA and DHA for brain and heart function, along with vitamin D and astaxanthin. It is leaner than farmed salmon and free of the feed, treatments and added colourants of aquaculture.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "wild salmon",
-      "saumon coho",
-      "coho",
       "saumon sockeye",
       "sockeye",
       "saumon rouge",
+      "saumon coho",
+      "coho",
       "saumon keta",
-      "keta",
       "chum salmon",
       "saumon rose",
       "pink salmon",
       "saumon quinnat",
       "king salmon",
       "chinook",
-      "saumon atlantique sauvage",
       "wild atlantic salmon",
-      "saumon",
-      "salmon",
       "sardine",
       "sardines",
       "maquereau",
       "mackerel",
       "anchois",
-      "anchovy"
+      "anchovy",
+      "keta",
+      "saumon atlantique sauvage",
+      "saumon",
+      "salmon"
     ]
   },
   {
@@ -4609,54 +4590,39 @@
   },
   {
     "name": "grenade",
-    "description_en": "Pomegranate is rich in antioxidants, while kiwi provides high vitamin C for immune support.",
+    "description_en": "Pomegranate seeds are dense in punicalagins and anthocyanins, among the most concentrated antioxidants in any fruit, along with fibre and vitamin K.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "pomegranate",
-      "kiwi",
-      "kiwis",
-      "melon",
-      "pasteque",
-      "pastèque",
-      "watermelon",
-      "cantaloup",
-      "cantaloupe"
+      "grenades",
+      "graines de grenade"
     ]
   },
   {
     "name": "rhubarbe",
-    "description_en": "Low sugar and high fiber in rhubarb support digestion and provide vitamin K for blood health.",
+    "description_en": "Rhubarb stalks are very low in sugar and high in fibre and vitamin K, which makes them one of the few fruits used in desserts that adds almost no sweetness of its own. Only the stalk is edible: the leaves contain enough oxalic acid to be genuinely toxic and must never be eaten.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "rhubarb",
-      "coing",
-      "quince",
-      "mirabelle",
-      "reine claude",
-      "reine-claude",
-      "griotte"
+      "tige de rhubarbe"
     ]
   },
   {
     "name": "plantain",
-    "description_en": "Resistant starch and potassium in plantains support digestive health and maintain healthy blood pressure.",
+    "description_en": "Plantain is a starchy banana always eaten cooked. Green plantain is high in resistant starch, which feeds gut bacteria and blunts the glycemic response; as it ripens that starch turns to sugar.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "banane plantain",
-      "banana plantain",
-      "tamarin",
-      "tamarind",
-      "tamarillo",
-      "physalis",
-      "feijoa"
+      "platano",
+      "banana plantain"
     ]
   },
   {
     "name": "pomme de terre",
-    "description_en": "Rich in potassium and fibre — a genuinely nutritious whole vegetable.",
+    "description_en": "Rich in potassium, vitamin C and fibre when the skin is kept on - a genuinely nutritious whole vegetable. Two things to know: potatoes that have turned green or sprouted accumulate solanine, which is bitter and toxic, so those parts should be cut away generously; and frying or roasting at high heat is what generates acrylamide.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -4664,10 +4630,6 @@
       "patate",
       "patate douce",
       "sweet potato",
-      "igname",
-      "yam",
-      "taro",
-      "malanga",
       "topinambour",
       "jerusalem artichoke",
       "panais",
@@ -4678,10 +4640,10 @@
       "radis",
       "radish",
       "daikon",
-      "radis noir",
       "betterave",
       "beetroot",
-      "beet"
+      "beet",
+      "radis noir"
     ]
   },
   {
@@ -4971,19 +4933,14 @@
   },
   {
     "name": "okra",
-    "description_en": "Soluble fiber in okra helps regulate blood sugar and cholesterol while providing low-calorie nutrition.",
+    "description_en": "Okra provides soluble fibre that helps regulate blood sugar and cholesterol, with very few calories. Its mucilage is what thickens stews and gumbo.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "gombo",
+      "okras",
       "bamboo",
-      "pousses de bambou",
-      "bamboo shoots",
-      "germes de soja",
-      "bean sprouts",
-      "pousses de haricot mungo",
-      "lotus root",
-      "racine de lotus"
+      "pousses de haricot mungo"
     ]
   },
   {
@@ -5193,7 +5150,7 @@
   },
   {
     "name": "foie",
-    "description_en": "Rich in vitamin A, B12, and iron, liver supports healthy blood and immune function.",
+    "description_en": "Exceptionally rich in vitamin A, B12, iron and copper - one of the most nutrient-dense foods there is. Its preformed vitamin A is so concentrated that health agencies advise pregnant women to avoid liver and liver products entirely, and a single weekly portion is enough for everyone else.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -5202,18 +5159,18 @@
       "rognon",
       "rognons",
       "kidney",
-      "cœur",
       "coeur",
       "heart",
       "abats",
       "offal",
       "langue",
-      "tongue"
+      "tongue",
+      "cœur"
     ]
   },
   {
     "name": "cabillaud",
-    "description_en": "Lean white fish provides complete protein, iodine, and selenium while being low in mercury.",
+    "description_en": "Lean white fish provide complete protein, iodine, selenium and B12 with very little fat, and sit among the lowest-mercury species there are - which is why the FDA and EPA place them on the Best Choices list, two to three servings a week.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -5223,7 +5180,6 @@
       "pollock",
       "haddock",
       "eglefin",
-      "églefin",
       "merlu",
       "hake",
       "sole",
@@ -5237,16 +5193,11 @@
       "lotte",
       "monkfish",
       "turbot",
-      "flétan",
-      "fletan",
-      "halibut",
       "truite",
       "trout",
       "omble",
       "hareng",
       "herring",
-      "esturgeon",
-      "sturgeon",
       "merlan",
       "whiting",
       "saint-pierre",
@@ -5255,7 +5206,7 @@
   },
   {
     "name": "crevette",
-    "description_en": "Shellfish and seaweed supply protein and essential minerals like zinc and iodine for body functions.",
+    "description_en": "Shellfish supply high-quality protein, zinc, selenium, iodine and vitamin B12 for very little fat. Two practical points: crustaceans and molluscs are among the allergens the EU requires to be declared, and reactions to them are often severe; and raw oysters and clams carry a norovirus and vibrio risk, which is why they are not advised during pregnancy.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -5270,12 +5221,9 @@
       "crabe",
       "crab",
       "tourteau",
-      "araignée de mer",
       "ecrevisse",
-      "écrevisse",
       "crayfish",
       "huitre",
-      "huître",
       "oyster",
       "oysters",
       "moule",
@@ -5288,7 +5236,6 @@
       "coque",
       "cockle",
       "saint-jacques",
-      "coquille saint-jacques",
       "scallop",
       "scallops",
       "bulot",
@@ -5297,19 +5244,21 @@
       "oursin",
       "sea urchin",
       "poulpe",
-      "pieuvre",
       "octopus",
       "calamar",
-      "calmar",
       "squid",
       "encornet",
       "seiche",
-      "cuttlefish"
+      "cuttlefish",
+      "araignée de mer",
+      "coquille saint-jacques",
+      "pieuvre",
+      "calmar"
     ]
   },
   {
     "name": "algue",
-    "description_en": "Seaweed provides iodine, iron, magnesium, and soluble fiber, supporting thyroid and overall nutrition.",
+    "description_en": "Seaweed provides iodine, iron, magnesium and soluble fibre, supporting thyroid function and overall nutrition. Nori and wakame are moderate, but kombu is by far the most iodine-dense food known and can disturb thyroid function if eaten regularly - health agencies advise limiting it, and using it for stock rather than eating it.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -5324,17 +5273,17 @@
   },
   {
     "name": "caviar",
-    "description_en": "Caviar is rich in omega-3 fatty acids, vitamin B12, and vitamin D, supporting heart and bone health.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Fish roe is rich in omega-3 EPA and DHA, vitamin B12 and vitamin D. It is also salted heavily to preserve it, which makes it one of the saltiest foods on a table - it works as a delicacy in small spoonfuls, not as a portion.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "oeufs de poisson",
-      "œufs de poisson",
       "fish roe",
       "roe",
       "oeufs de saumon",
-      "œufs de saumon",
-      "salmon roe"
+      "salmon roe",
+      "œufs de poisson",
+      "œufs de saumon"
     ]
   },
   {
@@ -5349,7 +5298,6 @@
       "pecorino",
       "grana padano",
       "mascarpone",
-      "gorgonzola",
       "taleggio",
       "asiago",
       "provolone",
@@ -5375,23 +5323,27 @@
   },
   {
     "name": "brie",
-    "description_en": "Brie cheese provides calcium, protein, and vitamin B12, but is fatty and salty.",
+    "description_en": "Soft ripened cheeses provide calcium, protein and vitamin B12, and develop their character through surface moulds. Because their moisture and low acidity suit listeria, health agencies advise pregnant women to avoid soft ripened cheeses unless they are made from pasteurised milk or have been cooked until steaming hot.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "camembert"
+      "camembert",
+      "coulommiers",
+      "chaource"
     ]
   },
   {
     "name": "roquefort",
-    "description_en": "Roquefort cheese provides essential nutrients and protein, supporting muscle and bone health in small amounts.",
+    "description_en": "Blue cheeses concentrate calcium, protein and B12, and their moulds give them their character. They are among the saltiest cheeses there are, and health agencies advise pregnant women to avoid blue-veined cheese unless it has been cooked until steaming hot.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "bleu",
       "bleu d'auvergne",
       "fourme d'ambert",
-      "blue cheese"
+      "blue cheese",
+      "gorgonzola",
+      "stilton"
     ]
   },
   {
@@ -5495,27 +5447,24 @@
   },
   {
     "name": "lait de chevre",
-    "description_en": "Smaller fat globules in goat, sheep, and buffalo milk may aid digestion for some people.",
+    "description_en": "Smaller fat globules in goat, sheep and buffalo milk may make them easier to digest for some people. Nutritionally they are close to cow's milk, with slightly more medium-chain fats.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "lait de chèvre",
       "goat milk",
       "lait de brebis",
       "sheep milk",
       "lait de bufflonne",
       "buffalo milk",
-      "lait cru",
-      "raw milk",
       "babeurre",
       "buttermilk"
     ]
   },
   {
     "name": "lait d'amande",
-    "description_en": "Best chosen without added sugars and without additives.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Plant drinks are a good dairy alternative when the ingredient list is short: water, the nut or grain, and nothing else. Most supermarket versions add sugar, oils, gums and emulsifiers, and many contain only 2 to 3% almond, which leaves a drink with almost no protein. Choose unsweetened and fortified with calcium.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "almond milk",
       "lait d'avoine",
@@ -5526,20 +5475,18 @@
       "rice milk",
       "lait de noisette",
       "hazelnut milk",
-      "lait de coco",
-      "coconut milk",
       "boisson vegetale",
-      "boisson végétale",
-      "plant milk"
+      "plant milk",
+      "lait de coco",
+      "coconut milk"
     ]
   },
   {
     "name": "noix du bresil",
-    "description_en": "The richest natural source of selenium, which supports thyroid function and antioxidant defences.",
+    "description_en": "The richest natural source of selenium on the planet, which supports thyroid function and antioxidant defences. One or two nuts already cover a full day's requirement, and eating them by the handful every day can exceed the tolerable upper intake - a rare case where a whole food needs a portion limit.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "noix du brésil",
       "brazil nut",
       "brazil nuts"
     ]
@@ -5867,11 +5814,12 @@
   },
   {
     "name": "feuille de kaffir",
-    "description_en": "Aromatic kaffir lime leaves contain antibacterial and antioxidant compounds.",
+    "description_en": "Aromatic leaves and rhizomes used fresh in South-East Asian cooking - kaffir lime leaf, lemongrass, galangal, fresh turmeric, ginger root and curry leaf. They are whole plant parts, used in small amounts, and carry the essential oils and antioxidants of the fresh plant.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "kaffir lime leaf",
+      "combava",
       "citronnelle",
       "lemongrass",
       "galanga",
@@ -5880,9 +5828,6 @@
       "fresh turmeric",
       "racine de gingembre",
       "ginger root",
-      "wasabi",
-      "raifort",
-      "horseradish",
       "feuille de curry",
       "curry leaf"
     ]
@@ -5908,7 +5853,7 @@
   },
   {
     "name": "moutarde",
-    "description_en": "Traditional fermented foods, rich in probiotics.",
+    "description_en": "Mustard is simply crushed mustard seed with vinegar and salt. It adds flavour for almost no calories and keeps the antioxidant compounds of the seed. Dijon and wholegrain versions contain little beyond seed, vinegar, water and salt.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -5917,26 +5862,7 @@
       "dijon mustard",
       "moutarde a l'ancienne",
       "whole grain mustard",
-      "sauce soja",
-      "sauce soya",
-      "soy sauce",
-      "shoyu",
-      "tamari",
-      "sauce poisson",
-      "fish sauce",
-      "nuoc mam",
-      "nam pla",
-      "sauce huitre",
-      "sauce d'huître",
-      "oyster sauce",
-      "sauce hoisin",
-      "hoisin",
-      "miso",
-      "pate miso",
-      "pâte miso",
-      "pate de soja fermente",
-      "natto",
-      "tempeh"
+      "sauce d'huître"
     ]
   },
   {
@@ -6006,93 +5932,77 @@
   },
   {
     "name": "humus maison",
-    "description_en": "Humus maison benefits the body as a nutritious blend of cooked chickpeas and tahini providing protein and fiber.",
+    "description_en": "Cooked chickpeas blended with tahini, olive oil, lemon and garlic - plant protein, fibre, unsaturated fat and calcium in one spread. Homemade versions contain nothing else; industrial tubs often add preservatives and cheaper oils.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "hummus",
-      "baba ganoush",
-      "tzatziki",
-      "guacamole",
-      "salsa verde",
-      "romesco",
-      "aioli",
-      "aïoli"
+      "houmous"
     ]
   },
   {
     "name": "cornichon naturel",
-    "description_en": "Live bacteria and organic acids from natural fermentation promote gut health and digestion.",
+    "description_en": "Vegetables preserved by lacto-fermentation in brine rather than vinegar. Live bacteria and organic acids survive in the jar as long as it has not been pasteurised, which supports gut flora. The salt in the brine is the only thing to keep an eye on.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "pickle naturel",
-      "légumes lacto-fermentés",
+      "legumes lacto-fermentes",
       "lacto-fermented vegetables",
-      "kombucha",
-      "kvass"
+      "choucroute crue",
+      "raw sauerkraut"
     ]
   },
   {
     "name": "sirop de yacon",
-    "description_en": "Yacon syrup contains prebiotic fructo-oligosaccharides that support gut health with lower sugar impact.",
+    "description_en": "Syrup from the yacon root, unusual in that most of its sweetness comes from fructo-oligosaccharides that the body does not absorb, so it feeds gut bacteria instead of raising blood sugar. Large amounts cause bloating for the same reason.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "yacon syrup",
-      "sirop de dattes",
-      "date syrup"
+      "sirop de poire de terre"
     ]
   },
   {
     "name": "fruit du moine",
-    "description_en": "Monk fruit sweetener contains zero calories and does not raise blood sugar levels.",
+    "description_en": "A sweetener from the luo han guo fruit, with no calories and no effect on blood sugar. It has a long history of use in Asia and is widely permitted in North America. In the EU only an aqueous decoction of the fruit has been authorised, while purified mogroside V - the form used in most imported products - is still awaiting authorisation.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "fruit du moine en poudre",
       "monk fruit",
       "monk fruit extract",
       "extrait de fruit du moine",
       "luo han guo",
       "mogroside",
-      "mogrosides"
+      "mogrosides",
+      "fruit du moine en poudre"
     ]
   },
   {
     "name": "allulose",
-    "description_en": "Allulose sweetens with almost no calories or glucose impact but may cause digestive upset in large amounts.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "A rare sugar that sweetens with almost no calories and no effect on blood glucose. It is authorised in the United States, Canada, Japan and Korea, but not in the European Union or the UK, where it is still going through novel food assessment. Large amounts cause bloating and digestive upset.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "tagatose",
-      "inuline de chicoree",
-      "inuline de chicorée"
+      "d-allulose",
+      "psicose",
+      "tagatose"
     ]
   },
   {
     "name": "levain",
-    "description_en": "Sourdough fermentation improves bread digestibility and mineral absorption by breaking down gluten and phytates.",
+    "description_en": "A natural starter of wild yeasts and lactic bacteria. Long sourdough fermentation breaks down part of the gluten and the phytates that block mineral absorption, which makes sourdough bread more digestible and its magnesium, zinc and iron more available than in yeasted bread.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
       "sourdough",
       "levain naturel",
       "natural starter",
-      "masa harina",
+      "pain au levain",
       "nixtamal",
       "tortilla de maïs",
-      "corn tortilla",
       "pita maison",
-      "pain pita",
-      "pain plat",
-      "flatbread",
-      "naan maison",
-      "chapati",
-      "roti",
-      "injera",
-      "lavash",
-      "pain au levain"
+      "naan maison"
     ]
   },
   {
@@ -6235,26 +6145,28 @@
   },
   {
     "name": "jus de fruits frais",
-    "description_en": "Fresh fruit juice provides vitamins and antioxidants but less fiber than whole fruit.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Freshly pressed juice keeps the vitamins and polyphenols of the fruit, but pressing removes the fibre that slows sugar absorption. The WHO counts fruit juice as a free sugar for that reason, and a glass concentrates the sugar of several pieces of fruit. Whole fruit is always the better version; vegetable-based juices avoid most of the issue.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "fresh fruit juice",
-      "jus pressé",
-      "jus pressé à froid",
+      "jus presse",
       "cold-pressed juice",
+      "smoothie maison",
+      "jus pressé à froid",
       "jus de légumes",
-      "vegetable juice",
-      "smoothie maison"
+      "vegetable juice"
     ]
   },
   {
     "name": "chlorella",
-    "description_en": "Freshwater microalgae dried and sold as powder or tablets.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "A freshwater microalga dried into powder or tablets, rich in protein, iron and chlorophyll. Because it absorbs what its growing water contains, the quality of sourcing decides whether it also carries heavy metals - certified production matters more here than for most foods.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "klamath"
+      "chlorelle",
+      "chlorella vulgaris",
+      "chlorella pyrenoidosa"
     ]
   },
   {
@@ -6276,14 +6188,15 @@
   },
   {
     "name": "reishi",
-    "description_en": "Reishi benefits the body by providing beta-glucans from whole dried medicinal mushrooms.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "description_en": "Medicinal mushrooms sold as dried powder or concentrated extract. They supply beta-glucans and are well tolerated as a food. As a supplement, reishi has been associated with rare cases of liver injury - the NIH LiverTox database describes clinically apparent injury as extremely rare, and reported cases mostly involve the unextracted powdered form, alcohol use or existing liver disease. It can also interact with anticoagulants. Treat it as a supplement with its own precautions, not as an ordinary mushroom.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "cordyceps",
       "lion's mane",
       "hericium",
-      "criniere de lion"
+      "criniere de lion",
+      "ganoderma"
     ]
   },
   {
@@ -6332,10 +6245,10 @@
     ]
   },
   {
-    "name": "gelée royale",
-    "description_en": "Bee products contain natural compounds that may support health but can cause allergies.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "name": "gelee royale",
+    "description_en": "Bee products carrying enzymes, amino acids and antibacterial compounds. They are also documented allergens: royal jelly and propolis have caused severe allergic reactions including anaphylaxis, rare but well recorded, and are best avoided by people with asthma or a known allergy to bee products. Pollen can trigger reactions in people allergic to the source plants.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
       "royal jelly",
       "propolis",
@@ -6398,15 +6311,14 @@
     ]
   },
   {
-    "name": "고추장",
-    "description_en": "고추장 is a Korean fermented chili paste made from chili, glutinous rice, and soybeans; some industrial versions add high-fructose syrup.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "name": "gochujang",
+    "description_en": "A Korean fermented paste of chilli, glutinous rice and soybeans. The traditional version is a genuine ferment; most supermarket jars list glucose-fructose syrup among the main ingredients, which puts them closer to a sweet sauce than to a ferment. The ingredient list decides which one you have.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "gochujang",
       "pate de piment fermentee coreenne",
-      "pâte de piment fermentée coréenne",
-      "fermented chili paste"
+      "fermented chili paste",
+      "고추장"
     ]
   },
   {
@@ -6446,7 +6358,6 @@
     "risk": "aucun",
     "aliases": [
       "양조간장",
-      "ganjang",
       "yangjo ganjang",
       "korean soy sauce"
     ]
@@ -6486,36 +6397,34 @@
     "aliases": [
       "멸치액젓",
       "까나리액젓",
-      "aekjeot",
-      "myeolchi aekjeot",
       "sauce de poisson coreenne",
       "korean fish sauce"
     ]
   },
   {
-    "name": "젓갈",
-    "description_en": "Korean salted and fermented seafood.",
-    "badge": "Approved",
-    "risk": "aucun",
+    "name": "jeotgal",
+    "description_en": "Seafood salted and fermented for months, used as a seasoning and as a base for kimchi. It is a genuine traditional ferment, and it is also preserved in enough salt to make it one of the highest-sodium foods in any cuisine - a condiment by the spoonful, never a portion.",
+    "badge": "Occasional",
+    "risk": "possible",
     "aliases": [
-      "새우젓",
-      "명란젓",
-      "jeotgal",
       "saeujeot",
       "myeongnanjeot",
+      "젓갈",
+      "새우젓",
+      "명란젓",
       "fruits de mer fermentes coreens",
       "salted fermented seafood"
     ]
   },
   {
-    "name": "김치",
-    "description_en": "Korean lacto-fermented vegetables, rich in probiotics, fiber and vitamins.",
+    "name": "kimchi",
+    "description_en": "Lacto-fermented vegetables rich in live lactic bacteria, fibre, vitamin C and beta-carotene - one of the best-studied traditional ferments there is. Its one drawback is salt: kimchi is brined, and diets very high in salted foods are an established risk factor for stomach cancer, so it works best as a side dish rather than a main portion.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
-      "kimchi",
       "baechu kimchi",
-      "kimchi de chou"
+      "kimchi de chou",
+      "김치"
     ]
   },
   {
@@ -6824,19 +6733,6 @@
     ]
   },
   {
-    "name": "gelatine e441",
-    "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment (E441). It is a safe, protein-based gelling agent, though of animal origin with little nutritional value.",
-    "badge": "Occasional",
-    "risk": "possible",
-    "aliases": [
-      "gélatine e441",
-      "gelatine alimentaire",
-      "gélatine alimentaire",
-      "food gelatine",
-      "e441"
-    ]
-  },
-  {
     "name": "phosphatides d ammonium",
     "description_en": "An emulsifier (E442) used almost exclusively in chocolate to control flow during moulding. It is authorised at low levels but is a synthetic phosphate derivative with no place in traditional chocolate.",
     "badge": "Processed",
@@ -6957,7 +6853,7 @@
   },
   {
     "name": "talc alimentaire",
-    "description_en": "E553b is food-grade talc used to prevent sticking or clumping; purity and asbestos absence are essential for safety.",
+    "description_en": "Food-grade talc (E553b) used to stop powders sticking and clumping. IARC reclassified talc as Group 2A, probably carcinogenic to humans, in 2024, on limited evidence in humans, sufficient evidence in animals and strong mechanistic evidence. A separate and older concern is contamination with asbestos, which occurs naturally alongside talc deposits and is a confirmed Group 1 carcinogen.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
@@ -7332,7 +7228,7 @@
   },
   {
     "name": "curcumine",
-    "description_en": "Turmeric's yellow pigment (E100) provides anti-inflammatory benefits in the body.",
+    "description_en": "The yellow pigment of turmeric (E100), used as a natural colouring. It is a plant-derived alternative to synthetic yellow dyes and raises no safety concern at food levels. The anti-inflammatory effects attributed to curcumin come from concentrated supplement doses, not from the trace amount used to colour a food.",
     "badge": "Approved",
     "risk": "aucun",
     "aliases": [
@@ -7509,11 +7405,11 @@
   },
   {
     "name": "phosphate de diamidon hydroxypropyle",
-    "description_en": "One of the most common modified starches (E1442), used in sauces, desserts and ready meals. Regarded as safe by EFSA, but a clear technical marker of ultra-processed food.",
+    "description_en": "One of the most common modified starches (E1442), used in sauces, desserts and ready meals to hold texture through heating and freezing. EFSA's 2017 re-evaluation found no safety concern and set no numerical ADI, but it is a purely technical refined carbohydrate and a clear marker of ultra-processed food.",
     "badge": "Processed",
     "risk": "probable",
     "aliases": [
-      "phosphate de diamidon hydroxypropylé",
+      "hydroxypropyl distarch phosphate",
       "e1442"
     ]
   },
@@ -7616,9 +7512,9 @@
   },
   {
     "name": "calcium sorbate",
-    "description_en": "A former preservative used to slow mold and yeast growth. It was withdrawn from the European Union food-additive list because the available data were insufficient to rule out a genotoxic concern. Health: Avoid products that list it as a food additive in markets where it is not authorized. Withdrawal reflects unresolved safety data, not proof that it causes cancer.",
-    "badge": "Ultra toxic",
-    "risk": "danger",
+    "description_en": "A preservative deleted from the EU list of authorised food additives in 2018 because no company ever supplied the genotoxicity data EFSA had asked for - a data gap, not a proven toxicity. EFSA had already excluded it from the group ADI shared by sorbic acid (E200) and potassium sorbate (E202), partly because the related sodium salt tested positive for genotoxicity. It is no longer permitted in EU food.",
+    "badge": "Processed",
+    "risk": "probable",
     "aliases": [
       "sorbate de calcium",
       "e203"
@@ -8172,45 +8068,41 @@
   },
   {
     "name": "oxidized starch",
-    "description_en": "Starch chemically modified to improve thickening, stability, and processing performance. It is used to engineer consistent texture in sauces, fillings, and processed foods. Health: No specific major toxicity is established at authorized levels. It is primarily a marker of industrial formulation.",
-    "badge": "Occasional",
-    "risk": "possible",
+    "description_en": "Starch chemically oxidised (E1404) to improve thickening, clarity and processing performance. EFSA's 2017 re-evaluation of the whole modified-starch family found no safety concern and no genotoxic concern. Its role is purely technological: a refined carbohydrate that signals an industrially engineered texture.",
+    "badge": "Processed",
+    "risk": "probable",
     "aliases": [
-      "amidon oxydé",
       "amidon oxyde",
       "e1404"
     ]
   },
   {
     "name": "phosphated distarch phosphate",
-    "description_en": "A cross-linked and phosphorylated starch designed to resist heat, acid, and mechanical processing. Health: It has no established carcinogenic classification. Its role is technological rather than nutritional.",
-    "badge": "Occasional",
-    "risk": "possible",
+    "description_en": "A cross-linked and phosphorylated starch (E1413) designed to resist heat, acid and mechanical processing. EFSA found no safety concern for the modified-starch family, but the additive brings no nutrition and marks a heavily formulated product.",
+    "badge": "Processed",
+    "risk": "probable",
     "aliases": [
-      "phosphate de diamidon phosphaté",
       "phosphate de diamidon phosphate",
       "e1413"
     ]
   },
   {
     "name": "amidon hydroxypropyl",
-    "description_en": "A chemically modified starch that remains stable during freezing, heating, and storage. Health: No major specific harm is established at permitted use. Frequent presence indicates a highly engineered texture.",
-    "badge": "Occasional",
-    "risk": "possible",
+    "description_en": "A chemically modified starch (E1440) that stays stable through freezing, heating and storage. EFSA's 2017 opinion raised no safety or genotoxicity concern, but it is a refined carbohydrate whose only purpose is texture in industrial recipes.",
+    "badge": "Processed",
+    "risk": "probable",
     "aliases": [
       "hydroxypropyl starch",
-      "amidon hydroxypropylé",
       "amidon hydroxypropyle",
       "e1440"
     ]
   },
   {
     "name": "acetylated oxidized starch",
-    "description_en": "A starch subjected to oxidation and acetylation to improve stability, clarity, and texture. Health: It is not classified as carcinogenic. The main issue is its use as a structural ingredient in heavily processed products.",
-    "badge": "Occasional",
-    "risk": "possible",
+    "description_en": "A starch both oxidised and acetylated (E1451) to improve stability, clarity and texture. EFSA found no safety concern for the modified-starch family, but the double chemical treatment leaves a refined carbohydrate used purely as a structural ingredient.",
+    "badge": "Processed",
+    "risk": "probable",
     "aliases": [
-      "amidon oxydé acétylé",
       "amidon oxyde acetyle",
       "e1451"
     ]
@@ -8259,6 +8151,335 @@
       "propylène glycol",
       "propane 1 2 diol",
       "e1520"
+    ]
+  },
+  {
+    "name": "amidon octenylsuccinate de sodium",
+    "description_en": "Starch modified with octenyl succinic anhydride (E1450) to act as an emulsifier and encapsulating agent in drinks, dressings and powdered flavourings. EFSA's 2017 re-evaluation of modified starches found no safety concern and no need for a numerical ADI, but it remains a refined carbohydrate with no nutrients and a marker of industrial formulation.",
+    "badge": "Processed",
+    "risk": "probable",
+    "aliases": [
+      "starch sodium octenyl succinate",
+      "octenyl succinic anhydride starch",
+      "osa starch",
+      "e1450"
+    ]
+  },
+  {
+    "name": "propyl paraben",
+    "description_en": "A paraben preservative removed from the EU list of authorised food additives in 2006, after EFSA judged that the presumed safe intake was no longer valid because of effects on sex hormones and male reproductive organs in young rats. No food ADI has been accepted since. It is still permitted in US food, and was banned from foods in California in 2023.",
+    "badge": "Ultra toxic",
+    "risk": "danger",
+    "aliases": [
+      "propylparabene",
+      "propylparaben",
+      "p hydroxybenzoate de propyle",
+      "e216"
+    ]
+  },
+  {
+    "name": "extrait riche en tocopherols",
+    "description_en": "A natural vitamin E mixture extracted from vegetable oils (E306), used to stop fats going rancid. EFSA's 2015 re-evaluation of the tocopherol family found no safety concern at dietary exposures. It is one of the most benign antioxidants available, and a better sign on a label than synthetic BHA or BHT.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "tocopherol rich extract",
+      "extrait de tocopherols",
+      "e306"
+    ]
+  },
+  {
+    "name": "lait cru",
+    "description_en": "Milk that has not been pasteurised. It keeps enzymes and flavour that heat destroys, but it can carry listeria, salmonella and E. coli, which is why health agencies advise against it for pregnant women, young children, older adults and anyone immunocompromised. Its sale for direct consumption is prohibited in Canada.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "raw milk",
+      "lait non pasteurise",
+      "unpasteurised milk",
+      "unpasteurized milk"
+    ]
+  },
+  {
+    "name": "farine de ble blanche",
+    "description_en": "Wheat flour with the bran and germ milled out. It keeps the starch and part of the protein but loses most of the fibre, magnesium and B vitamins of the grain, and raises blood sugar faster. Wholemeal flour is the same ingredient with its nutrition intact.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "farine de ble",
+      "wheat flour",
+      "farine blanche",
+      "white flour",
+      "farine tout usage",
+      "all purpose flour",
+      "farine t55",
+      "farine t45"
+    ]
+  },
+  {
+    "name": "riz blanc",
+    "description_en": "Rice polished to remove the bran and germ. It is easy to digest and keeps well, but the milling takes away most of the fibre, magnesium and B vitamins and leaves a starch with a high glycemic response. Basmati has a lower glycemic index than short-grain white rice.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "riz",
+      "rice",
+      "white rice",
+      "riz long grain",
+      "vermicelles de riz",
+      "rice vermicelli"
+    ]
+  },
+  {
+    "name": "sauce soja",
+    "description_en": "Traditionally brewed soy sauce is fermented for months and carries the depth that comes with it. Two things are worth checking on the label: it is extremely salty, so a few tablespoons cover a large share of the daily sodium limit; and cheaper versions are made by acid hydrolysis rather than brewing, a process that can generate 3-MCPD, which the EU caps by law.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "sauce soya",
+      "soy sauce",
+      "shoyu",
+      "tamari",
+      "ganjang"
+    ]
+  },
+  {
+    "name": "miso",
+    "description_en": "Soybeans fermented with koji over months, eaten as a paste. Unpasteurised miso, natto and tempeh carry live cultures and enzymes that support digestion, along with complete plant protein. Miso is salty enough to count as a seasoning rather than an ingredient.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "pate miso",
+      "natto",
+      "tempeh",
+      "pate de soja fermente"
+    ]
+  },
+  {
+    "name": "sauce hoisin",
+    "description_en": "A sweet, thick condiment built mainly on sugar and fermented soybean paste, usually alongside modified starch, caramel colour and flavour enhancers. Oyster sauce is formulated the same way. They are industrial sauces rather than traditional ferments - heavy in both sugar and sodium.",
+    "badge": "Processed",
+    "risk": "probable",
+    "aliases": [
+      "hoisin",
+      "sauce huitre",
+      "oyster sauce"
+    ]
+  },
+  {
+    "name": "sauce poisson",
+    "description_en": "Anchovies salted and fermented for months, the backbone of South-East Asian cooking. It is a genuine traditional ferment rich in free amino acids, and it is also one of the saltiest condiments in any kitchen - a teaspoon carries as much sodium as a portion of crisps.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "fish sauce",
+      "nuoc mam",
+      "nam pla",
+      "aekjeot",
+      "myeolchi aekjeot"
+    ]
+  },
+  {
+    "name": "klamath",
+    "description_en": "A wild-harvested cyanobacterium (Aphanizomenon flos-aquae) sold as a supplement. Because it is gathered from an open lake rather than cultivated, batches can be contaminated with microcystins, liver toxins produced by other cyanobacteria growing alongside it. Health agencies have repeatedly flagged this, and it is not recommended for children or during pregnancy.",
+    "badge": "Processed",
+    "risk": "probable",
+    "aliases": [
+      "algue klamath",
+      "aphanizomenon flos-aquae",
+      "afa"
+    ]
+  },
+  {
+    "name": "taro",
+    "description_en": "Starchy tropical roots that must always be cooked. Raw taro and raw yam contain calcium oxalate crystals and other compounds that irritate the mouth and digestive tract; cooking destroys them. Once cooked they are a good source of complex carbohydrate, potassium and fibre.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "malanga",
+      "igname",
+      "yam",
+      "dachine"
+    ]
+  },
+  {
+    "name": "pousses de bambou",
+    "description_en": "Bamboo shoots are low in calories and a good source of fibre and potassium, but fresh shoots contain cyanogenic glycosides and must be boiled before eating - canned shoots are already processed and safe. Bean sprouts and lotus root, often sold alongside them, raise no such issue.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "bamboo shoots",
+      "bambou",
+      "germes de soja",
+      "bean sprouts",
+      "lotus root",
+      "racine de lotus"
+    ]
+  },
+  {
+    "name": "fletan",
+    "description_en": "A large flatfish with firm white flesh and a good omega-3 content. Being a big predator it accumulates more methylmercury than small white fish, which puts it on the FDA and EPA Good Choices list: one serving a week rather than the two to three allowed for lean white fish. Sturgeon falls in the same group.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "halibut",
+      "esturgeon",
+      "sturgeon"
+    ]
+  },
+  {
+    "name": "espadon",
+    "description_en": "Long-lived top predators that concentrate the most methylmercury of any commercial fish. The FDA and EPA place swordfish, shark, marlin, king mackerel, bigeye tuna, orange roughy and Gulf tilefish on the Choices to Avoid list: pregnant women, breastfeeding women and children should not eat them at all, and other adults only rarely.",
+    "badge": "Ultra toxic",
+    "risk": "danger",
+    "aliases": [
+      "swordfish",
+      "requin",
+      "shark",
+      "marlin",
+      "makaire",
+      "thon obese",
+      "bigeye tuna",
+      "hoplostete orange",
+      "orange roughy",
+      "tile",
+      "tilefish",
+      "maquereau roi",
+      "king mackerel"
+    ]
+  },
+  {
+    "name": "tzatziki",
+    "description_en": "Dips built on vegetables, yoghurt or nuts: tzatziki from cucumber and yoghurt, guacamole from avocado, baba ganoush from grilled aubergine, romesco and salsa verde from peppers, nuts and herbs. Made at home they are whole ingredients blended together, with nothing added.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "baba ganoush",
+      "guacamole",
+      "salsa verde",
+      "romesco"
+    ]
+  },
+  {
+    "name": "aioli",
+    "description_en": "An emulsion of oil, egg yolk and garlic - essentially a garlic mayonnaise. Made with olive oil it is a good fat, but it is almost entirely fat: a couple of tablespoons carry more calories than the dish they accompany.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "mayonnaise maison",
+      "rouille"
+    ]
+  },
+  {
+    "name": "wasabi",
+    "description_en": "Wasabi and horseradish are pungent roots from the brassica family, grated fresh and used in tiny amounts. Worth knowing that most wasabi sold in tubes and served in restaurants outside Japan is horseradish coloured green, with mustard and dye rather than real wasabi rhizome - the ingredient list will say.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "raifort",
+      "horseradish",
+      "wasabia japonica"
+    ]
+  },
+  {
+    "name": "pain plat",
+    "description_en": "Flatbreads such as pita, naan, chapati, roti, lavash and tortilla. Made with wholemeal flour they are a good bread; made with refined white flour, which is the usual case, they behave like white bread, and industrial versions add oils, sugar and preservatives on top.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "flatbread",
+      "pain pita",
+      "pita",
+      "naan",
+      "chapati",
+      "roti",
+      "lavash",
+      "tortilla",
+      "corn tortilla",
+      "masa harina",
+      "injera"
+    ]
+  },
+  {
+    "name": "kombucha",
+    "description_en": "Sweetened tea fermented by a culture of bacteria and yeast. The fermentation consumes part of the sugar and produces organic acids and live cultures, but commercial bottles are usually sweetened again afterwards and can carry as much sugar as a soft drink. The nutrition label settles it, not the health framing.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "kvass",
+      "the fermente",
+      "fermented tea"
+    ]
+  },
+  {
+    "name": "sirop de dattes",
+    "description_en": "Dates cooked down into a syrup. It keeps some of the potassium and polyphenols of the fruit, but the fibre is largely gone and what remains is concentrated fruit sugar, counted as a free sugar in dietary guidelines.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "date syrup",
+      "sirop de datte"
+    ]
+  },
+  {
+    "name": "melon",
+    "description_en": "Melons and watermelon are more than 90% water, which makes them low in calories while supplying potassium, vitamin C and, in the orange and red varieties, beta-carotene and lycopene. Their sugar is diluted enough that a generous portion stays modest.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "pasteque",
+      "watermelon",
+      "cantaloup",
+      "cantaloupe",
+      "melon d'eau",
+      "honeydew"
+    ]
+  },
+  {
+    "name": "kiwi",
+    "description_en": "One of the richest fruits in vitamin C, alongside fibre, potassium and actinidin, an enzyme that helps break down protein and eases digestion.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "kiwis",
+      "kiwifruit",
+      "kiwi jaune",
+      "gold kiwi"
+    ]
+  },
+  {
+    "name": "coing",
+    "description_en": "Quince, mirabelle, greengage and morello cherry are stone or pome fruits eaten cooked or fresh, supplying fibre, potassium and polyphenols. Quince is always cooked, being too astringent raw.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "quince",
+      "mirabelle",
+      "reine claude",
+      "griotte"
+    ]
+  },
+  {
+    "name": "tamarin",
+    "description_en": "Tamarind pulp is tangy and high in fibre, magnesium and polyphenols, used as a souring agent across South Asian and Latin American cooking. It is also naturally sugar-dense, so the concentrated pastes and blocks count as a sweet-sour ingredient rather than a fruit portion.",
+    "badge": "Occasional",
+    "risk": "possible",
+    "aliases": [
+      "tamarind",
+      "pate de tamarin",
+      "tamarind paste"
+    ]
+  },
+  {
+    "name": "physalis",
+    "description_en": "Small tart fruits eaten fresh - physalis, tamarillo and feijoa. They are low in sugar and supply vitamin C, fibre and carotenoids.",
+    "badge": "Approved",
+    "risk": "aucun",
+    "aliases": [
+      "tamarillo",
+      "feijoa",
+      "coqueret",
+      "cape gooseberry"
     ]
   }
 ]

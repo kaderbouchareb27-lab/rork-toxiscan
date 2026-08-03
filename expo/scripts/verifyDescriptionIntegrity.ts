@@ -166,7 +166,7 @@ function officialBelongsTo(text: string, name: string, entry: IngredientEntry | 
  * Fiches whose wording is imposed by the product owner and must be displayed verbatim,
  * even when the ingredient is green and the one-sentence rule would shorten them.
  */
-const VERBATIM_LOTS: ReadonlySet<string> = new Set(['13-fallback']);
+const VERBATIM_LOTS: ReadonlySet<string> = new Set(['13-fallback', '14-verified']);
 const VERBATIM_TEXTS: ReadonlySet<string> = new Set(
   source.descriptions.filter((d) => VERBATIM_LOTS.has(d.lot)).map((d) => d.description_en),
 );
