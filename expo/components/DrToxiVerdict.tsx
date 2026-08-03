@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Platform, Easing } from 'react-native';
 import { Image } from 'expo-image';
-import { isEnglish, pick } from '@/utils/i18n';
+import { pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI, getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict, type DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
 export type VerdictLevel = 'danger' | 'warning' | 'moderation' | 'approuve' | 'ultratoxic';

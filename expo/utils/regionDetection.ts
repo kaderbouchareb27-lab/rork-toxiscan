@@ -1,5 +1,4 @@
 import * as Localization from 'expo-localization';
-import { Platform } from 'react-native';
 import { getDeviceLanguage } from '@/utils/i18n';
 
 export type UserRegion = 'quebec' | 'france' | 'usa' | 'belgium' | 'switzerland' | 'canada_other' | 'korea';

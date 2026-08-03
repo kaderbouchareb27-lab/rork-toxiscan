@@ -59,7 +59,7 @@ export default function AboutScreen() {
       </View>
 
       <View style={styles.addressBlock}>
-        <Text style={styles.addressLine}>1055 Rue Lucien-L'Allier, Unit #1036</Text>
+        <Text style={styles.addressLine}>1055 Rue Lucien-L&apos;Allier, Unit #1036</Text>
         <Text style={styles.addressLine}>Montréal, QC H3G 3C4</Text>
         <Text style={styles.addressLine}>Canada</Text>
       </View>

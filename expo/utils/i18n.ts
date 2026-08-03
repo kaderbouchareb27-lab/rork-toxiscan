@@ -254,11 +254,6 @@ const translations = {
   intro_kitchen_caution: { fr: 'Cet ustensile contient des matériaux à surveiller.', en: 'This kitchen item contains materials worth watching.', ko: '이 주방용품에는 주의가 필요한 소재가 들어 있습니다.' },
   intro_kitchen_safe: { fr: 'Cet ustensile est fait de matériaux sans risque connu.', en: 'This kitchen item is made of materials with no known risk.', ko: '이 주방용품은 알려진 위험이 없는 소재로 만들어졌습니다.' },
 
-  // Non-food verdict actions (never "consume")
-  nf_action_danger: { fr: 'À éviter', en: 'Avoid', ko: '피하세요' },
-  nf_action_hazardous: { fr: 'Manipuler avec précaution', en: 'Handle with care', ko: '주의해서 다루세요' },
-  nf_action_caution: { fr: 'Précautions d\'usage', en: 'Use with care', ko: '사용 시 주의' },
-  nf_action_safe: { fr: 'Bon choix', en: 'Good choice', ko: '좋은 선택' },
   approved_consume_freely: { fr: 'Vous pouvez consommer ce produit régulièrement sans inquiétude.', en: 'You can consume this product regularly without concern.', ko: '이 제품은 걱정 없이 정기적으로 섭취해도 됩니다.' },
   not_classified_unknown: { fr: 'Non classé', en: 'Not classified', ko: '미분류' },
   all_ingredients: { fr: 'Tous les ingrédients', en: 'All ingredients', ko: '전체 성분' },
@@ -706,16 +701,6 @@ const translations = {
   weekly_free_trial: { fr: 'Essai gratuit 7 jours', en: '7-day free trial', ko: '7일 무료 체험' },
   weekly_meals_label: { fr: 'repas', en: 'meals', ko: '식사' },
   weekly_avg_short: { fr: 'moy.', en: 'avg', ko: '평균' },
-
-  // ===== MEAL SCAN — NOTIFICATIONS =====
-  notif_morning_title: { fr: 'Et au petit-déjeuner ?', en: 'How about breakfast?', ko: '아침 식사는 어떤가요?' },
-  notif_morning_body: { fr: 'Scanne ton repas du matin et découvre son score de santé.', en: 'Scan your morning meal and discover its health score.', ko: '아침 식사를 스캔하고 건강 점수를 확인해 보세요.' },
-  notif_noon_title: { fr: "C'est l'heure du midi", en: 'Lunchtime', ko: '점심 시간이에요' },
-  notif_noon_body: { fr: 'Scanne ton assiette et découvre son score de santé.', en: 'Scan your meal and discover its health score.', ko: '식사를 스캔하고 건강 점수를 확인해 보세요.' },
-  notif_evening_title: { fr: 'Et ce soir, dans ton assiette ?', en: "What's on your plate tonight?", ko: '오늘 저녁 식사는 어떤가요?' },
-  notif_evening_body: { fr: 'Un scan rapide et Dr. Toxi te donne son verdict.', en: 'A quick scan and Dr. Toxi gives you the verdict.', ko: '빠르게 스캔하면 Dr. Toxi가 판정해 드려요.' },
-  notif_friday_title: { fr: 'Ton rapport de la semaine est prêt', en: 'Your weekly report is ready', ko: '주간 리포트가 준비됐어요' },
-  notif_friday_body: { fr: 'Découvre ton score de santé et le bilan de tes repas.', en: 'See your health score and your meal summary.', ko: '이번 주 건강 점수와 식사 요약을 확인하세요.' },
 
   // ===== MEAL SCAN — PAYWALL =====
   paywall_meal: { fr: 'Transforme chaque repas en décision claire', en: 'Turn every meal into a clear decision', ko: '모든 식사를 명확한 선택으로' },

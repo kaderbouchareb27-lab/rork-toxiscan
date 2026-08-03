@@ -1,5 +1,5 @@
 import { AdditiveInfo, RiskGroup, ProductCategory, AdditiveCategory } from '@/types';
-import { t, isEnglish, getDeviceLanguage, pick } from '@/utils/i18n';
+import { t, getDeviceLanguage, pick } from '@/utils/i18n';
 import { getOfficialEn, localizeOfficialText } from '@/utils/officialDescriptions';
 
 export const ADDITIVES_DATABASE: AdditiveInfo[] = [

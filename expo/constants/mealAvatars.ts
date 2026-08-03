@@ -5,7 +5,7 @@ import {
   DR_TOXI_DANGER_AVATAR_URI,
 } from '@/constants/drToxiAvatars';
 import { t, pick } from '@/utils/i18n';
-import { scoreToTier, type MealCategory, type MealTier } from '@/utils/mealAnalysis';
+import { type MealCategory, type MealTier } from '@/utils/mealAnalysis';
 
 /**
  * The 4 reactive Dr. Toxi avatars for the meal score (spec §6). Same broccoli

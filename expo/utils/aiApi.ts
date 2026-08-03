@@ -227,7 +227,7 @@ export async function aiGenerateObject<T>(params: {
   let parsed: unknown;
   try {
     parsed = JSON.parse(jsonStr);
-  } catch (e) {
+  } catch {
     console.error('[AI] Failed to parse JSON response:', contentStr.substring(0, 500));
     throw new Error(pick({ en: 'Unreadable AI response.', fr: 'Réponse IA illisible.', ko: 'AI 응답을 읽을 수 없습니다.' }));
   }

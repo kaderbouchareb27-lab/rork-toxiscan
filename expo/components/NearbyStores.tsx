@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { MapPin, Navigation, Store, LocateFixed } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
 import { pick } from '@/utils/i18n';
 import { useLocation } from '@/providers/LocationProvider';
 import {

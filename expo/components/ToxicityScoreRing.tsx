@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import type { MealTier } from '@/utils/mealAnalysis';
 import { MEAL_TIER_COLORS, MEAL_TIER_SOFT } from '@/constants/mealAvatars';

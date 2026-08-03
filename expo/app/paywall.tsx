@@ -40,7 +40,7 @@ let Purchases: any = null;
 if (Platform.OS !== 'web') {
   try {
     Purchases = require('react-native-purchases').default;
-  } catch (e) {
+  } catch {
     console.log('[Paywall] Failed to load react-native-purchases');
   }
 }

@@ -191,29 +191,6 @@ function getBannerConfig(rawLevel: VerdictLevel, domain: VerdictDomain = 'food')
   }
 }
 
-function getVerdictAction(rawLevel: VerdictLevel, domain: VerdictDomain = 'food'): string {
-  if (domain === 'household' || domain === 'textile' || domain === 'kitchen') {
-    switch (clampLevel(rawLevel)) {
-      case 'danger':     return t('nf_action_danger');
-      case 'warning':    return t('nf_action_hazardous');
-      case 'moderation': return t('nf_action_caution');
-      case 'approuve':   return t('nf_action_safe');
-    }
-  }
-  switch (rawLevel) {
-    case 'ultratoxic':
-      return pick({ en: 'Avoid as much as possible', fr: 'À éviter autant que possible', ko: '최대한 피하세요' });
-    case 'danger':
-      return pick({ en: 'Avoid regular consumption', fr: 'À éviter régulièrement', ko: '정기적인 섭취를 피하세요' });
-    case 'warning':
-      return pick({ en: 'Occasional only — prefer short lists', fr: 'Occasionnel — préfère les listes courtes', ko: '가끔만 — 짧은 성분표를 선택하세요' });
-    case 'moderation':
-      return pick({ en: 'Occasional only', fr: 'Occasionnel seulement', ko: '가끔만 드세요' });
-    case 'approuve':
-      return pick({ en: 'Good everyday choice', fr: 'Bon choix au quotidien', ko: '매일 먹기 좋은 선택' });
-  }
-}
-
 // ─────────────────────────────────────────────
 // Confetti
 // ─────────────────────────────────────────────
@@ -316,250 +293,6 @@ function truncateName(name: string, max: number = 60): string {
   return name.slice(0, max - 1).trimEnd() + '\u2026';
 }
 
-// ─────────────────────────────────────────────
-// (Removed) Generic product-specific advice bullets — replaced by the
-// auto-loaded real in-store alternatives + the personalized substance-based
-// callout below, which are specific to the exact product scanned.
-// ─────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function _removedGetProductSpecificAdvice(
-  productName: string,
-  productCategory: string | undefined,
-  detectedAdditiveNames: string[],
-): string[] {
-  const english = isEnglish();
-  const name = (productName ?? '').toLowerCase();
-  const additives = detectedAdditiveNames.map(a => a.toLowerCase()).join(' ');
-  const cat = (productCategory ?? '').toLowerCase();
-  const haystack = `${name} ${additives}`;
-
-  const has = (...kws: string[]) => kws.some(k => haystack.includes(k));
-
-  // Charcuterie / processed meat
-  if (has('jambon', 'ham', 'salami', 'saucisson', 'bacon', 'charcuterie', 'deli', 'sausage', 'saucisse', 'hot dog', 'pepperoni', 'nitrit', 'nitrate', 'e249', 'e250', 'e251', 'e252')) {
-    return pick<string[]>({
-      en: [
-          'Choose nitrite-free deli meat from your local butcher (look for "uncured", "no added nitrites", "sans nitrites").',
-          'Pick organic certified brands like Applegate Naturals or Pederson\'s in the US, Maison du Jambon or Aoste Bio in France, or Charcuteries Parizeau (sans nitrite) in Quebec.',
-          'Or replace processed meat with roasted chicken, fresh turkey breast, or homemade slow-cooked pork.',
-      ],
-      fr: [
-          'Va chez ton boucher local et demande de la charcuterie sans nitrite de sodium (mention « sans nitrite » ou « zéro nitrite » sur l\'étiquette).',
-          'Privilégie des marques bio certifiées comme Charcuteries Parizeau ou Viandes Biologiques des Cantons (Québec), Maison Loste Sans Nitrite ou Aoste Bio (France), Applegate Naturals (USA).',
-          'Ou remplace la charcuterie par du poulet rôti, de la dinde fraîche tranchée, ou du porc effiloché maison.',
-      ],
-      ko: [
-          '아질산나트륨(발색제)이 들어가지 않은 햄·소시지를 고르세요 — 포장에 "무첨가", "아질산염 무첨가" 표시를 확인하세요.',
-          '한살림, 초록마을, 자연드림의 무첨가 가공육을 추천하거나 동네 정육점에서 직접 손질한 고기를 고르세요.',
-          '아예 가공육 대신 구운 닭가슴살, 수육, 직접 삶은 돼지고기로 바꾸면 더 좋아요.',
-      ],
-    });
-  }
-
-  // Caffeine / energy drinks / coffee / pre-workout (BEFORE candy to avoid 'gomme' matching caffeine gum)
-  if (has('caffeine', 'caféine', 'cafeine', 'guarana', 'taurine', 'energy drink', 'energy shot', 'red bull', 'monster', 'rockstar', 'celsius', 'bang', 'reign', 'prime energy', 'pre-workout', 'pre workout', 'coffee', 'café', 'cafe', 'espresso', 'nespresso', 'starbucks')) {
-    return pick<string[]>({
-      en: [
-          'Caffeine itself is natural and safe in moderation — limit total intake to ~400 mg/day (about 4 coffees) and avoid after 2pm.',
-          'Prefer simple sources: plain coffee, black or green tea, yerba mate. Skip energy drinks loaded with sugar, artificial colors or sweeteners (aspartame, sucralose).',
-          'Cleaner options: cold-brew coffee, matcha, Guayaki yerba mate, or sparkling water with a shot of espresso. Avoid drinks aimed at kids/teens (AMA guidance).',
-      ],
-      fr: [
-          'La caféine est naturelle et sans danger avec modération — vise max 400 mg/jour (≈ 4 cafés) et évite après 14h.',
-          'Privilégie les sources simples : café noir, thé vert ou noir, maté. Évite les boissons énergisantes chargées en sucre, colorants ou édulcorants (aspartame, sucralose).',
-          'Meilleures options : café filtre ou expresso, matcha, maté Guayaki, ou eau pétillante + shot d\'expresso. À éviter chez les enfants et adolescents (recommandation AMA).',
-      ],
-      ko: [
-          '카페인 자체는 적당히 섭취하면 안전해요 — 하루 400mg(커피 약 4잔) 이하로 마시고 오후 2시 이후에는 피하세요.',
-          '단순한 음료가 좋아요: 블랙커피, 녹차·홍차, 마테차. 설탕·인공색소·인공감미료(아스파탐, 수크랄로스)가 가득한 에너지음료는 피하세요.',
-          '더 깨끗한 선택: 콜드브루, 말차(맛차), 또는 탄산수에 에스프레소 샷. 어린이·청소년을 겨냥한 카페인 음료는 피하세요.',
-      ],
-    });
-  }
-
-  // Candy / bonbons
-  if (has('bonbon', 'candy', 'gummy', 'gomme', 'haribo', 'jelly', 'lollipop', 'sucette', 'dragibus', 'm&m', 'skittles')) {
-    return pick<string[]>({
-      en: [
-          'Switch to organic candy without artificial dyes (no Red 40, Yellow 5, Blue 1) and no aspartame.',
-          'Try brands like YumEarth, Surf Sweets, Torie & Howard or Smart Sweets — sold at Whole Foods, Sprouts, Target.',
-          'For a gummy fix: dried mango, dates stuffed with peanut butter, or homemade fruit gummies with real juice + gelatin.',
-      ],
-      fr: [
-          'Passe à des bonbons biologiques sans colorants artificiels (pas de E102, E110, E122, E129) et sans aspartame.',
-          'Marques recommandées : Bonbons Vrai (FR, Biocoop), Sula bio, Lovechock, ou les bonbons aux fruits Jardin Bio Étic.',
-          'Pour une envie de mâcher : dattes Medjool, mangue séchée bio, fruits secs ou pâtes de fruits artisanales sans additif.',
-      ],
-      ko: [
-          '인공색소(적색40호, 황색4호·5호, 청색1호)와 아스파탐이 없는 유기농 사탕·젤리로 바꿔보세요.',
-          '한살림·초록마을·아이허브에서 무색소 젤리나 유기농 과일 간식을 찾을 수 있어요.',
-          '쫀득한 게 당길 땐 건망고, 곶감, 대추, 또는 진짜 과일주스 + 젤라틴으로 만든 수제 젤리를 추천해요.',
-      ],
-    });
-  }
-
-  // Soda / sugary drinks
-  if (has('soda', 'cola', 'pepsi', 'fanta', 'sprite', 'energy drink', 'soft drink', 'limonade', 'aspartame', 'e951', 'e950', 'acésulfame')) {
-    return pick<string[]>({
-      en: [
-          'Drop sodas with aspartame, acesulfame-K or artificial colors — they\'re classified as possibly carcinogenic.',
-          'Healthier swaps: Olipop, Poppi, Spindrift, San Pellegrino + lemon, or kombucha (GT\'s, Health-Ade).',
-          'Best of all: filtered water + fresh fruit slices, sparkling water with lime, or homemade iced herbal tea.',
-      ],
-      fr: [
-          'Évite les sodas contenant de l\'aspartame (E951), de l\'acésulfame-K (E950) ou des colorants artificiels — classés possiblement cancérigènes.',
-          'Alternatives plus saines : kombucha (Rise, Karma), eaux pétillantes aromatisées naturellement (Perrier + citron, San Pellegrino), Olipop ou Poppi.',
-          'Le mieux : eau filtrée avec rondelles de fruits frais, ou infusion glacée maison non sucrée.',
-      ],
-      ko: [
-          '아스파탐(E951), 아세설팔칼륨(E950), 인공색소가 든 탄산음료는 피하세요 — 발암 가능 물질로 분류돼요.',
-          '더 건강한 대체: 콤부차, 천연 탄산수(트레비·페리에)에 레몬, 또는 무가당 차.',
-          '제일 좋은 건: 생수에 과일 한·두 조각, 탄산수에 라임, 또는 직접 우린 무가당 아이스티예요.',
-      ],
-    });
-  }
-
-  // Chips / snacks
-  if (has('chips', 'crisp', 'doritos', 'lays', 'pringles', 'tortilla')) {
-    return pick<string[]>({
-      en: [
-          'Choose chips with a short ingredient list: potato, oil, salt — nothing else. No MSG, no flavor enhancers (E621), no TBHQ.',
-          'Good brands: Siete Foods, Jackson\'s Honest, Late July Organic, or Kettle Brand Organic — at Whole Foods, Sprouts, Target.',
-          'Or make your own: thinly sliced sweet potato or kale, olive oil, sea salt, baked at 180°C / 350°F.',
-      ],
-      fr: [
-          'Choisis des chips à liste courte : pomme de terre, huile, sel — rien d\'autre. Évite le glutamate (E621), les exhausteurs de goût et le TBHQ.',
-          'Bonnes marques : Belsia bio, Brets Bio, Vico Bio, ou les chips Jardin Bio Étic — chez Biocoop, Naturalia, Carrefour Bio.',
-          'Ou fais-les maison : patate douce ou chou kale en fines tranches, huile d\'olive, sel, au four à 180°C.',
-      ],
-      ko: [
-          '원재료가 짧은 과자를 고르세요: 감자, 기름, 소금 — 그게 전부. L-글루타미산나트륨(MSG), 향미증진제, TBHQ는 피하세요.',
-          '한살림·초록마을·자연드림의 무첨가 스낵이나 유기농 칩을 추천해요.',
-          '직접 만들 수도 있어요: 고구마나 케일을 얇게 썬어 올리브유·소금 뿌리고 180도 오븐에 구우면 끝.',
-      ],
-    });
-  }
-
-  // Breakfast cereals
-  if (has('cereal', 'céréale', 'corn flakes', 'frosted', 'kellogg', 'nesquik')) {
-    return pick<string[]>({
-      en: [
-          'Skip cereals with BHT (E321), BHA (E320), artificial colors or more than 8g of added sugar per serving.',
-          'Cleaner picks: One Degree Organic, Nature\'s Path Organic, Cascadian Farm Organic, Three Wishes — at Whole Foods, Sprouts.',
-          'Best breakfast: plain oats with fresh fruit, nuts and a drizzle of honey or maple syrup.',
-      ],
-      fr: [
-          'Évite les céréales contenant du BHT (E321), BHA (E320), colorants artificiels ou plus de 8g de sucre ajouté par portion.',
-          'Meilleures options : Jordans, Bjorg, Favrichon, Priméal — chez Biocoop, Naturalia, Carrefour Bio.',
-          'Encore mieux : flocons d\'avoine nature avec fruits frais, noix et un filet de miel ou sirop d\'érable.',
-      ],
-      ko: [
-          'BHT(E321), BHA(E320), 인공색소가 들었거나 1회분에 첨가당 8g이 넘는 시리얼은 피하세요.',
-          '한살림·초록마을·아이허브의 유기농 그래놀라나 무첨가 시리얼을 추천해요.',
-          '가장 좋은 아침: 귀리(오트밀)에 생과일, 견과류, 꿀이나 메이플시럽 한 줄.',
-      ],
-    });
-  }
-
-  // Dairy yogurt
-  if (has('yogurt', 'yaourt', 'yoghurt', 'danone', 'activia', 'oikos')) {
-    return pick<string[]>({
-      en: [
-          'Avoid yogurts with aspartame, sucralose, artificial colors, or carrageenan (E407) — pick plain whole-milk yogurt instead.',
-          'Good options: Stonyfield Organic, Maple Hill Grass-fed, Siggi\'s, or Straus Family Creamery.',
-          'Add your own fresh fruit, raw honey, or pure maple syrup — way less sugar than flavored yogurts.',
-      ],
-      fr: [
-          'Évite les yaourts contenant aspartame, sucralose, colorants ou carraghénane (E407) — préfère un yaourt nature au lait entier.',
-          'Bonnes options : Yaourts La Laitière nature, Les 2 Vaches bio, Bjorg, Vrai bio, ou Liberté bio (Québec).',
-          'Ajoute toi-même fruits frais, miel cru ou sirop d\'érable — bien moins de sucre que les yaourts aromatisés.',
-      ],
-      ko: [
-          '아스파탐, 수크랄로스, 인공색소, 카라기난(E407)이 든 요거트는 피하고 무가당 플레인 요거트를 고르세요.',
-          '풍무원·한살림·초록마을의 무첨가 플레인 요거트나 유기농 요거트가 좋아요.',
-          '생과일, 생꿀, 메이플시럽을 직접 넣으면 가향 요거트보다 당이 훨씬 적어요.',
-      ],
-    });
-  }
-
-  // Cosmetics / skincare
-  if (cat.includes('cosmetic') || has('shampoo', 'shampooing', 'cream', 'crème', 'lotion', 'deodorant', 'déodorant', 'paraben', 'sulfate', 'phthalate')) {
-    return pick<string[]>({
-      en: [
-          'Pick products without parabens, phthalates, SLS/SLES sulfates, formaldehyde-releasers, or synthetic fragrance.',
-          'Trusted clean brands: Attitude (EWG Verified), The Honest Company, Beautycounter, Dr. Bronner\'s, Weleda.',
-          'Check the INCI list on the EWG Skin Deep or Yuka app before buying anything new.',
-      ],
-      fr: [
-          'Choisis des produits sans parabens, phtalates, sulfates (SLS/SLES), formaldéhyde ou parfum synthétique.',
-          'Marques clean fiables : Attitude (Québec), Weleda, Cattier, Druide, Coslys, Centifolia — chez Biocoop, Naturalia, Jean Coutu (section bio).',
-          'Scanne la liste INCI avec l\'app Yuka ou INCI Beauty avant tout achat.',
-      ],
-      ko: [
-          '파라벤, 프탈레이트, 황산염 계면활성제(SLS/SLES), 포름알데히드 방출 물질, 인공향료가 없는 제품을 고르세요.',
-          '아로마티카, 라운드랩, 닥터브로너스, 동구밭, 톤28 같은 클린 브랜드를 올리브영이나 아이허브에서 찾을 수 있어요.',
-          '새 제품을 사기 전에 화해(화장품을 해석하다) 앱이나 EWG Skin Deep으로 전성분을 확인하세요.',
-      ],
-    });
-  }
-
-  // Household cleaning
-  if (cat.includes('household')) {
-    return pick<string[]>({
-      en: [
-          'Avoid cleaners with quaternary ammonium compounds, synthetic fragrance, dyes, or "caution / danger" labels.',
-          'Safer brands: Branch Basics, Attitude, Seventh Generation, Method, Mrs. Meyer\'s, or Dr. Bronner\'s castile soap.',
-          'DIY all-purpose cleaner: white vinegar + water + 10 drops of tea tree or lemon essential oil — works for almost everything.',
-      ],
-      fr: [
-          'Évite les nettoyants contenant des ammoniums quaternaires, parfums synthétiques, colorants ou mentions « attention / danger ».',
-          'Marques plus sûres : Attitude, L\'Arbre Vert, Ecover, Etamine du Lys, Druide — chez Biocoop, Naturalia, ou en grande surface bio.',
-          'Recette maison universelle : vinaigre blanc + eau + 10 gouttes d\'huile essentielle de tea tree ou citron — efficace partout.',
-      ],
-      ko: [
-          '4급 암모늄 화합물, 인공향료, 색소가 들었거나 "주의·위험" 표시가 있는 세제는 피하세요.',
-          '동구밭, 닥터브로너스, 에코버 같은 안전한 브랜드를 한살림·초록마을·올리브영에서 찾을 수 있어요.',
-          '천연 만능 세정제 만들기: 백식초 + 물 + 티트리나 레몬 에센셜 오일 10방울 — 거의 모든 곳에 써요.',
-      ],
-    });
-  }
-
-  // Default — food / beverage / other
-  if (cat.includes('beverage') || cat.includes('food') || cat === '') {
-    return pick<string[]>({
-      en: [
-          'Look for the shortest possible ingredient list — if you can\'t pronounce it, you probably shouldn\'t eat it.',
-          'Prefer organic certified versions (USDA Organic, EU Bio leaf) of the same product, sold at Whole Foods, Sprouts, Biocoop, Naturalia, IGA bio section.',
-          'When possible, replace the product with a fresh, whole-food version made from scratch.',
-      ],
-      fr: [
-          'Cherche la liste d\'ingrédients la plus courte possible — si tu ne sais pas prononcer un mot, c\'est probablement à éviter.',
-          'Préfère la version bio certifiée (label AB, Eurofeuille, USDA Organic) du même produit — en magasin spécialisé (Biocoop, Naturalia, Avril) ou en rayon bio des supermarchés.',
-          'Quand c\'est possible, remplace le produit transformé par une version maison à base d\'ingrédients frais et bruts.',
-      ],
-      ko: [
-          '원재료 목록이 가장 짧은 제품을 고르세요 — 발음하기 어려운 성분이 많다면 피하는 게 좋아요.',
-          '같은 제품이라도 유기농 인증(유기가공식품 인증, USDA Organic)을 받은 버전을 한살림·초록마을·자연드림이나 마트 친환경 코너에서 고르세요.',
-          '가능하면 가공식품 대신 신선한 재료로 직접 만든 음식으로 바꿔보세요.',
-      ],
-    });
-  }
-
-  return pick<string[]>({
-    en: [
-        'Choose certified clean alternatives (organic, EWG Verified, Made Safe) of the same product type.',
-        'Check the ingredient list carefully and avoid the substances flagged above.',
-    ],
-    fr: [
-        'Choisis une alternative certifiée propre (bio, écolabel, Nature & Progrès) du même type de produit.',
-        'Lis attentivement la liste d\'ingrédients et évite les substances signalées plus haut.',
-    ],
-    ko: [
-        '같은 종류의 제품 중 인증받은 클린 제품(유기농, EWG Verified)을 고르세요.',
-        '전성분을 꼼꼼히 확인하고 위에 표시된 성분이 든 제품은 피하세요.',
-    ],
-  });
-}
 
 // ─────────────────────────────────────────────
 // Personalized advice tied to the substances ACTUALLY detected in the scanned
@@ -949,6 +682,14 @@ export default function ProductScreen() {
     [product?.productCategory],
   );
 
+  // ToxiScore /10 — 100 % déterministe (utils/toxiScore.ts). La tranche vient du
+  // verdict affiché (donc du badge le plus sévère), la position dans la tranche
+  // vient de la proportion d'ingrédients propres. Note et verdict sont toujours alignés.
+  const toxiScore = useMemo<number>(
+    () => computeToxiScore(verdictLevel, ingredientsList),
+    [verdictLevel, ingredientsList],
+  );
+
   if (!product) {
     return (
       <SafeAreaView style={styles.container}>
@@ -974,14 +715,6 @@ export default function ProductScreen() {
   const isUniversalScan = product.barcode.startsWith('universal_');
   const showFrontPhotoTip = isPhotoScan && photoType === 'front' && !isUniversalScan;
 
-  // ToxiScore /10 — 100 % déterministe (utils/toxiScore.ts). La tranche vient du
-  // verdict affiché (donc du badge le plus sévère), la position dans la tranche
-  // vient de la proportion d'ingrédients propres. Note et verdict sont toujours alignés.
-  const toxiScore = useMemo<number>(
-    () => computeToxiScore(verdictLevel, ingredientsList),
-    [verdictLevel, ingredientsList],
-  );
-
   const isGreen = verdictLevel === 'approuve';
   const isCosmetic = product.productCategory === 'cosmetic';
   const verdictDomain: VerdictDomain =
@@ -991,7 +724,6 @@ export default function ProductScreen() {
     : additiveCategory === 'kitchen' ? 'kitchen'
     : 'food';
   const bannerConfig = getBannerConfig(verdictLevel, verdictDomain);
-  const verdictAction = getVerdictAction(verdictLevel, verdictDomain);
   const categoryLabel = product.productCategory ? getCategoryLabel(product.productCategory) : getCategoryLabel('food');
 
   const handleFavorite = () => {
