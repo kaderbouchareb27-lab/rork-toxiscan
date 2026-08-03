@@ -321,7 +321,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   // --- Exhausteurs (amplificateurs MSG) ---
   { code: 'en:e631', name: 'Inosinate disodique', group: 'group2b', category: 'food', description: 'Amplifie l\'effet du MSG. Marqueur d\'ultra-transformé.' },
   { code: 'en:e627', name: 'Guanylate disodique', group: 'group2b', category: 'food', description: 'Amplifie l\'effet du MSG. Marqueur d\'ultra-transformé.' },
-  { code: 'en:e635', name: '5\'-Ribonucléotide disodique', group: 'group2b', category: 'food', description: 'Amplificateur MSG.' },
+  { code: 'en:e635', name: '5\'-Ribonucléotide disodique', group: 'group2b', category: 'food', description: 'Exhausteur de goût associant généralement les inosinates et guanylates (E627/E631), souvent utilisé avec le glutamate pour renforcer l\'umami. Autorisé aux doses réglementées, mais il apporte des purines et signale surtout une formulation alimentaire transformée.' },
 
   // --- Sucres et sirops (MODÉRATION, pas alarmant) ---
   { code: 'maltodextrine', name: 'Maltodextrine', group: 'group2a', category: 'food', description: 'Glucide ultra-transformé issu d\'hydrolyse industrielle de l\'amidon (souvent maïs OGM). Index glycémique très élevé (110, plus que le sucre blanc à 65). Perturbe le microbiome intestinal et favorise l\'inflammation.' },
@@ -510,7 +510,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
   { code: 'en:e410', name: 'Gomme de caroube', group: 'none', category: 'food', description: 'Épaississant naturel à base de caroube, sûr.' },
   { code: 'en:e163', name: 'Anthocyanes', group: 'none', category: 'food', description: 'Colorant naturel antioxydant, bénéfique.' },
   { code: 'en:e170', name: 'Carbonate de calcium', group: 'group2a', category: 'food', description: 'Extraction et raffinage industriels lourds (mines). Procédé minier intensif.' },
-  { code: 'en:e500', name: 'Carbonate de sodium', group: 'none', category: 'food', description: 'Bicarbonate, sûr.' },
+  { code: 'en:e500', name: 'Carbonate de sodium', group: 'none', category: 'food', description: 'Famille de régulateurs d\'acidité et d\'agents levants comprenant le carbonate et le bicarbonate de sodium (E500). Ils sont autorisés aux doses alimentaires usuelles ; leur principal effet nutritionnel est une contribution supplémentaire en sodium.' },
   { code: 'en:e504', name: 'Carbonate de magnésium', group: 'none', category: 'food', description: 'Sel minéral naturel, sûr.' },
   { code: 'en:e508', name: 'Chlorure de potassium', group: 'group2b', category: 'food', description: 'Minéral mais utilisé comme substitut de sel industriel. À modérer chez les personnes avec insuffisance rénale.' },
   { code: 'en:e322-sunflower', name: 'Lécithine de tournesol', group: 'none', category: 'food', description: 'Émulsifiant naturel sans OGM, sûr.' },

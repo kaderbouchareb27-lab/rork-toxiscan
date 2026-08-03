@@ -53,8 +53,27 @@ void entryRegex;
 console.log('  •', lines.length, 'entrées analysées');
 check('0 entrée sans description (note ou officielle)', withoutNote === 0, orphans.slice(0, 20).join(', '));
 
-// ── 2. Plus aucun texte générique « non répertorié » ───────────
-console.log('\n[2] Textes génériques supprimés');
+// ── 2. Toutes les fiches additifs ont un texte utile ───────────
+console.log('\n[2] Descriptions de la base additifs');
+const additivesSrc = fs.readFileSync(path.join(ROOT, 'constants', 'additives.ts'), 'utf-8');
+const additiveBlocks = [...additivesSrc.matchAll(/\{\s*code:\s*'[^']+'[\s\S]*?\},?/g)].map((match) => match[0]);
+const extractQuotedField = (block: string, field: string): string | undefined => {
+  const match = new RegExp(`\\b${field}:\\s*'((?:\\\\.|[^'\\\\])*)'`).exec(block);
+  return match?.[1]?.replace(/\\'/g, "'");
+};
+const additiveName = (block: string): string => extractQuotedField(block, 'name') ?? 'entrée inconnue';
+const additivesWithoutDescription = additiveBlocks
+  .filter((block) => (extractQuotedField(block, 'description')?.trim().length ?? 0) < 20)
+  .map(additiveName);
+const genericAdditiveDescriptions = additiveBlocks
+  .filter((block) => /non répertori|not listed|ne peut être déterminé|cannot be determined/i.test(block))
+  .map(additiveName);
+console.log('  •', additiveBlocks.length, 'fiches additifs analysées');
+check('0 additif sans description concise', additivesWithoutDescription.length === 0, additivesWithoutDescription.join(', '));
+check('0 description additive générique', genericAdditiveDescriptions.length === 0, genericAdditiveDescriptions.join(', '));
+
+// ── 3. Plus aucun texte générique « non répertorié » ───────────
+console.log('\n[3] Textes génériques supprimés');
 const GENERIC_PATTERNS = [
   "n'est pas répertorié dans la base",
   "n'est pas répertorié individuellement",
@@ -80,8 +99,8 @@ for (const file of SOURCE_FILES) {
 }
 check('0 occurrence du texte générique dans le code', offenders.length === 0, offenders.join(', '));
 
-// ── 3. Moteur de connaissance : familles couvertes ─────────────
-console.log('\n[3] Moteur de connaissance (ingrédients inconnus)');
+// ── 4. Moteur de connaissance : familles couvertes ─────────────
+console.log('\n[4] Moteur de connaissance (ingrédients inconnus)');
 const knowledgeSrc = fs.readFileSync(path.join(ROOT, 'utils', 'ingredientKnowledge.ts'), 'utf-8');
 const ruleIds = [...knowledgeSrc.matchAll(/^\s{4}id:\s*'([^']+)'/gm)].map((m) => m[1]);
 console.log('  •', ruleIds.length, 'familles :', ruleIds.join(', '));
@@ -89,8 +108,8 @@ check('≥ 20 familles couvertes', ruleIds.length >= 20);
 check('famille « coloring » présente', ruleIds.includes('coloring'));
 check('repli par badge présent (buildRiskReasonDescription)', knowledgeSrc.includes('export function buildRiskReasonDescription'));
 
-// ── 4. Entrée « Colorants » ────────────────────────────────────
-console.log('\n[4] Entrée « Colorants »');
+// ── 5. Entrée « Colorants » ────────────────────────────────────
+console.log('\n[5] Entrée « Colorants »');
 const colorantLine = lines.find((l) => /keywords:\s*\['colorant',/.test(l));
 check('entrée présente', Boolean(colorantLine));
 if (colorantLine) {

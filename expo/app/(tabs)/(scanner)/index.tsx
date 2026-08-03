@@ -30,7 +30,7 @@ import { useBadges } from '@/providers/BadgesProvider';
 import { useOnboarding } from '@/providers/OnboardingProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import DailyFact from '@/components/DailyFact';
-import { t, tf, pick } from '@/utils/i18n';
+import { t, pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -44,7 +44,7 @@ export default function ScannerScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
   const { hasSeenOnboarding, hasSeenMealOnboarding } = useOnboarding();
-  const { isPro, consumeScan, canScan, scanRemaining, scanLimit, canMealScan, mealScanRemaining, mealScanLimit } = useSubscription();
+  const { isPro, consumeScan, canScan, scanRemaining, canMealScan, mealScanRemaining } = useSubscription();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -592,15 +592,31 @@ export default function ScannerScreen() {
                         ))}
                       </View>
                     </View>
+                    <LinearGradient
+                      colors={['rgba(242,248,236,0.98)', 'rgba(242,248,236,0.82)', 'rgba(242,248,236,0)']}
+                      start={{ x: 0, y: 0.5 }}
+                      end={{ x: 1, y: 0.5 }}
+                      style={styles.redesignCopyScrim}
+                      pointerEvents="none"
+                    />
                     <View style={styles.redesignCardCopy}>
                       <Text style={styles.redesignCardTitle}>{t('scan_entry_product_title')}</Text>
-                      <Text style={styles.redesignCardDescription}>{t('scan_entry_product_desc')}</Text>
+                      <Text style={styles.redesignCardDescription} numberOfLines={2}>
+                        {pick({ fr: 'Analyse les ingrédients', en: 'Analyse ingredients', ko: '성분을 분석하세요' })}
+                      </Text>
                     </View>
                     <LinearGradient colors={['#38B83E', '#08732C']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.redesignCardButton}>
                       <View style={styles.redesignButtonIcon}><Camera color="#168735" size={21} strokeWidth={2.6} /></View>
                       <Text style={styles.redesignButtonText}>{t('scan_entry_product_title')}</Text>
                     </LinearGradient>
-                    {!isPro && <Text style={styles.redesignCounter}>{tf('product_scans_counter', scanRemaining, scanLimit)}</Text>}
+                    {!isPro && (
+                      <View style={styles.redesignCounterPill}>
+                        <Text style={styles.redesignCounterNumber}>{scanRemaining}</Text>
+                        <Text style={styles.redesignCounterLabel}>
+                          {pick({ fr: scanRemaining === 1 ? 'scan restant' : 'scans restants', en: scanRemaining === 1 ? 'scan left' : 'scans left', ko: '회 남음' })}
+                        </Text>
+                      </View>
+                    )}
                   </TouchableOpacity>
                 </Animated.View>
 
@@ -638,15 +654,31 @@ export default function ScannerScreen() {
                   ) : (
                     <View style={styles.redesignMealImageFallback} pointerEvents="none" />
                   )}
+                  <LinearGradient
+                    colors={['rgba(247,250,238,0.98)', 'rgba(247,250,238,0.84)', 'rgba(247,250,238,0)']}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={styles.redesignCopyScrim}
+                    pointerEvents="none"
+                  />
                   <View style={styles.redesignCardCopy}>
                     <Text style={styles.redesignCardTitle}>{t('scan_entry_meal_title')}</Text>
-                    <Text style={styles.redesignCardDescription}>{t('scan_entry_meal_desc')}</Text>
+                    <Text style={styles.redesignCardDescription} numberOfLines={2}>
+                      {pick({ fr: 'Photo → score santé', en: 'Photo → health score', ko: '사진 → 건강 점수' })}
+                    </Text>
                   </View>
                   <LinearGradient colors={['#38B83E', '#08732C']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.redesignCardButton}>
                     <View style={styles.redesignButtonIcon}><Utensils color="#168735" size={20} strokeWidth={2.5} /></View>
                     <Text style={styles.redesignButtonText}>{t('scan_entry_meal_title')}</Text>
                   </LinearGradient>
-                  {!isPro && <Text style={styles.redesignCounter}>{tf('meal_scans_counter', mealScanRemaining, mealScanLimit)}</Text>}
+                  {!isPro && (
+                    <View style={styles.redesignCounterPill}>
+                      <Text style={styles.redesignCounterNumber}>{mealScanRemaining}</Text>
+                      <Text style={styles.redesignCounterLabel}>
+                        {pick({ fr: mealScanRemaining === 1 ? 'scan restant' : 'scans restants', en: mealScanRemaining === 1 ? 'scan left' : 'scans left', ko: '회 남음' })}
+                      </Text>
+                    </View>
+                  )}
                 </TouchableOpacity>
                 </Animated.View>
               </View>
@@ -1255,12 +1287,20 @@ const styles = StyleSheet.create({
   redesignMealCard: {
     backgroundColor: '#EFF6E8',
   },
+  redesignCopyScrim: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    width: 148,
+    height: 128,
+    zIndex: 2,
+  },
   redesignCardCopy: {
     position: 'absolute' as const,
     top: 19,
     left: 17,
-    right: 13,
-    zIndex: 2,
+    width: 124,
+    zIndex: 5,
   },
   redesignCardTitle: {
     color: '#0E3322',
@@ -1271,15 +1311,15 @@ const styles = StyleSheet.create({
   },
   redesignCardDescription: {
     marginTop: 8,
-    maxWidth: 142,
-    color: '#46564D',
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 13.5,
-    lineHeight: 18,
-    letterSpacing: -0.2,
+    maxWidth: 122,
+    color: '#3D5147',
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    lineHeight: 17,
+    letterSpacing: -0.15,
   },
   redesignCardButton: {
-    zIndex: 3,
+    zIndex: 4,
     minHeight: 58,
     marginHorizontal: 12,
     marginBottom: 26,
@@ -1312,21 +1352,37 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     letterSpacing: -0.25,
   },
-  redesignCounter: {
+  redesignCounterPill: {
     position: 'absolute' as const,
-    zIndex: 3,
-    bottom: 7,
-    left: 12,
-    right: 12,
-    color: '#728176',
+    zIndex: 5,
+    bottom: 6,
+    left: 14,
+    minHeight: 22,
+    paddingHorizontal: 10,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 5,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    borderWidth: 1,
+    borderColor: 'rgba(31,133,57,0.10)',
+  },
+  redesignCounterNumber: {
+    color: '#158133',
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  redesignCounterLabel: {
+    color: '#41644C',
     fontFamily: 'DMSans_500Medium',
     fontSize: 9.5,
-    textAlign: 'center' as const,
+    lineHeight: 13,
   },
   redesignProductLabel: {
     position: 'absolute' as const,
-    top: 59,
-    right: -18,
+    top: 63,
+    right: -27,
     width: 106,
     minHeight: 157,
     paddingHorizontal: 11,
@@ -1389,10 +1445,10 @@ const styles = StyleSheet.create({
   },
   redesignMealImage: {
     position: 'absolute' as const,
-    width: 184,
-    height: 184,
-    right: -52,
-    top: 48,
+    width: 180,
+    height: 180,
+    right: -61,
+    top: 54,
     zIndex: 1,
   },
   redesignMealImageFallback: {
