@@ -104,10 +104,15 @@ check("'vitamine b3' (alias) → même texte que 'niacinamide'", getOfficial('vi
 
 // ── 4. Intégrité du fichier généré ─────────────────────────────
 console.log('\n[4] Intégrité du fichier généré');
+// Plusieurs fiches PEUVENT volontairement partager un texte (alias explicites : lécithine de
+// soja/tournesol, fécule/farine/amidon de pomme de terre). On vérifie donc que chaque texte
+// source est bien émis, et non l'égalité stricte des compteurs.
+const emittedTexts = new Set(OFFICIAL_DESCRIPTION_TEXTS);
+const notEmitted = source.descriptions.filter((d) => !emittedTexts.has(d.description_en));
 check(
-  `${OFFICIAL_DESCRIPTION_TEXTS.length} textes uniques (= nombre de descriptions sources)`,
-  OFFICIAL_DESCRIPTION_TEXTS.length === source.descriptions.length,
-  `${OFFICIAL_DESCRIPTION_TEXTS.length} vs ${source.descriptions.length}`,
+  `${OFFICIAL_DESCRIPTION_TEXTS.length} textes émis pour ${source.descriptions.length} fiches sources (alias partagés autorisés)`,
+  notEmitted.length === 0,
+  notEmitted.slice(0, 5).map((d) => d.name).join(' | '),
 );
 const uniqueTexts = new Set(OFFICIAL_DESCRIPTION_TEXTS);
 check('aucun texte dupliqué', uniqueTexts.size === OFFICIAL_DESCRIPTION_TEXTS.length, String(uniqueTexts.size));

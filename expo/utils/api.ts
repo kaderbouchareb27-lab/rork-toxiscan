@@ -338,7 +338,12 @@ function findDeepMatch(normalized: string): IngredientEntry | null {
   return null;
 }
 
-function lookupIngredient(ingredientName: string): IngredientEntry | null {
+/**
+ * Resolves an ingredient name to its database entry (exact keyword, then deep search).
+ * Exported so the offline audits (scripts/verifyDescriptionIntegrity.ts) can replay the
+ * REAL production resolution instead of a copy that could drift.
+ */
+export function lookupIngredient(ingredientName: string): IngredientEntry | null {
   const normalized = normalizeForLookup(ingredientName);
   if (!normalized) return null;
   const entry = findBestMatch(normalized) ?? findDeepMatch(normalized);
@@ -1127,22 +1132,7 @@ function countSentences(text: string): number {
 
 /** Localized complement sentences used to reach the minimum description length. */
 function descriptionComplements(risk: RiskLevel): string[] {
-  if (risk === 'aucun') {
-    return pick({
-      en: [
-        'It is rated approved because it is a whole or minimally processed food, with no additive, industrial residue or known toxicity concern.',
-        'At usual food levels it brings nutrients without burdening the body, so it can be eaten regularly without concern.',
-      ],
-      fr: [
-        "Il est classé approuvé car c'est un aliment entier ou peu transformé, sans additif, résidu industriel ni toxicité connue.",
-        "Aux doses alimentaires habituelles, il apporte des nutriments sans surcharger l'organisme et peut être consommé régulièrement sans inquiétude.",
-      ],
-      ko: [
-        '첨가물이나 산업 잔류물, 알려진 독성 없이 온전하거나 최소한으로 가공된 식품이므로 승인 등급을 받았습니다.',
-        '일반적인 식품 섭취량에서는 몸에 부담을 주지 않고 영양을 공급하므로 꾸준히 먹어도 걱정할 필요가 없습니다.',
-      ],
-    });
-  }
+  // APPROVED (green) ingredients are never padded — see approvedSingleSentence().
   if (risk === 'possible') {
     return pick({
       en: [
@@ -1208,12 +1198,29 @@ function fixDescriptionGrammar(name: string, text: string): string {
 }
 
 /**
+ * APPROVED (green) rule: a single short sentence saying how the ingredient benefits the
+ * body — no classification boilerplate, no padding. Keeps the first sentence of the source
+ * text (curated notes and fallbacks always lead with the benefit) and drops the rest.
+ */
+function approvedSingleSentence(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return trimmed;
+  const match = /^[\s\S]*?[.!?…](?=\s|$)/.exec(trimmed);
+  const first = (match ? match[0] : trimmed).trim();
+  // Guard against an abbreviation cutting the sentence far too short ("E.", "env.").
+  const MIN_SENTENCE_LENGTH = 25;
+  return first.length >= MIN_SENTENCE_LENGTH ? first : trimmed;
+}
+
+/**
  * Guarantees an ingredient description is grammatically clean AND at least 2-3 complete
  * sentences long (what it is → why it is classified this way → concrete health impact).
+ * APPROVED (green) ingredients are the exception: they are reduced to ONE benefit sentence.
  */
 export function ensureFullDescription(name: string, risk: RiskLevel, text: string): string {
   const base = fixDescriptionGrammar(name, text);
   if (!base) return base;
+  if (risk === 'aucun') return approvedSingleSentence(base);
   const complements = descriptionComplements(risk);
   let out = base;
   for (const complement of complements) {
@@ -1224,18 +1231,18 @@ export function ensureFullDescription(name: string, risk: RiskLevel, text: strin
   return out;
 }
 
-/** Full, grammatically correct description for an APPROVED (green) ingredient. */
+/** ONE-sentence benefit description for an APPROVED (green) ingredient. */
 export function buildApprovedDescription(name: string): string {
   const plural = isPluralIngredientName(name);
   const n = capitalizeFirst(name.trim());
   const base = pick({
     en: plural
-      ? `${n} are natural, minimally processed food ingredients with no identified health risk at typical food levels.`
-      : `${n} is a natural, minimally processed food ingredient with no identified health risk at typical food levels.`,
+      ? `${n} are a natural, minimally processed food that nourishes the body without any industrial additive.`
+      : `${n} is a natural, minimally processed food that nourishes the body without any industrial additive.`,
     fr: plural
-      ? `${n} sont des ingrédients naturels et peu transformés, sans risque identifié aux doses alimentaires habituelles.`
-      : `${n} est un ingrédient naturel et peu transformé, sans risque identifié aux doses alimentaires habituelles.`,
-    ko: `${n}은(는) 일반적인 식품 섭취량에서 알려진 건강 위험이 없는 천연·최소 가공 성분입니다.`,
+      ? `${n} sont un aliment naturel et peu transformé qui nourrit le corps sans aucun additif industriel.`
+      : `${n} est un aliment naturel et peu transformé qui nourrit le corps sans aucun additif industriel.`,
+    ko: `${n}은(는) 산업 첨가물 없이 몸에 영양을 공급하는 천연·최소 가공 식품입니다.`,
   });
   return ensureFullDescription(name, 'aucun', base);
 }
@@ -1448,8 +1455,12 @@ function enforceUltraToxicFloor(sub: SubstanceDetected): SubstanceDetected {
   };
 }
 
-/** Classify ingredient names parsed locally from OCR. Known → DB description now; unknown → pending. */
-function classifyLocal(names: string[]): SubstanceDetected[] {
+/**
+ * Classify ingredient names parsed locally from OCR. Known → DB description now; unknown → pending.
+ * Exported so the offline audits (scripts/verifyDescriptionIntegrity.ts) can check the exact
+ * text an ingredient will display in the app.
+ */
+export function classifyLocal(names: string[]): SubstanceDetected[] {
   return names
     .map((raw) => raw.trim())
     .filter((name) => name.length >= 2 && !ALLERGEN_LINE_REGEX.test(name))
