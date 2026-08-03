@@ -25,7 +25,6 @@ const BLOCKED_KEY = 'hub_blocked';
 const ADMIN_SECRET_KEY = 'hub_admin_secret';
 const LAST_SEEN_KEY = 'hub_last_seen_at';
 const COMMENT_BASELINE_KEY = 'hub_comment_baseline';
-const NOTIFIED_KEY = 'hub_notified_at';
 
 /** Background feed poll frequency while the app is open (drives the unread badge). */
 const HUB_POLL_INTERVAL_MS = 90 * 1000;
@@ -42,8 +41,6 @@ interface HubIdentity {
   lastSeenAt: number;
   /** Per-post comment counts on MY posts at the last visit — detects new replies. */
   commentBaseline: Record<string, number>;
-  /** Newest foreign post timestamp already accounted for across launches. */
-  notifiedAt: number;
 }
 
 function randomUserId(): string {
@@ -51,7 +48,7 @@ function randomUserId(): string {
 }
 
 async function loadIdentity(): Promise<HubIdentity> {
-  const [storedId, storedPseudo, storedEdited, storedBlocked, storedAdmin, storedSeen, storedBaseline, storedNotified] = await Promise.all([
+  const [storedId, storedPseudo, storedEdited, storedBlocked, storedAdmin, storedSeen, storedBaseline] = await Promise.all([
     AsyncStorage.getItem(USER_ID_KEY),
     AsyncStorage.getItem(PSEUDO_KEY),
     AsyncStorage.getItem(PSEUDO_EDITED_KEY),
@@ -59,7 +56,6 @@ async function loadIdentity(): Promise<HubIdentity> {
     AsyncStorage.getItem(ADMIN_SECRET_KEY),
     AsyncStorage.getItem(LAST_SEEN_KEY),
     AsyncStorage.getItem(COMMENT_BASELINE_KEY),
-    AsyncStorage.getItem(NOTIFIED_KEY),
   ]);
 
   let userId = storedId;
@@ -93,8 +89,6 @@ async function loadIdentity(): Promise<HubIdentity> {
   }
 
   const lastSeenAt = storedSeen ? Number(storedSeen) || 0 : 0;
-  // First install: never fire a notification for content that predates the install.
-  const notifiedAt = storedNotified ? Number(storedNotified) || Date.now() : Date.now();
 
   return {
     userId,
@@ -104,7 +98,6 @@ async function loadIdentity(): Promise<HubIdentity> {
     adminSecret: storedAdmin && storedAdmin.length > 0 ? storedAdmin : null,
     lastSeenAt,
     commentBaseline,
-    notifiedAt,
   };
 }
 
