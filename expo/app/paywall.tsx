@@ -21,7 +21,6 @@ import {
   Heart,
   LockKeyhole,
   MessageCircle,
-  RefreshCw,
   ScanLine,
   ShieldCheck,
   Sparkles,
@@ -46,6 +45,29 @@ if (Platform.OS !== 'web') {
 }
 
 type PlanType = 'annual' | 'monthly';
+
+function findPlanPackage(offering: any, plan: PlanType): any {
+  if (!offering) return null;
+
+  const directPackage = plan === 'annual' ? offering.annual : offering.monthly;
+  if (directPackage) return directPackage;
+
+  const availablePackages: any[] = Array.isArray(offering.availablePackages)
+    ? offering.availablePackages
+    : [];
+  const planPattern = plan === 'annual' ? /(annual|yearly|year|p1y)/i : /(monthly|month|p1m)/i;
+
+  return availablePackages.find((pkg: any) => {
+    const signature = [
+      pkg?.identifier,
+      pkg?.packageType,
+      pkg?.product?.identifier,
+      pkg?.product?.subscriptionPeriod,
+      pkg?.product?.defaultOption?.billingPeriod,
+    ].filter(Boolean).join(' ');
+    return planPattern.test(signature);
+  }) ?? null;
+}
 
 const PAYWALL_BG = '#F5F0E8';
 const FALLBACK_MONTHLY_PRICE = '4,99 CA$';
@@ -90,10 +112,10 @@ function getFreeTrialDays(pkg: any): number | null {
 export default function PaywallScreen() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual');
   const { source } = useLocalSearchParams<{ source?: string }>();
-  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress, offeringsLoading, offeringsError, refetchOfferings } = useSubscription();
+  const { currentOffering, purchasePackage, restorePurchase, purchaseInProgress, restoreInProgress, offeringsLoading, refetchOfferings } = useSubscription();
   const queryClient = __useQueryClient();
 
-  console.log('[Paywall] Rendering paywall, source:', source, 'offering:', currentOffering?.identifier, 'loading:', offeringsLoading, 'error:', offeringsError);
+  console.log('[Paywall] Rendering paywall, source:', source, 'offering:', currentOffering?.identifier, 'loading:', offeringsLoading);
 
   useEffect(() => {
     if (!currentOffering && !offeringsLoading) {
@@ -102,22 +124,8 @@ export default function PaywallScreen() {
     }
   }, [currentOffering, offeringsLoading, refetchOfferings]);
 
-  const [retrying, setRetrying] = useState<boolean>(false);
-
-  const handleRetryOfferings = useCallback(async () => {
-    console.log('[Paywall] User tapped retry offerings');
-    setRetrying(true);
-    try {
-      await refetchOfferings();
-    } catch (e) {
-      console.log('[Paywall] Retry failed:', e);
-    } finally {
-      setRetrying(false);
-    }
-  }, [refetchOfferings]);
-
-  const monthlyPackage = currentOffering?.monthly ?? currentOffering?.availablePackages?.find((p: { identifier: string }) => p.identifier === '$rc_monthly') ?? null;
-  const annualPackage = currentOffering?.annual ?? currentOffering?.availablePackages?.find((p: { identifier: string }) => p.identifier === '$rc_annual') ?? null;
+  const monthlyPackage = findPlanPackage(currentOffering, 'monthly');
+  const annualPackage = findPlanPackage(currentOffering, 'annual');
 
   const monthlyPrice = monthlyPackage?.product?.priceString ?? FALLBACK_MONTHLY_PRICE;
   const annualPrice = annualPackage?.product?.priceString ?? FALLBACK_ANNUAL_PRICE;
@@ -305,7 +313,7 @@ export default function PaywallScreen() {
       )}
 
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 22, paddingBottom: insets.bottom + 178 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 22, paddingBottom: insets.bottom + 286 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
@@ -366,68 +374,6 @@ export default function PaywallScreen() {
           <BenefitRow icon={<MessageCircle color={Colors.primary} size={19} strokeWidth={2.5} />} title={t('benefit_unlimited_drtoxi')} description={t('benefit_unlimited_drtoxi_desc')} />
         </View>
 
-        {(offeringsLoading || retrying) && !currentOffering ? (
-          <View style={styles.loadingOfferings}>
-            <ActivityIndicator color="#2E9E34" size="large" />
-            <Text style={styles.loadingOfferingsText}>{t('loading_offers')}</Text>
-          </View>
-        ) : offeringsError && !currentOffering ? (
-          <View style={styles.errorOfferings}>
-            <Text style={styles.errorOfferingsText}>{t('purchase_load_error')}</Text>
-            <TouchableOpacity style={styles.retryButton} onPress={handleRetryOfferings} activeOpacity={0.7}>
-              <RefreshCw color={Colors.white} size={16} />
-              <Text style={styles.retryButtonText}>{t('retry')}</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.plansContainer}>
-            <View style={styles.planSectionHeader}>
-              <Text style={styles.planSectionTitle}>{t('paywall_choose_plan')}</Text>
-              <Text style={styles.planSectionSubtitle}>{t('paywall_choose_plan_subtitle')}</Text>
-            </View>
-            <View style={styles.planCardsRow}>
-              <TouchableOpacity
-                style={[styles.planCard, selectedPlan === 'monthly' && styles.planCardSelected]}
-                onPress={() => handlePlanSelect('monthly')}
-                activeOpacity={0.86}
-                testID="plan-monthly"
-                disabled={isLoading}
-              >
-                <View style={styles.planCardTopRow}>
-                  <Text style={styles.planName}>{t('paywall_monthly_label')}</Text>
-                  <View style={[styles.radioOuter, selectedPlan === 'monthly' && styles.radioOuterSelected]}>
-                    {selectedPlan === 'monthly' && <View style={styles.radioInner} />}
-                  </View>
-                </View>
-                <Text style={styles.planPrice}>{monthlyPrice}</Text>
-                <Text style={styles.planPeriod}>{t('paywall_per_month')}</Text>
-                <Text style={styles.planCompactCopy}>{t('paywall_monthly_compact')}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.planCard, styles.annualPlanCard, selectedPlan === 'annual' && styles.planCardSelected]}
-                onPress={() => handlePlanSelect('annual')}
-                activeOpacity={0.86}
-                testID="plan-annual"
-                disabled={isLoading}
-              >
-                <LinearGradient colors={['#FF8A4C', '#FF6B35']} style={styles.planBadge}>
-                  <Text style={styles.planBadgeText}>{tf('save_percent', savingsPercent)}</Text>
-                </LinearGradient>
-                <View style={styles.planCardTopRow}>
-                  <Text style={styles.planName}>{t('paywall_annual_label')}</Text>
-                  <View style={[styles.radioOuter, selectedPlan === 'annual' && styles.radioOuterSelected]}>
-                    {selectedPlan === 'annual' && <View style={styles.radioInner} />}
-                  </View>
-                </View>
-                <Text style={styles.planPrice}>{annualPrice}</Text>
-                <Text style={styles.planPeriod}>{t('paywall_per_year')}</Text>
-                <Text style={styles.annualEquivalent}>{tf('monthly_equivalent', annualMonthly)}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
         <View style={styles.donationRow}>
           <View style={styles.heartShell}>
             <Heart color={Colors.primary} size={18} fill={Colors.primary} />
@@ -451,16 +397,55 @@ export default function PaywallScreen() {
         </View>
       </ScrollView>
 
-      <View style={[styles.stickyFooter, { paddingBottom: insets.bottom + 10 }]}>
-        <View style={styles.priceSummary}>
-          <Text style={styles.priceSummaryPrefix}>{t('paywall_billed_prefix')}</Text>
-          <Text style={styles.priceSummaryAmount} testID="paywall-billed-amount">{tf('paywall_billed_line', billedAmount, billedPeriod)}</Text>
-          <Text style={styles.priceSummaryTrial}>
-            {hasFreeTrial
-              ? tf('paywall_dynamic_trial_note', freeTrialDays, billedAmount, billedPeriod)
-              : tf('paywall_no_trial_note', billedAmount, billedPeriod)}
-          </Text>
+      <View style={[styles.stickyFooter, { paddingBottom: insets.bottom + 8 }]}>
+        <View style={styles.footerPlansRow} accessibilityRole="radiogroup">
+          <TouchableOpacity
+            style={[styles.footerPlanCard, selectedPlan === 'monthly' && styles.footerPlanCardSelected]}
+            onPress={() => handlePlanSelect('monthly')}
+            activeOpacity={0.84}
+            testID="plan-monthly"
+            disabled={isLoading}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: selectedPlan === 'monthly', disabled: isLoading }}
+          >
+            <View style={styles.footerPlanHeader}>
+              <Text style={styles.footerPlanName}>{t('paywall_monthly_label')}</Text>
+              <View style={[styles.footerRadioOuter, selectedPlan === 'monthly' && styles.footerRadioOuterSelected]}>
+                {selectedPlan === 'monthly' && <View style={styles.footerRadioInner} />}
+              </View>
+            </View>
+            <Text style={styles.footerPlanPrice} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{monthlyPrice}</Text>
+            <Text style={styles.footerPlanPeriod}>{t('paywall_per_month')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.footerPlanCard, selectedPlan === 'annual' && styles.footerPlanCardSelected]}
+            onPress={() => handlePlanSelect('annual')}
+            activeOpacity={0.84}
+            testID="plan-annual"
+            disabled={isLoading}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: selectedPlan === 'annual', disabled: isLoading }}
+          >
+            <View style={styles.footerSavingsBadge}>
+              <Text style={styles.footerSavingsBadgeText}>{tf('save_percent', savingsPercent)}</Text>
+            </View>
+            <View style={styles.footerPlanHeader}>
+              <Text style={styles.footerPlanName}>{t('paywall_annual_label')}</Text>
+              <View style={[styles.footerRadioOuter, selectedPlan === 'annual' && styles.footerRadioOuterSelected]}>
+                {selectedPlan === 'annual' && <View style={styles.footerRadioInner} />}
+              </View>
+            </View>
+            <Text style={styles.footerPlanPrice} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{annualPrice}</Text>
+            <Text style={styles.footerPlanPeriod}>{t('paywall_per_year')} · {tf('monthly_equivalent', annualMonthly)}</Text>
+          </TouchableOpacity>
         </View>
+
+        <Text style={styles.footerBillingNote} testID="paywall-billed-amount" numberOfLines={2}>
+          {hasFreeTrial
+            ? tf('paywall_dynamic_trial_note', freeTrialDays, billedAmount, billedPeriod)
+            : tf('paywall_no_trial_note', billedAmount, billedPeriod)}
+        </Text>
         <View style={styles.ctaMetaRow}>
           <ShieldCheck color={Colors.primary} size={13} strokeWidth={2.5} />
           <Text style={styles.ctaMetaText}>{t('paywall_secure_purchase')}</Text>
@@ -478,7 +463,7 @@ export default function PaywallScreen() {
             ) : (
               <>
                 <Crown color={Colors.white} size={20} strokeWidth={2.6} />
-                <Text style={styles.ctaButtonText}>{ctaLabel}</Text>
+                <Text style={styles.ctaButtonText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.76}>{ctaLabel}</Text>
                 <ChevronRight color={Colors.white} size={20} strokeWidth={2.8} />
               </>
             )}
@@ -868,215 +853,99 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     marginTop: 2,
   },
-  plansContainer: {
-    width: '100%',
-    gap: 12,
-    marginBottom: 18,
-  },
-  planCardsRow: {
+  footerPlansRow: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'stretch',
     gap: 10,
+    marginBottom: 9,
   },
-  planSectionHeader: {
-    paddingHorizontal: 4,
-    gap: 3,
-    marginBottom: 2,
-  },
-  planSectionTitle: {
-    fontSize: 21,
-    fontWeight: '900' as const,
-    color: Colors.text,
-    letterSpacing: -0.55,
-  },
-  planSectionSubtitle: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-    fontWeight: '600' as const,
-  },
-  planCard: {
+  footerPlanCard: {
     flex: 1,
-    minHeight: 154,
-    paddingHorizontal: 15,
-    paddingVertical: 16,
-    borderRadius: 24,
+    minHeight: 88,
+    borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: 'rgba(40, 36, 28, 0.10)',
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
-    shadowColor: '#102819',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    elevation: 3,
+    borderColor: 'rgba(40, 36, 28, 0.12)',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingTop: 11,
+    paddingBottom: 9,
   },
-  annualPlanCard: {
-    paddingTop: 20,
+  footerPlanCardSelected: {
+    borderColor: '#2E9E34',
+    borderWidth: 2,
+    backgroundColor: '#F1FFF4',
+    shadowColor: '#2E9E34',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  planCardTopRow: {
+  footerPlanHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 12,
+    gap: 6,
+    marginBottom: 4,
   },
-  planName: {
+  footerPlanName: {
     flex: 1,
     color: Colors.text,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '900' as const,
-    letterSpacing: -0.25,
+    letterSpacing: -0.2,
   },
-  planPrice: {
+  footerPlanPrice: {
     color: Colors.text,
-    fontSize: 22,
+    fontSize: 19,
     fontWeight: '900' as const,
-    letterSpacing: -0.6,
+    letterSpacing: -0.5,
   },
-  planPeriod: {
+  footerPlanPeriod: {
     color: Colors.textSecondary,
-    fontSize: 11,
+    fontSize: 9.5,
+    lineHeight: 12,
     fontWeight: '700' as const,
     marginTop: 1,
   },
-  planCompactCopy: {
-    color: Colors.textSecondary,
-    fontSize: 11,
-    fontWeight: '600' as const,
-    lineHeight: 15,
-    marginTop: 12,
-  },
-  annualEquivalent: {
-    color: Colors.primaryDark,
-    fontSize: 11,
-    fontWeight: '800' as const,
-    marginTop: 12,
-  },
-  planCardSelected: {
-    borderColor: '#2E9E34',
-    borderWidth: 2.2,
-    backgroundColor: '#F2FFF5',
-    shadowColor: '#2E9E34',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.22,
-    shadowRadius: 26,
-    elevation: 6,
-  },
-  planBadge: {
-    position: 'absolute',
-    top: -12,
-    right: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    shadowColor: '#FF6B35',
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.30,
-    shadowRadius: 14,
-    elevation: 5,
-  },
-  planBadgeText: {
-    fontSize: 11,
-    fontWeight: '900' as const,
-    color: Colors.white,
-    letterSpacing: 0.2,
-  },
-  bestChoicePill: {
-    position: 'absolute',
-    top: 22,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    borderRadius: 999,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    backgroundColor: 'rgba(46, 158, 52, 0.10)',
-  },
-  bestChoiceText: {
-    color: Colors.primaryDark,
-    fontSize: 10,
-    fontWeight: '900' as const,
-  },
-  planRadio: {
-    width: 30,
-    height: 30,
+  footerRadioOuter: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: '#CFC8BD',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  radioOuter: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2.2,
-    borderColor: '#DDD6CB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  radioOuterSelected: {
+  footerRadioOuterSelected: {
     borderColor: '#2E9E34',
   },
-  radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  footerRadioInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#2E9E34',
   },
-  planInfo: {
-    flex: 1,
-  },
-  planTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  planTitle: {
-    fontSize: 19,
-    fontWeight: '900' as const,
-    color: Colors.text,
-    letterSpacing: -0.45,
-    paddingRight: 64,
-  },
-  selectedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.primary,
+  footerSavingsBadge: {
+    position: 'absolute',
+    top: -10,
+    right: 8,
+    zIndex: 2,
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 4,
+    backgroundColor: '#F26A32',
+    shadowColor: '#F26A32',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.24,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  selectedBadgeText: {
-    fontSize: 10,
-    fontWeight: '900' as const,
+  footerSavingsBadgeText: {
     color: Colors.white,
-  },
-  planSubtext: {
-    fontSize: 15,
-    color: Colors.primaryDark,
-    fontWeight: '800' as const,
-    marginTop: 5,
-  },
-  planMicrocopy: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-    marginTop: 5,
-    fontWeight: '600' as const,
-  },
-  planPerkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginTop: 8,
-  },
-  planPerkText: {
-    fontSize: 12,
-    color: Colors.primaryDark,
-    fontWeight: '800' as const,
-    flex: 1,
+    fontSize: 9.5,
+    fontWeight: '900' as const,
+    letterSpacing: 0.1,
   },
   donationRow: {
     width: '100%',
@@ -1159,39 +1028,21 @@ const styles = StyleSheet.create({
     shadowRadius: 26,
     elevation: 14,
   },
-  priceSummary: {
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 2,
-  },
-  priceSummaryPrefix: {
+  footerBillingNote: {
     color: Colors.textSecondary,
-    fontSize: 11,
-    fontWeight: '700' as const,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase' as const,
-  },
-  priceSummaryAmount: {
-    color: Colors.text,
-    fontSize: 28,
-    fontWeight: '900' as const,
-    letterSpacing: -0.6,
-  },
-  priceSummaryTrial: {
-    color: Colors.textSecondary,
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '600' as const,
     textAlign: 'center',
-    marginTop: 2,
-    paddingHorizontal: 8,
-    lineHeight: 15,
+    lineHeight: 14,
+    marginBottom: 5,
+    paddingHorizontal: 6,
   },
   ctaMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginBottom: 10,
+    marginBottom: 7,
   },
   ctaMetaText: {
     color: Colors.textSecondary,
@@ -1209,7 +1060,7 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   ctaGradient: {
-    minHeight: 68,
+    minHeight: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1220,8 +1071,9 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   ctaButtonText: {
+    flexShrink: 1,
     color: Colors.white,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '900' as const,
     letterSpacing: -0.45,
   },
@@ -1235,49 +1087,5 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textDecorationLine: 'underline',
     fontWeight: '700' as const,
-  },
-  loadingOfferings: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-    gap: 12,
-    marginBottom: 24,
-  },
-  loadingOfferingsText: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    fontWeight: '600' as const,
-  },
-  errorOfferings: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 28,
-    gap: 16,
-    marginBottom: 24,
-    backgroundColor: Colors.surface,
-    borderRadius: 24,
-    padding: 20,
-  },
-  errorOfferingsText: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  retryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#2E9E34',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 14,
-  },
-  retryButtonText: {
-    color: Colors.white,
-    fontSize: 14,
-    fontWeight: '800' as const,
   },
 });
