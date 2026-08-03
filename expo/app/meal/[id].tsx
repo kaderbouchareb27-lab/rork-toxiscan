@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { ChevronLeft, MessageCircle, Share2, ChefHat, AlertTriangle, UserCheck, Megaphone, Leaf, ArrowRight, ChevronDown, ChevronUp, Flame, Beef, Wheat, Droplet } from 'lucide-react-native';
+import { ChevronLeft, MessageCircle, Share2, ChefHat, AlertTriangle, UserCheck, Megaphone, Leaf, ArrowRight, ChevronDown, ChevronUp, Flame, Beef, Wheat, Droplet, ShieldAlert } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { t, pick } from '@/utils/i18n';
@@ -33,6 +33,23 @@ import { maybeRequestReviewAfterPositiveScan } from '@/utils/reviewPrompt';
 import MealConfetti from '@/components/MealConfetti';
 import NearbyStores from '@/components/NearbyStores';
 import { findHealthierMealRecipe, getCachedHealthierRecipe, type HealthierRecipe } from '@/utils/mealRecipe';
+import { ingredientHazardDisplay } from '@/utils/hazardProfile';
+import type { Advisory } from '@/utils/badgeEngine';
+
+/**
+ * Advisory pill tone. The pill sits NEXT TO the ingredient, never inside its badge: a food
+ * can be excellent (liver, brie, shrimp, Brazil nuts) and still carry a targeted warning.
+ */
+function advisoryTone(advisory: Advisory): { bg: string; border: string; fg: string } {
+  switch (advisory) {
+    case 'avoid_all':
+      return { bg: '#FCE9E4', border: '#F2C7BB', fg: '#9A2B12' };
+    case 'avoid_vulnerable':
+      return { bg: '#FDF2DC', border: '#EFDCAE', fg: '#8A5A08' };
+    default:
+      return { bg: '#EFF3EB', border: '#DBE3D1', fg: '#4C6044' };
+  }
+}
 
 const TIER_TO_VERDICT: Record<MealTier, 'approuve' | 'moderation' | 'warning' | 'danger'> = {
   green: 'approuve',
@@ -324,6 +341,20 @@ export default function MealResultScreen() {
                   {mealCategoryLabel(ing.category)}
                 </Text>
                 {ing.note ? <Text style={styles.ingredientNote}>{ing.note}</Text> : null}
+                {(() => {
+                  const hazard = ingredientHazardDisplay({ nom: ing.name });
+                  if (!hazard.advisoryText) return null;
+                  const tone = advisoryTone(hazard.advisory);
+                  return (
+                    <View
+                      style={[styles.advisoryPill, { backgroundColor: tone.bg, borderColor: tone.border }]}
+                      testID={`meal-advisory-${ing.id}`}
+                    >
+                      <ShieldAlert color={tone.fg} size={12} strokeWidth={2.6} />
+                      <Text style={[styles.advisoryPillText, { color: tone.fg }]}>{hazard.advisoryText}</Text>
+                    </View>
+                  );
+                })()}
               </View>
             </View>
           ))}
@@ -500,6 +531,8 @@ const styles = StyleSheet.create({
   graveTagText: { fontSize: 10, fontWeight: '900' as const, color: '#D0260F', letterSpacing: 0.4 },
   ingredientCat: { fontSize: 12.5, fontWeight: '700' as const, marginTop: 2 },
   ingredientNote: { fontSize: 13.5, lineHeight: 19, color: Colors.textSecondary, marginTop: 4 },
+  advisoryPill: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, borderWidth: 1 },
+  advisoryPillText: { fontSize: 11, lineHeight: 14, fontWeight: '800' as const, letterSpacing: -0.05 },
   altButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
     backgroundColor: Colors.primary, borderRadius: 18, paddingVertical: 16, marginTop: 4,

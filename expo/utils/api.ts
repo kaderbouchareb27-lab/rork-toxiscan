@@ -31,6 +31,7 @@ import {
   getUltraToxicDescription,
   ULTRA_TOXIC_CIRC,
 } from '@/constants/ultraToxicIngredients';
+import { computeEngineBadge, hazardEntryForName } from '@/utils/hazardProfile';
 
 // The 5-tier verdict engine now lives in the pure '@/utils/verdictTier' module
 // (testable in isolation). Re-exported here so existing screens/providers can keep
@@ -1439,18 +1440,29 @@ function enforcePalmOilFloor(sub: SubstanceDetected): SubstanceDetected {
 function enforceUltraToxicFloor(sub: SubstanceDetected): SubstanceDetected {
   const entry = matchUltraToxicIngredient(sub.nom, sub.code);
   if (!entry) return sub;
+  const officialEn = getOfficialEn(sub.nom, sub.code) ?? getOfficialEn(entry.keywords[0] ?? null, entry.code);
+  const curatedText = officialEn ? localizeOfficialText(officialEn) : getUltraToxicDescription(entry, getDeviceLanguage());
+
+  // The RULE ENGINE owns the badge of every annotated ingredient: this hardcoded floor may
+  // only serve the curated description, never override a computed tier (BHA is IARC 2B →
+  // Processed, nitrite is 2A + added → Carcinogenic; both used to be flattened here).
+  const engine = computeEngineBadge(hazardEntryForName(sub.nom) ?? hazardEntryForName(entry.keywords[0] ?? ''));
+  if (engine && engine.badge !== 'Ultra toxic') {
+    console.log('[Classify] ULTRA TOXIC list — "' + sub.nom + '" kept engine badge ' + engine.badge + ' (' + engine.rule + ')');
+    return { ...sub, explication: curatedText, descriptionPending: false };
+  }
+
   // A confirmed IARC Group 1 carcinogen keeps the higher CARCINOGENIC tier (priority #1).
   if (normalizeForLookup(sub.classification_circ ?? '').includes('groupe 1')) {
     console.log('[Classify] ULTRA TOXIC match kept CARCINOGENIC (Group 1) — "' + sub.nom + '"');
     return sub;
   }
   console.log('[Classify] ULTRA TOXIC — "' + sub.nom + '" → forced ultra_toxic (' + entry.id + ')');
-  const officialEn = getOfficialEn(sub.nom, sub.code) ?? getOfficialEn(entry.keywords[0] ?? null, entry.code);
   return {
     ...sub,
     niveau_risque: 'danger',
     classification_circ: ULTRA_TOXIC_CIRC,
-    explication: officialEn ? localizeOfficialText(officialEn) : getUltraToxicDescription(entry, getDeviceLanguage()),
+    explication: curatedText,
     descriptionPending: false,
   };
 }

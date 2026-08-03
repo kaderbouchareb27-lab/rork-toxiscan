@@ -1,0 +1,455 @@
+{
+  "_meta": {
+    "purpose": "Hazard data per ingredient. The badge is computed from this by badge-engine.ts and is never written by hand.",
+    "coverage": "Only entries carrying a real hazard classification, regulatory status or health advisory are listed. Everything absent from this file falls through to the default rule: whole_food -> Approved, additive/processed_ingredient -> Processed.",
+    "maintenance": "To add an ingredient, fill origin (mandatory) plus any of iarc / regulatory / hazard / advisory that apply. Never set the badge directly.",
+    "field_origin": "additive = deliberately added | contaminant = unintended | processed_ingredient = refined/technical | whole_food = the food itself",
+    "known_limit": "The engine decides the HAZARD tier. It does not decide how benign an ordinary authorised additive is: gums, citrates, lactates and phosphates sit in Occasional by editorial judgement, not by rule. Never run the engine's default over unannotated additives - it would push all of them to Processed. Only entries present in this registry are engine-driven."
+  },
+  "ingredients": {
+    "_comment_group1_additives": "IARC Group 1 - confirmed human carcinogens",
+    "formaldehyde": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "dmdm hydantoin": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "restricted"
+    },
+    "quaternium-15": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "diazolidinyl urea": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "restricted"
+    },
+    "imidazolidinyl urea": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "restricted"
+    },
+    "bronopol": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "restricted"
+    },
+    "cadmium": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "arsenic": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "benzene": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "aflatoxine": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "coal tar": {
+      "iarc": "1",
+      "origin": "additive",
+      "regulatory": "restricted"
+    },
+    "ptfe": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "paraffinum liquidum": {
+      "iarc": "1",
+      "origin": "additive"
+    },
+    "moah": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "dioxines": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "pcb": {
+      "iarc": "1",
+      "origin": "contaminant"
+    },
+    "oxyde d ethylene": {
+      "iarc": "1",
+      "origin": "contaminant",
+      "regulatory": "banned_toxicity"
+    },
+    "alcool ethylique": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "_comment_processed_meat": "IARC Group 1 as a food category (Monographs vol. 114, 2015)",
+    "viande transformee": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "salami": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "saucisson": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "chorizo": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "mortadelle": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "bacon": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "jambon": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "saucisse": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "pastrami": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "jerky": {
+      "iarc": "1",
+      "origin": "whole_food"
+    },
+    "pepperoni": {
+      "iarc": "1",
+      "origin": "whole_food",
+      "_was": "Processed",
+      "_note": "The only processed meat left in orange while all its siblings were red."
+    },
+    "_comment_group2a": "IARC Group 2A - probably carcinogenic",
+    "nitrite de sodium": {
+      "iarc": "2A",
+      "origin": "additive"
+    },
+    "nitrite de potassium": {
+      "iarc": "2A",
+      "origin": "additive"
+    },
+    "nitrate de sodium": {
+      "iarc": "2A",
+      "origin": "additive"
+    },
+    "nitrate de potassium": {
+      "iarc": "2A",
+      "origin": "additive"
+    },
+    "nitrosamine": {
+      "iarc": "2A",
+      "origin": "contaminant",
+      "_note": "Formed during curing and high-heat cooking, not added. Stays orange under R7."
+    },
+    "acrylamide": {
+      "iarc": "2A",
+      "origin": "contaminant"
+    },
+    "glyphosate": {
+      "iarc": "2A",
+      "origin": "contaminant"
+    },
+    "huile de palme": {
+      "iarc": "2A",
+      "origin": "processed_ingredient",
+      "_note": "Glycidyl esters formed during high-heat refining are the 2A component."
+    },
+    "viande rouge": {
+      "iarc": "2A",
+      "origin": "whole_food"
+    },
+    "talc alimentaire": {
+      "iarc": "2A",
+      "origin": "additive",
+      "_was": "Processed",
+      "_note": "Reclassified 2B -> 2A by IARC in 2024 (vol. 136). Deliberately added, so R6 fires."
+    },
+    "hijiki": {
+      "iarc": "1",
+      "origin": "whole_food",
+      "advisory": "avoid_all",
+      "_was": "Processed",
+      "_note": "Inorganic arsenic is Group 1; UK, Canada and Ireland advise not eating it at all."
+    },
+    "_comment_group2b": "IARC Group 2B - possibly carcinogenic",
+    "aspartame": {
+      "iarc": "2B",
+      "origin": "additive"
+    },
+    "bha": {
+      "iarc": "2B",
+      "origin": "additive"
+    },
+    "caramel ammoniacal sulfite": {
+      "iarc": "2B",
+      "origin": "additive"
+    },
+    "caramel ammoniacal": {
+      "iarc": "2B",
+      "origin": "additive"
+    },
+    "colorant caramel": {
+      "iarc": "2B",
+      "origin": "additive"
+    },
+    "carraghenane degrade": {
+      "iarc": "2B",
+      "origin": "contaminant"
+    },
+    "peg-": {
+      "iarc": "2B",
+      "origin": "additive",
+      "_note": "1,4-dioxane residue is the 2B component."
+    },
+    "mosh": {
+      "iarc": null,
+      "origin": "contaminant",
+      "_manual_badge": "Occasional",
+      "_note": "Mineral oil saturated hydrocarbons: a migration contaminant with no IARC group, no regulatory status and no advisory, so no rule fires and R17 would rate it Approved. EFSA flags accumulation in liver and lymph nodes as a possible concern - an editorial call the engine deliberately does not model."
+    },
+    "_comment_group3": "IARC Group 3 - not classifiable. Never displayed as a cancer claim.",
+    "saccharine": {
+      "iarc": "3",
+      "origin": "additive",
+      "_note": "Downgraded to Group 3 in 1999. The entry text already says so; the badge now follows from origin, not from an obsolete cancer claim."
+    },
+    "_comment_banned_toxicity": "Delisted or banned because harm was demonstrated",
+    "azodicarbonamide": {
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "potassium bromate": {
+      "iarc": "2B",
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "dioxyde de titane": {
+      "origin": "additive",
+      "regulatory": "banned_toxicity",
+      "_was": "Processed",
+      "_note": "EU ban 2022: genotoxicity could not be ruled out and no safe intake could be set."
+    },
+    "hydroquinone": {
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "propyl paraben": {
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "sodium propyl paraben": {
+      "origin": "additive",
+      "regulatory": "banned_toxicity"
+    },
+    "chlorpyrifos": {
+      "origin": "contaminant",
+      "regulatory": "banned_toxicity"
+    },
+    "atrazine": {
+      "origin": "contaminant",
+      "regulatory": "banned_toxicity"
+    },
+    "paraquat": {
+      "origin": "contaminant",
+      "regulatory": "banned_toxicity",
+      "hazard": "acute_severe"
+    },
+    "_comment_banned_datagap": "Delisted for MISSING data. Not proof of harm - this is the distinction that was collapsed before.",
+    "calcium sorbate": {
+      "origin": "additive",
+      "regulatory": "banned_datagap",
+      "_was": "Ultra toxic",
+      "_note": "No company ever supplied the genotoxicity data. A data gap is not a demonstrated harm."
+    },
+    "_comment_no_safe_level": "Heavy metals with no threshold considered safe",
+    "plomb": {
+      "origin": "contaminant",
+      "hazard": "no_safe_level"
+    },
+    "mercure": {
+      "origin": "contaminant",
+      "hazard": "no_safe_level"
+    },
+    "_comment_reprotoxic": "Classified toxic to reproduction under EU chemical law",
+    "acide borique": {
+      "origin": "additive",
+      "hazard": "reprotoxic"
+    },
+    "tetraborate de sodium": {
+      "origin": "additive",
+      "hazard": "reprotoxic"
+    },
+    "phtalate": {
+      "origin": "contaminant",
+      "hazard": "reprotoxic"
+    },
+    "_comment_acute": "Severe non-cancer toxicity",
+    "ppd": {
+      "origin": "additive",
+      "hazard": "acute_severe",
+      "_note": "IARC Group 3, so the red badge rests on acute sensitisation, not on cancer. Rule R2, not R5."
+    },
+    "2 chloroethanol": {
+      "origin": "contaminant",
+      "regulatory": "banned_toxicity"
+    },
+    "_comment_downgrades": "Entries the rule moves DOWN - the old badge was heavier than the evidence",
+    "sulfate de cuivre": {
+      "origin": "additive",
+      "regulatory": "restricted",
+      "_was": "Ultra toxic",
+      "_note": "Copper is an essential trace element, capped in food, neither banned nor classified. Nothing supported the most severe tier."
+    },
+    "acide phosphorique": {
+      "origin": "additive",
+      "_manual_badge": "Occasional",
+      "_note": "Benignity judgement among authorised additives (aligns with E339-E341/E450-E452 and E570, all Occasional). The engine does not model this axis - set by hand."
+    },
+    "sels d acides gras": {
+      "origin": "additive",
+      "_manual_badge": "Occasional",
+      "_note": "Benignity judgement among authorised additives (aligns with E339-E341/E450-E452 and E570, all Occasional). The engine does not model this axis - set by hand."
+    },
+    "espadon": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable",
+      "_was": "Ultra toxic",
+      "_note": "A whole food with a targeted avoidance advice, not a banned substance. Keeps a food badge and carries the advisory pill.",
+      "contaminant": "methylmercury"
+    },
+    "_comment_advisory_whole_foods": "Clean whole foods carrying a subgroup advisory. Badge unchanged, advisory rendered separately - this is what the old 5-badge system could not express.",
+    "foie": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable"
+    },
+    "lait cru": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable",
+      "contaminant": "pathogens (listeria, salmonella, E. coli)"
+    },
+    "brie": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable"
+    },
+    "roquefort": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable"
+    },
+    "crevette": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable"
+    },
+    "noix du bresil": {
+      "origin": "whole_food",
+      "advisory": "limit"
+    },
+    "algue": {
+      "origin": "whole_food",
+      "advisory": "limit"
+    },
+    "fletan": {
+      "origin": "whole_food",
+      "advisory": "limit",
+      "contaminant": "methylmercury"
+    },
+    "thon": {
+      "origin": "whole_food",
+      "advisory": "limit",
+      "contaminant": "methylmercury"
+    },
+    "gelee royale": {
+      "origin": "whole_food",
+      "advisory": "avoid_vulnerable"
+    },
+    "ginseng": {
+      "origin": "processed_ingredient",
+      "advisory": "avoid_vulnerable"
+    },
+    "ashwagandha": {
+      "origin": "processed_ingredient",
+      "advisory": "avoid_vulnerable"
+    },
+    "reishi": {
+      "origin": "processed_ingredient",
+      "advisory": "avoid_vulnerable"
+    },
+    "klamath": {
+      "origin": "processed_ingredient",
+      "advisory": "avoid_vulnerable"
+    },
+    "mate": {
+      "iarc": "2A",
+      "origin": "whole_food",
+      "_note": "IARC classifies drinking very hot beverages above 65 C as Group 2A. The plant itself is not the hazard - the temperature is."
+    },
+    "miel": {
+      "origin": "whole_food",
+      "_manual_badge": "Occasional",
+      "_note": "Nutrition axis (free sugars / fermentability), not a hazard. Engine skips it."
+    },
+    "_comment_unauthorised": "Not authorised in the EU market",
+    "allulose": {
+      "origin": "additive",
+      "regulatory": "unauthorised_novel"
+    },
+    "phosphate d'os": {
+      "origin": "additive",
+      "_note": "EU Annex II status could not be confirmed against the primary text. No regulatory claim is made."
+    },
+    "_comment_restricted": "Authorised with a cap or a mandatory warning label",
+    "egcg": {
+      "origin": "processed_ingredient",
+      "regulatory": "restricted",
+      "advisory": "limit"
+    },
+    "argent": {
+      "origin": "additive",
+      "regulatory": "restricted"
+    },
+    "erythritol": {
+      "origin": "additive",
+      "advisory": "limit"
+    },
+    "xylitol": {
+      "origin": "additive",
+      "advisory": "limit"
+    },
+    "_comment_manual_override": "These keep a hand-set badge: their yellow comes from sugar density (WHO free sugars), which is a nutrition axis, not a hazard axis. The engine deliberately does not model it.",
+    "sirop d'erable": {
+      "origin": "whole_food",
+      "_manual_badge": "Occasional",
+      "_note": "Nutrition axis (free sugars / fermentability), not a hazard. Engine skips it."
+    },
+    "sucre de canne complet": {
+      "origin": "whole_food",
+      "_manual_badge": "Occasional",
+      "_note": "Nutrition axis (free sugars / fermentability), not a hazard. Engine skips it."
+    },
+    "jus de fruits frais": {
+      "origin": "whole_food",
+      "_manual_badge": "Occasional",
+      "_note": "Nutrition axis (free sugars / fermentability), not a hazard. Engine skips it."
+    },
+    "inuline": {
+      "origin": "whole_food",
+      "_manual_badge": "Occasional",
+      "_note": "Nutrition axis (free sugars / fermentability), not a hazard. Engine skips it."
+    }
+  }
+}

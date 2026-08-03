@@ -1,0 +1,31 @@
+name: Badge engine
+
+# The badge of an annotated ingredient is COMPUTED, never hand-picked.
+# This job fails the build as soon as a stored badge diverges from the rule,
+# which is what makes the old drift (same IARC group, three different tiers)
+# impossible to reintroduce.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  badges:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: expo
+    env:
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Badge engine self-test (24 rule cases)
+        run: bun scripts/badgeSelftest.ts
+      - name: Badge audit over the whole ingredient database
+        run: bun --preload ./scripts/lib/nativeStub.ts scripts/badgeAudit.ts

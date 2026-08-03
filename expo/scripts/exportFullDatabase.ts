@@ -14,16 +14,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { classifyLocal } from '@/utils/api';
+import { badgeFromRiskAndCirc } from '@/utils/hazardProfile';
+import { advisoryPill } from '@/utils/badgeEngine';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel } from '@/constants/ingredientsDatabase';
 
 const ROOT = process.cwd();
 const OUT_PATH = path.join(ROOT, 'scripts', 'ingredientsFullExport.json');
 
+/** Same derivation as the ingredient row and the badge audit (single source of truth). */
 function badgeForEntry(entry: IngredientEntry): string {
-  if (entry.risk === 'aucun') return 'Approved';
-  if (entry.risk === 'possible') return 'Occasional';
-  if (entry.risk === 'probable') return 'Processed';
-  return entry.circ.toLowerCase().includes('groupe 1') ? 'Carcinogenic' : 'Ultra toxic';
+  return badgeFromRiskAndCirc(entry.risk, entry.circ);
 }
 
 interface ExportedEntry {
@@ -31,6 +31,10 @@ interface ExportedEntry {
   description_en: string;
   badge: string;
   risk: RiskLevel;
+  /** IARC group when the ingredient carries one, else null. */
+  iarc: string | null;
+  /** Advisory pill shown next to the badge, else null. */
+  advisory: string | null;
   aliases: string[];
 }
 
@@ -42,6 +46,8 @@ const results: ExportedEntry[] = INGREDIENTS_DATABASE.map((entry) => {
     description_en: (substance?.explication ?? '').trim(),
     badge: badgeForEntry(entry),
     risk: entry.risk,
+    iarc: entry.iarc ?? null,
+    advisory: advisoryPill(entry.advisory ?? null),
     aliases: entry.keywords.slice(1),
   };
 });

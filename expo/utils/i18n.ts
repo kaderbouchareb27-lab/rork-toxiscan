@@ -221,6 +221,16 @@ const translations = {
   badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED', ko: '승인됨' },
   ingredient_badge_industrial: { fr: 'INDUSTRIEL', en: 'INDUSTRIAL', ko: '산업 가공' },
   ingredient_badge_disputed: { fr: 'ACCEPTABLE', en: 'ACCEPTABLE', ko: '적당함' },
+  // ===== IARC LABELS (honest cancer wording — never print CARCINOGENIC on a Group 2A) =====
+  iarc_label_group1: { fr: 'CANCÉRIGÈNE AVÉRÉ', en: 'CONFIRMED CARCINOGEN', ko: '발암성 확인' },
+  iarc_label_group2a: { fr: 'PROBABLEMENT CANCÉRIGÈNE', en: 'PROBABLY CARCINOGENIC', ko: '발암 추정' },
+  iarc_label_group2b: { fr: 'PEUT CAUSER LE CANCER', en: 'MAY CAUSE CANCER', ko: '발암 가능성' },
+
+  // ===== ADVISORY PILL (rendered NEXT TO the badge, never inside it) =====
+  advisory_avoid_all: { fr: 'Les agences de santé déconseillent d’en consommer', en: 'Health agencies advise avoiding', ko: '보건 당국이 섭취를 권장하지 않음' },
+  advisory_avoid_vulnerable: { fr: 'Déconseillé pendant la grossesse et aux enfants', en: 'Not advised in pregnancy or for children', ko: '임신 중이거나 어린이에게는 권장되지 않음' },
+  advisory_limit: { fr: 'À garder en portion limitée', en: 'Keep to a limited portion', ko: '소량으로 제한하세요' },
+
   cosmetic_badge_toxic: { fr: 'TOXIQUE', en: 'TOXIC', ko: '독성' },
   cosmetic_badge_disputed: { fr: 'CONTESTÉ', en: 'DISPUTED', ko: '논란 있음' },
   cosmetic_badge_approved: { fr: 'APPROUVÉ', en: 'APPROVED', ko: '승인됨' },

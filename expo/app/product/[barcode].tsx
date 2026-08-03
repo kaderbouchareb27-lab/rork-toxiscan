@@ -20,7 +20,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import {
   ChevronLeft, Share2, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
-  Store, Heart, Navigation, UserCheck, LocateFixed, Megaphone, Leaf,
+  Store, Heart, Navigation, UserCheck, LocateFixed, Megaphone, Leaf, ShieldAlert,
 } from 'lucide-react-native';
 import DrToxiVerdict from '@/components/DrToxiVerdict';
 import type { VerdictLevel } from '@/components/DrToxiVerdict';
@@ -44,6 +44,8 @@ import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
 import { isUltraToxicCirc } from '@/constants/ultraToxicIngredients';
+import { ingredientHazardDisplay } from '@/utils/hazardProfile';
+import type { Advisory } from '@/utils/badgeEngine';
 import { computeToxiScore } from '@/utils/toxiScore';
 import type { DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
@@ -148,6 +150,21 @@ function getLevelBadgeLabel(level: DisplayLevel, domain: VerdictDomain = 'food')
     case 'probable':   return t('ingredient_badge_industrial'); // INDUSTRIEL / INDUSTRIAL
     case 'possible':   return t('ingredient_badge_disputed');   // CONTESTÉ / DISPUTED
     case 'aucun':      return t('badge_approved');   // APPROUVÉ
+  }
+}
+
+/**
+ * Tone of the ADVISORY PILL. It lives NEXT TO the badge, never inside it: that is what
+ * lets liver, brie, shrimp and Brazil nuts stay green while still carrying their warning.
+ */
+function getAdvisoryTone(advisory: Advisory): { bg: string; border: string; fg: string } {
+  switch (advisory) {
+    case 'avoid_all':
+      return { bg: '#FCE9E4', border: '#F2C7BB', fg: '#9A2B12' };
+    case 'avoid_vulnerable':
+      return { bg: '#FDF2DC', border: '#EFDCAE', fg: '#8A5A08' };
+    default:
+      return { bg: '#EFF3EB', border: '#DBE3D1', fg: '#4C6044' };
   }
 }
 
@@ -934,6 +951,11 @@ export default function ProductScreen() {
                 // 🟢 aucun = APPROUVÉ
                 const level = getDisplayLevel(ing);
                 const color = getLevelBadgeColor(level, verdictDomain);
+                // Honest cancer wording + the separate advisory pill (food scans only —
+                // cosmetics and household products run their own vocabulary).
+                const hazard = verdictDomain === 'food' ? ingredientHazardDisplay(ing) : null;
+                const badgeLabel = hazard?.iarcLabel ?? getLevelBadgeLabel(level, verdictDomain);
+                const advisoryTone = hazard?.advisoryText ? getAdvisoryTone(hazard.advisory) : null;
                 // For non-food scans, prefer the category-appropriate description
                 // from the additives database (FR/EN) when we can match the ingredient.
                 // Cosmetics carry their own bilingual description (cosmetic engine),
@@ -953,9 +975,18 @@ export default function ProductScreen() {
                       <View style={[styles.allIngDot, { backgroundColor: color }]} />
                       <Text style={styles.allIngName} numberOfLines={2}>{ing.nom}</Text>
                       <View style={[styles.allIngBadge, { backgroundColor: color }]}>
-                        <Text style={styles.allIngBadgeText}>{getLevelBadgeLabel(level, verdictDomain)}</Text>
+                        <Text style={styles.allIngBadgeText} numberOfLines={2}>{badgeLabel}</Text>
                       </View>
                     </View>
+                    {hazard?.advisoryText && advisoryTone ? (
+                      <View
+                        style={[styles.advisoryPill, { backgroundColor: advisoryTone.bg, borderColor: advisoryTone.border }]}
+                        testID={`ingredient-advisory-${index}`}
+                      >
+                        <ShieldAlert color={advisoryTone.fg} size={12} strokeWidth={2.6} />
+                        <Text style={[styles.advisoryPillText, { color: advisoryTone.fg }]}>{hazard.advisoryText}</Text>
+                      </View>
+                    ) : null}
                     {isPending ? (
                       <View style={styles.allIngPendingRow}>
                         <ActivityIndicator size="small" color={Colors.primary} />
@@ -1398,8 +1429,10 @@ const styles = StyleSheet.create({
   allIngRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 },
   allIngDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   allIngName: { flex: 1, fontSize: 15, lineHeight: 20, color: Colors.text, fontWeight: '800' as const, letterSpacing: -0.15 },
-  allIngBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999, flexShrink: 0 },
-  allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25 },
+  allIngBadge: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999, flexShrink: 1, maxWidth: '46%' },
+  allIngBadgeText: { fontSize: 9, fontWeight: '900' as const, color: '#FFFFFF', letterSpacing: 0.25, textAlign: 'right' as const },
+  advisoryPill: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, alignSelf: 'flex-end' as const, marginTop: 8, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, borderWidth: 1 },
+  advisoryPillText: { fontSize: 11, lineHeight: 14, fontWeight: '800' as const, letterSpacing: -0.05 },
   allIngExplanation: { marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8', backgroundColor: '#FFFFFF' },
   allIngExplanationText: { fontSize: 13, lineHeight: 19, fontWeight: '500' as const, color: '#4E4E49' },
   allIngPendingRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#EDEDE8' },
