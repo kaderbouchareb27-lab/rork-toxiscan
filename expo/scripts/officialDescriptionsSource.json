@@ -1,6 +1,4 @@
 {
-  "generatedAt": "2026-08-02T21:05:54Z",
-  "files": 13,
   "descriptions": [
     {
       "name": "1,4-Dioxane",
@@ -2301,70 +2299,700 @@
       "lot": "5C"
     },
     {
-      "name": "간장",
-      "description_en": "Traditionally brewed Korean soy sauce, made by fermenting soybeans over months. Naturally rich in umami and beneficial compounds, unlike chemically hydrolysed soy sauce — though high in salt.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "고춧가루",
-      "description_en": "Gochugaru, Korean chilli powder made from sun-dried peppers with nothing added. Rich in capsaicin and vitamin C, and the backbone of kimchi.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "국간장",
-      "description_en": "Korean soup soy sauce, saltier and lighter in colour than regular soy sauce, made by traditional fermentation. A whole fermented seasoning, used sparingly for its salt content.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "된장",
-      "description_en": "Doenjang, Korean fermented soybean paste aged for months. Fermentation produces beneficial bacteria and peptides; it is deeply nutritious but high in salt.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "들기름",
-      "description_en": "Korean perilla oil, one of the richest plant sources of omega-3 ALA. It oxidises quickly, so it should be kept cold and used raw rather than heated.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "메주",
-      "description_en": "Meju, blocks of fermented soybeans that form the base of doenjang and traditional soy sauce. A pure whole-soy ferment at the root of Korean cuisine.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "미숫가루",
-      "description_en": "Misugaru, a powder of roasted whole grains and beans drunk with milk or water. It is a genuine whole-food blend providing fibre, plant protein and slow carbohydrates.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "쌈장",
-      "description_en": "Ssamjang, a blend of doenjang and chilli paste used as a wrap sauce. Built on fermented soybean, it carries the benefits of its base while being salty and often sweetened.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "액젓",
-      "description_en": "Korean fish sauce made by fermenting anchovies or sand lance with salt. A traditional ferment rich in amino acids and umami, though very high in sodium.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
-      "name": "젓갈",
-      "description_en": "Jeotgal, salted fermented seafood such as saeujeot used to season kimchi. Traditional and rich in umami and enzymes, but among the saltiest foods in the cuisine.",
-      "badge": "Approved",
-      "lot": "5C"
-    },
-    {
       "name": "청국장",
       "description_en": "Cheonggukjang, a fast-fermented soybean paste rich in Bacillus subtilis and nattokinase. One of the most probiotic-dense traditional Korean foods.",
       "badge": "Approved",
       "lot": "5C"
+    },
+    {
+      "name": "thaumatine",
+      "description_en": "A sweet protein (E957) extracted from the West African katemfe fruit, around 2,000 times sweeter than sugar. It is plant-derived and digested like any protein, but it is a concentrated industrial extract with a lingering liquorice aftertaste.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "neohesperidine dc",
+      "description_en": "A synthetic sweetener (E959) derived from bitter orange peel, several hundred times sweeter than sugar. It is authorised in the EU but not in the United States, and is used mainly to mask bitterness in industrial products.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "neotame",
+      "description_en": "An artificial sweetener (E961) built from aspartame, up to 13,000 times sweeter than sugar. EFSA re-evaluated it in 2025 and found no safety concern at permitted levels, though the WHO advises against sweeteners for weight control.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "sel d aspartame-acesulfame",
+      "description_en": "A combined salt of aspartame and acesulfame K (E962), used to balance the aftertaste of each. It carries the concerns of both parent sweeteners, including aspartame's IARC Group 2B classification.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "advantame",
+      "description_en": "An artificial sweetener (E969) derived from aspartame and roughly 37,000 times sweeter than sugar, so it is used in minute amounts. Authorised in the EU and US, but a purely synthetic high-intensity sweetener.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "sirop de polyglycitol",
+      "description_en": "A polyol syrup (E964) made by hydrogenating starch, used as a bulk sweetener in sugar-free products. Like all polyols it is poorly absorbed and carries a mandatory laxative warning above 10%.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "methylcellulose",
+      "description_en": "A chemically modified cellulose (E461) used to thicken and bind, notably in plant-based meat substitutes. It is not absorbed and passes through as fibre, but it is a laboratory-modified ingredient.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "ethylcellulose",
+      "description_en": "A modified cellulose (E462) used as a binder and film former. It is indigestible and considered safe, serving a purely technical role in manufacturing.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "phosphate de monoamidon",
+      "description_en": "A modified starch (E1410) used to thicken and stabilise processed food. EFSA considers modified starches safe, but they are refined carbohydrates and a marker of ultra-processing.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "phosphate de diamidon acetyle e1414",
+      "description_en": "A doubly modified starch (E1414) built to survive heating, freezing and acidity. It adds texture and shelf life without nutrition, and signals an industrially engineered recipe.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "amidon acetyle",
+      "description_en": "Acetylated starch (E1420), chemically treated to stay stable through processing. It is a refined carbohydrate with no fibre or micronutrients, used purely for texture.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "phosphate de diamidon hydroxypropyle",
+      "description_en": "One of the most common modified starches (E1442), used in sauces, desserts and ready meals. Regarded as safe by EFSA, but a clear technical marker of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide acetique",
+      "description_en": "The acid of vinegar (E260), used to adjust acidity and preserve food. It is one of the oldest and most benign preservatives, and taken with a meal it slightly lowers the blood sugar response.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acetate de sodium",
+      "description_en": "The sodium salt of acetic acid (E262), used as a preservative and to give salt-and-vinegar flavour. It is well tolerated but contributes sodium to the diet.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide fumarique",
+      "description_en": "An acidity regulator (E297) that occurs naturally in plants and in human metabolism. It is considered safe at food levels, though the food-grade version is synthesised industrially.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "ascorbate de sodium",
+      "description_en": "The sodium salt of vitamin C (E301), used as an antioxidant to stop food browning and fats oxidising. It retains vitamin C activity and is among the most benign additives.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "ascorbate de calcium",
+      "description_en": "A vitamin C salt (E302) used to protect food from oxidation. It provides genuine vitamin C activity along with a small amount of calcium.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "palmitate d ascorbyle",
+      "description_en": "A fat-soluble form of vitamin C (E304) used to keep oils from going rancid. It is broken down into vitamin C and palmitic acid in the body, and is considered safe at permitted levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lactate de sodium",
+      "description_en": "The sodium salt of lactic acid (E325), used to preserve and retain moisture in meat and baked goods. It is well tolerated but adds sodium to an already salty product category.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lactate de potassium",
+      "description_en": "A preservative and acidity regulator (E326) often used to reduce sodium in processed meat. It is considered safe, though people with kidney disease should limit added potassium salts.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lactate de calcium",
+      "description_en": "A firming agent and acidity regulator (E327) that also supplies calcium. It is well tolerated and one of the more benign mineral salts used in food.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide adipique",
+      "description_en": "An acidity regulator (E355) used in powdered desserts and drink mixes. It is produced industrially and considered safe at the low levels permitted.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "acide alginique",
+      "description_en": "A gelling fibre (E400) extracted from brown seaweed. It is not absorbed and behaves as soluble fibre, though large amounts can reduce mineral absorption.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "alginate d ammonium",
+      "description_en": "A seaweed-derived thickener (E403) used to stabilise texture. It passes through the gut undigested and is considered safe at food levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "alginate de propylene glycol",
+      "description_en": "A chemically modified alginate (E405) used to stabilise beer foam and dressings. Unlike plain alginates it is reacted with propylene glycol, making it a synthetic derivative rather than a simple seaweed extract.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "eucheuma transforme",
+      "description_en": "Processed eucheuma seaweed (E407a), a cheaper, less purified relative of carrageenan. It shares carrageenan's concerns about gut inflammation and is banned in EU infant formula.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "gomme adragante",
+      "description_en": "A plant gum (E413) from the astragalus shrub, used as a thickener and stabiliser. It behaves as soluble fibre and is well tolerated, though it can cause bloating in quantity.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "gomme cassia",
+      "description_en": "A thickener (E427) from cassia tree seeds, authorised in the EU with strict purity limits because the raw seed contains natural anthraquinones. Purified food grade is considered safe.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "gelatine e441",
+      "description_en": "Collagen extracted from animal skin and bone by acid or alkali treatment (E441). It is a safe, protein-based gelling agent, though of animal origin with little nutritional value.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "phosphatides d ammonium",
+      "description_en": "An emulsifier (E442) used almost exclusively in chocolate to control flow during moulding. It is authorised at low levels but is a synthetic phosphate derivative with no place in traditional chocolate.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "esters de propylene glycol",
+      "description_en": "Propylene glycol esters of fatty acids (E477), used to aerate whipped toppings and cake mixes. Permitted at capped levels, and characteristic of ultra-processed desserts.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "sorbitanes",
+      "description_en": "Sorbitan emulsifiers (E491–E495) used to stabilise fats in baked goods and confectionery. They belong to the synthetic emulsifier family under study for effects on the gut lining.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "dimethylpolysiloxane",
+      "description_en": "A silicone anti-foaming agent (E900) used mainly in frying oils and industrial cooking. It is inert and poorly absorbed, but it is a synthetic silicone typical of large-scale food production.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "cire de candelilla",
+      "description_en": "A plant wax (E902) from a Mexican shrub, used to glaze sweets and coatings. It is not absorbed, and it is a vegan alternative to beeswax and shellac.",
+      "badge": "Approved",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "cire microcristalline",
+      "description_en": "A petroleum-derived wax (E905) used as a glazing and release agent. It is not absorbed by the body, but it originates from mineral oil refining rather than from a plant or animal source.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "protoxyde d azote",
+      "description_en": "Nitrous oxide (E942), the propellant in aerosol whipped cream. It is inert in food use and leaves no residue, though inhaling it recreationally causes serious neurological harm.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "polydextrose",
+      "description_en": "A synthetic soluble fibre (E1200) made from glucose, used to add bulk and fibre while cutting sugar. It is largely unabsorbed and acts as a prebiotic, but large amounts cause bloating.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "pvp",
+      "description_en": "Polyvinylpyrrolidone (E1201), a synthetic polymer used to clarify drinks and coat tablets. It is not absorbed by the gut and is considered safe, serving a purely technical purpose.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "triacetine",
+      "description_en": "A humectant and solvent (E1518) used to carry flavours and keep products moist. It breaks down into glycerol and acetic acid in the body and is considered safe at food levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "talc",
+      "description_en": "A mineral anti-caking and release agent (E553b). Food-grade talc must be free of asbestos, since asbestos-contaminated talc is a recognised carcinogen; it adds nothing nutritionally.",
+      "badge": "Processed",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "ferrocyanure de potassium",
+      "description_en": "An anti-caking agent (E536) added to salt to keep it free-flowing. Despite the name, the cyanide is locked in a stable complex and EFSA considers it safe at permitted levels.",
+      "badge": "Occasional",
+      "lot": "10-e-additives"
+    },
+    {
+      "name": "lilial",
+      "description_en": "A synthetic floral fragrance (butylphenyl methylpropional) banned in EU cosmetics since March 2022. It was classified toxic to reproduction (CMR 1B) after animal studies showed effects on fertility and foetal development, and it is also a contact allergen.",
+      "badge": "Ultra toxic",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "zinc pyrithione",
+      "description_en": "An antifungal once common in anti-dandruff shampoos, banned in EU cosmetics since March 2022 after being classified toxic to reproduction. It remains permitted in some other markets.",
+      "badge": "Ultra toxic",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide salicylique",
+      "description_en": "A beta-hydroxy acid that exfoliates and unclogs pores, effective against acne. Its concentration is capped in EU cosmetics, and it should not be used on children under three or during pregnancy without medical advice.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide glycolique",
+      "description_en": "An alpha-hydroxy acid that exfoliates the skin surface and improves texture. EU rules cap consumer concentrations, and it increases sun sensitivity, so daily sunscreen is necessary while using it.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "peroxyde de benzoyle",
+      "description_en": "An effective antibacterial acne treatment that kills the bacteria driving breakouts. It is drying and irritating at higher strengths, and it permanently bleaches fabric and hair on contact.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide kojique",
+      "description_en": "A skin-lightening agent produced by fermentation, used to fade dark spots. The SCCS caps it at 1% in cosmetics because of concerns about skin sensitisation and thyroid effects at higher levels.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acide azelaique",
+      "description_en": "A naturally occurring acid from grains, used for acne and rosacea. It is one of the best tolerated actives available, gentle enough for sensitive skin and considered safe during pregnancy.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "lanoline",
+      "description_en": "A wax from sheep's wool that is highly effective at sealing moisture into dry skin and lips. Purified grades are safe, but it is a known contact allergen and lower grades can carry pesticide residues.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "keratine",
+      "description_en": "The structural protein of hair, added to products to smooth and coat the strand. The protein itself is harmless, but some professional keratin straightening treatments release formaldehyde when heated.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "collagene",
+      "description_en": "A protein used in skincare as a surface moisturiser. Its molecules are too large to penetrate the skin, so it hydrates and softens rather than rebuilding collagen — but it is harmless and well tolerated.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "ceramides",
+      "description_en": "Lipids that naturally make up the skin's protective barrier. Applied topically they help restore that barrier and reduce water loss, with strong evidence behind them and virtually no irritation risk.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "tea tree",
+      "description_en": "An essential oil with genuine antibacterial activity, used against acne. It must be diluted, as undiluted use causes irritation, and it is a recognised contact allergen that oxidises with age.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "bakuchiol",
+      "description_en": "A plant compound from babchi seeds, studied as a gentler alternative to retinol. Early trials suggest comparable effects on fine lines with far less irritation, and it is considered suitable during pregnancy.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "peptides",
+      "description_en": "Short chains of amino acids used to signal repair processes in the skin. They are well tolerated and non-irritating, though results vary widely depending on the specific peptide and formulation.",
+      "badge": "Approved",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "menthol",
+      "description_en": "A cooling compound from mint, used in balms, toothpaste and scalp products. The cooling sensation is not an active benefit, and at higher concentrations it irritates skin and mucous membranes.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "camphre",
+      "description_en": "An aromatic compound used in balms and decongestant rubs. It is effective in small amounts, but it is neurotoxic if swallowed and should never be applied to the face of infants or young children.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "isopropyl myristate",
+      "description_en": "A synthetic emollient that gives creams a light, fast-absorbing feel. It is not toxic, but it is highly comedogenic and a common trigger of clogged pores in acne-prone skin.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "ceteareth",
+      "description_en": "An ethoxylated emulsifier used to blend oil and water. The ethoxylation process can leave traces of 1,4-dioxane, a possible carcinogen, so manufacturers are expected to purify it out.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "acrylates",
+      "description_en": "Synthetic polymers that form films in nail products, hair styling and long-wear make-up. Cured polymers are stable, but uncured acrylate monomers in nail products are strong skin sensitisers.",
+      "badge": "Occasional",
+      "lot": "10-cosmetics"
+    },
+    {
+      "name": "moah",
+      "description_en": "Mineral oil aromatic hydrocarbons, contaminants from packaging inks, machine lubricants and processing aids. EFSA considers those with three or more aromatic rings genotoxic and carcinogenic, and found their presence in infant formula to be of health concern.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "mosh",
+      "description_en": "Mineral oil saturated hydrocarbons, which migrate into food from packaging and machinery. EFSA concluded in 2023 that current dietary exposure raises no health concern, though they accumulate in the liver and lymphatic tissue and long-term effects remain uncertain.",
+      "badge": "Occasional",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "oxyde d ethylene",
+      "description_en": "A fumigant banned in EU food production and classified as mutagenic, carcinogenic and reprotoxic, with no safe level established. Its detection in imported sesame and locust bean gum triggered the largest food recall operation in EU history from 2020.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "2-chloroethanol",
+      "description_en": "The reaction product of ethylene oxide with chloride, measured together with it under the same EU residue limit. Its own genotoxicity is debated, but its presence indicates treatment with a banned carcinogenic fumigant.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "dioxines",
+      "description_en": "Persistent industrial by-products that accumulate in animal fat and reach us mainly through meat, dairy and fish. TCDD is an IARC Group 1 human carcinogen, and EFSA cut the tolerable weekly intake sevenfold in 2018.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "pcb",
+      "description_en": "Polychlorinated biphenyls, banned industrial oils that persist for decades in the environment and concentrate in fatty fish. IARC classifies them Group 1 human carcinogens, and they are also linked to hormonal and developmental effects.",
+      "badge": "Carcinogenic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "chlorpyrifos",
+      "description_en": "An organophosphate insecticide banned across the EU since 2020. EFSA could not establish a safe exposure level, citing genotoxicity concerns and evidence of harm to brain development in children.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "atrazine",
+      "description_en": "A herbicide banned in the EU since 2004 but still detected in groundwater decades later. It is widely regarded as an endocrine disruptor affecting hormonal and reproductive function, and remains in use in North America.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "paraquat",
+      "description_en": "A herbicide banned in the EU since 2007 because of its extreme acute toxicity — a small ingested dose can be fatal with no antidote. Epidemiological studies also associate exposure with a raised risk of Parkinson's disease.",
+      "badge": "Ultra toxic",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "irradiation",
+      "description_en": "Treatment with ionising radiation to kill microbes and extend shelf life. It leaves no radioactivity and is authorised in the EU for a narrow list of foods, which must carry an \"irradiated\" label; it does degrade some vitamins.",
+      "badge": "Occasional",
+      "lot": "10-contaminants"
+    },
+    {
+      "name": "salt",
+      "description_en": "Sodium chloride, essential for fluid balance and nerve function but present in excess in most processed food. High sodium intake raises blood pressure, and the WHO recommends staying under 5 g of salt a day.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "onion",
+      "description_en": "A whole vegetable rich in quercetin and prebiotic fibre that feeds beneficial gut bacteria. It adds depth of flavour without salt or sugar, whether fresh or dehydrated.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "garlic",
+      "description_en": "A whole food valued for allicin, its sulphur compound with antibacterial and cardiovascular activity. Crushing it and letting it rest a few minutes before cooking preserves more of that compound.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "spices",
+      "description_en": "Culinary herbs and spices such as basil, oregano and thyme. They are among the most antioxidant-dense foods by weight and replace salt as a source of flavour.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "sorbitol",
+      "description_en": "A polyol sweetener (E420) that is only partly absorbed, so it raises blood sugar less than sugar. EU law requires a laxative warning above 10%, as it commonly causes bloating and diarrhoea.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "mannitol",
+      "description_en": "A polyol sweetener and anti-caking agent (E421) with roughly half the calories of sugar. Like all polyols it is poorly absorbed and carries a mandatory laxative warning above 10%.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "isomalt",
+      "description_en": "A polyol (E953) made from sucrose, common in sugar-free sweets. It does not feed tooth decay and has a low glycemic impact, but it causes digestive upset in larger amounts.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "maltitol",
+      "description_en": "A polyol (E965) widely used in sugar-free chocolate. It still raises blood sugar noticeably — more than other polyols — and is one of the most likely to cause bloating and laxative effects.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "lactitol",
+      "description_en": "A polyol (E966) derived from lactose, poorly absorbed and used in sugar-free products. It reaches the colon largely intact, which is why it carries a laxative warning above 10%.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "acide phosphorique",
+      "description_en": "An acidity regulator (E338) that gives colas their sharp bite. EFSA set a combined phosphate limit of 40 mg/kg in 2019 and warned that some groups already exceed it; high phosphate intake concerns kidney and bone health.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters acetiques",
+      "description_en": "Acetic acid esters of mono- and diglycerides (E472a), an emulsifier used to stabilise fats in industrial baking and desserts. EFSA raised no safety concern, but it is a purely technical ingredient.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters lactiques",
+      "description_en": "Lactic acid esters of mono- and diglycerides (E472b), used to aerate whipped and baked products. Considered safe by EFSA, it is a chemically modified fat with no nutritional role.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters citriques",
+      "description_en": "Citric acid esters of mono- and diglycerides (E472c), used to emulsify and prevent oxidation. EFSA found no safety concern, though it marks an industrially assembled recipe.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "datem",
+      "description_en": "DATEM (E472e), a dough strengthener in industrial bread. EFSA found no safety concern in 2020, but laboratory work links it to gut microbiome disruption and a large French cohort tied higher intake to slightly raised type 2 diabetes risk.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters de sucrose",
+      "description_en": "Sucrose esters of fatty acids (E473), synthetic emulsifiers built from sugar and fat. They are authorised at limited levels but belong to the emulsifier family under study for effects on the gut lining.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "esters polyglyceriques",
+      "description_en": "Polyglycerol esters of fatty acids (E475), used to emulsify cakes, ice cream and spreads. Permitted at capped levels, and a clear marker of ultra-processed formulation.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "stearoyl lactylate de sodium",
+      "description_en": "Sodium stearoyl lactylate (E481), a dough conditioner that improves volume and shelf life in industrial bread. It is authorised at limited levels but never needed in traditionally made bread.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "sels d acides gras",
+      "description_en": "Fatty acid salts (E470), used as anti-caking and glazing agents rather than as a food fat. They are refined industrial derivatives typical of processed formulations.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "acide sorbique",
+      "description_en": "A mould inhibitor (E200) and one of the gentler preservatives, occurring naturally in rowan berries. It is well tolerated, though it can cause mild skin or digestive reactions in sensitive people.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "acide propionique",
+      "description_en": "A mould inhibitor (E280) used mainly in industrial bread. It occurs naturally in some cheeses and is considered safe by EFSA, but its presence signals bread built for long shelf life.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "propionate de sodium",
+      "description_en": "A bread preservative (E281) that blocks mould and rope spoilage. EFSA considers it safe at permitted levels; it marks industrial rather than fresh-baked bread.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "propionate de potassium",
+      "description_en": "A mould inhibitor (E283) used in packaged bread and baked goods. Considered safe by EFSA, though it is only needed when bread must last far beyond its natural life.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "ethylparaben",
+      "description_en": "A preservative (E214/E215) permitted in a narrow range of EU foods. Parabens have weak oestrogen-like activity in laboratory studies; the ethyl form is among the least potent of the family.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "methylparaben",
+      "description_en": "A preservative (E218/E219) still permitted in limited EU food uses and widely used in cosmetics. It is the least potent paraben, though the family as a whole is under scrutiny for endocrine activity.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "natamycine",
+      "description_en": "An antifungal (E235) applied to the surface of cheese and cured sausage. It is not absorbed through the gut wall, but it is an antibiotic-class compound, raising questions about resistance.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "nisine",
+      "description_en": "A natural antibacterial peptide (E234) produced by lactic bacteria, used in cheese and canned foods. It is digested like any protein and is one of the most benign preservatives available.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "glutamate monopotassique",
+      "description_en": "A flavour enhancer (E622) from the glutamate family, used like MSG to build savoury taste with less real ingredient. It is a reliable marker of ultra-processed food.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "diglutamate de calcium",
+      "description_en": "A flavour enhancer (E623) used as a lower-sodium alternative to MSG. Considered safe at food levels, but it signals a product engineered on additives rather than ingredients.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "glutamate monoammonique",
+      "description_en": "A glutamate flavour enhancer (E624) that intensifies umami in industrial seasonings. It performs the same role as MSG under a different name.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "diglutamate de magnesium",
+      "description_en": "A flavour enhancer (E625) from the glutamate family, used to boost savoury taste in processed foods. Safe at normal intake, but characteristic of heavily seasoned industrial products.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "curcumine",
+      "description_en": "The yellow pigment of turmeric (E100), used as a natural colour. It carries genuine anti-inflammatory activity, though the amounts used for colouring are far below any therapeutic dose.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "riboflavine",
+      "description_en": "Vitamin B2 (E101), used as a yellow colouring. It is an essential nutrient with a genuine nutritional role, and one of the most benign colourings in use.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "carotenes",
+      "description_en": "Orange plant pigments (E160a) that the body converts to vitamin A. They are naturally present in carrots and other vegetables, and act as antioxidants as well as colours.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "extrait de paprika",
+      "description_en": "A red-orange colouring (E160c) extracted from peppers, carrying capsanthin and carotenoids. It is a plant-derived colour with antioxidant activity.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "lycopene",
+      "description_en": "The red pigment of tomatoes (E160d), one of the most studied dietary antioxidants. Used as a colouring, it retains its antioxidant properties.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "luteine",
+      "description_en": "A yellow carotenoid (E161b) from marigold and leafy greens. It concentrates in the retina and is associated with eye health, making it a colouring with real nutritional value.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "rouge de betterave",
+      "description_en": "Betanin (E162), the natural red pigment of beetroot. It is a plant extract with antioxidant activity, though it fades with heat and light, which limits its industrial use.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "oxydes de fer",
+      "description_en": "Mineral pigments (E172) used to colour coatings, sweets and cosmetics. They pass through the body largely unabsorbed and EFSA considers them safe, but they add no nutritional value.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "gallates",
+      "description_en": "Propyl, octyl and dodecyl gallate (E310–E312), synthetic antioxidants that stop fats going rancid. They are permitted at low levels but can trigger contact allergy and are restricted in foods for infants.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "cire d abeille",
+      "description_en": "Beeswax (E901), a natural glazing agent used to coat sweets and fruit. It is not absorbed by the body and is one of the simplest coatings available.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "shellac",
+      "description_en": "A resin (E904) secreted by the lac insect, used to glaze sweets, coffee beans and tablets. It is not absorbed, but it is of insect origin and therefore not vegetarian.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "azote",
+      "description_en": "Nitrogen gas (E941) used to displace oxygen in packaging and keep food fresh without preservatives. It is inert, makes up most of the air we breathe, and leaves no residue.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "dioxyde de carbone",
+      "description_en": "Carbon dioxide (E290), used to carbonate drinks and to protect packaged food from oxidation. It is inert at food levels and leaves nothing behind.",
+      "badge": "Approved",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "cellulose",
+      "description_en": "Plant cellulose (E460), used as an anti-caking agent and bulking fibre. It is not digested and behaves as insoluble fibre, but in processed food it usually replaces real ingredients.",
+      "badge": "Occasional",
+      "lot": "10-orphans-additives"
+    },
+    {
+      "name": "l-cysteine",
+      "description_en": "An amino acid (E920) used as a dough conditioner to speed up industrial bread making. Modern production is by bacterial fermentation, though it was historically extracted from feathers and hair.",
+      "badge": "Processed",
+      "lot": "10-orphans-additives"
     }
   ]
 }

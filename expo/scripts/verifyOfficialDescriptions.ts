@@ -2,7 +2,7 @@
  * Vérification finale de l'intégration des descriptions officielles.
  * Usage : bun run scripts/verifyOfficialDescriptions.ts   (cwd = expo/)
  *
- * 1. Chaque description source (394) doit être retrouvable par son nom (clé normalisée)
+ * 1. Chaque description source doit être retrouvable par son nom (clé normalisée)
  *    et servir EXACTEMENT le texte officiel.
  * 2. Les reclassements de badges doivent être appliqués dans les bases.
  * 3. Contrôles d'alias (E-codes, synonymes) sur des cas clés.
@@ -39,7 +39,7 @@ function getOfficial(nameOrCode: string): string | undefined {
 }
 
 // ── 1. Toutes les descriptions sources sont servies ────────────
-console.log('\n[1] Couverture des 394 descriptions officielles');
+console.log('\n[1] Couverture des descriptions officielles');
 const source = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'scripts', 'officialDescriptionsSource.json'), 'utf-8'),
 ) as { descriptions: { name: string; description_en: string; badge: string }[] };
@@ -104,7 +104,13 @@ check("'vitamine b3' (alias) → même texte que 'niacinamide'", getOfficial('vi
 
 // ── 4. Intégrité du fichier généré ─────────────────────────────
 console.log('\n[4] Intégrité du fichier généré');
-check('394 textes uniques', OFFICIAL_DESCRIPTION_TEXTS.length === 394, String(OFFICIAL_DESCRIPTION_TEXTS.length));
+check(
+  `${OFFICIAL_DESCRIPTION_TEXTS.length} textes uniques (= nombre de descriptions sources)`,
+  OFFICIAL_DESCRIPTION_TEXTS.length === source.descriptions.length,
+  `${OFFICIAL_DESCRIPTION_TEXTS.length} vs ${source.descriptions.length}`,
+);
+const uniqueTexts = new Set(OFFICIAL_DESCRIPTION_TEXTS);
+check('aucun texte dupliqué', uniqueTexts.size === OFFICIAL_DESCRIPTION_TEXTS.length, String(uniqueTexts.size));
 const badIdx = Object.values(OFFICIAL_DESCRIPTION_KEYS).filter((i) => i < 0 || i >= OFFICIAL_DESCRIPTION_TEXTS.length);
 check('tous les index de clés valides', badIdx.length === 0);
 const emptyTexts = OFFICIAL_DESCRIPTION_TEXTS.filter((t) => !t || t.trim().length < 40);
