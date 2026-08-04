@@ -2,8 +2,8 @@
 // DESCRIPTIONS OFFICIELLES — AUTO-GÉNÉRÉ par scripts/generateOfficialDescriptions.ts
 // NE PAS ÉDITER À LA MAIN. Source : scripts/officialDescriptionsSource.json.
 //
-// Textes anglais de référence, validés et sourcés (1065 descriptions,
-// 3131 clés de lookup). L'affichage FR/KO passe par la traduction
+// Textes anglais de référence, validés et sourcés (1066 descriptions,
+// 3148 clés de lookup). L'affichage FR/KO passe par la traduction
 // automatique mise en cache (utils/officialDescriptions.ts). Quand une description
 // officielle existe, elle remplace TOUTE génération IA pour cet ingrédient.
 // ═══════════════════════════════════════════════════════════════════════
@@ -889,7 +889,7 @@ export const OFFICIAL_DESCRIPTION_TEXTS: readonly string[] = [
   "Thai rice offers carbohydrates and minerals that supply energy and support bodily functions.",
   "Romesco benefits the body by offering antioxidants and healthy fats from nuts and roasted peppers.",
   "Erythrosine (E127), a petroleum-based cherry-red dye. The FDA revoked its authorisation in food and ingested drugs in January 2025 after it caused cancer in male rats, with reformulation required by 2027.",
-  "Allura Red (E129), a petroleum-derived synthetic dye. EU law requires a warning label stating it may affect children's activity and attention, and the FDA is phasing it out of the US food supply.",
+  "Allura Red (E129), a water-soluble petroleum-derived synthetic dye. EU law requires a warning that it may affect children's activity and attention, and the FDA is phasing it out of the US food supply.",
   "Red azo is an azo coloring linked to hyperactivity in children and banned in several countries.",
   "Beetroot pigment betanin offers antioxidant activity that helps protect cells from damage.",
   "One of the oldest artificial sweeteners (E954). Once suspected of causing bladder cancer in rats, it was later cleared for humans and delisted as a carcinogen, but remains a purely synthetic additive.",
@@ -1075,6 +1075,7 @@ export const OFFICIAL_DESCRIPTION_TEXTS: readonly string[] = [
   "무설탕 초콜릿 supports heart health with antioxidants, magnesium, and fiber from pure cocoa mass.",
   "쌈장 is a Korean condiment blending doenjang and gochujang with a naturally fermented base.",
   "Cheonggukjang is rich in probiotics that support gut health and digestion.",
+  "The insoluble “lake” form of Allura Red (E129), bonded to aluminium so the colour does not dissolve — used in coatings, candies and tablets. It carries the same concerns as Red 40, plus it adds to aluminium intake.",
 ];
 
 /** Normalized ingredient name/alias/E-code → index into OFFICIAL_DESCRIPTION_TEXTS. */
@@ -1171,6 +1172,8 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "all purpose flour": 425,
   "allulose": 48,
   "allura red": 879,
+  "allura red aluminum lake": 1065,
+  "allura red lake": 1065,
   "almond": 57,
   "almond butter": 128,
   "almond milk": 613,
@@ -1758,6 +1761,10 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "combava": 253,
   "concentre de fruits": 254,
   "concentre de legumes": 254,
+  "confectioner s glaze": 912,
+  "confectioners glaze": 912,
+  "confectionery glaze": 912,
+  "confectionners glaze": 912,
   "conservateurs benzoate sorbate": 943,
   "cooked ham": 575,
   "copolymere methacrylate basique": 112,
@@ -1922,6 +1929,7 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "e124": 810,
   "e127": 878,
   "e129": 879,
+  "e129 lake": 1065,
   "e131": 307,
   "e132": 144,
   "e133": 143,
@@ -2300,6 +2308,8 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "fd c couleur rouge 40": 879,
   "fd c red 3": 878,
   "fd c red 40": 879,
+  "fd c red 40 aluminum lake": 1065,
+  "fd c red 40 lake": 1065,
   "fd c red no 3": 878,
   "fd c yellow 5": 1011,
   "fd c yellow 6": 577,
@@ -2429,6 +2439,7 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "ginseng panax ginseng": 419,
   "ginseng rouge": 419,
   "girolle": 208,
+  "glacage de confiseur": 912,
   "gluconate de calcium": 169,
   "gluconate de fer": 443,
   "gluconate de potassium": 375,
@@ -2750,6 +2761,7 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "l theanine": 601,
   "l 글루타민산나트륨": 686,
   "labneh": 602,
+  "lac resin": 912,
   "lactate de calcium": 603,
   "lactate de fer": 444,
   "lactate de potassium": 604,
@@ -2787,6 +2799,7 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "lanolin": 616,
   "lanoline": 616,
   "lapin": 684,
+  "laque de rouge allura": 1065,
   "lardon": 104,
   "lardons": 104,
   "lassi": 617,
@@ -3558,6 +3571,9 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "rebm de canne fermentee": 861,
   "red 3": 878,
   "red 40": 879,
+  "red 40 aluminium lake": 1065,
+  "red 40 aluminum lake": 1065,
+  "red 40 lake": 1065,
   "red cabbage": 228,
   "red ginseng": 419,
   "red lentils": 759,
@@ -3574,6 +3590,7 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "reine claude": 864,
   "reishi": 255,
   "requin": 134,
+  "resinous glaze": 912,
   "resorcinol": 865,
   "rhubarb": 866,
   "rhubarbe": 866,
@@ -3619,6 +3636,7 @@ export const OFFICIAL_DESCRIPTION_KEYS: Readonly<Record<string, number>> = {
   "roti de boeuf": 146,
   "rouge 3": 878,
   "rouge 40": 879,
+  "rouge 40 laque": 1065,
   "rouge allura": 879,
   "rouge azo": 880,
   "rouge cochenille a": 810,

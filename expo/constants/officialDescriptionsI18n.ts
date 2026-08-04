@@ -4,7 +4,7 @@
 //
 // Traductions FR/KO des textes anglais de référence, alignées par INDEX sur
 // OFFICIAL_DESCRIPTION_TEXTS (constants/officialDescriptions.ts).
-// FR : 1065/1065 — KO : 1065/1065.
+// FR : 1066/1066 — KO : 1066/1066.
 // Une chaîne vide signifie « pas de traduction figée » → repli anglais.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -191,6 +191,7 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "La cannelle aide à réguler la glycémie, la cannelle de Ceylan étant préférée pour un usage régulier.",
   "Le fromage Cantal fournit du calcium et des protéines, contribuant à la solidité des os et à l'entretien musculaire.",
   "Un colorant caroténoïde orange-rouge avec une faible dose journalière admissible. Une exposition excessive peut entraîner l'accumulation de cristaux de canthaxanthine dans la rétine. Santé : Une forte consommation peut provoquer des dépôts rétiniens et des modifications visuelles. C'est un véritable risque sanitaire lié à la dose, ce qui explique la restriction stricte de son usage.",
+  "Petits fruits acidulés consommés frais - physalis, tamarillo et feijoa. Ils sont pauvres en sucre et fournissent de la vitamine C, des fibres et des caroténoïdes.",
   "La capsanthine est un colorant rouge-orange concentré extrait du paprika et standardisé pour la force du pigment. Le contrôle qualité est important pour les résidus de solvants et la pureté ; de rares réactions allergiques peuvent survenir chez les personnes sensibles.",
   "La capsorubine est un colorant rouge-orange concentré extrait du paprika et standardisé pour la force du pigment. Le contrôle qualité est important pour les résidus de solvants et la pureté ; de rares réactions allergiques peuvent survenir chez les personnes sensibles.",
   "Le caramel ammoniacal est un colorant caramel ultra-transformé fabriqué avec de l'ammoniaque, contenant du 4-MEI, un possible cancérogène (groupe 2B du CIRC).",
@@ -262,6 +263,7 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Le collagène hydrate et adoucit la surface de la peau sans pénétrer, aidant à maintenir l'hydratation cutanée.",
   "Le colorant caramel est un colorant caramel industriel souvent produit chimiquement, pouvant contenir du 4-MEI cancérogène (groupe 2B du CIRC).",
   "Des colorants azoïques textiles qui peuvent se décomposer sur la peau en benzidine et amines aromatiques apparentées, cancérogènes humains du groupe 1 selon le CIRC. Interdits dans l'UE dans les textiles destinés à un contact prolongé avec la peau.",
+  "Feuilles et rhizomes aromatiques utilisés frais dans la cuisine d'Asie du Sud-Est - feuille de combava, citronnelle, galanga, curcuma frais, racine de gingembre et feuille de curry. Ce sont des parties entières de la plante, utilisées en petites quantités, et qui contiennent les huiles essentielles et antioxydants de la plante fraîche.",
   "Jus de fruit ou de légume réduit par ébullition pour concentrer ses sucres. Les fabricants l'utilisent pour sucrer les produits tout en gardant une étiquette à consonance naturelle ; la fibre est absente et le sucre agit comme un sucre ajouté.",
   "Champignons médicinaux vendus en poudre sèche ou en extrait concentré. Ils fournissent des bêta-glucanes et sont bien tolérés comme aliment. En complément, le reishi a été associé à de rares cas de lésions hépatiques - la base de données NIH LiverTox décrit ces lésions cliniquement apparentes comme extrêmement rares, et les cas rapportés concernent principalement la forme en poudre non extraite, la consommation d’alcool ou une maladie hépatique préexistante. Il peut aussi interagir avec les anticoagulants. Le traiter comme un complément avec ses propres précautions, pas comme un champignon ordinaire.",
   "Les antioxydants concentrés et les huiles essentielles dans les herbes fraîches soutiennent la santé globale sans ajout de sel ni de sucre.",
@@ -454,7 +456,6 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Un sel de fer utilisé pour foncer les olives et fournir du fer. Il peut augmenter significativement l'exposition au fer dans les produits concentrés. Santé : Un excès de fer peut provoquer nausées, constipation, douleurs abdominales et lésions oxydatives. Il est particulièrement dangereux en cas de fortes doses accidentelles chez les enfants.",
   "Un sel de fer utilisé principalement pour stabiliser la couleur foncée des olives et d'autres aliments. Santé : Un excès de fer peut causer des symptômes digestifs et est inadapté aux personnes souffrant de troubles de surcharge en fer.",
   "Les protéines et le calcium de la feta soutiennent la fonction musculaire et la solidité des os.",
-  "Feuilles et rhizomes aromatiques utilisés frais dans la cuisine d'Asie du Sud-Est - feuille de combava, citronnelle, galanga, curcuma frais, racine de gingembre et feuille de curry. Ce sont des parties entières de la plante, utilisées en petites quantités, et qui contiennent les huiles essentielles et antioxydants de la plante fraîche.",
   "Les feuilles de stévia fournissent un édulcorant naturel sans calories qui peut aider à réduire la consommation de sucre.",
   "La fibre de racine de manioc nourrit les bactéries intestinales bénéfiques et soutient la santé digestive.",
   "Les figues séchées fournissent des fibres et des minéraux qui favorisent la digestion et la santé cardiaque.",
@@ -478,6 +479,7 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Le galanga soutient la digestion et possède des propriétés anti-inflammatoires.",
   "Le gallate de propyle, d'octyle et de dodécyle (E310–E312), des antioxydants synthétiques qui empêchent le rancissement des graisses. Ils sont autorisés à faible dose mais peuvent déclencher des allergies de contact et sont limités dans les aliments pour nourrissons.",
   "La vitamine E sous forme de gamma-tocophérol agit comme un antioxydant protégeant les cellules des dommages.",
+  "La sauce soja traditionnellement brassée est fermentée pendant des mois et possède la profondeur qui en découle. Deux points sont à vérifier sur l'étiquette : elle est extrêmement salée, donc quelques cuillères à soupe couvrent une grande partie de la limite quotidienne en sodium ; et les versions moins chères sont fabriquées par hydrolyse acide plutôt que par brassage, un procédé qui peut générer du 3-MCPD, dont l'UE limite la teneur par la loi.",
   "Le garam masala profite au corps en fournissant des antioxydants naturels et des nutriments essentiels provenant d'herbes et d'épices séchées.",
   "L'ail contient de l'allicine, qui soutient la santé cardiaque et possède des propriétés antibactériennes.",
   "Le germe de blé est l'embryon du grain de blé, riche en vitamine E, magnésium, zinc et vitamines B.",
@@ -792,7 +794,6 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Le plastifiant le plus utilisé dans le PVC souple. Il est classé toxique pour la reproduction dans l'UE, interdit dans les cosmétiques et les jouets, et restreint dans les plastiques en contact avec les aliments et les dispositifs médicaux.",
   "Le phtalate de diéthyle, le phtalate le plus utilisé pour fixer les parfums. Il est considéré comme moins toxique que le DEHP ou le DBP et est encore autorisé dans l'UE, mais il est absorbé par la peau et détecté chez la plupart des personnes.",
   "Les phtalates cachés sous le terme générique « fragrance », où ils prolongent la tenue du parfum. Comme l'étiquette ne révèle rien, le consommateur ne peut pas savoir quel phtalate est présent ni à quel niveau.",
-  "Petits fruits acidulés consommés frais - physalis, tamarillo et feijoa. Ils sont pauvres en sucre et fournissent de la vitamine C, des fibres et des caroténoïdes.",
   "Le pickle naturel est un aliment fermenté probiotique traditionnel qui soutient la santé digestive.",
   "Les pignons de pin offrent des acides gras essentiels et des vitamines qui contribuent à la production d'énergie et au fonctionnement du système immunitaire.",
   "Les piments contiennent de la capsaïcine, qui possède des effets anti-inflammatoires et antioxydants à des doses culinaires.",
@@ -888,7 +889,7 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Le riz thaï offre des glucides et des minéraux qui fournissent de l'énergie et soutiennent les fonctions corporelles.",
   "Le romesco bénéficie au corps en offrant des antioxydants et des graisses saines provenant des noix et des poivrons rôtis.",
   "Érythrosine (E127), un colorant rouge cerise dérivé du pétrole. La FDA a révoqué son autorisation dans les aliments et médicaments ingérés en janvier 2025 après qu'il ait provoqué un cancer chez des rats mâles, avec une reformulation requise d'ici 2027.",
-  "Allura Red (E129), un colorant synthétique dérivé du pétrole. La loi européenne exige un avertissement indiquant qu'il peut affecter l'activité et l'attention des enfants, et la FDA le supprime progressivement de l'approvisionnement alimentaire américain.",
+  "Allura Red (E129), un colorant synthétique hydrosoluble dérivé du pétrole. La législation européenne exige un avertissement indiquant qu'il peut affecter l'activité et l'attention des enfants, et la FDA le supprime progressivement de l'approvisionnement alimentaire aux États-Unis.",
   "Le rouge azoïque est un colorant azoïque lié à l'hyperactivité chez les enfants et interdit dans plusieurs pays.",
   "Le pigment de betterave, la bétanine, offre une activité antioxydante qui aide à protéger les cellules des dommages.",
   "Un des plus anciens édulcorants artificiels (E954). Soupçonné autrefois de provoquer un cancer de la vessie chez les rats, il a ensuite été autorisé pour les humains et retiré de la liste des cancérogènes, mais reste un additif purement synthétique.",
@@ -904,7 +905,6 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Le sarrasin fournit de la rutine, du magnésium et des protéines végétales complètes pour la stabilité de la glycémie et la santé cardiaque.",
   "Un condiment sucré et épais principalement composé de sucre et de pâte de soja fermentée, généralement accompagné d’amidon modifié, de colorant caramel et d’exhausteurs de goût. La sauce d’huître est formulée de la même manière. Ce sont des sauces industrielles plutôt que des ferments traditionnels - riches à la fois en sucre et en sodium.",
   "Anchois salés et fermentés pendant des mois, base de la cuisine d’Asie du Sud-Est. C’est un véritable ferment traditionnel riche en acides aminés libres, et c’est aussi l’un des condiments les plus salés de toute cuisine - une cuillère à café contient autant de sodium qu’une portion de chips.",
-  "La sauce soja traditionnellement brassée est fermentée pendant des mois et possède la profondeur qui en découle. Deux points sont à vérifier sur l'étiquette : elle est extrêmement salée, donc quelques cuillères à soupe couvrent une grande partie de la limite quotidienne en sodium ; et les versions moins chères sont fabriquées par hydrolyse acide plutôt que par brassage, un procédé qui peut générer du 3-MCPD, dont l'UE limite la teneur par la loi.",
   "Les saucisses, y compris les hot dogs et merguez, sont des viandes transformées classées cancérogènes pour l'homme groupe 1 par le CIRC (2015). Une consommation régulière augmente le risque de cancer colorectal ; elles sont aussi riches en sel et en graisses saturées.",
   "Une saucisse sèche affinée, conservée au sel et aux nitrites. Elle fait partie des viandes transformées, cancérogènes pour l'homme groupe 1 selon le CIRC, avec une consommation régulière liée au cancer colorectal.",
   "Le saumon d'élevage est intensivement élevé avec une alimentation industrielle, des antibiotiques, des colorants synthétiques et des contaminants possibles comme les PCB et les dioxines. La consommation doit être occasionnelle en raison de ces contaminants et additifs potentiels.",
@@ -940,9 +940,9 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Sirop de maïs à haute teneur en fructose, un édulcorant industriel bon marché. Sa charge en fructose est presque entièrement métabolisée par le foie et est liée à la stéatose hépatique non alcoolique et au syndrome métabolique.",
   "Le sirop de maïs est un sirop industriel fabriqué à partir de maïs souvent OGM, lié à l'obésité, à la stéatose hépatique et au syndrome métabolique.",
   "Le sirop de maïs à haute teneur en fructose est un édulcorant industriel extrait du maïs, souvent OGM. Il est fortement lié à l'obésité, au diabète de type 2, à la stéatose hépatique non alcoolique et au syndrome métabolique, il doit donc être évité.",
+  "Sirop issu de la racine de yacon, particulier en ce que la majeure partie de sa douceur provient de fructo-oligosaccharides non absorbés par l'organisme, qui nourrissent donc les bactéries intestinales au lieu d'augmenter la glycémie. De grandes quantités provoquent des ballonnements pour cette même raison.",
   "Un sirop de polyol (E964) obtenu par hydrogénation de l'amidon, utilisé comme édulcorant de charge dans les produits sans sucre. Comme tous les polyols, il est peu absorbé et comporte un avertissement laxatif obligatoire au-delà de 10 %.",
   "Sirop de riz, souvent vendu comme un édulcorant plus sain. Il est presque pur glucose avec un indice glycémique très élevé, et les produits à base de riz peuvent contenir des résidus d'arsenic inorganique.",
-  "Sirop issu de la racine de yacon, particulier en ce que la majeure partie de sa douceur provient de fructo-oligosaccharides non absorbés par l'organisme, qui nourrissent donc les bactéries intestinales au lieu d'augmenter la glycémie. De grandes quantités provoquent des ballonnements pour cette même raison.",
   "Le skyr est un produit laitier riche en protéines qui favorise la santé musculaire et la digestion.",
   "Le SLES est un tensioactif cosmétique utilisé pour nettoyer et faire mousser. Il peut provoquer des irritations cutanées et oculaires et peut être contaminé par du 1,4-dioxane cancérogène, il faut donc éviter un contact prolongé.",
   "Le SLES (Sodium Laureth Sulfate) est un tensioactif cosmétique possiblement contaminé par du 1,4-dioxane cancérogène. Il peut irriter la peau et les yeux, il faut donc éviter un contact prolongé.",
@@ -1075,6 +1075,7 @@ export const OFFICIAL_DESCRIPTIONS_FR: readonly string[] = [
   "Le chocolat au sucre de canne soutient la santé cardiaque grâce aux antioxydants, au magnésium et aux fibres provenant de la masse de cacao pure.",
   "Le 쌈장 est un condiment coréen mélangeant doenjang et gochujang avec une base fermentée naturellement.",
   "Le Cheonggukjang est riche en probiotiques qui soutiennent la santé intestinale et la digestion.",
+  "La forme insoluble « lake » de l'Allura Red (E129), liée à l'aluminium pour que la couleur ne se dissolve pas — utilisée dans les enrobages, bonbons et comprimés. Elle présente les mêmes préoccupations que le Red 40, en plus d'augmenter l'apport en aluminium.",
 ];
 
 /** KO translations, index-aligned with OFFICIAL_DESCRIPTION_TEXTS. */
@@ -1260,6 +1261,7 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "계피는 혈당 조절에 도움을 주며, 정기적으로 사용할 경우 세이론 계피가 권장됩니다.",
   "칸탈 치즈는 칼슘과 단백질을 공급하여 강한 뼈와 근육 유지에 기여합니다.",
   "낮은 허용 일일 섭취량을 가진 주황-적색 카로티노이드 색소입니다. 과도한 노출은 망막에 칸탁산틴 결정이 축적될 수 있습니다. 건강: 높은 섭취는 망막 침착 및 시각 변화를 일으킬 수 있습니다. 이는 실제 용량 관련 건강 우려이며 사용이 엄격히 제한되는 이유입니다.",
+  "작고 신맛이 나는 과일로 생으로 먹는 피살리스, 타마릴로, 페이조아입니다. 당분이 적고 비타민 C, 섬유질, 카로티노이드를 제공합니다.",
   "캅산틴은 파프리카에서 추출한 농축된 적주황색 색소로, 색소 강도에 맞춰 표준화되어 있습니다. 용매 잔류물과 순도에 대한 품질 관리가 중요하며, 민감한 사람에게는 드물게 알레르기 반응이 발생할 수 있습니다.",
   "캅소루빈은 파프리카에서 추출한 농축된 적주황색 색소로, 색소 강도에 맞춰 표준화되어 있습니다. 용매 잔류물과 순도에 대한 품질 관리가 중요하며, 민감한 사람에게는 드물게 알레르기 반응이 발생할 수 있습니다.",
   "암모니아 캐러멜은 암모니아로 제조된 초가공 캐러멜 착색제로 4-MEI를 함유하고 있으며, 이는 가능한 발암물질(IARC 그룹 2B)입니다.",
@@ -1331,6 +1333,7 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "콜라겐은 피부 표면을 촉촉하고 부드럽게 하며 침투하지 않아 피부 수분 유지에 도움을 줍니다.",
   "카라멜 색소는 화학적으로 생산되는 경우가 많은 산업용 캐러멜 착색제로, 발암 가능성 물질인 4-MEI(IARC 그룹 2B)를 포함할 수 있습니다.",
   "피부에서 벤지딘 및 관련 방향족 아민으로 분해될 수 있는 섬유용 아조 염료로, IARC 그룹 1 인간 발암물질입니다. EU에서는 장시간 피부 접촉용 섬유에 사용이 금지되어 있습니다.",
+  "동남아시아 요리에 신선하게 사용하는 향기로운 잎과 뿌리줄기입니다 - 카피르 라임 잎, 레몬그라스, 갈랑갈, 신선한 강황, 생강 뿌리, 커리 잎입니다. 이들은 전체 식물 부위로 소량 사용하며 신선한 식물의 에센셜 오일과 항산화제를 함유합니다.",
   "과일 또는 채소 주스를 끓여 당분을 농축한 것입니다. 제조업체는 자연스러운 라벨을 유지하면서 제품을 달게 하기 위해 사용하며, 섬유질은 제거되고 당분은 첨가당과 같이 작용합니다.",
   "건조 분말이나 농축 추출물로 판매되는 약용 버섯입니다. 베타글루칸을 공급하며 식품으로서 잘 견딥니다. 보충제로서 영지버섯은 드물게 간 손상 사례와 관련이 있는데, NIH LiverTox 데이터베이스는 임상적으로 명백한 손상이 매우 드물다고 설명하며, 보고된 사례 대부분은 추출되지 않은 분말 형태, 알코올 사용 또는 기존 간 질환과 관련이 있습니다. 또한 항응고제와 상호작용할 수 있습니다. 일반 버섯이 아닌 보충제로서 주의사항을 갖고 다루어야 합니다.",
   "신선한 허브의 농축된 항산화제와 에센셜 오일은 소금이나 설탕을 첨가하지 않고 전반적인 건강을 지원합니다.",
@@ -1523,7 +1526,6 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "올리브를 어둡게 하고 철분을 공급하기 위해 사용되는 철염입니다. 농축 제품에서 철분 노출을 크게 증가시킬 수 있습니다. 건강: 과도한 철분은 메스꺼움, 변비, 복통 및 산화 손상을 일으킬 수 있습니다. 특히 어린이에게 대량의 우발적 복용 시 위험합니다.",
   "주로 올리브 및 기타 식품의 어두운 색을 안정화하기 위해 사용되는 철염입니다. 건강: 과도한 철분은 소화기 증상을 유발할 수 있으며 철분 과다증 환자에게는 적합하지 않습니다.",
   "페타 치즈의 단백질과 칼슘은 근육 기능과 뼈 강도를 지원합니다.",
-  "동남아시아 요리에 신선하게 사용하는 향기로운 잎과 뿌리줄기입니다 - 카피르 라임 잎, 레몬그라스, 갈랑갈, 신선한 강황, 생강 뿌리, 커리 잎입니다. 이들은 전체 식물 부위로 소량 사용하며 신선한 식물의 에센셜 오일과 항산화제를 함유합니다.",
   "스테비아 잎은 천연 무칼로리 감미료를 제공하여 설탕 섭취를 줄이는 데 도움이 될 수 있습니다.",
   "카사바 뿌리 섬유는 유익한 장내 세균에 영양을 공급하고 소화 건강을 지원합니다.",
   "말린 무화과는 소화와 심장 건강을 지원하는 섬유질과 미네랄을 제공합니다.",
@@ -1547,6 +1549,7 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "갈랑갈은 소화를 돕고 항염 특성을 가지고 있습니다.",
   "프로필, 옥틸, 도데실 갈레이트(E310–E312)는 지방의 산패를 막는 합성 항산화제입니다. 낮은 농도에서 허용되지만 접촉성 알레르기를 유발할 수 있고 유아용 식품에는 제한됩니다.",
   "감마-토코페롤 형태의 비타민 E는 세포 손상으로부터 보호하는 항산화제로 작용합니다.",
+  "전통적으로 양조된 간장은 몇 달 동안 발효되어 그에 따른 깊은 맛을 지닙니다. 라벨에서 확인할 두 가지는 다음과 같습니다: 매우 짜므로 몇 큰술만으로도 일일 나트륨 권장량의 상당 부분을 차지하며; 저렴한 제품은 양조가 아닌 산 가수분해로 만들어지는데, 이 과정에서 EU가 법으로 제한하는 3-MCPD가 생성될 수 있습니다.",
   "가람 마살라는 건조 허브와 향신료에서 나오는 천연 항산화제와 필수 영양소를 제공하여 신체에 이롭습니다.",
   "마늘에는 알리신이 함유되어 있어 심장 건강을 지원하고 항균 특성이 있습니다.",
   "밀 배아는 밀 알갱이의 배아로 비타민 E, 마그네슘, 아연 및 비타민 B가 풍부합니다.",
@@ -1861,7 +1864,6 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "연질 PVC에서 가장 널리 사용되는 가소제입니다. EU에서 생식 독성으로 분류되어 화장품과 장난감에서 금지되었으며, 식품 접촉 및 의료용 플라스틱에서는 제한되고 있습니다.",
   "향을 고정하는 데 가장 많이 사용되는 프탈레이트인 디에틸 프탈레이트입니다. DEHP나 DBP보다 독성이 덜한 것으로 간주되어 EU에서 여전히 허용되지만, 피부를 통해 흡수되며 대부분 사람들에게서 검출됩니다.",
   "\"향료\"라는 일반 용어 안에 숨겨진 프탈레이트로, 향이 더 오래 지속되도록 합니다. 라벨에 아무것도 표시되지 않아 소비자는 어떤 프탈레이트가 어느 정도 포함되어 있는지 알 수 없습니다.",
-  "작고 신맛이 나는 과일로 생으로 먹는 피살리스, 타마릴로, 페이조아입니다. 당분이 적고 비타민 C, 섬유질, 카로티노이드를 제공합니다.",
   "Pickle naturel은 소화 건강을 지원하는 전통적인 프로바이오틱 발효 식품입니다.",
   "잣은 에너지 생산과 면역 기능에 기여하는 필수 지방산과 비타민을 제공합니다.",
   "고추에는 요리용량에서 항염 및 항산화 효과가 있는 캡사이신이 포함되어 있습니다.",
@@ -1957,7 +1959,7 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "태국 쌀은 에너지를 공급하고 신체 기능을 지원하는 탄수화물과 미네랄을 제공합니다.",
   "로메스코는 견과류와 구운 고추에서 나오는 항산화제와 건강한 지방을 제공하여 신체에 이롭습니다.",
   "에리스로신(E127)은 석유 기반의 체리 레드 염료입니다. FDA는 2025년 1월에 수컷 쥐에서 암을 유발한 후 식품 및 경구 약물에서의 사용 승인을 철회했으며, 2027년까지 재조제가 요구됩니다.",
-  "알루라 레드(E129)는 석유 유래 합성 염료입니다. EU 법률은 어린이의 활동 및 주의력에 영향을 줄 수 있다는 경고 라벨 부착을 요구하며, FDA는 미국 식품 공급에서 단계적으로 퇴출하고 있습니다.",
+  "알루라 레드(E129)는 물에 녹는 석유 유래 합성 염료입니다. EU 법률은 이 성분이 어린이의 활동성과 주의력에 영향을 미칠 수 있다는 경고를 요구하며, FDA는 미국 식품 공급에서 이를 단계적으로 제거하고 있습니다.",
   "레드 아조는 어린이 과잉행동과 관련된 아조 염료로 여러 국가에서 금지되어 있습니다.",
   "비트루트 색소 베타닌은 세포 손상을 방지하는 항산화 작용을 제공합니다.",
   "가장 오래된 인공 감미료 중 하나인 E954입니다. 한때 쥐의 방광암 유발 의심을 받았으나 이후 인간에게는 안전하다고 판명되어 발암물질 목록에서 제외되었으나, 여전히 순수 합성 첨가물입니다.",
@@ -1973,7 +1975,6 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "메밀은 루틴, 마그네슘, 완전한 식물성 단백질을 공급하여 혈당 안정과 심장 건강에 도움을 줍니다.",
   "주로 설탕과 발효된 된장으로 만들어진 달고 진한 조미료로, 보통 변형 전분, 캐러멜 색소, 향미 증진제가 함께 포함됩니다. 굴 소스도 같은 방식으로 제조됩니다. 전통 발효 식품이 아닌 산업용 소스로, 설탕과 나트륨 함량이 높습니다.",
   "몇 달 동안 소금에 절이고 발효된 멸치로, 동남아시아 요리의 근간입니다. 자유 아미노산이 풍부한 진정한 전통 발효 식품이며, 모든 주방 조미료 중 가장 짠 것 중 하나입니다. 티스푼 한 스푼에 감자칩 한 봉지에 해당하는 나트륨이 들어 있습니다.",
-  "전통적으로 양조된 간장은 몇 달 동안 발효되어 그에 따른 깊은 맛을 지닙니다. 라벨에서 확인할 두 가지는 다음과 같습니다: 매우 짜므로 몇 큰술만으로도 일일 나트륨 권장량의 상당 부분을 차지하며; 저렴한 제품은 양조가 아닌 산 가수분해로 만들어지는데, 이 과정에서 EU가 법으로 제한하는 3-MCPD가 생성될 수 있습니다.",
   "핫도그와 메르게즈를 포함한 소시지는 IARC 그룹 1 인간 발암물질(2015)로 분류된 가공육입니다. 정기적인 섭취는 대장암 위험을 높이며, 또한 나트륨과 포화지방 함량이 높습니다.",
   "소금과 아질산염으로 보존된 건조 숙성 소시지입니다. 가공육에 속하며 IARC 그룹 1 인간 발암물질로, 정기적인 섭취는 대장암과 관련이 있습니다.",
   "양식 연어는 산업용 사료, 항생제, 합성 착색제 및 PCB와 다이옥신 같은 오염물질 가능성으로 집약적으로 사육됩니다. 이러한 잠재적 오염물질과 첨가물 때문에 섭취는 가끔 하는 것이 좋습니다.",
@@ -2009,9 +2010,9 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "고과당 옥수수 시럽은 저렴한 산업용 감미료입니다. 과당 함량은 거의 전적으로 간에서 처리되며 비알코올성 지방간 질환과 대사 증후군과 관련이 있습니다.",
   "옥수수 시럽은 주로 GMO 옥수수에서 만들어지는 산업용 시럽으로 비만, 지방간 질환 및 대사 증후군과 연관되어 있습니다.",
   "고과당 옥수수 시럽은 옥수수에서 추출한 산업용 감미료로, 종종 GMO입니다. 비만, 제2형 당뇨병, 비알코올성 지방간 질환 및 대사 증후군과 강하게 연관되어 있어 피해야 합니다.",
+  "야콘 뿌리에서 추출한 시럽으로, 대부분의 단맛이 체내에서 흡수되지 않는 프락토올리고당에서 나오기 때문에 혈당을 올리지 않고 장내 세균을 먹입니다. 다량 섭취 시 같은 이유로 복부 팽만감을 유발할 수 있습니다.",
   "전분을 수소화하여 만든 폴리올 시럽(E964)으로, 무설탕 제품에서 부피 감미료로 사용됩니다. 모든 폴리올과 마찬가지로 흡수가 잘 되지 않으며 10% 이상 섭취 시 반드시 완하제 경고가 붙습니다.",
   "쌀 시럽은 종종 더 건강한 감미료로 판매됩니다. 거의 순수한 포도당이며 혈당 지수가 매우 높고, 쌀 기반 제품에는 무기 비소 잔류물이 있을 수 있습니다.",
-  "야콘 뿌리에서 추출한 시럽으로, 대부분의 단맛이 체내에서 흡수되지 않는 프락토올리고당에서 나오기 때문에 혈당을 올리지 않고 장내 세균을 먹입니다. 다량 섭취 시 같은 이유로 복부 팽만감을 유발할 수 있습니다.",
   "스키르는 근육 건강과 소화를 지원하는 고단백 유제품입니다.",
   "SLES는 세정 및 거품 형성에 사용되는 화장품 계면활성제로, 피부와 눈 자극을 일으킬 수 있으며 발암성 1,4-디옥산으로 오염될 수 있어 장기간 접촉을 피해야 합니다.",
   "SLES(라우레스 황산나트륨)는 발암성 1,4-디옥산으로 오염될 가능성이 있는 화장품 계면활성제입니다. 피부와 눈을 자극할 수 있으므로 장기간 접촉을 피해야 합니다.",
@@ -2144,4 +2145,5 @@ export const OFFICIAL_DESCRIPTIONS_KO: readonly string[] = [
   "무설탕 초콜릿은 순수 코코아 매스에서 얻은 항산화제, 마그네슘, 섬유질로 심장 건강을 지원합니다.",
   "쌈장은 된장과 고추장을 자연 발효된 베이스로 혼합한 한국의 조미료입니다.",
   "청국장은 장 건강과 소화를 돕는 프로바이오틱스가 풍부합니다.",
+  "알루라 레드(E129)의 불용성 '호수(lake)' 형태로, 알루미늄과 결합하여 색상이 녹지 않으며 코팅, 사탕, 정제 등에 사용됩니다. 이 성분은 레드 40과 동일한 우려를 가지며, 알루미늄 섭취도 증가시킵니다.",
 ];
