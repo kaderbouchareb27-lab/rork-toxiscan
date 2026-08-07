@@ -254,6 +254,16 @@ export const COSMETICS_DATABASE: readonly CosmeticEntry[] = [
     noteEn: 'Antioxidant classified as a possible carcinogen (IARC Group 2B) and endocrine disruptor by the European Commission. Avoid.',
     noteKo: '유럽연합 집행위원회가 발암 가능 물질(IARC 2B군)이자 내분비교란 물질로 분류한 산화방지제입니다. 피하세요.',
   },
+  {
+    keywords: ['mineral oil', 'paraffinum liquidum', 'petrolatum', 'huile minérale', 'cera microcristallina', 'microcrystalline wax', 'paraffin'],
+    displayName: 'Huiles minérales (paraffine, vaseline)',
+    displayNameEn: 'Mineral oils (paraffin, petrolatum)',
+    displayNameKo: '광물성 오일(파라핀, 바셰린)',
+    tier: 'toxic',
+    note: 'Dérivés occlusifs du pétrole. Les fractions insuffisamment raffinées peuvent contenir des hydrocarbures aromatiques (MOAH), jugés préoccupants par l\'EFSA. Par précaution, classée dans la catégorie cosmétique la plus stricte.',
+    noteEn: 'Occlusive petroleum derivatives. Poorly refined fractions can contain aromatic hydrocarbons (MOAH), flagged as a concern by EFSA. Classified in the strictest cosmetic category as a precaution.',
+    noteKo: '폐색성 석유 유래 성분입니다. 정제가 덜 된 분획에는 EFSA가 우려하는 방향족 탄화수소(MOAH)가 포함될 수 있습니다. 예방 차원에서 가장 엄격한 화장품 등급으로 분류됩니다.',
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🟡 DISPUTED — controversial, divided science
@@ -307,16 +317,6 @@ export const COSMETICS_DATABASE: readonly CosmeticEntry[] = [
     note: 'Silicones occlusifs qui lissent en surface. Non toxiques mais peuvent étouffer la peau et le cheveu à long terme, et sont peu biodégradables.',
     noteEn: 'Occlusive silicones that smooth the surface. Not toxic but can suffocate skin and hair over time, and are poorly biodegradable.',
     noteKo: '표면을 매끄럽게 덮는 폐색성 실리콘입니다. 독성은 없지만 장기적으로 피부·모발을 답답하게 할 수 있고 잘 분해되지 않습니다.',
-  },
-  {
-    keywords: ['mineral oil', 'paraffinum liquidum', 'petrolatum', 'huile minérale', 'cera microcristallina', 'microcrystalline wax', 'paraffin'],
-    displayName: 'Huiles minérales (paraffine, vaseline)',
-    displayNameEn: 'Mineral oils (paraffin, petrolatum)',
-    displayNameKo: '광물성 오일(파라핀, 바셰린)',
-    tier: 'disputed',
-    note: 'Dérivés de pétrole occlusifs. Les huiles raffinées sont jugées sûres, mais les fractions mal raffinées (MOAH) sont préoccupantes selon l\'EFSA.',
-    noteEn: 'Occlusive petroleum derivatives. Refined oils are considered safe, but poorly refined fractions (MOAH) are a concern according to EFSA.',
-    noteKo: '폐색성 석유 유래 성분입니다. 정제된 오일은 안전하다고 보지만, 정제가 덜 된 분획(MOAH)은 EFSA가 우려하는 성분입니다.',
   },
   {
     keywords: ['cocamidopropyl betaine', 'cocamide mea', 'cocamidopropyl'],

@@ -63,9 +63,9 @@
       "iarc": "1",
       "origin": "contaminant"
     },
+    "_comment_paraffinum_liquidum": "Food-grade mineral oil is highly refined (IARC Group 3, not classifiable as carcinogenic); the concern is MOSH/MOAH accumulation, not cancer. Never Carcinogenic in food.",
     "paraffinum liquidum": {
-      "iarc": "1",
-      "origin": "additive"
+      "origin": "processed_ingredient"
     },
     "moah": {
       "iarc": "1",
