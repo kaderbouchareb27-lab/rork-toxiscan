@@ -372,7 +372,7 @@ export const ADDITIVES_DATABASE: AdditiveInfo[] = [
 
   // --- Gommes (généralement OK mais modération) ---
   { code: 'en:e415', name: 'Gomme xanthane', group: 'group2b', category: 'food', description: 'Épaississant industriel produit par fermentation bactérienne. Peut perturber la digestion (ballonnements, gaz) chez les personnes sensibles. Marqueur de produit transformé.' },
-  { code: 'en:e412', name: 'Gomme de guar', group: 'group2b', category: 'food', description: 'Gélifiant industriel pouvant causer ballonnements, gaz et inconforts digestifs en excès. Marqueur de produit transformé.' },
+  { code: 'en:e412', name: 'Gomme de guar', group: 'group2b', category: 'food', description: "Épaississant (E412) issu de la graine de guar, qui agit comme une fibre soluble. Bien toléré dans l'alimentation, mais à dose concentrée il gonfle rapidement et a causé des occlusions lorsqu'il est pris en supplément." },
   { code: 'en:e417', name: 'Gomme tara', group: 'group2b', category: 'food', description: 'Épaississant industriel peu étudié à long terme. Peut causer troubles digestifs. Présence dans un produit indique une transformation industrielle.' },
   { code: 'en:e418', name: 'Gomme gellane', group: 'group2b', category: 'food', description: 'Gélifiant industriel produit par fermentation bactérienne en bioréacteur. Effets digestifs à haute dose. Marqueur de produit ultra-transformé.' },
   { code: 'en:e425', name: 'Gomme konjac', group: 'group2b', category: 'food', description: 'Risque de blocage intestinal et étouffement chez les enfants.' },
