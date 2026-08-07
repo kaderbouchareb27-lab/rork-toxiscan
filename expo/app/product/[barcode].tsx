@@ -660,10 +660,11 @@ export default function ProductScreen() {
   // description is still pending, the verdict is only PROVISIONAL — surface a
   // spinning green ring on the verdict card until every ingredient is verified.
   const isAnalyzing = useMemo(() => {
+    if (product?.analysisPending === true) return true;
     return ingredientsList.some(
       (ing) => ing.descriptionPending === true && !(ing.explication && ing.explication.trim().length > 0),
     );
-  }, [ingredientsList]);
+  }, [ingredientsList, product?.analysisPending]);
 
   // Advice built from what was ACTUALLY found on this scanned label — names the
   // flagged substances (worst first) and turns them into concrete guidance.
@@ -905,6 +906,15 @@ export default function ProductScreen() {
           </View>
           {isGreen && <ConfettiBurst />}
         </View>
+
+        {/* The label was unreadable: the screen opened immediately rather than freezing on a
+            spinner, so say plainly that the verdict below is still being computed. */}
+        {product.analysisPending === true ? (
+          <View style={styles.analysingBanner} testID="analysis-pending-banner">
+            <ActivityIndicator size="small" color={Colors.primary} />
+            <Text style={styles.analysingBannerText}>{t('analysis_pending_banner')}</Text>
+          </View>
+        ) : null}
 
         {showFrontPhotoTip && (
           <View style={styles.frontPhotoTip}>
@@ -1325,6 +1335,8 @@ const styles = StyleSheet.create({
   materialText: { fontSize: 13, color: Colors.textSecondary, marginTop: 7, fontStyle: 'italic' as const },
   photoTag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: Colors.surfaceSecondary, borderRadius: 999 },
   photoTagText: { fontSize: 12, color: Colors.textSecondary, fontWeight: '700' as const },
+  analysingBanner: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, backgroundColor: '#F1F7EE', borderRadius: 12, padding: 14, marginBottom: 4, borderWidth: 1, borderColor: '#D8E8D2' },
+  analysingBannerText: { flex: 1, fontSize: 13, color: '#3F6B39', lineHeight: 18, fontWeight: '600' as const },
   frontPhotoTip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFF8ED', borderRadius: 12, padding: 14, marginBottom: 4, borderWidth: 1, borderColor: '#FFE4B5' },
   frontPhotoTipText: { flex: 1, fontSize: 13, color: '#8B6914', lineHeight: 18 },
   badgeContainer: { borderRadius: 28, padding: 22, marginTop: 16, marginBottom: 0, shadowOffset: { width: 0, height: 14 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 },

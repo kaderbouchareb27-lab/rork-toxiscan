@@ -62,6 +62,12 @@ const translations = {
   cat_clothing: { fr: 'Vêtements', en: 'Clothing', ko: '의류' },
   cat_utensils: { fr: 'Ustensiles', en: 'Utensils', ko: '주방용품' },
   analysis_in_progress: { fr: 'Analyse en cours', en: 'Analysis in progress', ko: '분석 중' },
+  analyzing_product: { fr: 'Analyse du produit…', en: 'Analysing the product…', ko: '제품을 분석하는 중…' },
+  analysis_pending_banner: {
+    fr: "L'étiquette était difficile à lire — Dr. Toxi termine l'analyse. Le verdict s'affiche ici dans un instant.",
+    en: 'The label was hard to read — Dr. Toxi is finishing the analysis. The verdict will appear here in a moment.',
+    ko: '라벨을 읽기 어려웠어요 — Dr. Toxi가 분석을 마무리하고 있어요. 잠시 후 판정이 표시됩니다.',
+  },
   drtoxi_examining: { fr: 'Dr. Toxi examine votre produit...', en: 'Dr. Toxi is examining your product...', ko: 'Dr. Toxi가 제품을 검사하고 있습니다...' },
   analysis_ai_badge: { fr: 'Analyse IA premium', en: 'Premium AI analysis', ko: '프리미엄 AI 분석' },
   analysis_step_photo: { fr: 'Photo', en: 'Photo', ko: '사진' },

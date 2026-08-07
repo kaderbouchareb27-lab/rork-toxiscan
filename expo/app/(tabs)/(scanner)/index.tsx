@@ -23,7 +23,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { scanOcrInstant, scanAiEnrich, universalResultToScannedProduct } from '@/utils/api';
-import type { ScannedProduct } from '@/types';
+import type { ScannedProduct, UniversalAnalysisResult } from '@/types';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
@@ -127,20 +127,18 @@ export default function ScannerScreen() {
         throw new Error(realMsg || t('error_analysis_failed'));
       }
 
-      // If OCR found no readable ingredients, wait for the full AI analysis before showing
-      // a verdict (so we never display a wrong instant "approved" badge on an unreadable label).
-      if (!instant.cached && !instant.instant) {
-        const finalResult = await scanAiEnrich(base64, instant.ocrData, instant.cacheKey, instant.result);
-        if (finalResult.erreur) {
-          console.error('[Scanner] AI returned error:', finalResult.erreur);
-          throw new Error(finalResult.erreur);
-        }
-        instant = { ...instant, result: finalResult, cached: true, instant: true };
-      }
+      // OCR read nothing usable (only the front of the pack, blur, glare…). We must NOT show a
+      // fake "approved" verdict, but we must not freeze on a spinner either: open the product
+      // screen right away in an explicit ANALYSING state and let the AI fill it in place.
+      const awaitingFirstVerdict = !instant.cached && !instant.instant;
 
       const thumbnailUri = thumbnailBase64 ? `data:image/jpeg;base64,${thumbnailBase64}` : undefined;
       const product = universalResultToScannedProduct(instant.result, imageUri);
       if (thumbnailUri) product.thumbnailBase64 = thumbnailUri;
+      if (awaitingFirstVerdict) {
+        product.analysisPending = true;
+        product.name = t('analyzing_product');
+      }
 
       return {
         product,
@@ -149,48 +147,73 @@ export default function ScannerScreen() {
         thumbnailUri,
         ocrData: instant.ocrData,
         cacheKey: instant.cacheKey,
+        imageFingerprint: instant.imageFingerprint,
         instantResult: instant.result,
+        awaitingFirstVerdict,
         // FAST-PATH: when the instant result is already complete (all ingredients known in the
         // DB + a real product name read), there is nothing for the AI to add — skip enrichment.
         needsEnrich: !instant.cached && !instant.complete,
       };
     },
-    onSuccess: ({ product, base64, imageUri, thumbnailUri, ocrData, cacheKey, instantResult, needsEnrich }) => {
-      console.log('[Scanner] Instant verdict ready:', product.name, product.riskGroup);
+    onSuccess: ({
+      product, base64, imageUri, ocrData, cacheKey, imageFingerprint,
+      instantResult, needsEnrich, awaitingFirstVerdict,
+    }) => {
+      console.log('[Scanner] First screen ready:', product.name, product.riskGroup, awaitingFirstVerdict ? '(analysing)' : '');
       addProduct(product);
       consumeScan();
       recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // While the verdict is still being computed, a soft tick — the success chime is
+        // reserved for the moment the real verdict lands.
+        void Haptics.notificationAsync(
+          awaitingFirstVerdict ? Haptics.NotificationFeedbackType.Warning : Haptics.NotificationFeedbackType.Success,
+        );
       }
       router.push(`/product/${product.barcode}`);
 
-      // Background: let the AI generate descriptions for unknown ingredients, then merge.
+      // Background: let the AI identify the product and describe unknown ingredients, then merge.
       if (needsEnrich) {
         const barcode = product.barcode;
-        void scanAiEnrich(base64, ocrData, cacheKey, instantResult)
-          .then((finalResult) => {
-            const finalProduct = universalResultToScannedProduct(finalResult, imageUri);
-            const patch: Partial<ScannedProduct> = {
-              name: finalProduct.name,
-              riskGroup: finalProduct.riskGroup,
-              detectedAdditives: finalProduct.detectedAdditives,
-              ingredientsText: finalProduct.ingredientsText,
-              detectedIngredients: finalProduct.detectedIngredients,
-              analysisSummary: finalProduct.analysisSummary,
-              productCategory: finalProduct.productCategory,
-              categories: finalProduct.categories,
-              objectIdentified: finalProduct.objectIdentified,
-              materialDetected: finalProduct.materialDetected,
-              substances: finalProduct.substances,
-              recommendations: finalProduct.recommendations,
-              saferAlternatives: finalProduct.saferAlternatives,
-              healthyAlternatives: finalProduct.healthyAlternatives,
-            };
-            updateProduct(barcode, patch);
-            console.log('[Scanner] Background AI enrichment merged for:', barcode);
-          })
-          .catch((e) => console.warn('[Scanner] Background enrichment failed:', e));
+        /** Merge an AI result into the product already displayed on screen. */
+        const mergeResult = (result: UniversalAnalysisResult, isFinal: boolean): void => {
+          const merged = universalResultToScannedProduct(result, imageUri);
+          const patch: Partial<ScannedProduct> = {
+            name: merged.name,
+            riskGroup: merged.riskGroup,
+            detectedAdditives: merged.detectedAdditives,
+            ingredientsText: merged.ingredientsText,
+            detectedIngredients: merged.detectedIngredients,
+            analysisSummary: merged.analysisSummary,
+            productCategory: merged.productCategory,
+            categories: merged.categories,
+            objectIdentified: merged.objectIdentified,
+            materialDetected: merged.materialDetected,
+            substances: merged.substances,
+            recommendations: merged.recommendations,
+            saferAlternatives: merged.saferAlternatives,
+            healthyAlternatives: merged.healthyAlternatives,
+            analysisPending: false,
+          };
+          updateProduct(barcode, patch);
+          console.log('[Scanner]', isFinal ? 'Final' : 'Partial', 'AI result merged for:', barcode);
+          if (isFinal && awaitingFirstVerdict && Platform.OS !== 'web') {
+            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
+        };
+
+        void scanAiEnrich(base64, ocrData, cacheKey, instantResult, {
+          imageFingerprint,
+          // The verdict, the name and every known ingredient land here — 1 to 2 s before the
+          // extra call that writes descriptions for the remaining unknown ingredients.
+          onPartial: (partial) => mergeResult(partial, false),
+        })
+          .then((finalResult) => mergeResult(finalResult, true))
+          .catch((e) => {
+            console.warn('[Scanner] Background enrichment failed:', e);
+            // Never leave the screen stuck in the analysing state.
+            updateProduct(barcode, { analysisPending: false });
+          });
       }
     },
     onError: (error: Error) => {

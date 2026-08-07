@@ -5,6 +5,7 @@ import { aiGenerateObject } from '@/utils/aiApi';
 import { t, isEnglish, isKorean, getDeviceLanguage, pick } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote, localizedCirc } from '@/constants/ingredientsDatabase';
 import { getOfficialEn, localizeOfficialText, ensureOfficialTranslations, hydrateOfficialTranslations, isOfficialEnText, isOfficialDescriptionText } from '@/utils/officialDescriptions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { runGoogleVisionOcr, extractIngredientsBlock } from '@/utils/googleVisionOcr';
 import {
   getIngredientKnowledge,
@@ -1698,20 +1699,115 @@ function classifyIngredients(aiIngredients: { nom: string; explication: string }
 const ANALYSIS_CACHE = new Map<string, UniversalAnalysisResult>();
 const CACHE_MAX = 50;
 
+/**
+ * Image fingerprint → analysis cache key. Lets a re-scan of the very same photo skip the
+ * Google Vision round-trip entirely (the analysis key itself is derived FROM the OCR text,
+ * so without this index we would always have to run OCR just to discover the cache hit).
+ */
+const IMAGE_KEY_INDEX = new Map<string, string>();
+
+const CACHE_STORAGE_KEY = 'toxiscan.analysisCache.v1';
+const IMAGE_INDEX_STORAGE_KEY = 'toxiscan.analysisImageIndex.v1';
+
+let cacheHydrated = false;
+let cacheHydration: Promise<void> | null = null;
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Loads the persisted scan cache once per session. Without this the cache died with the
+ * process, so re-scanning last week's groceries paid the full OCR + AI cost again.
+ * Any failure is non-blocking: we simply start from an empty in-memory cache.
+ */
+async function hydrateAnalysisCache(): Promise<void> {
+  if (cacheHydrated) return;
+  if (cacheHydration) return cacheHydration;
+  cacheHydration = (async () => {
+    try {
+      const [rawCache, rawIndex] = await Promise.all([
+        AsyncStorage.getItem(CACHE_STORAGE_KEY),
+        AsyncStorage.getItem(IMAGE_INDEX_STORAGE_KEY),
+      ]);
+      if (rawCache) {
+        const parsed = JSON.parse(rawCache) as [string, UniversalAnalysisResult][];
+        if (Array.isArray(parsed)) {
+          for (const [key, value] of parsed.slice(-CACHE_MAX)) {
+            if (typeof key === 'string' && value) ANALYSIS_CACHE.set(key, value);
+          }
+        }
+      }
+      if (rawIndex) {
+        const parsedIndex = JSON.parse(rawIndex) as [string, string][];
+        if (Array.isArray(parsedIndex)) {
+          for (const [fingerprint, key] of parsedIndex.slice(-CACHE_MAX)) {
+            if (typeof fingerprint === 'string' && typeof key === 'string') IMAGE_KEY_INDEX.set(fingerprint, key);
+          }
+        }
+      }
+      console.log('[API] Scan cache hydrated —', ANALYSIS_CACHE.size, 'result(s),', IMAGE_KEY_INDEX.size, 'image key(s)');
+    } catch (err) {
+      console.warn('[API] Scan cache hydration failed (starting empty):', err instanceof Error ? err.message : String(err));
+    }
+    cacheHydrated = true;
+  })();
+  return cacheHydration;
+}
+
+/** Debounced write-through so a burst of scans does not hammer AsyncStorage. */
+function schedulePersistCache(): void {
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    const cachePayload = JSON.stringify([...ANALYSIS_CACHE.entries()]);
+    const indexPayload = JSON.stringify([...IMAGE_KEY_INDEX.entries()]);
+    void AsyncStorage.multiSet([
+      [CACHE_STORAGE_KEY, cachePayload],
+      [IMAGE_INDEX_STORAGE_KEY, indexPayload],
+    ]).catch((err) => console.warn('[API] Scan cache persist failed:', err instanceof Error ? err.message : String(err)));
+  }, 400);
+}
+
 /** Store a final result under its OCR-derived cache key (LRU-evicting the oldest entry). */
-function cacheResult(cacheKey: string | null, result: UniversalAnalysisResult): void {
+function cacheResult(cacheKey: string | null, result: UniversalAnalysisResult, imageFingerprint?: string | null): void {
   if (!cacheKey) return;
   if (ANALYSIS_CACHE.size >= CACHE_MAX) {
     const firstKey = ANALYSIS_CACHE.keys().next().value;
-    if (firstKey) ANALYSIS_CACHE.delete(firstKey);
+    if (firstKey) {
+      ANALYSIS_CACHE.delete(firstKey);
+      for (const [fingerprint, key] of IMAGE_KEY_INDEX) {
+        if (key === firstKey) IMAGE_KEY_INDEX.delete(fingerprint);
+      }
+    }
   }
   ANALYSIS_CACHE.set(cacheKey, result);
+  if (imageFingerprint) IMAGE_KEY_INDEX.set(imageFingerprint, cacheKey);
+  schedulePersistCache();
 }
 
 function hashString(s: string): string {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
   return String(h);
+}
+
+/**
+ * Cheap fingerprint of the compressed photo. Samples ~4 000 evenly spread characters instead
+ * of hashing the whole base64 string (hundreds of KB) so it stays sub-millisecond, and mixes
+ * in the length so two different images cannot collide on the sample alone.
+ */
+function fingerprintImage(base64: string): string {
+  const step = Math.max(1, Math.floor(base64.length / 4000));
+  let h = 5381;
+  for (let i = 0; i < base64.length; i += step) h = ((h << 5) + h + base64.charCodeAt(i)) | 0;
+  return `${base64.length}_${h}`;
+}
+
+/**
+ * Cache keys are language-scoped: descriptions and verdict copy are localized, so a cached
+ * French result must never be served to a Korean UI.
+ */
+function buildCacheKey(ingredientsBlock: string): string {
+  const normalized = ingredientsBlock.toLowerCase().replace(/\s+/g, ' ').trim();
+  return `${getDeviceLanguage()}:${hashString(normalized)}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1728,6 +1824,8 @@ export interface InstantScan {
   result: UniversalAnalysisResult;
   ocrData: OcrData;
   cacheKey: string | null;
+  /** Fingerprint of the scanned photo — lets an identical re-scan skip OCR next time. */
+  imageFingerprint: string;
   /** True when the result is the cached/final result — no AI enrichment needed. */
   cached: boolean;
   /** True when a usable instant local verdict was produced (at least one ingredient parsed). */
@@ -2006,9 +2104,7 @@ async function runOcrStep(imageBase64: string): Promise<{ ocrData: OcrData; cach
     const msg = err instanceof Error ? err.message : String(err);
     console.warn('[API] OCR failed (non-blocking):', msg);
   }
-  const cacheKey = ocrData.ingredientsBlock
-    ? hashString(ocrData.ingredientsBlock.toLowerCase().replace(/\s+/g, ' ').trim())
-    : null;
+  const cacheKey = ocrData.ingredientsBlock ? buildCacheKey(ocrData.ingredientsBlock) : null;
   return { ocrData, cacheKey };
 }
 
@@ -2018,11 +2114,45 @@ async function runOcrStep(imageBase64: string): Promise<{ ocrData: OcrData; cach
  * description immediately; unknown ones are flagged `descriptionPending` for the AI to fill.
  */
 export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> {
+  const imageFingerprint = fingerprintImage(imageBase64);
+
+  // SPEED: check the persisted cache BEFORE the OCR round-trip. Re-scanning a photo we have
+  // already analysed returns in milliseconds with zero network call.
+  await hydrateAnalysisCache();
+  const indexedKey = IMAGE_KEY_INDEX.get(imageFingerprint);
+  if (indexedKey) {
+    const cached = ANALYSIS_CACHE.get(indexedKey);
+    if (cached) {
+      console.log('[API] Cache hit by image fingerprint — OCR skipped entirely');
+      return {
+        result: cached,
+        ocrData: { fullText: '', ingredientsBlock: null },
+        cacheKey: indexedKey,
+        imageFingerprint,
+        cached: true,
+        instant: true,
+        complete: true,
+      };
+    }
+    IMAGE_KEY_INDEX.delete(imageFingerprint);
+  }
+
   const { ocrData, cacheKey } = await runOcrStep(imageBase64);
 
   if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
     console.log('[API] Cache hit (instant)');
-    return { result: ANALYSIS_CACHE.get(cacheKey)!, ocrData, cacheKey, cached: true, instant: true, complete: true };
+    // Remember the fingerprint so the SAME photo skips OCR next time.
+    IMAGE_KEY_INDEX.set(imageFingerprint, cacheKey);
+    schedulePersistCache();
+    return {
+      result: ANALYSIS_CACHE.get(cacheKey)!,
+      ocrData,
+      cacheKey,
+      imageFingerprint,
+      cached: true,
+      instant: true,
+      complete: true,
+    };
   }
 
   // Load the persisted FR/KO translation cache so official descriptions localize synchronously.
@@ -2066,10 +2196,10 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
   const complete = allIngredientsKnown && hasRealName;
   if (complete) {
     console.log('[API] FAST-PATH — all', substances.length, 'ingredients known + real name → skipping AI enrichment');
-    if (!result.erreur) cacheResult(cacheKey, result);
+    if (!result.erreur) cacheResult(cacheKey, result, imageFingerprint);
   }
 
-  return { result, ocrData, cacheKey, cached: false, instant: substances.length > 0, complete };
+  return { result, ocrData, cacheKey, imageFingerprint, cached: false, instant: substances.length > 0, complete };
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -2171,11 +2301,23 @@ async function reasonUnknownDescriptions(substances: SubstanceDetected[]): Promi
  *      ingredient one-by-one through the deterministic database (badge + description).
  * This is the authoritative final result and replaces the instant one.
  */
+export interface ScanEnrichOptions {
+  /** Photo fingerprint, stored with the result so an identical re-scan skips OCR. */
+  imageFingerprint?: string | null;
+  /**
+   * Called with a usable result as soon as the name, badge and known ingredients are ready,
+   * BEFORE the extra AI call that writes descriptions for unknown ingredients. Lets the UI
+   * show the verdict ~1-2 s earlier while the remaining descriptions stream in.
+   */
+  onPartial?: (partial: UniversalAnalysisResult) => void;
+}
+
 export async function scanAiEnrich(
   imageBase64: string,
   ocrData: OcrData,
   cacheKey: string | null,
   instantResult?: UniversalAnalysisResult,
+  options?: ScanEnrichOptions,
 ): Promise<UniversalAnalysisResult> {
   const MAX_RETRIES = 2;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -2197,10 +2339,12 @@ export async function scanAiEnrich(
       }
 
       // ═══ ÉTAPE 1b — VALIDATION DÉTERMINISTE + RE-DÉCOPE ═══
-      let validated = validateAndAtomicize(extracted.ingredients);
-      if (validated.hadGroupings && attempt < MAX_RETRIES) {
-        console.log('[API] Grouped ingredients detected after extraction, retrying atomic extraction...');
-        continue;
+      // SPEED: `validateAndAtomicize` already re-splits grouped entries deterministically, so a
+      // grouping is NOT a failure — we keep the locally fixed list instead of paying a second
+      // full vision round-trip (which used to add up to ~4 s for an identical outcome).
+      const validated = validateAndAtomicize(extracted.ingredients);
+      if (validated.hadGroupings) {
+        console.log('[API] Grouped ingredients re-split locally — no extra extraction needed');
       }
 
       // ═══ ÉTAPE 1c — DÉDUPLICATION ═══
@@ -2218,9 +2362,6 @@ export async function scanAiEnrich(
         : classifyIngredients(aiIngredients);
       // Official descriptions: swap English reference texts for their FR/KO translations.
       const localized = await localizeOfficialSubstances(classified);
-      // Ingredients still unknown after every deterministic pass get a reasoned, factual
-      // description from the AI — never a generic "not in the database" message.
-      const substances = isCosmetic ? localized : await reasonUnknownDescriptions(localized);
 
       // Safety net: if the AI returned a product name that is actually one of the
       // extracted ingredients, it picked an ingredient fragment instead of the real name.
@@ -2232,22 +2373,38 @@ export async function scanAiEnrich(
         productName = '';
       }
 
-      const result = assembleResult(
-        {
-          categorie_produit: isCosmetic ? 'cosmetic' : extracted.categorie_produit,
-          objet_identifie: productName,
-          materiau_detecte: '',
-          erreur: '',
-          // Generic type the model deduced from the PHOTO + the ingredient list — used when
-          // no commercial name is legible, and re-validated against the ingredient signature.
-          visual_hint: extracted.type_produit,
-        },
-        substances,
-      );
+      const meta = {
+        categorie_produit: isCosmetic ? ('cosmetic' as ProductCategory) : extracted.categorie_produit,
+        objet_identifie: productName,
+        materiau_detecte: '',
+        erreur: '',
+        // Generic type the model deduced from the PHOTO + the ingredient list — used when
+        // no commercial name is legible, and re-validated against the ingredient signature.
+        visual_hint: extracted.type_produit,
+      };
+
+      // SPEED — SECOND WAVE: the name, the badge and every known ingredient are ready NOW.
+      // Writing descriptions for the few unknown ingredients needs another AI call, so we
+      // publish this result first and let those descriptions land afterwards. The screen
+      // already renders a per-ingredient spinner for `descriptionPending` rows.
+      const needsSecondWave = !isCosmetic && localized.some(needsReasonedDescription);
+      if (needsSecondWave && options?.onPartial) {
+        const partial = assembleResult(meta, localized);
+        if (!partial.erreur) {
+          console.log('[API] Partial result published — reasoning', localized.filter(needsReasonedDescription).length, 'description(s) in a 2nd wave');
+          options.onPartial(partial);
+        }
+      }
+
+      // Ingredients still unknown after every deterministic pass get a reasoned, factual
+      // description from the AI — never a generic "not in the database" message.
+      const substances = isCosmetic ? localized : await reasonUnknownDescriptions(localized);
+
+      const result = assembleResult(meta, substances);
 
       console.log('[API] Final:', result.objet_identifie, '— badge:', result.badge_global, '— substances:', substances.length);
 
-      if (!result.erreur) cacheResult(cacheKey, result);
+      if (!result.erreur) cacheResult(cacheKey, result, options?.imageFingerprint);
       return result;
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);

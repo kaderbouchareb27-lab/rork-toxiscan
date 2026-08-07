@@ -103,6 +103,12 @@ export interface ScannedProduct {
   isFavorite?: boolean;
   /** 6-tier verdict computed by the deterministic engine. Older scans derive it from riskGroup. */
   verdictTier?: VerdictTier;
+  /**
+   * True while the very first verdict is still being computed (OCR read nothing usable, so the
+   * product screen opens immediately in an explicit "analysing" state instead of freezing on a
+   * full-screen spinner). Cleared as soon as the AI result is merged.
+   */
+  analysisPending?: boolean;
 }
 
 export interface HealthyAlternative {

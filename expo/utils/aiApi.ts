@@ -20,13 +20,21 @@ const TEXT_MODEL_ID = 'gpt-4.1-nano';
 const TEXT_PROVIDER: AIProvider = 'openai';
 
 /**
- * Meal-scan VISION model: photo recognition + the authoritative text re-analysis.
- * Currently routed through OpenRouter → Qwen3.7 Plus.
+ * VISION model: meal photo recognition + product-label atomic extraction.
+ * Routed through OpenRouter → Gemini 3.5 Flash-Lite.
+ *
+ * Chosen after benchmarking 10 OpenRouter vision models on real label photos
+ * (scripts/benchVisionModels.ts). It won on the three metrics that matter here:
+ *   • ingredient recall 93-96 % (vs 90 % for qwen3.7-plus, 80 % for perceptron-mk1)
+ *   • 100 % valid JSON + correct atomic splitting on every sample
+ *   • the most STABLE latency: worst case ~1.8 s vs 4.9 s for qwen3.7-plus.
+ * Tail latency, not the average, is what makes users abandon a scan.
+ *
  * To revert to the previous OpenAI setup, set:
  *   MEAL_VISION_PROVIDER = 'openai'  and  MEAL_VISION_MODEL_ID = 'gpt-4o'.
  * (gpt-4o is validated for fine-grained food recognition; gpt-4.1-nano is too weak.)
  */
-export const MEAL_VISION_MODEL_ID = 'qwen/qwen3.7-plus';
+export const MEAL_VISION_MODEL_ID = 'google/gemini-3.5-flash-lite';
 export const MEAL_VISION_PROVIDER: AIProvider = 'openrouter';
 
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
@@ -94,27 +102,54 @@ function normalizeContent(
   });
 }
 
+/**
+ * Some endpoints (Gemini via OpenRouter) reject `reasoning: { enabled: false }` outright
+ * with "Reasoning is mandatory for this endpoint and cannot be disabled". Detect that
+ * exact refusal so we can retry once without the flag instead of failing the scan.
+ */
+function isMandatoryReasoningError(status: number, errText: string): boolean {
+  if (status !== 400 && status !== 422) return false;
+  return /reasoning is mandatory|cannot be disabled/i.test(errText);
+}
+
 async function callChatCompletions(
   body: Record<string, unknown>,
   provider: AIProvider
 ): Promise<any> {
   const { url, apiKey, extraHeaders } = getProviderConfig(provider);
   console.log('[AI] Calling', body.model ?? TEXT_MODEL_ID, 'via', provider);
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${apiKey}`,
-      ...extraHeaders,
-    },
-    body: JSON.stringify(body),
-  });
+  const started = Date.now();
+  const post = async (payload: Record<string, unknown>): Promise<Response> =>
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${apiKey}`,
+        ...extraHeaders,
+      },
+      body: JSON.stringify(payload),
+    });
+
+  let res = await post(body);
   if (!res.ok) {
     const errText = await res.text();
-    console.error('[AI] API error', res.status, errText.substring(0, 500));
-    throw new Error(`AI API error ${res.status}: ${errText.substring(0, 300)}`);
+    if (isMandatoryReasoningError(res.status, errText) && 'reasoning' in body) {
+      console.log('[AI] Endpoint requires reasoning — retrying without the disable flag');
+      const { reasoning: _omitted, ...withReasoning } = body;
+      res = await post(withReasoning);
+      if (!res.ok) {
+        const retryErr = await res.text();
+        console.error('[AI] API error', res.status, retryErr.substring(0, 500));
+        throw new Error(`AI API error ${res.status}: ${retryErr.substring(0, 300)}`);
+      }
+    } else {
+      console.error('[AI] API error', res.status, errText.substring(0, 500));
+      throw new Error(`AI API error ${res.status}: ${errText.substring(0, 300)}`);
+    }
   }
-  return res.json();
+  const json = await res.json();
+  console.log('[AI] Completed in', Date.now() - started, 'ms');
+  return json;
 }
 
 function buildMessages(
