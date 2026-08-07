@@ -6,8 +6,8 @@ import { pick } from '@/utils/i18n';
 // Two OpenAI-compatible providers (/chat/completions) are wired:
 //   • 'openai'     → api.openai.com   (key = EXPO_PUBLIC_OPEN_AI)
 //   • 'openrouter' → openrouter.ai    (key = EXPO_PUBLIC_OPENROUTER_API_KEY)
-// To re-route a flow to another model/provider, just change the MEAL_VISION_*
-// or TEXT_* constants below — nothing else in the app needs to change.
+// To re-route a flow to another model/provider, just change the MEAL_VISION_*,
+// LABEL_VISION_* or TEXT_* constants below — nothing else in the app needs to change.
 // ═══════════════════════════════════════════════════════════════════════
 
 export type AIProvider = 'openai' | 'openrouter';
@@ -20,22 +20,38 @@ const TEXT_MODEL_ID = 'gpt-4.1-nano';
 const TEXT_PROVIDER: AIProvider = 'openai';
 
 /**
- * VISION model: meal photo recognition + product-label atomic extraction.
- * Routed through OpenRouter → Gemini 3.5 Flash-Lite.
+ * MEAL PHOTO model: recognising a cooked dish on a plate (utils/mealAnalysis.ts).
+ * Routed through OpenRouter → GPT-5.6 Luna.
  *
- * Chosen after benchmarking 10 OpenRouter vision models on real label photos
- * (scripts/benchVisionModels.ts). It won on the three metrics that matter here:
- *   • ingredient recall 93-96 % (vs 90 % for qwen3.7-plus, 80 % for perceptron-mk1)
- *   • 100 % valid JSON + correct atomic splitting on every sample
- *   • the most STABLE latency: worst case ~1.8 s vs 4.9 s for qwen3.7-plus.
- * Tail latency, not the average, is what makes users abandon a scan.
- *
- * To revert to the previous OpenAI setup, set:
- *   MEAL_VISION_PROVIDER = 'openai'  and  MEAL_VISION_MODEL_ID = 'gpt-4o'.
- * (gpt-4o is validated for fine-grained food recognition; gpt-4.1-nano is too weak.)
+ * Reading a printed label and recognising a cooked dish are NOT the same job, so they
+ * deliberately use different models. Benchmarked on 6 real meal photos, in EN/FR/KO
+ * (scripts/benchMealModels.ts). Luna won every criterion at once:
+ *   • latency 556-760 ms avg, worst case ~1.4 s — vs 5.5 s avg / 10 s peak for
+ *     gemini-3.5-flash-lite, which cannot disable its hidden reasoning and therefore
+ *     spends seconds "thinking" about a plate of pasta.
+ *   • dish named correctly 6/6 and BASE food listed 6/6 (the pizza dough, the burger bun
+ *     + patty, the croissant pastry) — the prompt rule models most often skip.
+ *   • ingredient recall 93-97 % (vs 78 % gemini-3.5-flash-lite, 69 % qwen3.7-plus).
+ *   • golden rule 6/6: never labels a plain food "carcinogenic".
+ *   • language lock held 6/6 in French AND Korean — no leakage either way.
+ * minimax-m3 reached 100 % recall but peaks at 6.5 s; gemini-3.6-flash truncated its
+ * JSON on 4/6 photos at maxTokens 1000.
  */
-export const MEAL_VISION_MODEL_ID = 'google/gemini-3.5-flash-lite';
+export const MEAL_VISION_MODEL_ID = 'openai/gpt-5.6-luna';
 export const MEAL_VISION_PROVIDER: AIProvider = 'openrouter';
+
+/**
+ * PRODUCT LABEL model: atomic ingredient extraction from a packaging photo (utils/api.ts).
+ * Stated explicitly instead of relying on the TEXT_* fallback, so the label flow can never
+ * silently inherit a model change made for the meal flow (which is exactly what used to
+ * happen when both flows shared one constant).
+ *
+ * Kept on gpt-4.1-nano — the value this flow already ran on — because the label benchmark
+ * (scripts/benchVisionModels.ts) has not yet compared it against the OpenRouter candidates.
+ * Do not change this without re-running that benchmark on real label photos.
+ */
+export const LABEL_VISION_MODEL_ID = TEXT_MODEL_ID;
+export const LABEL_VISION_PROVIDER: AIProvider = TEXT_PROVIDER;
 
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 const OPENROUTER_CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';

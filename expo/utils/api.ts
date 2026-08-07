@@ -1,7 +1,7 @@
 import { ScannedProduct, DetectedIngredient, UniversalAnalysisResult, ProductCategory, SubstanceDetected, AdditiveInfo, AdditiveCategory, VerdictTier } from '@/types';
 import { niveauRisqueToGroup } from '@/constants/additives';
 import { z } from 'zod';
-import { aiGenerateObject } from '@/utils/aiApi';
+import { aiGenerateObject, LABEL_VISION_MODEL_ID, LABEL_VISION_PROVIDER } from '@/utils/aiApi';
 import { t, isEnglish, isKorean, getDeviceLanguage, pick } from '@/utils/i18n';
 import { INGREDIENTS_DATABASE, IngredientEntry, RiskLevel, DANGER_PREGNANCY, getLocalizedNote, localizedCirc } from '@/constants/ingredientsDatabase';
 import { getOfficialEn, localizeOfficialText, ensureOfficialTranslations, hydrateOfficialTranslations, isOfficialEnText, isOfficialDescriptionText } from '@/utils/officialDescriptions';
@@ -838,6 +838,9 @@ La langue de l'app est le FRANÇAIS. Chaque nom d'ingrédient doit être écrit 
         ],
       },
     ],
+    // Stated explicitly: the label flow must never inherit the meal flow's model.
+    model: LABEL_VISION_MODEL_ID,
+    provider: LABEL_VISION_PROVIDER,
     schema: atomicIngredientsSchema,
     toolName: 'extract_atomic_ingredients',
     toolDescription: pick({
