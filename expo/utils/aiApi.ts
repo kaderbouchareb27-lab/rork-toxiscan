@@ -42,16 +42,31 @@ export const MEAL_VISION_PROVIDER: AIProvider = 'openrouter';
 
 /**
  * PRODUCT LABEL model: atomic ingredient extraction from a packaging photo (utils/api.ts).
+ * Routed through OpenRouter → Gemini 3.5 Flash-Lite.
+ *
  * Stated explicitly instead of relying on the TEXT_* fallback, so the label flow can never
  * silently inherit a model change made for the meal flow (which is exactly what used to
  * happen when both flows shared one constant).
  *
- * Kept on gpt-4.1-nano — the value this flow already ran on — because the label benchmark
- * (scripts/benchVisionModels.ts) has not yet compared it against the OpenRouter candidates.
+ * Benchmarked on 4 real label photos (Twix, Nutella, Mars, Cruesly) against the previous
+ * gpt-4.1-nano baseline and every OpenRouter candidate (scripts/benchVisionModels.ts), 3 runs
+ * each for the top two to rule out noise:
+ *   • gpt-4.1-nano (previous): recall only 54 %, and named Twix "unknown" — too weak on
+ *     ingredient lists split across multiple label photos.
+ *   • gemini-3.1-flash-lite: same 87 % recall, but slower — avg ~2.4 s / worst-case ~5.4 s
+ *     across 3 runs, vs ~1.9 s / ~4.5 s for 3.5 Flash-Lite.
+ *   • gemini-3.5-flash-lite (chosen): recall 87 % on all 3 runs (same 3 misses every time —
+ *     deterministic, not noise), product name and atomic split 100 % correct, fastest of the
+ *     two Gemini finalists.
+ *   • qwen3.7-plus/flash, minimax-m3, perceptron-mk1, glm-5v-turbo: all recall ≤ 80 %.
+ *   • gpt-5.6-luna (the meal-flow winner) and gemini-3.6-flash/stepfun-3.7-flash: disqualified
+ *     outright — luna returned 0 ingredients on the Twix photo, the other two broke JSON
+ *     parsing on 2-4 of the 4 photos. Confirms a label photo and a plate of food are different
+ *     jobs — the best model for one can fail outright on the other.
  * Do not change this without re-running that benchmark on real label photos.
  */
-export const LABEL_VISION_MODEL_ID = TEXT_MODEL_ID;
-export const LABEL_VISION_PROVIDER: AIProvider = TEXT_PROVIDER;
+export const LABEL_VISION_MODEL_ID = 'google/gemini-3.5-flash-lite';
+export const LABEL_VISION_PROVIDER: AIProvider = 'openrouter';
 
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
 const OPENROUTER_CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
