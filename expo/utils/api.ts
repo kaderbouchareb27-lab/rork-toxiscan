@@ -32,6 +32,12 @@ import {
   ULTRA_TOXIC_CIRC,
 } from '@/constants/ultraToxicIngredients';
 import { computeEngineBadge, hazardEntryForName } from '@/utils/hazardProfile';
+import {
+  detectProductFamily,
+  weakProductLabel,
+  isNameContradicted,
+  type FamilyDetection,
+} from '@/utils/productFamily';
 
 // The 5-tier verdict engine now lives in the pure '@/utils/verdictTier' module
 // (testable in isolation). Re-exported here so existing screens/providers can keep
@@ -574,9 +580,15 @@ const safeString = (fallback: string = '') =>
   z.preprocess((v) => (v === undefined || v === null ? fallback : typeof v === 'string' ? v : String(v)), z.string());
 
 // Schema for the dedicated extraction step: only atomic ingredient names + product meta.
+// `indices_visuels` and `type_produit` force the model to actually LOOK at the photo
+// (shape, colour, packaging) instead of reasoning from the OCR text alone.
 const atomicIngredientsSchema = z.object({
   categorie_produit: categoryEnum,
   objet_identifie: safeString(''),
+  /** What is physically visible on the photo — free text, used for logging + family refining. */
+  indices_visuels: safeString('').optional(),
+  /** Generic product type cross-checked between the photo and the ingredient list. */
+  type_produit: safeString('').optional(),
   ingredients: z.preprocess(
     (v) => (Array.isArray(v) ? v : []),
     z.array(safeString(''))
@@ -592,10 +604,28 @@ const AI_EXTRACTION_PROMPT_FR = `Tu es ToxiScan, un assistant qui lit les étiqu
 
 ⚠️ RÔLE UNIQUE : EXTRACTION ATOMIQUE DES INGRÉDIENTS. Tu ne classes pas. Tu ne décrives pas. Tu ne résumes pas.
 
-═══ ÉTAPE A — IDENTIFIER LE PRODUIT ═══
-- Extrais le NOM DU PRODUIT tel qu'affiché sur l'emballage (marque + nom commercial).
-- Ce nom doit venir de l'emballage (face avant), JAMAIS de la liste d'ingrédients.
-- Si le nom est illisible ou absent, laisse objet_identifie vide.
+═══ ÉTAPE A — IDENTIFIER LE PRODUIT PAR CROISEMENT DE DEUX SOURCES ═══
+Tu DOIS croiser DEUX sources avant de nommer le produit. Ne te fie jamais à une seule.
+
+SOURCE 1 — CE QUE MONTRE LA PHOTO (regarde vraiment l'image) :
+- Forme du contenu visible : billes/dragées colorées, oursons gélifiés, chips plates, barre, biscuit, poudre, liquide, tranches…
+- Couleurs : couleurs vives et multiples (rouge/vert/bleu/jaune) = confiserie ; brun uniforme = chocolat/biscuit ; jaune doré irrégulier = chips frites.
+- Type d'emballage : sachet souple brillant, sachet gonflé, boîte carton, bocal, bouteille, barquette, tube, pot.
+- Tout logo, illustration ou mot lisible sur la face avant.
+Remplis "indices_visuels" avec ce que tu vois RÉELLEMENT (1 phrase courte). Si l'image ne montre que du texte, écris-le.
+
+SOURCE 2 — LA SIGNATURE DES INGRÉDIENTS :
+- Colorants de synthèse (Rouge 40 / E129, Jaune 5 / E102, Bleu 1 / E133…) + sucre ou sirop de glucose + gélatine/pectine + acide citrique + cire de carnauba/gomme laque, SANS farine ni huile de friture → CONFISERIE (bonbons), jamais des chips.
+- Pomme de terre (ou flocons de pomme de terre) + huile de friture + sel → chips de pommes de terre.
+- Farine de maïs / masa / tortilla + huile de friture → chips de maïs. ATTENTION : « sirop de glucose de maïs », « amidon de maïs », « maltodextrine de maïs », « huile de maïs » NE SONT PAS une base de maïs — ce sont des dérivés présents dans les bonbons et les sodas.
+- Cacao + sucre → confiserie chocolatée. Farine de blé + sucre + matière grasse → biscuit. Farine + levure → boulangerie.
+- Eau + sucre ou édulcorant → boisson sucrée. Viande + nitrite/sel → charcuterie.
+
+RÈGLE DE DÉCISION :
+1. Si le nom commercial est LISIBLE sur l'emballage et cohérent avec les deux sources, mets-le dans objet_identifie.
+2. Le nom doit venir de l'emballage, JAMAIS de la liste d'ingrédients.
+3. Si le nom n'est pas lisible, laisse objet_identifie VIDE et remplis "type_produit" avec une catégorie générique cohérente avec les DEUX sources (ex. « Bonbons colorés », « Chips de pommes de terre », « Biscuit sucré »). Ne devine JAMAIS un nom au hasard.
+4. En cas de désaccord entre la photo et les ingrédients, la liste d'ingrédients l'emporte pour la famille, la photo affine (couleur, forme).
 - NOMMAGE INTERDIT : "Produit inconnu", "Unknown", "Inconnu", "Objet", "Produit".
 - Catégorie : food | beverage | cosmetic | household | kitchen_utensil | clothing | electronics | furniture | toy | other.
 
@@ -623,7 +653,9 @@ RÈGLES STRICTES :
 
 ═══ FORMAT JSON ═══
 {
-  "objet_identifie": "Nom du produit",
+  "objet_identifie": "Nom du produit lu sur l'emballage, ou vide",
+  "indices_visuels": "ce que montre réellement la photo",
+  "type_produit": "catégorie générique cohérente avec la photo ET les ingrédients",
   "categorie_produit": "food",
   "ingredients": [
     "maltodextrine de maïs",
@@ -639,10 +671,28 @@ const AI_EXTRACTION_PROMPT_EN = `You are ToxiScan, a product label reading assis
 
 ⚠️ SINGLE ROLE: ATOMIC INGREDIENT EXTRACTION. You do NOT classify. You do NOT describe. You do NOT summarize.
 
-═══ STEP A — IDENTIFY THE PRODUCT ═══
-- Extract the PRODUCT NAME as shown on the packaging (brand + commercial name).
-- The name must come from the packaging (front), NEVER from the ingredient list.
-- If the name is unreadable or missing, leave objet_identifie empty.
+═══ STEP A — IDENTIFY THE PRODUCT BY CROSS-CHECKING TWO SOURCES ═══
+You MUST cross-check TWO sources before naming the product. Never rely on one alone.
+
+SOURCE 1 — WHAT THE PHOTO SHOWS (actually look at the image):
+- Shape of the visible content: coloured beads/lentils, gummy bears, flat crisps, bar, biscuit, powder, liquid, slices…
+- Colours: bright multiple colours (red/green/blue/yellow) = confectionery; uniform brown = chocolate/biscuit; irregular golden yellow = fried crisps.
+- Packaging type: glossy soft bag, inflated bag, cardboard box, jar, bottle, tray, tube, tub.
+- Any logo, illustration or word legible on the front.
+Fill "indices_visuels" with what you ACTUALLY see (one short sentence). If the image only shows text, say so.
+
+SOURCE 2 — THE INGREDIENT SIGNATURE:
+- Synthetic dyes (Red 40 / E129, Yellow 5 / E102, Blue 1 / E133…) + sugar or glucose syrup + gelatin/pectin + citric acid + carnauba wax/shellac, with NO flour and NO frying oil → CONFECTIONERY (candy), never chips.
+- Potato (or potato flakes) + frying oil + salt → potato chips.
+- Corn flour / masa / tortilla + frying oil → corn chips. WARNING: "corn glucose syrup", "corn starch", "corn maltodextrin", "corn oil" are NOT a corn base — they are derivatives found in candy and sodas.
+- Cocoa + sugar → chocolate confection. Wheat flour + sugar + fat → biscuit. Flour + yeast → bakery.
+- Water + sugar or sweetener → sweetened beverage. Meat + nitrite/salt → processed meat.
+
+DECISION RULE:
+1. If the commercial name is LEGIBLE on the packaging and consistent with both sources, put it in objet_identifie.
+2. The name must come from the packaging, NEVER from the ingredient list.
+3. If the name is not legible, leave objet_identifie EMPTY and fill "type_produit" with a generic category consistent with BOTH sources (e.g. "Colourful candy", "Potato chips", "Sweet biscuit"). NEVER guess a random name.
+4. If the photo and the ingredients disagree, the ingredient list decides the family and the photo refines it (colour, shape).
 - FORBIDDEN names: "Unknown product", "Unknown", "Product", "Object", "Item".
 - Category: food | beverage | cosmetic | household | kitchen_utensil | clothing | electronics | furniture | toy | other.
 
@@ -670,7 +720,9 @@ STRICT RULES:
 
 ═══ JSON FORMAT ═══
 {
-  "objet_identifie": "Product name",
+  "objet_identifie": "Product name read on the packaging, or empty",
+  "indices_visuels": "what the photo actually shows",
+  "type_produit": "generic category consistent with the photo AND the ingredients",
   "categorie_produit": "food",
   "ingredients": [
     "corn maltodextrin",
@@ -702,7 +754,14 @@ async function extractAtomicIngredients(
   imageBase64: string,
   ocrText?: string,
   ocrIngredientsBlock?: string,
-): Promise<{ ingredients: string[]; objet_identifie: string; categorie_produit: ProductCategory; erreur?: string }> {
+): Promise<{
+  ingredients: string[];
+  objet_identifie: string;
+  /** Generic product type cross-checked between the photo and the ingredient list. */
+  type_produit: string;
+  categorie_produit: ProductCategory;
+  erreur?: string;
+}> {
   console.log('[API] Step 1 — atomic extraction starting...');
 
   const lang = getDeviceLanguage();
@@ -788,10 +847,14 @@ La langue de l'app est le FRANÇAIS. Chaque nom d'ingrédient doit être écrit 
     maxTokens: 2048,
   });
 
-  console.log('[API] Atomic extraction returned', result.ingredients.length, 'ingredients, product:', result.objet_identifie);
+  console.log(
+    '[API] Atomic extraction returned', result.ingredients.length, 'ingredients, product:', result.objet_identifie,
+    '| visual:', (result.indices_visuels ?? '').slice(0, 80), '| type:', result.type_produit ?? '',
+  );
   return {
     ingredients: result.ingredients,
     objet_identifie: result.objet_identifie,
+    type_produit: result.type_produit ?? '',
     categorie_produit: result.categorie_produit,
     erreur: result.erreur || '',
   };
@@ -1723,133 +1786,44 @@ function isPlaceholderName(name: string): boolean {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// PRODUCT TYPE DEDUCTION — when no brand/name could be read, never fall back to a
-// flat "Food product". Instead deduce the product CATEGORY from the ingredient
-// signature (corn flour + oil + seasoning → "Corn chips"; potatoes + oil + salt →
-// "Potato chips"). A category only, never a brand.
+// PRODUCT NAMING — the name is decided by CROSS-CHECKING two sources: what the photo
+// shows (visual hint returned by the vision model) and the ingredient signature
+// (utils/productFamily.ts). A name that CONTRADICTS the ingredient signature is
+// rejected — that is what stopped a bag of coloured sweets being called "Corn chips".
 // ─────────────────────────────────────────────────────────────────────
 
-interface ProductTypeSignature {
-  id: string;
-  matches: (has: (...keywords: string[]) => boolean) => boolean;
-  label: { en: string; fr: string; ko: string };
-}
-
-const PRODUCT_TYPE_SIGNATURES: readonly ProductTypeSignature[] = [
-  {
-    id: 'potato-chips',
-    matches: (has) =>
-      has('pomme de terre', 'pommes de terre', 'potato', 'potatoes', 'flocon de pomme', '감자') &&
-      has('huile', 'oil', 'graisse', 'fat', '유'),
-    label: { en: 'Potato chips', fr: 'Chips de pommes de terre', ko: '감자칩' },
-  },
-  {
-    id: 'corn-chips',
-    matches: (has) =>
-      has('mais', 'maize', 'corn', 'masa', 'tortilla', '옥수수') &&
-      has('huile', 'oil', 'graisse', 'fat', '유'),
-    label: { en: 'Corn chips', fr: 'Chips de maïs', ko: '옥수수칩' },
-  },
-  {
-    id: 'chocolate',
-    matches: (has) =>
-      has('cacao', 'cocoa', 'chocolat', 'chocolate', '카카오', '코코아') &&
-      has('sucre', 'sugar', 'sirop', 'syrup', '설탕'),
-    label: { en: 'Chocolate confection', fr: 'Confiserie chocolatée', ko: '초콜릿 과자' },
-  },
-  {
-    id: 'biscuit',
-    matches: (has) =>
-      has('farine', 'flour', 'semoule', '밀가루') &&
-      has('sucre', 'sugar', 'sirop', 'syrup', '설탕') &&
-      has('huile', 'oil', 'beurre', 'butter', 'graisse', 'fat', '유'),
-    label: { en: 'Sweet biscuit', fr: 'Biscuit sucré', ko: '단과자' },
-  },
-  {
-    id: 'bakery',
-    matches: (has) =>
-      has('farine', 'flour', '밀가루') && has('levure', 'yeast', 'levain', '이스트'),
-    label: { en: 'Bakery product', fr: 'Produit de boulangerie', ko: '빵류' },
-  },
-  {
-    id: 'breakfast-cereal',
-    matches: (has) =>
-      has('avoine', 'oat', 'oats', 'flocon', 'flake', 'cereale', 'cereal', 'granola', '오트', '시리얼') &&
-      has('sucre', 'sugar', 'sirop', 'syrup', 'miel', 'honey', '설탕'),
-    label: { en: 'Breakfast cereal', fr: 'Céréales de petit-déjeuner', ko: '아침 시리얼' },
-  },
-  {
-    id: 'processed-meat',
-    matches: (has) =>
-      has('porc', 'pork', 'boeuf', 'beef', 'poulet', 'chicken', 'dinde', 'turkey', 'jambon', 'ham', 'bacon', 'viande', 'meat', '돼지', '소고기') &&
-      has('nitrite', 'nitrate', 'sel', 'salt', 'dextrose', '아질산', '소금'),
-    label: { en: 'Processed meat', fr: 'Viande transformée', ko: '가공육' },
-  },
-  {
-    id: 'dairy-dessert',
-    matches: (has) =>
-      has('lait', 'milk', 'creme', 'cream', 'yogourt', 'yaourt', 'yogurt', '우유', '크림') &&
-      has('sucre', 'sugar', 'sirop', 'syrup', '설탕'),
-    label: { en: 'Dairy dessert', fr: 'Dessert lacté', ko: '유제품 디저트' },
-  },
-  {
-    id: 'sweet-drink',
-    matches: (has) =>
-      has('eau', 'water', 'eau gazeifiee', 'carbonated', '물') &&
-      has('sucre', 'sugar', 'sirop', 'syrup', 'aspartame', 'sucralose', 'stevia', '설탕'),
-    label: { en: 'Sweetened beverage', fr: 'Boisson sucrée', ko: '가당 음료' },
-  },
-  {
-    id: 'condiment',
-    matches: (has) =>
-      has('vinaigre', 'vinegar', 'tomate', 'tomato', 'moutarde', 'mustard', '식초', '토마토') &&
-      has('sucre', 'sugar', 'sel', 'salt', 'amidon', 'starch', '설탕', '소금'),
-    label: { en: 'Condiment sauce', fr: 'Sauce condiment', ko: '소스류' },
-  },
-  {
-    id: 'pasta',
-    matches: (has) => has('pate alimentaire', 'pasta', 'nouille', 'noodle', 'semoule', 'vermicelle', '면', '국수'),
-    label: { en: 'Pasta or noodles', fr: 'Pâtes ou nouilles', ko: '면류' },
-  },
-];
-
 /**
- * Deduce a product CATEGORY label from the ingredient signature. Returns null when no
- * reliable deduction is possible, so the caller can pick a sharper generic label.
+ * Guarantee a clean product name, cross-checked against the ingredient signature.
+ *
+ * Order of preference:
+ *  1. the name read on the packaging — unless it claims a family the ingredients rule out;
+ *  2. the generic product type the model deduced from the photo + ingredients;
+ *  3. the family deduced deterministically from the ingredient signature;
+ *  4. a sweet/salty label, then the flat category label.
  */
-function deduceProductTypeName(substances: SubstanceDetected[], ocrText: string): string | null {
-  if (substances.length === 0) return null;
-  const joined = normalizeForLookup(
-    substances.map((s) => s.nom).join(' | ') + ' ' + (ocrText || '').slice(0, 600),
-  );
-  const has = (...keywords: string[]): boolean => keywords.some((k) => joined.includes(normalizeForLookup(k)));
-
-  for (const signature of PRODUCT_TYPE_SIGNATURES) {
-    if (signature.matches(has)) {
-      console.log('[Naming] Product type deduced from ingredients →', signature.id);
-      return pick(signature.label);
-    }
-  }
-
-  // No exact type: still be sharper than "Food product".
-  const isSweet = has('sucre', 'sugar', 'sirop', 'syrup', 'dextrose', 'glucose', 'fructose', 'miel', 'honey', '설탕');
-  const isSalty = has('sel', 'salt', 'arome', 'flavour', 'flavor', 'glutamate', 'assaisonnement', 'seasoning', '소금');
-  if (isSweet) return pick({ en: 'Sweet product', fr: 'Produit sucré', ko: '단 제품' });
-  if (isSalty) return pick({ en: 'Processed snack', fr: 'Snack transformé', ko: '가공 스낵' });
-  return pick({ en: 'Processed food', fr: 'Aliment transformé', ko: '가공식품' });
-}
-
-/** Guarantee a clean, non-"unknown" product name, deriving a category label when needed. */
 function sanitizeProductName(
   rawName: string,
   category: ProductCategory,
   substances: SubstanceDetected[] = [],
-  ocrText: string = '',
+  visualHint: string = '',
 ): string {
-  if (!isPlaceholderName(rawName)) return rawName.trim();
-  if (category === 'food' || category === 'beverage') {
-    const deduced = deduceProductTypeName(substances, ocrText);
-    if (deduced) return deduced;
+  const isEdible = category === 'food' || category === 'beverage';
+  const ingredientNames = substances.map((s) => s.nom);
+  const family: FamilyDetection | null = isEdible
+    ? detectProductFamily(ingredientNames, visualHint || null)
+    : null;
+
+  const readName = (rawName ?? '').trim();
+  if (!isPlaceholderName(readName) && !isNameContradicted(readName, family)) {
+    return readName;
+  }
+
+  if (isEdible) {
+    // The model's own generic type is used only when it agrees with the ingredients.
+    const hint = visualHint.trim();
+    if (hint && !isPlaceholderName(hint) && !isNameContradicted(hint, family)) return hint;
+    if (family) return family.label;
+    if (ingredientNames.length > 0) return weakProductLabel(ingredientNames);
   }
   return genericProductName(category);
 }
@@ -1896,8 +1870,12 @@ function assembleResult(
     objet_identifie: string;
     materiau_detecte: string;
     erreur?: string;
-    /** Raw OCR text, used to deduce a product-type label when no name could be read. */
-    ocr_text?: string;
+    /**
+     * Generic product type the vision model deduced by cross-checking the PHOTO (shape,
+     * colours, packaging) with the ingredient list. Used when no commercial name is legible,
+     * and always re-validated against the deterministic ingredient signature.
+     */
+    visual_hint?: string;
   },
   substances: SubstanceDetected[],
 ): UniversalAnalysisResult {
@@ -1938,7 +1916,7 @@ function assembleResult(
       fixIngredientDerivedName(meta.objet_identifie, sorted, meta.categorie_produit),
       meta.categorie_produit,
       sorted,
-      meta.ocr_text ?? '',
+      meta.visual_hint ?? '',
     ),
     materiau_detecte: meta.materiau_detecte || '',
     substances_detectees: sorted,
@@ -2067,7 +2045,8 @@ export async function scanOcrInstant(imageBase64: string): Promise<InstantScan> 
       categorie_produit: isCosmetic ? 'cosmetic' : 'food',
       objet_identifie: guessedName,
       materiau_detecte: '',
-      ocr_text: ocrData.fullText,
+      // No visual hint yet: the vision model has not run. The name is still cross-checked
+      // against the ingredient signature, so a wrong OCR guess never reaches the screen.
     },
     substances,
   );
@@ -2259,7 +2238,9 @@ export async function scanAiEnrich(
           objet_identifie: productName,
           materiau_detecte: '',
           erreur: '',
-          ocr_text: ocrData.fullText,
+          // Generic type the model deduced from the PHOTO + the ingredient list — used when
+          // no commercial name is legible, and re-validated against the ingredient signature.
+          visual_hint: extracted.type_produit,
         },
         substances,
       );
