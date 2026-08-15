@@ -1,10 +1,9 @@
 import { Tabs } from "expo-router";
-import { Camera, Clock, MessageCircle, User, Users } from "lucide-react-native";
+import { Camera, MessageCircle, ShoppingCart, User } from "lucide-react-native";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { t } from '@/utils/i18n';
-import { useHub } from '@/providers/HubProvider';
 
 function TabBarBackground() {
   if (Platform.OS === 'ios') {
@@ -20,8 +19,6 @@ function TabBarBackground() {
 }
 
 export default function TabLayout() {
-  const { hubUnreadCount } = useHub();
-
   return (
     <Tabs
       screenOptions={{
@@ -52,27 +49,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="history"
+        name="shopping"
         options={{
-          title: t('tab_history'),
-          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} strokeWidth={2} />,
+          title: t('tab_shopping'),
+          tabBarIcon: ({ color, size }) => <ShoppingCart color={color} size={size} strokeWidth={2} />,
         }}
       />
-      <Tabs.Screen
-        name="hub"
-        options={{
-          title: t('tab_hub'),
-          tabBarIcon: ({ color, size }) => <Users color={color} size={size} strokeWidth={2} />,
-          tabBarBadge: hubUnreadCount > 0 ? (hubUnreadCount > 9 ? '9+' : hubUnreadCount) : undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: '#D0260F',
-            color: '#FFFFFF',
-            fontSize: 10,
-            fontWeight: '800' as const,
-            fontFamily: 'DMSans_700Bold',
-          },
-        }}
-      />
+      {/* Historique et Hub restent accessibles via les raccourcis du Profil. */}
+      <Tabs.Screen name="history" options={{ href: null }} />
+      <Tabs.Screen name="hub" options={{ href: null }} />
       <Tabs.Screen
         name="dr-toxi"
         options={{

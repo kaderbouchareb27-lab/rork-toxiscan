@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText, HeartPulse } from 'lucide-react-native';
+import { Clock, Users, ChevronRight, FileText, HelpCircle, Eye, Mail, Star, UtensilsCrossed, Shirt, Package, Droplets, SprayCan, Apple, Info, Brain, Trophy, Share2, Check, Crown, ScrollText, HeartPulse } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
 import * as StoreReview from 'expo-store-review';
@@ -22,6 +22,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useQuiz } from '@/providers/QuizProvider';
 import { useBadges } from '@/providers/BadgesProvider';
 import { useHealthProfile } from '@/providers/HealthProfileProvider';
+import { useHub } from '@/providers/HubProvider';
 import { t, tf } from '@/utils/i18n';
 import MealDashboard from '@/components/MealDashboard';
 
@@ -30,6 +31,7 @@ export default function ProfileScreen() {
   const { totalCorrect, totalAnswered } = useQuiz();
   const { unlockedCount, totalCount, shareCount } = useBadges();
   const { activeCount: healthActiveCount } = useHealthProfile();
+  const { hubUnreadCount } = useHub();
 
   const handleContact = useCallback(async () => {
     console.log('[Profile] Contact tapped');
@@ -95,6 +97,39 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>{t('profile_title')}</Text>
+
+        <View style={styles.shortcutsRow}>
+          <TouchableOpacity
+            style={styles.shortcutTile}
+            onPress={() => handleMenuPress('/history')}
+            activeOpacity={0.8}
+            testID="profile-shortcut-history"
+          >
+            <View style={styles.shortcutIconWrap}>
+              <Clock color={Colors.primary} size={22} strokeWidth={2} />
+            </View>
+            <Text style={styles.shortcutLabel}>{t('tab_history')}</Text>
+            <ChevronRight color={Colors.textTertiary} size={16} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.shortcutTile}
+            onPress={() => handleMenuPress('/hub')}
+            activeOpacity={0.8}
+            testID="profile-shortcut-hub"
+          >
+            <View style={styles.shortcutIconWrap}>
+              <Users color={Colors.primary} size={22} strokeWidth={2} />
+              {hubUnreadCount > 0 ? (
+                <View style={styles.shortcutBadge}>
+                  <Text style={styles.shortcutBadgeText}>{hubUnreadCount > 9 ? '9+' : hubUnreadCount}</Text>
+                </View>
+              ) : null}
+            </View>
+            <Text style={styles.shortcutLabel}>{t('tab_hub')}</Text>
+            <ChevronRight color={Colors.textTertiary} size={16} />
+          </TouchableOpacity>
+        </View>
 
         <MealDashboard />
 
@@ -310,6 +345,62 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 20,
     letterSpacing: -0.5,
+  },
+  shortcutsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 14,
+  },
+  shortcutTile: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(46, 158, 52, 0.12)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  shortcutIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    backgroundColor: 'rgba(46, 158, 52, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  shortcutLabel: {
+    flex: 1,
+    fontSize: 14.5,
+    fontWeight: '700' as const,
+    color: Colors.text,
+  },
+  shortcutBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#D0260F',
+    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  shortcutBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800' as const,
   },
   card: {
     backgroundColor: Colors.surface,

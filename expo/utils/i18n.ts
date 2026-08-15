@@ -31,6 +31,7 @@ const translations = {
   tab_drtoxi: { fr: 'Dr. Toxi', en: 'Dr. Toxi', ko: 'Dr. Toxi' },
   tab_hub: { fr: 'Hub', en: 'Hub', ko: '허브' },
   tab_profile: { fr: 'Profil', en: 'Profile', ko: '프로필' },
+  tab_shopping: { fr: 'Courses', en: 'Shopping', ko: '장보기' },
 
   // ===== ROOT LAYOUT =====
   error_occurred: { fr: 'Une erreur est survenue', en: 'An error occurred', ko: '오류가 발생했습니다' },

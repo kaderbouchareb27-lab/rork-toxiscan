@@ -45,6 +45,7 @@ import { LocationProvider } from "@/providers/LocationProvider";
 import { HealthProfileProvider } from "@/providers/HealthProfileProvider";
 import { MealHistoryProvider } from "@/providers/MealHistoryProvider";
 import { HubProvider } from "@/providers/HubProvider";
+import { ShoppingProvider } from "@/providers/ShoppingProvider";
 
 SplashScreen.setOptions({
   duration: 650,
@@ -159,6 +160,10 @@ function RootLayoutNav() {
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
       <Stack.Screen name="compare" options={{ headerShown: false }} />
       <Stack.Screen name="compare-scan" options={{ headerShown: false }} />
+      <Stack.Screen name="shopping-scan" options={{ headerShown: false }} />
+      <Stack.Screen name="shopping-add" options={{ headerShown: false }} />
+      <Stack.Screen name="shopping-alternative" options={{ headerShown: false }} />
+      <Stack.Screen name="shopping-summary" options={{ headerShown: false }} />
       <Stack.Screen name="meal/confirm" options={{ headerShown: false }} />
       <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="weekly-report" options={{ headerShown: false }} />
@@ -206,7 +211,9 @@ export default function RootLayout() {
                       <LocationProvider>
                         <HealthProfileProvider>
                           <HubProvider>
-                            <RootLayoutNav />
+                            <ShoppingProvider>
+                              <RootLayoutNav />
+                            </ShoppingProvider>
                           </HubProvider>
                         </HealthProfileProvider>
                       </LocationProvider>

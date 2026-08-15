@@ -31,8 +31,9 @@ import {
 } from '@/constants/drToxiAvatars';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
+import { useShopping } from '@/providers/ShoppingProvider';
 import { VerdictTier, ScannedProduct } from '@/types';
-import { t, tf, getDateLocale } from '@/utils/i18n';
+import { t, tf, pick, getDateLocale } from '@/utils/i18n';
 import { getDisplayBrand, verdictTierFromProduct } from '@/utils/api';
 
 type FilterType = 'all' | 'favorites' | VerdictTier;
@@ -105,6 +106,14 @@ function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation 
   }
 }
 
+/** Couleur du score d'une session de courses archivée (même échelle que le bilan). */
+function sessionScoreColor(score: number): string {
+  if (score >= 8) return '#2E9E34';
+  if (score >= 5) return '#EAB308';
+  if (score >= 3) return '#E8730A';
+  return '#D0260F';
+}
+
 // Filter chips keep the compact colored dot to indicate their risk level.
 function RiskStatusIcon({ color, size = 16 }: { tier: VerdictTier; color: string; size?: number }) {
   const dotSize = Math.max(Math.round(size * 0.6), 8);
@@ -173,6 +182,7 @@ export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const { clearHistory, history, isLoading, stats } = useScanHistory();
   const { isPro } = useSubscription();
+  const { sessions } = useShopping();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
   const totalHistoryCount = history.length;
@@ -289,21 +299,56 @@ export default function HistoryScreen() {
   }, [handleProductPress]);
 
   const renderStatsHeader = useCallback(() => {
-    if (stats.total === 0) return null;
+    if (sessions.length === 0 && stats.total === 0) return null;
     return (
-      <View style={styles.statsCard}>
-        <Text style={styles.statsCardTitle}>{t('statistics')}</Text>
-        <Text style={styles.statsCardTotal}>{tf('products_analyzed', stats.total)}</Text>
-        <View style={styles.statsBreakdown}>
-          <StatBar label={t('stat_danger')} count={stats.carcinogenic} max={maxStat} color="#D0260F" />
-          <StatBar label={t('filter_ultra_toxic')} count={stats.ultraToxic} max={maxStat} color="#722F37" />
-          <StatBar label={t('stat_probable')} count={stats.processed} max={maxStat} color="#E8730A" />
-          <StatBar label={t('stat_possible')} count={stats.moderation} max={maxStat} color="#EAB308" />
-          <StatBar label={t('stat_safe')} count={stats.approved} max={maxStat} color="#2E9E34" />
-        </View>
+      <View>
+        {sessions.length > 0 ? (
+          <View style={styles.sessionsSection}>
+            <Text style={styles.sessionsTitle}>
+              {pick({ en: 'Shopping sessions', fr: 'Sessions de courses', ko: '장보기 세션' })}
+            </Text>
+            {sessions.slice(0, 6).map((session) => {
+              const date = new Date(session.endedAt).toLocaleDateString(getDateLocale(), {
+                day: 'numeric',
+                month: 'short',
+              });
+              const color = sessionScoreColor(session.score);
+              return (
+                <View key={session.id} style={styles.sessionCard}>
+                  <View style={[styles.sessionDot, { backgroundColor: color }]} />
+                  <View style={styles.sessionInfo}>
+                    <Text style={styles.sessionTitle}>
+                      {date} · {session.items.length}{' '}
+                      {session.items.length === 1
+                        ? pick({ en: 'item', fr: 'article', ko: '개' })
+                        : pick({ en: 'items', fr: 'articles', ko: '개' })}
+                    </Text>
+                    <Text style={styles.sessionSub}>
+                      {pick({ en: 'Average health score', fr: 'Score santé moyen', ko: '평균 건강 점수' })}
+                    </Text>
+                  </View>
+                  <Text style={[styles.sessionScore, { color }]}>{session.score.toFixed(1)}/10</Text>
+                </View>
+              );
+            })}
+          </View>
+        ) : null}
+        {stats.total > 0 ? (
+          <View style={styles.statsCard}>
+            <Text style={styles.statsCardTitle}>{t('statistics')}</Text>
+            <Text style={styles.statsCardTotal}>{tf('products_analyzed', stats.total)}</Text>
+            <View style={styles.statsBreakdown}>
+              <StatBar label={t('stat_danger')} count={stats.carcinogenic} max={maxStat} color="#D0260F" />
+              <StatBar label={t('filter_ultra_toxic')} count={stats.ultraToxic} max={maxStat} color="#722F37" />
+              <StatBar label={t('stat_probable')} count={stats.processed} max={maxStat} color="#E8730A" />
+              <StatBar label={t('stat_possible')} count={stats.moderation} max={maxStat} color="#EAB308" />
+              <StatBar label={t('stat_safe')} count={stats.approved} max={maxStat} color="#2E9E34" />
+            </View>
+          </View>
+        ) : null}
       </View>
     );
-  }, [stats, maxStat]);
+  }, [sessions, stats, maxStat]);
 
   const renderFooter = useCallback(() => {
     if (!showPremiumUpsell) return null;
@@ -431,6 +476,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAF8',
   },
+  sessionsSection: { marginBottom: 14 },
+  sessionsTitle: { fontSize: 15, fontWeight: '800' as const, color: Colors.text, letterSpacing: -0.2, marginBottom: 10 },
+  sessionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: Colors.surface,
+    borderRadius: 18,
+    paddingVertical: 13,
+    paddingHorizontal: 15,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  sessionDot: { width: 12, height: 12, borderRadius: 6 },
+  sessionInfo: { flex: 1 },
+  sessionTitle: { fontSize: 14, fontWeight: '700' as const, color: Colors.text },
+  sessionSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
+  sessionScore: { fontSize: 16, fontWeight: '900' as const },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
