@@ -417,7 +417,15 @@ export function classifyMealIngredient(name: string, aiCategoryHint?: string): {
     if (circ.includes('groupe 2b') || circ.includes('group 2b')) return { category: 'carcinogen_2b', isGrave: true };
     if (db.risk === 'danger') return { category: 'carcinogen_g1', isGrave: true };
     if (db.risk === 'probable') return { category: familyFromName(name, 'processed'), isGrave: false };
-    if (db.risk === 'possible') return { category: familyFromName(name, 'additive'), isGrave: false };
+    // "possible" = consume in moderation, NOT "it's an additive". Classify by the NAME's junk
+    // family first; when the name carries no junk signal, only a genuinely industrial / technical
+    // ingredient (circ "Industriel", e.g. E551 silica) stays an additive. An ordinary moderation
+    // FOOD — rice, starch, plant milk — is NEUTRAL (a basic staple, never an additive).
+    if (db.risk === 'possible') {
+      const fam = junkFamilyFromName(name);
+      if (fam) return { category: fam, isGrave: false };
+      return { category: circ.includes('industriel') ? 'additive' : 'neutral', isGrave: false };
+    }
     // db.risk === 'aucun' (database says benign): still rescue clearly sweet / refined-flour
     // items the database keeps green (e.g. chocolate powder, white flour) so a pastry or a
     // sweet topping never counts as healthy (spec fix §2/§3).
@@ -481,16 +489,18 @@ export function computeMealScore(ingredients: MealIngredient[], dishName?: strin
   }
   rawJunk = Math.min(rawJunk, 9);
 
-  // TEMPS 3 — health RATIO. Genuine whole foods (not incidental milk/cream) SOFTEN the junk
-  // load: the more of the plate is healthy, the less a lone processed item weighs — but they
-  // can NEVER fully erase it (softening floors at 50%), so one refined item in an otherwise
-  // healthy meal still costs a moderate amount (lands ~7-8/10) instead of crashing to red OR
-  // disappearing into a perfect 10. Adding more green raises the score; adding junk lowers it.
+  // TEMPS 3 — health RATIO (judged like a judge reads the whole plate, not ingredient by
+  // ingredient). Genuine whole foods (not incidental milk/cream) SOFTEN the junk load: the
+  // greener the plate, the less each moderate indulgence weighs. They can never fully erase
+  // junk (softening floors at 20%, so a lone refined item still costs ~2 points), but a
+  // healthy-dominant meal (3+ whole foods around a thin tortilla, a splash of oil, a little
+  // cheese) lands ~6-7/10 instead of crashing to orange. Adding green raises the score;
+  // adding junk lowers it.
   const effectiveHealthy = ingredients.filter((i) => i.category === 'healthy' && !isIncidentalHealthy(i.name)).length;
   const junkItemCount = ingredients.filter((i) => JUNK_FAMILY_CATEGORIES.includes(i.category)).length;
   const denom = effectiveHealthy + junkItemCount;
   const healthyRatio = denom > 0 ? effectiveHealthy / denom : 0;
-  const soften = hasCarcinogen ? 1 : 1 - 0.5 * healthyRatio;
+  const soften = hasCarcinogen ? 1 : 1 - 0.8 * healthyRatio;
 
   let score = base + rawJunk * soften;
 
