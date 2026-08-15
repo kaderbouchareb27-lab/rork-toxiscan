@@ -32,6 +32,8 @@ import {
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { useShopping } from '@/providers/ShoppingProvider';
+import ShoppingProgressChart from '@/components/ShoppingProgressChart';
+import { shoppingScoreColor } from '@/utils/shopping';
 import { VerdictTier, ScannedProduct } from '@/types';
 import { t, tf, pick, getDateLocale } from '@/utils/i18n';
 import { getDisplayBrand, verdictTierFromProduct } from '@/utils/api';
@@ -104,14 +106,6 @@ function getHistoryRiskPresentation(tier: VerdictTier): HistoryRiskPresentation 
         borderColor: 'rgba(46, 158, 52, 0.24)',
       };
   }
-}
-
-/** Couleur du score d'une session de courses archivée (même échelle que le bilan). */
-function sessionScoreColor(score: number): string {
-  if (score >= 8) return '#2E9E34';
-  if (score >= 5) return '#EAB308';
-  if (score >= 3) return '#E8730A';
-  return '#D0260F';
 }
 
 // Filter chips keep the compact colored dot to indicate their risk level.
@@ -307,12 +301,13 @@ export default function HistoryScreen() {
             <Text style={styles.sessionsTitle}>
               {pick({ en: 'Shopping sessions', fr: 'Sessions de courses', ko: '장보기 세션' })}
             </Text>
+            {sessions.length >= 2 ? <ShoppingProgressChart sessions={sessions} /> : null}
             {sessions.slice(0, 6).map((session) => {
               const date = new Date(session.endedAt).toLocaleDateString(getDateLocale(), {
                 day: 'numeric',
                 month: 'short',
               });
-              const color = sessionScoreColor(session.score);
+              const color = shoppingScoreColor(session.score);
               return (
                 <View key={session.id} style={styles.sessionCard}>
                   <View style={[styles.sessionDot, { backgroundColor: color }]} />

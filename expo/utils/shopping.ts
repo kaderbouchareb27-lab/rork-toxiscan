@@ -153,6 +153,14 @@ export function averageShoppingScore(items: ShoppingItem[]): number {
   return Math.round((sum / items.length) * 10) / 10;
 }
 
+/** Couleur du score moyen d'une session (≥8 vert, ≥5 jaune, ≥3 orange, sinon rouge). */
+export function shoppingScoreColor(score: number): string {
+  if (score >= 8) return '#2E9E34';
+  if (score >= 5) return '#EAB308';
+  if (score >= 3) return '#E8730A';
+  return '#D0260F';
+}
+
 /** Items orange/rouge, triés du plus grave au moins grave (pour le bilan). */
 export function problematicShoppingItems(items: ShoppingItem[]): ShoppingItem[] {
   const rank: Record<ShoppingTier, number> = { red: 0, orange: 1, yellow: 2, green: 3 };
