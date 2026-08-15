@@ -32,6 +32,7 @@ function dish(dishName: string, parts: [name: string, category: MealCategory][])
     name,
     category,
     isGrave: category.startsWith('carcinogen'),
+    note: '',
   }));
   const score = computeMealScore(ingredients, dishName);
   const tier = scoreToTier(score);

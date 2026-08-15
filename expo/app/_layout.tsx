@@ -157,6 +157,8 @@ function RootLayoutNav() {
       <Stack.Screen name="paywall" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="privacy" options={{ title: t('nav_privacy') }} />
       <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
+      <Stack.Screen name="compare" options={{ headerShown: false }} />
+      <Stack.Screen name="compare-scan" options={{ headerShown: false }} />
       <Stack.Screen name="meal/confirm" options={{ headerShown: false }} />
       <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="weekly-report" options={{ headerShown: false }} />

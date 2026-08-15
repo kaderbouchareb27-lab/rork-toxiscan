@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import {
-  ChevronLeft, Share2, MessageCircle, Shield,
+  ChevronLeft, Share2, ArrowLeftRight, MessageCircle, Shield,
   CheckCircle, Camera, Lightbulb, RefreshCw, Layers, MapPin,
   Store, Heart, Navigation, UserCheck, LocateFixed, Megaphone, Leaf, ShieldAlert,
 } from 'lucide-react-native';
@@ -750,6 +750,11 @@ export default function ProductScreen() {
     toggleFavorite(product.barcode);
   };
 
+  const handleCompare = () => {
+    if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push(`/compare-scan?base=${encodeURIComponent(product.barcode)}`);
+  };
+
   const fallbackTextShare = async () => {
     const badgeLabel = verdictLevel === 'approuve'
       ? `[${t('badge_approved')}]`
@@ -852,6 +857,14 @@ export default function ProductScreen() {
               size={20}
               fill={product.isFavorite ? '#FF2D55' : 'transparent'}
             />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleCompare}
+            style={styles.compareButton}
+            testID="compare-button"
+            accessibilityLabel={pick({ en: 'Compare with another product', fr: 'Comparer avec un autre produit', ko: '다른 제품과 비교' })}
+          >
+            <ArrowLeftRight color={Colors.text} size={20} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare} style={styles.shareButton} testID="share-button">
             <Share2 color={Colors.text} size={20} />
@@ -1316,6 +1329,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 17, fontWeight: '700' as const, color: Colors.text, letterSpacing: -0.2, flex: 1, textAlign: 'center' as const, marginHorizontal: 8 },
   headerRight: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8 },
   favoriteButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  compareButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   shareButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.surface, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   scrollView: { flex: 1 },
   scrollContent: { paddingHorizontal: 18, paddingTop: 4 },
