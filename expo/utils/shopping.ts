@@ -8,7 +8,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 import { z } from 'zod';
-import type { ScannedProduct } from '@/types';
+import type { ScannedProduct, ProductCategory } from '@/types';
 import { verdictLevelFromProduct } from '@/utils/productComparison';
 import type { CompareVerdictLevel } from '@/utils/productComparison';
 import { computeToxiScore } from '@/utils/toxiScore';
@@ -159,6 +159,133 @@ export function shoppingScoreColor(score: number): string {
   if (score >= 5) return '#EAB308';
   if (score >= 3) return '#E8730A';
   return '#D0260F';
+}
+
+/** Catégorie d'affichage d'un item dans la liste du mode courses. */
+export type ShoppingCategory = 'produce' | 'fresh' | 'grocery' | 'cosmetic' | 'other';
+
+/** Ordre d'affichage des sections : produits frais d'abord, cosmétiques et autres à la fin. */
+export const SHOPPING_CATEGORY_ORDER: readonly ShoppingCategory[] = [
+  'produce',
+  'fresh',
+  'grocery',
+  'cosmetic',
+  'other',
+];
+
+/** Libellé localisé d'une section. */
+export function shoppingCategoryLabel(category: ShoppingCategory): string {
+  switch (category) {
+    case 'produce':
+      return pick({ en: 'Fruits & Vegetables', fr: 'Fruits & Légumes', ko: '과일 & 채소' });
+    case 'fresh':
+      return pick({ en: 'Fresh', fr: 'Frais', ko: '신선식품' });
+    case 'grocery':
+      return pick({ en: 'Grocery', fr: 'Épicerie', ko: '식료품' });
+    case 'cosmetic':
+      return pick({ en: 'Cosmetics', fr: 'Cosmétiques', ko: '화장품' });
+    case 'other':
+      return pick({ en: 'Other', fr: 'Autres', ko: '기타' });
+  }
+}
+
+/** Catégories produits « non alimentaires » → section Autres. */
+const NON_FOOD_PRODUCT_CATEGORIES: readonly ProductCategory[] = [
+  'kitchen_utensil',
+  'clothing',
+  'household',
+  'electronics',
+  'furniture',
+  'toy',
+];
+
+// Mots-clés sans accents (le nom est normalisé avant comparaison). Latin = mot
+// entier (évite « lait » dans « laitue »), coréen = sous-chaîne.
+const GROCERY_FORCE_KEYWORDS: readonly string[] = [
+  'jus', 'juice', 'soda', 'boisson', 'drink', 'sauce', 'soupe', 'soup',
+  'confiture', 'jam', 'conserve', 'canned', 'sirop', 'syrup', 'cereale', 'cereal',
+  'chocolat', 'chocolate', 'biscuit', 'cookie', 'gateau', 'cake', 'bonbon', 'candy',
+  'caramel', 'miel', 'honey', 'huile', 'oil', 'vinaigre', 'vinegar', 'moutarde',
+  'mustard', 'ketchup', 'mayonnaise',
+  '주스', '탄산음료', '음료', '소스', '수프', '잼', '통조림', '시럽', '시리얼',
+  '초콜릿', '비스킷', '과자', '케이크', '사탕', '캐러멜', '꿀', '기름', '식초',
+  '겨자', '케첩', '마요네즈',
+];
+
+const PRODUCE_KEYWORDS: readonly string[] = [
+  'legume', 'legumes', 'fruit', 'fruits', 'pomme', 'banane', 'orange', 'citron',
+  'fraise', 'framboise', 'myrtille', 'raisin', 'poire', 'peche', 'abricot', 'melon',
+  'pasteque', 'ananas', 'mangue', 'kiwi', 'tomate', 'carotte', 'salade', 'laitue',
+  'epinard', 'epinards', 'brocoli', 'chou', 'courgette', 'concombre', 'poivron',
+  'oignon', 'ail', 'patate', 'haricot', 'haricots', 'avocat', 'celeri', 'poireau',
+  'champignon', 'aubergine', 'artichaut', 'endive', 'navet', 'radis', 'betterave',
+  'vegetable', 'vegetables', 'fruit', 'fruits', 'apple', 'banana', 'orange', 'lemon',
+  'lime', 'strawberry', 'raspberry', 'blueberry', 'grape', 'grapes', 'pear', 'peach',
+  'apricot', 'melon', 'watermelon', 'pineapple', 'mango', 'kiwi', 'tomato', 'tomatoes',
+  'carrot', 'salad', 'lettuce', 'spinach', 'broccoli', 'cabbage', 'zucchini', 'cucumber',
+  'pepper', 'onion', 'garlic', 'potato', 'potatoes', 'bean', 'beans', 'pea', 'peas',
+  'avocado', 'celery', 'leek', 'mushroom', 'eggplant', 'artichoke', 'turnip', 'radish',
+  'beet', 'corn',
+  '과일', '채소', '야채', '사과', '바나나', '오렌지', '레몬', '라임', '딸기', '라즈베리',
+  '블루베리', '포도', '배', '복숭아', '살구', '멜론', '수박', '파인애플', '망고', '키위',
+  '토마토', '당근', '샐러드', '상추', '시금치', '브로콜리', '양배추', '호박', '오이',
+  '고추', '피망', '양파', '마늘', '감자', '콩', '완두콩', '아보카도', '셀러리', '대파',
+  '부추', '버섯', '가지', '아티초크', '무', '비트', '옥수수',
+];
+
+const FRESH_KEYWORDS: readonly string[] = [
+  'viande', 'boeuf', 'poulet', 'porc', 'agneau', 'dinde', 'jambon', 'saucisse',
+  'charcuterie', 'poisson', 'saumon', 'thon', 'crevette', 'fruit de mer', 'fruits de mer',
+  'oeuf', 'oeufs', 'lait', 'yaourt', 'yogourt', 'fromage', 'beurre', 'creme',
+  'creme fraiche', 'pain', 'baguette', 'boulangerie', 'burrata', 'mozzarella', 'ricotta',
+  'camembert', 'brie',
+  'meat', 'beef', 'chicken', 'pork', 'lamb', 'turkey', 'ham', 'sausage', 'bacon', 'fish',
+  'salmon', 'tuna', 'shrimp', 'seafood', 'egg', 'eggs', 'milk', 'yogurt', 'yoghurt',
+  'cheese', 'butter', 'cream', 'bread', 'baguette', 'bakery',
+  '고기', '소고기', '쇠고기', '닭고기', '돼지고기', '양고기', '칠면조', '햄', '소시지',
+  '베이컨', '생선', '연어', '참치', '새우', '해산물', '달걀', '계란', '우유', '요거트',
+  '요구르트', '치즈', '버터', '크림', '빵', '바게트',
+];
+
+function normalizeCategoryText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/œ/g, 'oe')
+    .replace(/æ/g, 'ae')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function matchesCategoryKeywords(name: string, keywords: readonly string[]): boolean {
+  for (const keyword of keywords) {
+    if (/^[a-z0-9\s]+$/.test(keyword)) {
+      // Mot latin : correspondance mot entier pour éviter « lait » dans « laitue ».
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(name)) return true;
+    } else if (name.includes(keyword)) {
+      // Coréen (pas d'espaces entre syllabes) : sous-chaîne.
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Détermine la section d'affichage d'un item (déterministe, sans IA). */
+export function shoppingCategory(item: ShoppingItem): ShoppingCategory {
+  if (item.isCosmetic) return 'cosmetic';
+
+  const productCategory = item.product?.productCategory;
+  if (productCategory && NON_FOOD_PRODUCT_CATEGORIES.includes(productCategory)) return 'other';
+
+  // Nom + catégorie OpenFoodFacts + objet identifié (pour les scans).
+  const haystack = normalizeCategoryText(
+    [item.name, item.product?.categories, item.product?.objectIdentified].filter(Boolean).join(' '),
+  );
+
+  if (matchesCategoryKeywords(haystack, GROCERY_FORCE_KEYWORDS)) return 'grocery';
+  if (matchesCategoryKeywords(haystack, FRESH_KEYWORDS)) return 'fresh';
+  if (matchesCategoryKeywords(haystack, PRODUCE_KEYWORDS)) return 'produce';
+  return 'grocery';
 }
 
 /** Items orange/rouge, triés du plus grave au moins grave (pour le bilan). */

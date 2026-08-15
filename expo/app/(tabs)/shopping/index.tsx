@@ -12,18 +12,42 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { ShoppingCart, Plus, Check, Camera, X, Flag, Trash2 } from 'lucide-react-native';
+import { ShoppingCart, Plus, Check, Camera, X, Flag, Trash2, Apple, Refrigerator, ShoppingBasket, Sparkles, Package } from 'lucide-react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { useShopping } from '@/providers/ShoppingProvider';
-import { shoppingVerdictColor, shoppingVerdictLabel } from '@/utils/shopping';
-import type { ShoppingItem } from '@/utils/shopping';
+import {
+  shoppingVerdictColor,
+  shoppingVerdictLabel,
+  shoppingCategory,
+  shoppingCategoryLabel,
+  SHOPPING_CATEGORY_ORDER,
+} from '@/utils/shopping';
+import type { ShoppingItem, ShoppingCategory } from '@/utils/shopping';
 import { t, pick } from '@/utils/i18n';
 
 function tap() {
   if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+}
+
+function CategoryIcon({ category }: { category: ShoppingCategory }) {
+  const color = Colors.primaryDark;
+  const size = 14;
+  const strokeWidth = 2.2;
+  switch (category) {
+    case 'produce':
+      return <Apple color={color} size={size} strokeWidth={strokeWidth} />;
+    case 'fresh':
+      return <Refrigerator color={color} size={size} strokeWidth={strokeWidth} />;
+    case 'grocery':
+      return <ShoppingBasket color={color} size={size} strokeWidth={strokeWidth} />;
+    case 'cosmetic':
+      return <Sparkles color={color} size={size} strokeWidth={strokeWidth} />;
+    case 'other':
+      return <Package color={color} size={size} strokeWidth={strokeWidth} />;
+  }
 }
 
 export default function ShoppingScreen() {
@@ -52,6 +76,19 @@ export default function ShoppingScreen() {
     pick({ en: 'Bread', fr: 'Pain', ko: '빵' }),
     pick({ en: 'Water', fr: 'Eau', ko: '물' }),
   ], []);
+
+  const grouped = useMemo(() => {
+    const byCategory = new Map<ShoppingCategory, ShoppingItem[]>();
+    for (const item of items) {
+      const category = shoppingCategory(item);
+      const list = byCategory.get(category);
+      if (list) list.push(item);
+      else byCategory.set(category, [item]);
+    }
+    return SHOPPING_CATEGORY_ORDER
+      .filter((category) => byCategory.has(category))
+      .map((category) => ({ category, items: byCategory.get(category) ?? [] }));
+  }, [items]);
 
   const handleStart = useCallback(() => {
     tap();
@@ -178,13 +215,24 @@ export default function ShoppingScreen() {
             </Text>
           </View>
         ) : (
-          items.map((item) => (
-            <ShoppingItemRow
-              key={item.id}
-              item={item}
-              onToggle={() => toggleChecked(item.id)}
-              onRemove={() => removeItem(item.id)}
-            />
+          grouped.map((section) => (
+            <View key={section.category} style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <CategoryIcon category={section.category} />
+                <Text style={styles.sectionTitle}>{shoppingCategoryLabel(section.category)}</Text>
+                <View style={styles.sectionCountBadge}>
+                  <Text style={styles.sectionCountText}>{section.items.length}</Text>
+                </View>
+              </View>
+              {section.items.map((item) => (
+                <ShoppingItemRow
+                  key={item.id}
+                  item={item}
+                  onToggle={() => toggleChecked(item.id)}
+                  onRemove={() => removeItem(item.id)}
+                />
+              ))}
+            </View>
           ))
         )}
       </ScrollView>
@@ -395,6 +443,33 @@ const styles = StyleSheet.create({
   scrollContent: { paddingHorizontal: 20, paddingBottom: 16 },
   emptyState: { paddingVertical: 36, alignItems: 'center' },
   emptyText: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+
+  section: { marginBottom: 6 },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginTop: 10,
+    marginBottom: 10,
+    paddingHorizontal: 2,
+  },
+  sectionTitle: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '800' as const,
+    color: Colors.primaryDark,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  },
+  sectionCountBadge: {
+    backgroundColor: Colors.primaryLight,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: Colors.primaryBorder,
+  },
+  sectionCountText: { fontSize: 11, fontWeight: '800' as const, color: Colors.primary },
 
   itemRow: {
     flexDirection: 'row',
