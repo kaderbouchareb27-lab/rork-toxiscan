@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   TextInput,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { ShoppingCart, Plus, Check, Camera, X, Flag } from 'lucide-react-native';
+import { ShoppingCart, Plus, Check, Camera, X, Flag, Trash2 } from 'lucide-react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
@@ -233,28 +235,56 @@ function ShoppingItemRow({
 }) {
   const color = shoppingVerdictColor(item.verdictLevel, item.isCosmetic);
   const label = shoppingVerdictLabel(item.verdictLevel, item.isCosmetic);
+
+  const handleDelete = useCallback(() => {
+    tap();
+    onRemove();
+  }, [onRemove]);
+
   return (
-    <View style={[styles.itemRow, item.checked && styles.itemRowChecked]}>
-      <TouchableOpacity
-        style={[styles.checkbox, item.checked && { backgroundColor: Colors.primary, borderColor: Colors.primary }]}
-        onPress={onToggle}
-        activeOpacity={0.7}
-        testID="shopping-item-check"
-      >
-        {item.checked ? <Check color="#FFFFFF" size={14} strokeWidth={3.2} /> : null}
-      </TouchableOpacity>
-      <View style={styles.itemInfo}>
-        <Text style={[styles.itemName, item.checked && styles.itemNameChecked]} numberOfLines={2}>
-          {item.name}
-        </Text>
-        <View style={[styles.itemBadge, { backgroundColor: color }]}>
-          <Text style={styles.itemBadgeText} numberOfLines={1}>{label}</Text>
+    <Swipeable
+      containerStyle={styles.swipeableContainer}
+      overshootRight={false}
+      friction={2}
+      rightThreshold={36}
+      renderRightActions={(progress) => {
+        const scale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] });
+        return (
+          <Animated.View style={[styles.swipeDelete, { transform: [{ scale }] }]}>
+            <TouchableOpacity
+              style={styles.swipeDeleteButton}
+              onPress={handleDelete}
+              activeOpacity={0.85}
+              testID="shopping-item-swipe-delete"
+            >
+              <Trash2 color="#FFFFFF" size={18} />
+            </TouchableOpacity>
+          </Animated.View>
+        );
+      }}
+    >
+      <View style={[styles.itemRow, item.checked && styles.itemRowChecked]}>
+        <TouchableOpacity
+          style={[styles.checkbox, item.checked && { backgroundColor: Colors.primary, borderColor: Colors.primary }]}
+          onPress={onToggle}
+          activeOpacity={0.7}
+          testID="shopping-item-check"
+        >
+          {item.checked ? <Check color="#FFFFFF" size={14} strokeWidth={3.2} /> : null}
+        </TouchableOpacity>
+        <View style={styles.itemInfo}>
+          <Text style={[styles.itemName, item.checked && styles.itemNameChecked]} numberOfLines={2}>
+            {item.name}
+          </Text>
+          <View style={[styles.itemBadge, { backgroundColor: color }]}>
+            <Text style={styles.itemBadgeText} numberOfLines={1}>{label}</Text>
+          </View>
         </View>
+        <TouchableOpacity style={styles.removeButton} onPress={onRemove} activeOpacity={0.7} testID="shopping-item-remove">
+          <X color={Colors.textTertiary} size={16} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.removeButton} onPress={onRemove} activeOpacity={0.7} testID="shopping-item-remove">
-        <X color={Colors.textTertiary} size={16} />
-      </TouchableOpacity>
-    </View>
+    </Swipeable>
   );
 }
 
@@ -374,11 +404,18 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingVertical: 13,
     paddingHorizontal: 14,
-    marginBottom: 10,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   itemRowChecked: { opacity: 0.6 },
+  swipeableContainer: { marginBottom: 10, borderRadius: 18 },
+  swipeDelete: { width: 72 },
+  swipeDeleteButton: {
+    flex: 1,
+    backgroundColor: '#D0260F',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   checkbox: {
     width: 24,
     height: 24,
