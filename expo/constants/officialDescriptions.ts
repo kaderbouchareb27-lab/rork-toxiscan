@@ -498,7 +498,7 @@ export const OFFICIAL_DESCRIPTION_TEXTS: readonly string[] = [
   "Golden raisins deliver antioxidants and natural sugars that benefit energy and wellness.",
   "Golden raisins provide antioxidants and essential nutrients that support overall health and energy.",
   "A plant gum (E413) from the astragalus shrub, used as a thickener and stabiliser. It behaves as soluble fibre and is well tolerated, though it can cause bloating in quantity.",
-  "Acacia gum acts as a prebiotic fiber that nourishes beneficial gut bacteria.",
+  "Natural fiber from acacia sap, used as a thickener. Not digested, no proven risk. Rated occasional only because it signals a processed recipe, not for any real danger.",
   "A thickener (E427) from cassia tree seeds, authorised in the EU with strict purity limits because the raw seed contains natural anthraquinones. Purified food grade is considered safe.",
   "Guar gum is an industrial gelling agent that may cause bloating and digestive discomfort.",
   "Konjac gum is a thickener with a risk of intestinal blockage.",
