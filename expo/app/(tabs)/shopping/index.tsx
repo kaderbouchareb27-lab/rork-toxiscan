@@ -18,6 +18,8 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { useShopping } from '@/providers/ShoppingProvider';
+import { useScanHistory } from '@/providers/ScanHistoryProvider';
+import ShoppingInsights from '@/components/ShoppingInsights';
 import {
   shoppingVerdictColor,
   shoppingVerdictLabel,
@@ -26,7 +28,7 @@ import {
   SHOPPING_CATEGORY_ORDER,
 } from '@/utils/shopping';
 import type { ShoppingItem, ShoppingCategory } from '@/utils/shopping';
-import { t, pick } from '@/utils/i18n';
+import { pick } from '@/utils/i18n';
 
 function tap() {
   if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -55,11 +57,13 @@ export default function ShoppingScreen() {
     items,
     isActive,
     averageScore,
+    sessions,
     startSession,
     addManualFood,
     removeItem,
     toggleChecked,
   } = useShopping();
+  const { stats } = useScanHistory();
 
   const [showManualAdd, setShowManualAdd] = useState<boolean>(false);
   const [manualText, setManualText] = useState<string>('');
@@ -111,29 +115,47 @@ export default function ShoppingScreen() {
 
   // ── État initial : aucune session active ──
   if (!isActive) {
+    // Première visite : aucune session archivée → accueil d'origine.
+    if (sessions.length === 0) {
+      return (
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <View style={styles.welcomeBody}>
+            <View style={styles.welcomeAvatarStage}>
+              <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.welcomeAvatar} contentFit="contain" transition={200} />
+            </View>
+            <Text style={styles.welcomeTitle}>
+              {pick({ en: 'Ready for a healthier shop?', fr: 'Prêt à faire des courses plus saines ?', ko: '더 건강한 장보기 준비됐나요?' })}
+            </Text>
+            <Text style={styles.welcomeSubtitle}>
+              {pick({
+                en: 'Scan products as you shop to build a list with a live health score. Simple foods (vegetables, eggs, rice…) are added in one tap.',
+                fr: 'Scanne tes produits au fil des courses pour construire une liste avec un score santé en direct. Les aliments simples (légumes, œufs, riz…) s’ajoutent en un geste.',
+                ko: '장보는 동안 제품을 스캔해 실시간 건강 점수를 확인하세요. 채소, 달걀, 쌀 같은 간단한 식품은 한 번에 추가됩니다.',
+              })}
+            </Text>
+            <TouchableOpacity style={styles.welcomeButton} onPress={handleStart} activeOpacity={0.85} testID="shopping-start">
+              <ShoppingCart color="#FFFFFF" size={20} />
+              <Text style={styles.welcomeButtonText}>
+                {pick({ en: 'Start my shop', fr: 'Commencer mes courses', ko: '장보기 시작하기' })}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      );
+    }
+
+    // Sessions archivées : bilan (courbe + sessions + stats) puis nouveau départ.
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.welcomeBody}>
-          <View style={styles.welcomeAvatarStage}>
-            <Image source={{ uri: DR_TOXI_DEFAULT_AVATAR_URI }} style={styles.welcomeAvatar} contentFit="contain" transition={200} />
-          </View>
-          <Text style={styles.welcomeTitle}>
-            {pick({ en: 'Ready for a healthier shop?', fr: 'Prêt à faire des courses plus saines ?', ko: '더 건강한 장보기 준비됐나요?' })}
-          </Text>
-          <Text style={styles.welcomeSubtitle}>
-            {pick({
-              en: 'Scan products as you shop to build a list with a live health score. Simple foods (vegetables, eggs, rice…) are added in one tap.',
-              fr: 'Scanne tes produits au fil des courses pour construire une liste avec un score santé en direct. Les aliments simples (légumes, œufs, riz…) s’ajoutent en un geste.',
-              ko: '장보는 동안 제품을 스캔해 실시간 건강 점수를 확인하세요. 채소, 달걀, 쌀 같은 간단한 식품은 한 번에 추가됩니다.',
-            })}
-          </Text>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.insightsContent}>
+          <ShoppingInsights sessions={sessions} stats={stats} />
           <TouchableOpacity style={styles.welcomeButton} onPress={handleStart} activeOpacity={0.85} testID="shopping-start">
             <ShoppingCart color="#FFFFFF" size={20} />
             <Text style={styles.welcomeButtonText}>
               {pick({ en: 'Start my shop', fr: 'Commencer mes courses', ko: '장보기 시작하기' })}
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -371,6 +393,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   welcomeButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' as const, letterSpacing: -0.1 },
+  insightsContent: { paddingHorizontal: 20, paddingTop: 14, paddingBottom: 28 },
 
   // ── Session active ──
   header: {
