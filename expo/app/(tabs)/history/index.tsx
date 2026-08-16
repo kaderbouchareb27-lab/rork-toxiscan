@@ -29,6 +29,7 @@ import {
   toDrToxiImageSource,
 } from '@/constants/drToxiAvatars';
 import { useScanHistory, useFilteredHistory } from '@/providers/ScanHistoryProvider';
+import ScanStatsCard from '@/components/ScanStatsCard';
 import { useSubscription } from '@/providers/SubscriptionProvider';
 import { VerdictTier, ScannedProduct } from '@/types';
 import { t, getDateLocale } from '@/utils/i18n';
@@ -157,7 +158,7 @@ function HistorySkeleton() {
 
 export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { clearHistory, history, isLoading } = useScanHistory();
+  const { clearHistory, history, stats, isLoading } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
@@ -386,6 +387,7 @@ export default function HistoryScreen() {
           renderItem={renderProduct}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={<ScanStatsCard stats={stats} />}
           ListFooterComponent={renderFooter}
         />
       )}

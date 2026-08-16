@@ -18,7 +18,6 @@ import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import { useShopping } from '@/providers/ShoppingProvider';
-import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import ShoppingInsights from '@/components/ShoppingInsights';
 import {
   shoppingVerdictColor,
@@ -63,7 +62,6 @@ export default function ShoppingScreen() {
     removeItem,
     toggleChecked,
   } = useShopping();
-  const { stats } = useScanHistory();
 
   const [showManualAdd, setShowManualAdd] = useState<boolean>(false);
   const [manualText, setManualText] = useState<string>('');
@@ -148,7 +146,7 @@ export default function ShoppingScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.insightsContent}>
-          <ShoppingInsights sessions={sessions} stats={stats} />
+          <ShoppingInsights sessions={sessions} />
           <TouchableOpacity style={styles.welcomeButton} onPress={handleStart} activeOpacity={0.85} testID="shopping-start">
             <ShoppingCart color="#FFFFFF" size={20} />
             <Text style={styles.welcomeButtonText}>
