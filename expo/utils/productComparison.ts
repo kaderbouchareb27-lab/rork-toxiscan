@@ -18,7 +18,7 @@ import type { ToxiScoreLevel, ToxiIngredientLevel } from '@/utils/toxiScore';
 import { pick } from '@/utils/i18n';
 
 /** Verdict affiché sur la carte (même union que DrToxiVerdict). */
-export type CompareVerdictLevel = 'danger' | 'ultratoxic' | 'warning' | 'moderation' | 'approuve';
+export type CompareVerdictLevel = ToxiScoreLevel;
 
 /** Badge d'un ingrédient (même union que le produit). */
 export type CompareIngredientLevel = ToxiIngredientLevel;
@@ -116,7 +116,7 @@ function buildSide(p: ScannedProduct): ComparisonSide {
   return {
     product: p,
     verdictLevel,
-    toxiScore: computeToxiScore(verdictLevel as ToxiScoreLevel, ingredients),
+    toxiScore: computeToxiScore(verdictLevel, ingredients),
     ingredients,
     isCosmetic: p.productCategory === 'cosmetic',
     redOrangeCount,

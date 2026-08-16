@@ -66,7 +66,7 @@ const LEVEL_SEVERITY: Readonly<Record<ToxiScoreLevel, number>> = {
 };
 
 /** Minimal shape needed to score an ingredient (works for both stored ingredient types). */
-export interface ScorableIngredient {
+interface ScorableIngredient {
   readonly niveau_risque?: string | null;
   readonly classification_circ?: string | null;
 }

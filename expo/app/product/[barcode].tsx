@@ -43,10 +43,10 @@ import { getStoreRegion, getRegionSpecialtyStores, getRegionGroceryStores, getRe
 import { useLocation } from '@/providers/LocationProvider';
 import { t, isEnglish, isKorean, pick } from '@/utils/i18n';
 import { getDrToxiBadgeAvatarForVerdict, getDrToxiCosmeticAvatarForVerdict } from '@/constants/drToxiAvatars';
-import { isUltraToxicCirc } from '@/constants/ultraToxicIngredients';
+
 import { ingredientHazardDisplay } from '@/utils/hazardProfile';
 import type { Advisory } from '@/utils/badgeEngine';
-import { computeToxiScore } from '@/utils/toxiScore';
+import { computeToxiScore, ingredientLevel } from '@/utils/toxiScore';
 import type { DrToxiAvatarSource } from '@/constants/drToxiAvatars';
 
 // ─────────────────────────────────────────────
@@ -94,16 +94,9 @@ function nonFoodIntro(domain: 'household' | 'textile' | 'kitchen', rawLevel: Ver
   }
 }
 
+/** Badge d'un ingrédient — logique partagée avec utils/toxiScore.ts (source unique). */
 function getDisplayLevel(ing: { niveau_risque?: string | null; classification_circ?: string | null }): DisplayLevel {
-  // 🟥 The 9 banned ULTRA TOXIC additives are stamped with the dedicated circ sentinel and
-  // always show the bordeaux ULTRA TOXIC badge (checked before the generic risk mapping).
-  if (isUltraToxicCirc(ing.classification_circ)) return 'ultratoxic';
-  switch (ing.niveau_risque) {
-    case 'danger':   return 'danger';
-    case 'probable': return 'probable';
-    case 'possible': return 'possible';
-    default:         return 'aucun';
-  }
+  return ingredientLevel(ing);
 }
 
 function getLevelBadgeColor(level: DisplayLevel, domain: VerdictDomain = 'food'): string {
