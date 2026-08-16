@@ -3,20 +3,18 @@
 //
 // On compare deux produits déjà analysés (mêmes données que l'écran résultat :
 // badge, ToxiScore, liste d'ingrédients). La note et le gagnant sont 100 %
-// déterministes (computeToxiScore + règle d'égalité) ; seule la PHRASE de verdict
-// est générée par l'IA, avec un repli déterministe si l'IA échoue.
+// déterministes (computeToxiScore + règle d'égalité) ; le verdict (gagnant, scores
+// et noms de produits) est lui aussi 100 % déterministe — jamais généré par l'IA.
 //
 // Rappel sémantique (utils/toxiScore.ts) : le ToxiScore affiché est en fait un
 // score SANTÉ — plus haut = mieux. Vert 8-10, jaune 6-7, orange 4-5, rouge 0-3.
 // Le gagnant est donc celui qui a la note LA PLUS HAUTE.
 // ═══════════════════════════════════════════════════════════════════════
 
-import { z } from 'zod';
 import type { ScannedProduct, DetectedIngredient, SubstanceDetected } from '@/types';
 import { verdictTierFromProduct } from '@/utils/api';
 import { computeToxiScore, ingredientLevel } from '@/utils/toxiScore';
 import type { ToxiScoreLevel, ToxiIngredientLevel } from '@/utils/toxiScore';
-import { aiGenerateObject } from '@/utils/aiApi';
 import { pick } from '@/utils/i18n';
 
 /** Verdict affiché sur la carte (même union que DrToxiVerdict). */
@@ -60,17 +58,6 @@ function severityRank(level: CompareIngredientLevel): number {
 /** « Rouge/orange » = cancérigène, ultra toxique ou transformé. */
 function isRedOrange(level: CompareIngredientLevel): boolean {
   return level === 'danger' || level === 'ultratoxic' || level === 'probable';
-}
-
-/** Badge anglais court pour le prompt IA (jamais montré à l'utilisateur). */
-function englishBadge(level: CompareIngredientLevel): string {
-  switch (level) {
-    case 'danger': return 'CARCINOGENIC';
-    case 'ultratoxic': return 'ULTRA TOXIC';
-    case 'probable': return 'PROCESSED';
-    case 'possible': return 'OCCASIONAL';
-    default: return 'APPROVED';
-  }
 }
 
 /** Normalisation souple pour comparer deux noms d'ingrédients. */
@@ -249,66 +236,4 @@ export function deterministicVerdict(
         : `"${winnerName}"이 더 좋아요 (${winScore}/10 vs ${loseScore}/10).`,
     }),
   };
-}
-
-const ComparisonVerdictSchema = z.object({
-  gagnant: z.enum(['A', 'B', 'égalité']),
-  verdict: z.string(),
-});
-
-/** Liste « badge: nom » des ingrédients problématiques, du pire au moins grave. */
-function problematicList(p: ScannedProduct): string {
-  const flagged = productIngredients(p)
-    .filter((ing) => ingredientLevel(ing) !== 'aucun')
-    .sort((a, b) => severityRank(ingredientLevel(a)) - severityRank(ingredientLevel(b)));
-  return flagged
-    .map((ing) => `${englishBadge(ingredientLevel(ing))}: ${ing.nom}`)
-    .join(', ');
-}
-
-/**
- * Verdict Dr. Toxi : la phrase est générée par l'IA (ton direct, gagnant nommé,
- * différences concrètes). Le gagnant reste DÉTERMINISTE (la note ne doit jamais
- * être contredite par l'IA) ; en cas d'échec, on garde le verdict déterministe.
- */
-export async function generateComparisonVerdict(
-  a: ScannedProduct,
-  b: ScannedProduct,
-  comparison: ComparisonResult,
-): Promise<ComparisonVerdict> {
-  const fallback = deterministicVerdict(a, b, comparison);
-  try {
-    const language = pick({ en: 'English', fr: 'French', ko: 'Korean' });
-    const result = await aiGenerateObject({
-      system:
-        'You are Dr. Toxi, the mascot ingredient-analysis expert of the ToxiScan app. ' +
-        'Compare two products and write a short, actionable verdict. Rules: ' +
-        'answer in 1 to 2 sentences maximum, direct and simple tone; ' +
-        'name the winning product explicitly in the first sentence; ' +
-        'cite 1 to 2 CONCRETE, named differences (e.g. "the Red 40 colorant", "2x more sugar"), never just "fewer additives" without naming them; ' +
-        'if the score gap is under 1 point AND no Ultra toxic/Processed ingredient differs, say there is no real difference and either choice is fine; ' +
-        'no scientific jargon, no sentence longer than 20 words. ' +
-        'Write the verdict sentence in ' + language + '.',
-      messages: [
-        {
-          role: 'user',
-          content:
-            `Produit A : ${a.name}, ToxiScore ${comparison.scoreA}/10, ingrédients problématiques : ${problematicList(a) || 'aucun'}\n` +
-            `Produit B : ${b.name}, ToxiScore ${comparison.scoreB}/10, ingrédients problématiques : ${problematicList(b) || 'aucun'}`,
-        },
-      ],
-      schema: ComparisonVerdictSchema,
-      maxTokens: 160,
-    });
-
-    const verdict = (result.verdict ?? '').trim();
-    if (!verdict) return fallback;
-
-    // La note/gagnant est déterministe : on garde le gagnant calculé, et on
-    // n'utilise de l'IA que la phrase (qui, elle, peut être plus naturelle).
-    return { winner: fallback.winner, verdict };
-  } catch (err) {
-    console.warn('[compare] AI verdict failed — deterministic fallback kept:', err instanceof Error ? err.message : String(err));
-    return fallback;
-  }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,6 @@ import { getCategoryLabel } from '@/utils/api';
 import {
   computeComparison,
   deterministicVerdict,
-  generateComparisonVerdict,
   type CompareVerdictLevel,
   type CompareIngredientLevel,
   type ComparisonSide,
@@ -209,20 +208,9 @@ export default function CompareScreen() {
     [productA, productB, comparison],
   );
 
-  // La phrase IA n'est demandée qu'UNE fois, quand les deux produits sont prêts.
-  const [aiVerdictText, setAiVerdictText] = useState<string | null>(null);
-  const aiFiredRef = useRef<boolean>(false);
   const bothReady = productA && productB
     && productA.analysisPending !== true
     && productB.analysisPending !== true;
-
-  useEffect(() => {
-    if (!bothReady || !comparison || aiFiredRef.current) return;
-    aiFiredRef.current = true;
-    generateComparisonVerdict(productA, productB, comparison)
-      .then((v) => setAiVerdictText(v.verdict))
-      .catch(() => {});
-  }, [bothReady, comparison, productA, productB]);
 
   if (!productA || !productB || !comparison) {
     return (
@@ -250,7 +238,7 @@ export default function CompareScreen() {
     );
   }
 
-  const verdictText = aiVerdictText ?? fallbackVerdict?.verdict ?? '';
+  const verdictText = fallbackVerdict?.verdict ?? '';
   const winner = fallbackVerdict?.winner ?? 'tie';
   const winnerAvatarLevel: CompareVerdictLevel = winner === 'A'
     ? comparison.sideA.verdictLevel
