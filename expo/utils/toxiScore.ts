@@ -6,15 +6,18 @@
 // lui-même dérivé du badge le plus sévère), donc la note et le verdict ne
 // peuvent JAMAIS se contredire.
 //
-//   🔴 Cancérigène  → 0-1
-//   🟥 Ultra toxique → 2-3
-//   🟠 Transformé    → 4-5
-//   🟡 Occasionnel   → 6-7
-//   🟢 Approuvé      → 8-10
+//   🔴 Cancérigène  → 0.0 - 1.9
+//   🟥 Ultra toxique → 2.0 - 3.9
+//   🟠 Transformé    → 4.0 - 5.9
+//   🟡 Occasionnel   → 6.0 - 7.9
+//   🟢 Approuvé      → 8.0 - 10.0
 //
-// À l'intérieur de la tranche, la PROPORTION d'ingrédients « propres »
-// (Approuvé + Occasionnel) sur le total donne le chiffre exact : beaucoup de
-// propres → haut de la tranche, beaucoup de problématiques → bas de la tranche.
+// À l'intérieur de la tranche, la SÉVÉRITÉ PONDÉRÉE des ingrédients donne la
+// décimale exacte : deux produits « Occasionnel » — l'un avec 2 ingrédients
+// discutables, l'autre avec 8 — ne reçoivent plus la même note. Chaque badge
+// d'ingrédient pèse : Approuvé 0, Occasionnel 1, Transformé 2, Ultra toxique 3,
+// Cancérigène 4. La sévérité cumulée, ramenée à la sévérité du pire badge,
+// positionne la note entre le bas et le haut de la tranche (1 décimale).
 //
 // La note /10 existe UNIQUEMENT au niveau du PRODUIT (carte de verdict en haut).
 // Les ingrédients de la liste n'affichent que leur badge de couleur, sans chiffre.
@@ -37,11 +40,29 @@ interface ScoreBand {
 
 /** Score band per verdict level — the worst ingredient decides which band applies. */
 const SCORE_BANDS: Readonly<Record<ToxiScoreLevel, ScoreBand>> = {
-  danger: { min: 0, max: 1 },
-  ultratoxic: { min: 2, max: 3 },
-  warning: { min: 4, max: 5 },
-  moderation: { min: 6, max: 7 },
+  danger: { min: 0, max: 1.9 },
+  ultratoxic: { min: 2, max: 3.9 },
+  warning: { min: 4, max: 5.9 },
+  moderation: { min: 6, max: 7.9 },
   approuve: { min: 8, max: 10 },
+};
+
+/** Severity of each ingredient badge (higher = worse). */
+const SEVERITY: Readonly<Record<ToxiIngredientLevel, number>> = {
+  danger: 4,
+  ultratoxic: 3,
+  probable: 2,
+  possible: 1,
+  aucun: 0,
+};
+
+/** Severity of the "worst" badge that fixes the band (danger=4 … approuve=0). */
+const LEVEL_SEVERITY: Readonly<Record<ToxiScoreLevel, number>> = {
+  danger: 4,
+  ultratoxic: 3,
+  warning: 2,
+  moderation: 1,
+  approuve: 0,
 };
 
 /** Minimal shape needed to score an ingredient (works for both stored ingredient types). */
@@ -64,15 +85,9 @@ export function ingredientLevel(ing: ScorableIngredient): ToxiIngredientLevel {
   }
 }
 
-/** An ingredient counts as "clean" when it is Approved (green) or Occasional (yellow). */
-function isCleanLevel(level: ToxiIngredientLevel): boolean {
-  return level === 'aucun' || level === 'possible';
-}
-
-/** Places a 0→1 clean ratio inside a band (0 = bottom of the band, 1 = top). */
-function scoreInBand(band: ScoreBand, cleanRatio: number): number {
-  const clamped = Math.min(1, Math.max(0, cleanRatio));
-  return band.min + Math.round(clamped * (band.max - band.min));
+/** Rounds to 1 decimal — the granularity displayed by the ToxiScore. */
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
 }
 
 /**
@@ -84,7 +99,22 @@ function scoreInBand(band: ScoreBand, cleanRatio: number): number {
 export function computeToxiScore(level: ToxiScoreLevel, ingredients: readonly ScorableIngredient[]): number {
   const band = SCORE_BANDS[level];
   const total = ingredients.length;
-  if (total === 0) return scoreInBand(band, 0.5);
-  const cleanCount = ingredients.filter((ing) => isCleanLevel(ingredientLevel(ing))).length;
-  return scoreInBand(band, cleanCount / total);
+  if (total === 0) return round1(band.min + (band.max - band.min) / 2);
+
+  // `approuve` has a nominal severity of 0, but can still carry a couple of
+  // "possible" (Occasional) ingredients that should nudge the note below 10.
+  const worstSeverity = Math.max(1, LEVEL_SEVERITY[level]);
+
+  let severitySum = 0;
+  for (const ing of ingredients) {
+    severitySum += SEVERITY[ingredientLevel(ing)];
+  }
+
+  // badness ∈ [0, 1] : 0 = all clean, 1 = every ingredient at the worst level.
+  // Each ingredient is normalised against the band's worst severity, so a
+  // "possible" (1) counts half as much as a "probable" (2), etc.
+  const badness = Math.min(1, severitySum / (total * worstSeverity));
+  const purity = 1 - badness;
+
+  return round1(band.min + (band.max - band.min) * purity);
 }
