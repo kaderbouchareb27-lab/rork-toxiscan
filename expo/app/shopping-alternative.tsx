@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Leaf, CheckCircle, Store } from 'lucide-react-native';
+import { ChevronLeft, Leaf, CheckCircle, Store, Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
@@ -30,6 +30,10 @@ function tap() {
  * Deux modes :
  *  - add     : depuis la décision de scan — choisir une alternative l'AJOUTE (jamais le produit original).
  *  - replace : depuis le bilan — choisir une alternative REMPLACE l'item dans la liste.
+ *
+ * Choisir une carte ouvre une étape de validation (« je sais qu'elle est dans
+ * mon magasin ») : c'est le « Oui, ajouter » qui ajoute/remplace, jamais un
+ * simple tap sur la carte.
  */
 export default function ShoppingAlternativeScreen() {
   const { mode, barcode, itemId } = useLocalSearchParams<{ mode?: string; barcode?: string; itemId?: string }>();
@@ -44,6 +48,7 @@ export default function ShoppingAlternativeScreen() {
 
   const [real, setReal] = useState<HealthyAlternative[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedAlt, setSelectedAlt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!product) { setLoading(false); return; }
@@ -82,15 +87,23 @@ export default function ShoppingAlternativeScreen() {
 
   const options = real.length > 0 ? real : deterministic;
 
-  const handlePick = (name: string) => {
+  const selectAlt = (name: string) => {
+    tap();
+    setSelectedAlt((current) => (current === name ? null : name));
+  };
+
+  /** Valide le choix (« je sais qu'elle est dans mon magasin ») puis ajoute ou remplace. */
+  const confirmPick = (name: string) => {
     tap();
     if (mode === 'replace' && itemId) {
       replaceItem(itemId, name);
-      router.back();
     } else {
       addAlternative(name);
-      router.back();
     }
+    if (Platform.OS !== 'web') {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    router.back();
   };
 
   if (!product) {
@@ -129,9 +142,13 @@ export default function ShoppingAlternativeScreen() {
         <View style={styles.introCard}>
           <Leaf color={Colors.safe} size={20} />
           <Text style={styles.introText}>
-            {pick({ en: 'Replace', fr: 'Remplacer', ko: '교체 대상' })}{' '}
+            {mode === 'replace' && itemId
+              ? pick({ en: 'Replace', fr: 'Remplacer', ko: '교체 대상' })
+              : pick({ en: 'Instead of', fr: 'Au lieu de', ko: '대신' })}{' '}
             <Text style={styles.introName}>« {product.name} »</Text>{' '}
-            {pick({ en: 'with one of these cleaner options.', fr: 'par l’une de ces options plus saines.', ko: '이 더 건강한 옵션 중 하나로 교체하세요.' })}
+            {mode === 'replace' && itemId
+              ? pick({ en: 'with one of these cleaner options.', fr: 'par l’une de ces options plus saines.', ko: '이 더 건강한 옵션 중 하나로 교체하세요.' })
+              : pick({ en: 'choose one of these cleaner options.', fr: 'choisis l’une de ces options plus saines.', ko: '이 더 건강한 옵션 중 하나를 선택하세요.' })}
           </Text>
         </View>
 
@@ -146,32 +163,78 @@ export default function ShoppingAlternativeScreen() {
 
         {options.length > 0 ? (
           <View style={styles.optionsList}>
-            {options.map((alt, index) => (
-              <TouchableOpacity
-                key={`alt-${index}`}
-                style={styles.optionCard}
-                onPress={() => handlePick(alt.nom)}
-                activeOpacity={0.85}
-                testID={`shopping-alt-${index}`}
-              >
-                <View style={styles.optionIcon}>
-                  <CheckCircle color={Colors.safe} size={20} />
-                </View>
-                <View style={styles.optionInfo}>
-                  <Text style={styles.optionName}>{alt.nom}</Text>
-                  {alt.raison ? <Text style={styles.optionReason} numberOfLines={2}>{alt.raison}</Text> : null}
-                  {alt.magasin ? (
-                    <View style={styles.optionStore}>
-                      <Store color={Colors.primary} size={12} />
-                      <Text style={styles.optionStoreText}>{alt.magasin}</Text>
+            {options.map((alt, index) => {
+              const isSelected = selectedAlt === alt.nom;
+              return (
+                <TouchableOpacity
+                  key={`alt-${index}`}
+                  style={[styles.optionCard, isSelected && styles.optionCardSelected]}
+                  onPress={() => selectAlt(alt.nom)}
+                  activeOpacity={0.85}
+                  testID={`shopping-alt-${index}`}
+                >
+                  <View style={styles.optionRow}>
+                    <View style={styles.optionIcon}>
+                      <CheckCircle color={Colors.safe} size={20} />
+                    </View>
+                    <View style={styles.optionInfo}>
+                      <Text style={styles.optionName}>{alt.nom}</Text>
+                      {alt.raison ? <Text style={styles.optionReason} numberOfLines={2}>{alt.raison}</Text> : null}
+                      {alt.magasin ? (
+                        <View style={styles.optionStore}>
+                          <Store color={Colors.primary} size={12} />
+                          <Text style={styles.optionStoreText}>{alt.magasin}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    {isSelected ? (
+                      <View style={styles.selectedBadge}>
+                        <Check color={Colors.primary} size={15} strokeWidth={3.2} />
+                      </View>
+                    ) : (
+                      <Text style={styles.optionAdd}>
+                        {pick({ en: 'Choose', fr: 'Choisir', ko: '선택' })}
+                      </Text>
+                    )}
+                  </View>
+                  {isSelected ? (
+                    <View style={styles.confirmPanel}>
+                      <Text style={styles.confirmText}>
+                        {pick({
+                          en: 'Do you know it’s available in your store?',
+                          fr: 'Sais-tu qu’elle est disponible dans ton magasin ?',
+                          ko: '매장에서 구할 수 있다는 걸 확인했나요?',
+                        })}
+                      </Text>
+                      <View style={styles.confirmRow}>
+                        <TouchableOpacity
+                          style={styles.confirmYesButton}
+                          onPress={() => confirmPick(alt.nom)}
+                          activeOpacity={0.85}
+                          testID={`shopping-alt-confirm-${index}`}
+                        >
+                          <Check color="#FFFFFF" size={15} strokeWidth={3.2} />
+                          <Text style={styles.confirmYesText}>
+                            {mode === 'replace' && itemId
+                              ? pick({ en: 'Yes, replace in my list', fr: 'Oui, remplacer dans ma liste', ko: '네, 목록에서 교체' })
+                              : pick({ en: 'Yes, add to my list', fr: 'Oui, ajouter à ma liste', ko: '네, 목록에 추가' })}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.confirmNoButton}
+                          onPress={() => { tap(); setSelectedAlt(null); }}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={styles.confirmNoText}>
+                            {pick({ en: 'Cancel', fr: 'Annuler', ko: '취소' })}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   ) : null}
-                </View>
-                <Text style={styles.optionAdd}>
-                  {pick({ en: 'Choose', fr: 'Choisir', ko: '선택' })}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         ) : (
           !loading ? (
@@ -246,9 +309,6 @@ const styles = StyleSheet.create({
   loadingText: { color: Colors.textSecondary, fontSize: 14, fontWeight: '600' as const },
   optionsList: { gap: 12 },
   optionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
     backgroundColor: Colors.surface,
     borderRadius: 20,
     padding: 15,
@@ -260,6 +320,53 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
   },
+  optionCardSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: '#FBFFF9',
+  },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  selectedBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.primaryBorder,
+  },
+  confirmPanel: {
+    marginTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+    paddingTop: 13,
+  },
+  confirmText: { fontSize: 13.5, fontWeight: '700' as const, color: Colors.text, marginBottom: 10 },
+  confirmRow: { flexDirection: 'row', gap: 10 },
+  confirmYesButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: Colors.primary,
+    borderRadius: 14,
+    paddingVertical: 12,
+  },
+  confirmYesText: { color: '#FFFFFF', fontSize: 13.5, fontWeight: '800' as const },
+  confirmNoButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  confirmNoText: { color: Colors.textSecondary, fontSize: 13.5, fontWeight: '700' as const },
   optionIcon: {
     width: 40,
     height: 40,
