@@ -142,9 +142,14 @@ export default function ShoppingScreen() {
       );
     }
 
-    // Sessions archivées : bilan (courbe + sessions + stats) puis nouveau départ.
+    // Sessions archivées : bilan (courbe + sessions) puis nouveau départ.
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>
+            {pick({ en: 'Shopping mode', fr: 'Mode courses', ko: '장보기 모드' })}
+          </Text>
+        </View>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.insightsContent}>
           <ShoppingInsights sessions={sessions} />
           <TouchableOpacity style={styles.welcomeButton} onPress={handleStart} activeOpacity={0.85} testID="shopping-start">

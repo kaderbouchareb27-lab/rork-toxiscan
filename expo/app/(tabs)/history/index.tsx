@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  TextInput,
   Platform,
   Alert,
   Animated,
@@ -20,6 +21,8 @@ import {
   Lock,
   Heart,
   ChevronRight,
+  Search,
+  X,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -156,14 +159,53 @@ function HistorySkeleton() {
   );
 }
 
+// Message compact affiché sous la carte Statistiques quand la liste filtrée est vide.
+function HistoryListEmpty({ isSearch, filter }: { isSearch: boolean; filter: FilterType }) {
+  const title = isSearch
+    ? t('history_search_empty')
+    : filter === 'favorites'
+      ? t('no_favorites')
+      : t('history_filter_empty');
+  const subtitle = isSearch
+    ? t('history_search_empty_hint')
+    : filter === 'favorites'
+      ? t('add_favorites_hint')
+      : t('history_filter_empty_hint');
+  return (
+    <View style={styles.inlineEmpty}>
+      <Text style={styles.inlineEmptyTitle}>{title}</Text>
+      <Text style={styles.inlineEmptySub}>{subtitle}</Text>
+    </View>
+  );
+}
+
 export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { clearHistory, history, stats, isLoading } = useScanHistory();
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
   const totalHistoryCount = history.length;
   const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
+
+  const searchedHistory = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return filteredHistory;
+    return filteredHistory.filter((p) => {
+      const name = (p.name ?? '').toLowerCase();
+      const brand = (p.brand ?? '').toLowerCase();
+      const displayBrand = getDisplayBrand(p.brand, p.productCategory).toLowerCase();
+      return name.includes(q) || brand.includes(q) || displayBrand.includes(q);
+    });
+  }, [filteredHistory, searchQuery]);
+
+  const handleSelectTier = useCallback((tier: VerdictTier) => {
+    if (Platform.OS !== 'web') {
+      void Haptics.selectionAsync();
+    }
+    setActiveFilter((prev) => (prev === tier ? 'all' : tier));
+  }, []);
 
   const handleProductPress = useCallback((barcode: string) => {
     console.log('[History] Opening product:', barcode);
@@ -314,6 +356,33 @@ export default function HistoryScreen() {
         )}
       </View>
 
+      {!isLoading && history.length > 0 && (
+        <View style={styles.searchWrap}>
+          <Search color={Colors.textTertiary} size={17} strokeWidth={2.2} />
+          <TextInput
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('history_search_placeholder')}
+            placeholderTextColor={Colors.textTertiary}
+            returnKeyType="search"
+            autoCorrect={false}
+            testID="history-search-input"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery('')}
+              hitSlop={8}
+              style={styles.searchClear}
+              testID="history-search-clear"
+              accessibilityLabel={t('clear')}
+            >
+              <X color={Colors.textTertiary} size={15} strokeWidth={2.4} />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
       <View style={styles.filtersContainer}>
         <FlatList
           horizontal
@@ -363,7 +432,7 @@ export default function HistoryScreen() {
 
       {isLoading ? (
         <HistorySkeleton />
-      ) : filteredHistory.length === 0 ? (
+      ) : history.length === 0 ? (
         <View style={styles.emptyState}>
           <LinearGradient
             colors={['#FFFFFF', '#ECF9EE'] as const}
@@ -382,12 +451,22 @@ export default function HistoryScreen() {
         </View>
       ) : (
         <FlatList
-          data={filteredHistory}
+          data={searchedHistory}
           keyExtractor={(item) => item.barcode}
           renderItem={renderProduct}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={<ScanStatsCard stats={stats} />}
+          keyboardShouldPersistTaps="handled"
+          ListHeaderComponent={
+            <ScanStatsCard
+              stats={stats}
+              activeTier={activeFilter !== 'all' && activeFilter !== 'favorites' ? activeFilter : null}
+              onSelectTier={handleSelectTier}
+            />
+          }
+          ListEmptyComponent={
+            <HistoryListEmpty isSearch={searchQuery.trim().length > 0} filter={activeFilter} />
+          }
           ListFooterComponent={renderFooter}
         />
       )}
@@ -441,6 +520,59 @@ const styles = StyleSheet.create({
   },
   filtersContainer: {
     paddingVertical: 14,
+  },
+  searchWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 20,
+    marginTop: 2,
+    paddingHorizontal: 14,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderWidth: 1.5,
+    borderColor: Colors.borderLight,
+    minHeight: 44,
+    shadowColor: '#0E2011',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 1,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.text,
+    paddingVertical: 10,
+    fontWeight: '600' as const,
+  },
+  searchClear: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#F0F3EC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inlineEmpty: {
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 40,
+    paddingHorizontal: 30,
+  },
+  inlineEmptyTitle: {
+    fontSize: 17,
+    fontWeight: '900' as const,
+    color: Colors.text,
+    letterSpacing: -0.2,
+    textAlign: 'center',
+  },
+  inlineEmptySub: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 19,
+    fontWeight: '700' as const,
   },
   filtersList: {
     paddingHorizontal: 20,
