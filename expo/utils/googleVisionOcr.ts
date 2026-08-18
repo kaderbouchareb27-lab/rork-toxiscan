@@ -54,11 +54,19 @@ export async function runGoogleVisionOcr(imageBase64: string): Promise<GoogleVis
   const url = `${GOOGLE_VISION_URL}?key=${encodeURIComponent(apiKey)}`;
   let res: Response;
   try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    // Timeout de sécurité : un réseau qui traîne ne doit jamais bloquer le scan.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch (networkError) {
     const msg = networkError instanceof Error ? networkError.message : String(networkError);
     console.error('[GoogleVision] Network error:', msg);

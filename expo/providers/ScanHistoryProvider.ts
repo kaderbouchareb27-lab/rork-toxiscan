@@ -100,7 +100,8 @@ export const [ScanHistoryProvider, useScanHistory] = createContextHook(() => {
   }), [history, favorites, addProduct, updateProduct, toggleFavorite, clearHistory, stats, historyQuery.isLoading]);
 });
 
-const FREE_HISTORY_LIMIT = 3;
+// L'historique complet est visible pour tous : les scans en mode courses y sont
+// enregistrés au même titre que les scans du menu accueil.
 
 export function useFilteredHistory(filter: VerdictTier | 'all' | 'favorites', isPro: boolean) {
   const { history, favorites } = useScanHistory();
@@ -108,8 +109,7 @@ export function useFilteredHistory(filter: VerdictTier | 'all' | 'favorites', is
     if (filter === 'favorites') {
       return isPro ? favorites : [];
     }
-    const source = isPro ? history : history.slice(0, FREE_HISTORY_LIMIT);
-    if (filter === 'all') return source;
-    return source.filter(p => verdictTierFromProduct(p) === filter);
+    if (filter === 'all') return history;
+    return history.filter(p => verdictTierFromProduct(p) === filter);
   }, [history, favorites, filter, isPro]);
 }

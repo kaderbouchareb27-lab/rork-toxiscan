@@ -32,8 +32,6 @@ if (Platform.OS !== 'web') {
 const FREE_DRTOXI_LIMIT = 3; // lifetime chat messages
 const FREE_MEAL_SCAN_PER_DAY = 2; // meal scans per local day (resets daily)
 const FREE_PRODUCT_SCAN_PER_DAY = 2; // product scans per local day (resets daily)
-// Keep the 2 free daily scans viewable in history for free (matches the daily scan allowance).
-const FREE_HISTORY_LIMIT = 2;
 const ENTITLEMENT_ID = 'toxiscan_pro';
 
 function getDefaultUsage(): LifetimeUsage {
@@ -347,7 +345,6 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     currentOffering,
     purchaseInProgress: purchaseMutation.isPending,
     restoreInProgress: restoreMutation.isPending,
-    freeHistoryLimit: FREE_HISTORY_LIMIT,
     isLoading: customerInfoQuery.isLoading || usageQuery.isLoading,
     offeringsLoading: offeringsQuery.isLoading,
     offeringsError: offeringsQuery.isError,

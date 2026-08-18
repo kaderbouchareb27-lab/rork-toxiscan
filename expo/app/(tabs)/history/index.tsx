@@ -186,9 +186,6 @@ export default function HistoryScreen() {
   const { isPro } = useSubscription();
   const filteredHistory = useFilteredHistory(activeFilter, isPro);
 
-  const totalHistoryCount = history.length;
-  const showPremiumUpsell = !isPro && totalHistoryCount > 3 && activeFilter !== 'favorites';
-
   const searchedHistory = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return filteredHistory;
@@ -316,32 +313,6 @@ export default function HistoryScreen() {
     );
   }, [handleProductPress]);
 
-  const renderFooter = useCallback(() => {
-    if (!showPremiumUpsell) return null;
-    return (
-      <LinearGradient
-        colors={['#F1FFF2', '#FFFFFF'] as const}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.premiumUpsellCard}
-      >
-        <View style={styles.premiumUpsellIcon}>
-          <Lock color={Colors.primary} size={22} />
-        </View>
-        <Text style={styles.premiumUpsellTitle}>{t('full_history')}</Text>
-        <Text style={styles.premiumUpsellText}>{t('full_history_desc')}</Text>
-        <TouchableOpacity
-          style={styles.premiumUpsellButton}
-          onPress={() => router.push('/paywall?source=history')}
-          activeOpacity={0.85}
-          testID="history-unlock"
-        >
-          <Text style={styles.premiumUpsellButtonText}>{t('see_offers')}</Text>
-        </TouchableOpacity>
-      </LinearGradient>
-    );
-  }, [showPremiumUpsell]);
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -423,13 +394,6 @@ export default function HistoryScreen() {
         />
       </View>
 
-      {!isPro && activeFilter === 'all' && (
-        <View style={styles.historyInfoBanner}>
-          <Lock color={Colors.primary} size={14} strokeWidth={2.4} />
-          <Text style={styles.historyInfoText}>{t('history_limit_banner')}</Text>
-        </View>
-      )}
-
       {isLoading ? (
         <HistorySkeleton />
       ) : history.length === 0 ? (
@@ -467,7 +431,6 @@ export default function HistoryScreen() {
           ListEmptyComponent={
             <HistoryListEmpty isSearch={searchQuery.trim().length > 0} filter={activeFilter} />
           }
-          ListFooterComponent={renderFooter}
         />
       )}
     </SafeAreaView>
@@ -609,27 +572,6 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: Colors.white,
-  },
-  historyInfoBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(46, 158, 52, 0.10)',
-    marginHorizontal: 20,
-    borderRadius: 18,
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(46, 158, 52, 0.20)',
-  },
-  historyInfoText: {
-    flexShrink: 1,
-    fontSize: 12,
-    color: Colors.primary,
-    textAlign: 'center',
-    fontWeight: '900' as const,
   },
   listContent: {
     paddingHorizontal: 20,
@@ -822,58 +764,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     fontWeight: '700' as const,
-  },
-  premiumUpsellCard: {
-    marginTop: 12,
-    borderRadius: 26,
-    padding: 24,
-    alignItems: 'center',
-    gap: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 22,
-    elevation: 4,
-    borderWidth: 1.5,
-    borderColor: 'rgba(46, 158, 52, 0.22)',
-  },
-  premiumUpsellIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: 'rgba(46, 158, 52, 0.12)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  premiumUpsellTitle: {
-    fontSize: 18,
-    fontWeight: '900' as const,
-    color: Colors.text,
-    letterSpacing: -0.2,
-  },
-  premiumUpsellText: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-    fontWeight: '700' as const,
-  },
-  premiumUpsellButton: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 13,
-    paddingHorizontal: 32,
-    borderRadius: 17,
-    marginTop: 4,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  premiumUpsellButtonText: {
-    fontSize: 15,
-    fontWeight: '900' as const,
-    color: Colors.white,
   },
 });

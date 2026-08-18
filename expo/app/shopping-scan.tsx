@@ -22,7 +22,6 @@ import type { ScannedProduct, UniversalAnalysisResult } from '@/types';
 import { compressImageWeb, compressImageNative } from '@/utils/imageCompression';
 import { useScanHistory } from '@/providers/ScanHistoryProvider';
 import { useBadges } from '@/providers/BadgesProvider';
-import { useSubscription } from '@/providers/SubscriptionProvider';
 import { t, pick } from '@/utils/i18n';
 import { DR_TOXI_DEFAULT_AVATAR_URI } from '@/constants/drToxiAvatars';
 import Colors from '@/constants/colors';
@@ -35,7 +34,6 @@ import Colors from '@/constants/colors';
 export default function ShoppingScanScreen() {
   const { addProduct, updateProduct } = useScanHistory();
   const { recordScan } = useBadges();
-  const { canScan, consumeScan } = useSubscription();
 
   const photoMutation = useMutation({
     mutationFn: async (imageUri: string) => {
@@ -91,7 +89,6 @@ export default function ShoppingScanScreen() {
     },
     onSuccess: ({ product, base64, imageUri, ocrData, cacheKey, imageFingerprint, instantResult, needsEnrich, awaitingFirstVerdict }) => {
       addProduct(product);
-      consumeScan();
       recordScan(product.riskGroup === 'none');
       if (Platform.OS !== 'web') {
         void Haptics.notificationAsync(
@@ -209,12 +206,9 @@ export default function ShoppingScanScreen() {
 
   const handleScan = useCallback(() => {
     if (Platform.OS !== 'web') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (!canScan) {
-      router.push('/paywall?source=product');
-      return;
-    }
+    // Le scan en mode courses est libre : c'est le cœur du parcours en rayon.
     void requestCameraAndProceed();
-  }, [canScan, requestCameraAndProceed]);
+  }, [requestCameraAndProceed]);
 
   const isLoading = photoMutation.isPending;
 
